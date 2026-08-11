@@ -9,9 +9,9 @@ echo "🚀 Starting all 0things services..."
 echo ""
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_DIR="$PROJECT_DIR/0things-backend"
+BACKEND_DIR="$PROJECT_DIR/aiot-backend"
 TELEMETRY_SERVICE_DIR="$PROJECT_DIR/telemetry-service"
-FRONTEND_DIR="$PROJECT_DIR/0things-management-ui"
+FRONTEND_DIR="$PROJECT_DIR/aiot-frontend"
 
 # Colors for output
 RED='\033[0;31m'

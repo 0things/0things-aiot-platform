@@ -1,8 +1,5 @@
 # Workspace tooling and runtime logs
-**/.agents/
-**/.claude/
-**/.opencode/
-**/.service-logs/
+/.service-logs/
 
 # Dependencies and generated frontend output
 **/node_modules/
