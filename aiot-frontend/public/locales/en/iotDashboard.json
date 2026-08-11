@@ -1,0 +1,75 @@
+{
+  "title": "Fleet overview",
+  "description": "8 products across 5 regions · managing 13,728 devices",
+  "eyebrow": "IoT · Operations",
+  "actions": {
+    "export": "Export",
+    "refresh": "Refresh",
+    "viewAll": "View all"
+  },
+  "timeRange": {
+    "1h": "1h",
+    "24h": "24h",
+    "7d": "7d",
+    "30d": "30d"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "devices": "Devices",
+    "analytics": "Analytics"
+  },
+  "topNav": {
+    "overview": "Overview",
+    "devices": "Devices",
+    "analytics": "Analytics"
+  },
+  "placeholders": {
+    "devicesTitle": "Device Overview",
+    "devicesDescription": "Connected devices and their status",
+    "devicesBody": "Device management interface will be implemented here",
+    "analyticsTitle": "Analytics Dashboard",
+    "analyticsDescription": "IoT system analytics and metrics",
+    "analyticsBody": "Analytics interface will be implemented here"
+  },
+  "kpis": {
+    "totalDevices": "Total Devices",
+    "onlineNow": "Online Now",
+    "activeAlerts": "Active Alerts",
+    "messagesPerSec": "Messages / sec"
+  },
+  "fleet": {
+    "title": "Fleet status",
+    "description": "Current device connection breakdown",
+    "online": "Online",
+    "idle": "Idle",
+    "degraded": "Degraded",
+    "offline": "Offline",
+    "p99Latency": "P99 latency",
+    "avgBattery": "Avg. battery"
+  },
+  "throughput": {
+    "title": "Message throughput",
+    "description": "Messages ingested from all online devices",
+    "live": "Live"
+  },
+  "products": {
+    "title": "Product health",
+    "description": "Online rate per product line",
+    "devices": "{{count}} devices"
+  },
+  "regions": {
+    "title": "Regional presence",
+    "description": "Device count and health per region",
+    "healthy": "healthy"
+  },
+  "events": {
+    "title": "Recent events",
+    "description": "Latest activity across the fleet"
+  },
+  "status": {
+    "healthy": "Healthy",
+    "warning": "Warning",
+    "critical": "Critical",
+    "info": "Info"
+  }
+}

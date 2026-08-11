@@ -316,16 +316,42 @@
       }
     },
     "deviceDevelopment": {
+      "title": "Device development flow",
+      "currentStep": "Step {{step}}",
       "steps": {
         "register": "Device Registration",
         "access": "Device Access",
         "verify": "Connection Verification",
         "production": "Device Production"
       },
+      "stepHints": {
+        "register": "Create device credentials",
+        "access": "Integrate SDK and configure",
+        "verify": "Confirm the device is online",
+        "production": "Deploy devices at scale"
+      },
+      "guide": {
+        "title": "Development guide",
+        "register": "Start by creating your first test device. The platform generates a unique credential for each device, which is needed during access.",
+        "access": "Choose an SDK that fits your device stack, download the sample, and configure the device credentials.",
+        "verify": "Run the device program, then confirm its status and connection logs in the device list.",
+        "production": "After a small-scale validation, create credentials for production devices through batch registration or the API.",
+        "checklistTitle": "Before you start",
+        "product": "Product and thing model are configured",
+        "network": "Device network can reach the platform",
+        "model": "Device development environment is ready",
+        "help": "View development support"
+      },
       "register": {
         "title": "1. Before device development, you need to register your device first",
         "note": "Note: A device belongs to a specific product. The IoT platform issues a unique certificate (DeviceName) for each device within the product.",
         "addDevice": "Add Device",
+        "addDeviceHint": "Create a test device for integration",
+        "resultTitle": "You will receive",
+        "deviceName": "DeviceName",
+        "deviceNameHint": "A unique device identifier within the product",
+        "deviceSecret": "DeviceSecret",
+        "deviceSecretHint": "A secret used for secure device authentication",
         "skipTip": "If you have already added a device, you can proceed directly to the next step.",
         "nextButton": "Next: Device Access"
       },

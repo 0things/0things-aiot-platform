@@ -1,0 +1,75 @@
+{
+  "title": "物联设备总览",
+  "description": "8 个产品分布在 5 个区域 · 共管理 13,728 台设备",
+  "eyebrow": "物联 · 运维",
+  "actions": {
+    "export": "导出",
+    "refresh": "刷新",
+    "viewAll": "查看全部"
+  },
+  "timeRange": {
+    "1h": "1小时",
+    "24h": "24小时",
+    "7d": "7天",
+    "30d": "30天"
+  },
+  "tabs": {
+    "overview": "总览",
+    "devices": "设备",
+    "analytics": "分析"
+  },
+  "topNav": {
+    "overview": "总览",
+    "devices": "设备",
+    "analytics": "分析"
+  },
+  "placeholders": {
+    "devicesTitle": "设备管理",
+    "devicesDescription": "已连接设备及其运行状态",
+    "devicesBody": "设备管理界面将在此处实现",
+    "analyticsTitle": "分析面板",
+    "analyticsDescription": "IoT 系统分析与指标",
+    "analyticsBody": "分析界面将在此处实现"
+  },
+  "kpis": {
+    "totalDevices": "设备总数",
+    "onlineNow": "当前在线",
+    "activeAlerts": "活跃告警",
+    "messagesPerSec": "消息吞吐量"
+  },
+  "fleet": {
+    "title": "机群状态",
+    "description": "当前设备连接情况",
+    "online": "在线",
+    "idle": "空闲",
+    "degraded": "降级",
+    "offline": "离线",
+    "p99Latency": "P99 延迟",
+    "avgBattery": "平均电量"
+  },
+  "throughput": {
+    "title": "消息吞吐量",
+    "description": "所有在线设备上报的消息量",
+    "live": "实时"
+  },
+  "products": {
+    "title": "产品健康度",
+    "description": "各产品线设备的在线率",
+    "devices": "{{count}} 台设备"
+  },
+  "regions": {
+    "title": "区域分布",
+    "description": "各区域的设备数量与健康度",
+    "healthy": "健康"
+  },
+  "events": {
+    "title": "最近事件",
+    "description": "机群最近发生的活动"
+  },
+  "status": {
+    "healthy": "正常",
+    "warning": "告警",
+    "critical": "严重",
+    "info": "信息"
+  }
+}

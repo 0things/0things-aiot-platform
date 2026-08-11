@@ -905,7 +905,7 @@ export function FeatureDefinitionTab({
   }
 
   return (
-    <div className='space-y-4'>
+    <div className='w-full max-w-full min-w-0 space-y-4'>
       {/* 头部说明 */}
       <div className='rounded-lg border bg-muted/50 p-4'>
         <div className='flex items-start space-x-3'>
@@ -998,6 +998,7 @@ export function FeatureDefinitionTab({
       <Tabs
         value={editMode}
         onValueChange={(value) => setEditMode(value as 'visual' | 'json')}
+        className='min-w-0'
       >
         <TabsList>
           <TabsTrigger value='visual'>
@@ -1010,7 +1011,7 @@ export function FeatureDefinitionTab({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value='visual' className='space-y-4'>
+        <TabsContent value='visual' className='min-w-0 space-y-4'>
           {isLoadingTSL && (
             <div className='flex items-center justify-center py-8'>
               <Loader2 className='h-6 w-6 animate-spin' />
@@ -1243,7 +1244,7 @@ export function FeatureDefinitionTab({
           </div>
         </TabsContent>
 
-        <TabsContent value='json'>
+        <TabsContent value='json' className='min-w-0'>
           <div className='rounded-lg border border-border bg-background shadow-sm'>
             <div className='flex items-center justify-between border-b border-border bg-muted/50 px-4 py-3'>
               <div className='flex items-center gap-3'>

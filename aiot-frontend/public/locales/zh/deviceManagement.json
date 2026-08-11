@@ -315,17 +315,43 @@
       "productKeyRequired": "productKey 不能为空"
     }
   },
-  "deviceDevelopment": {
+    "deviceDevelopment": {
+      "title": "设备开发流程",
+      "currentStep": "第 {{step}} 步",
       "steps": {
         "register": "设备注册",
         "access": "设备接入",
         "verify": "连接验证",
         "production": "设备量产"
       },
+      "stepHints": {
+        "register": "创建设备凭证",
+        "access": "集成 SDK 与配置",
+        "verify": "确认设备上线",
+        "production": "批量部署设备"
+      },
+      "guide": {
+        "title": "开发指引",
+        "register": "从创建首台测试设备开始。平台会为每台设备生成唯一凭证，后续接入时需要使用它。",
+        "access": "选择与设备技术栈匹配的 SDK，下载示例并完成设备凭证配置。",
+        "verify": "运行设备程序后，在设备列表确认状态和连接日志，定位接入问题。",
+        "production": "完成小规模验证后，再通过批量注册或 API 为量产设备创建凭证。",
+        "checklistTitle": "开始前确认",
+        "product": "已完成产品与物模型配置",
+        "network": "设备网络可访问平台服务",
+        "model": "准备好设备端开发环境",
+        "help": "查看开发支持"
+      },
       "register": {
         "title": "1. 在设备开发前，您需要先为您的设备进行注册",
         "note": "注：设备是归属于某个产品下的具体设备，物联网平台为设备颁发产品内唯一的证书 DeviceName",
         "addDevice": "添加设备",
+        "addDeviceHint": "创建一台用于联调的测试设备",
+        "resultTitle": "注册后得到",
+        "deviceName": "DeviceName",
+        "deviceNameHint": "产品内唯一的设备标识",
+        "deviceSecret": "DeviceSecret",
+        "deviceSecretHint": "用于设备安全认证的密钥",
         "skipTip": "如果您已添加过设备，可直接进入下一步。",
         "nextButton": "下一步：设备接入"
       },

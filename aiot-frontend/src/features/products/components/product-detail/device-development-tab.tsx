@@ -2,15 +2,18 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { deviceSDKs } from '@/config/device-sdks'
 import {
+  BookOpen,
+  ChevronRight,
+  CircleHelp,
   Database,
   FileCode,
   CheckCircle2,
+  KeyRound,
   Package,
   ExternalLink,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -50,77 +53,122 @@ export function DeviceDevelopmentTab({ productId }: DeviceDevelopmentTabProps) {
   }
 
   return (
-    <div className='space-y-6'>
-      {/* 步骤导航 */}
-      <div className='flex items-center justify-between'>
-        {steps.map((step, index) => (
-          <div key={step.id} className='flex flex-1 items-center'>
+    <div className='space-y-8 pb-8'>
+      <nav
+        aria-label={t('productDetail.deviceDevelopment.title')}
+        className='grid gap-3 border-b pb-6 sm:grid-cols-2 xl:grid-cols-4'
+      >
+        {steps.map((step, index) => {
+          const Icon = step.icon
+          const isCurrent = currentStep === step.id
+          const isComplete = currentStep > step.id
+
+          return (
             <button
+              key={step.id}
+              type='button'
               onClick={() => setCurrentStep(step.id)}
-              className='flex items-center'
+              className={`group flex min-w-0 items-start gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted/60 ${
+                isCurrent ? 'bg-primary/5' : ''
+              }`}
             >
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
-                  currentStep === step.id
+              <span
+                className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${
+                  isCurrent
                     ? 'border-primary bg-primary text-primary-foreground'
-                    : currentStep > step.id
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-muted bg-background text-muted-foreground'
+                    : isComplete
+                      ? 'border-primary/40 bg-primary/10 text-primary'
+                      : 'border-muted-foreground/30 text-muted-foreground'
                 }`}
               >
-                {step.id}
-              </div>
-              <div className='ml-3'>
-                <p
-                  className={`text-sm font-medium ${
-                    currentStep === step.id
-                      ? 'text-foreground'
-                      : 'text-muted-foreground'
+                {isComplete ? <CheckCircle2 className='h-4 w-4' /> : step.id}
+              </span>
+              <span className='min-w-0'>
+                <span
+                  className={`block text-sm font-semibold ${
+                    isCurrent ? 'text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   {t(`productDetail.deviceDevelopment.steps.${step.key}`)}
-                </p>
-              </div>
+                </span>
+                <span className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
+                  <Icon className='h-3.5 w-3.5' />
+                  {t(`productDetail.deviceDevelopment.stepHints.${step.key}`)}
+                </span>
+              </span>
+              {index < steps.length - 1 && (
+                <ChevronRight className='ml-auto mt-1 hidden h-4 w-4 text-muted-foreground/50 xl:block' />
+              )}
             </button>
-            {index < steps.length - 1 && (
-              <div
-                className={`mx-4 h-[2px] flex-1 ${
-                  currentStep > step.id ? 'bg-primary' : 'bg-muted'
-                }`}
-              />
-            )}
-          </div>
-        ))}
-      </div>
+          )
+        })}
+      </nav>
 
-      {/* 步骤内容 */}
-      <div
-        className='overflow-y-auto rounded-lg border-2 border-primary p-6'
-        style={{ maxHeight: 'calc(100vh - 350px)' }}
-      >
-        {currentStep === 1 && (
-          <RegisterStep productId={productId} onNext={handleNextStep} />
-        )}
-        {currentStep === 2 && (
-          <AccessStep
-            productId={productId}
-            onNext={handleNextStep}
-            onPrev={handlePrevStep}
-          />
-        )}
-        {currentStep === 3 && (
-          <VerifyStep onNext={handleNextStep} onPrev={handlePrevStep} />
-        )}
-        {currentStep === 4 && (
-          <ProductionStep productId={productId} onPrev={handlePrevStep} />
-        )}
+      <div className='grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,0.85fr)]'>
+        <section className='min-w-0'>
+          {currentStep === 1 && <RegisterStep onNext={handleNextStep} />}
+          {currentStep === 2 && (
+            <AccessStep
+              productId={productId}
+              onNext={handleNextStep}
+              onPrev={handlePrevStep}
+            />
+          )}
+          {currentStep === 3 && (
+            <VerifyStep onNext={handleNextStep} onPrev={handlePrevStep} />
+          )}
+          {currentStep === 4 && <ProductionStep onPrev={handlePrevStep} />}
+        </section>
+        <DevelopmentGuide currentStep={currentStep} />
       </div>
     </div>
   )
 }
 
+function DevelopmentGuide({ currentStep }: { currentStep: DeviceStep }) {
+  const { t } = useTranslation('deviceManagement')
+  const guideKey = steps.find((step) => step.id === currentStep)?.key
+
+  return (
+    <aside className='min-w-0 border-t pt-6 xl:border-t-0 xl:border-l xl:pl-8 xl:pt-0'>
+      <div className='flex items-center gap-2'>
+        <BookOpen className='h-4 w-4 text-primary' />
+        <h3 className='font-semibold'>
+          {t('productDetail.deviceDevelopment.guide.title')}
+        </h3>
+      </div>
+      <p className='mt-2 text-sm leading-6 text-muted-foreground'>
+        {t(`productDetail.deviceDevelopment.guide.${guideKey}`)}
+      </p>
+
+      <div className='mt-6 space-y-3 border-t pt-5'>
+        <p className='text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground'>
+          {t('productDetail.deviceDevelopment.guide.checklistTitle')}
+        </p>
+        {['product', 'network', 'model'].map((item) => (
+          <div key={item} className='flex gap-3 text-sm text-muted-foreground'>
+            <CheckCircle2 className='mt-0.5 h-4 w-4 shrink-0 text-primary' />
+            <span>{t(`productDetail.deviceDevelopment.guide.${item}`)}</span>
+          </div>
+        ))}
+      </div>
+
+      <a
+        href='https://github.com/0things'
+        target='_blank'
+        rel='noopener noreferrer'
+        className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline'
+      >
+        <CircleHelp className='h-4 w-4' />
+        {t('productDetail.deviceDevelopment.guide.help')}
+        <ExternalLink className='h-3.5 w-3.5' />
+      </a>
+    </aside>
+  )
+}
+
 // 步骤1: 设备注册
-function RegisterStep({ onNext }: { productId: string; onNext: () => void }) {
+function RegisterStep({ onNext }: { onNext: () => void }) {
   const { t } = useTranslation('deviceManagement')
   const navigate = useNavigate()
 
@@ -129,29 +177,60 @@ function RegisterStep({ onNext }: { productId: string; onNext: () => void }) {
   }
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-8'>
       <div>
-        <h3 className='text-base font-medium'>
+        <p className='text-sm font-medium text-primary'>
+          {t('productDetail.deviceDevelopment.currentStep', { step: 1 })}
+        </p>
+        <h3 className='mt-2 text-2xl font-semibold tracking-tight'>
           {t('productDetail.deviceDevelopment.register.title')}
         </h3>
-        <p className='mt-2 text-sm text-muted-foreground'>
+        <p className='mt-3 max-w-2xl text-sm leading-6 text-muted-foreground'>
           {t('productDetail.deviceDevelopment.register.note')}
         </p>
       </div>
 
-      <Card
-        className='w-64 cursor-pointer transition-colors hover:border-primary'
+      <button
+        type='button'
+        className='group flex w-full max-w-2xl items-center justify-between rounded-xl border bg-card p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-md'
         onClick={handleAddDevice}
       >
-        <CardContent className='flex items-center space-x-4 p-6'>
-          <div className='flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10'>
+        <span className='flex items-center gap-4'>
+          <span className='flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10'>
             <Database className='h-6 w-6 text-primary' />
-          </div>
-          <p className='font-medium'>
+          </span>
+          <span>
+            <span className='block font-semibold'>
             {t('productDetail.deviceDevelopment.register.addDevice')}
-          </p>
-        </CardContent>
-      </Card>
+            </span>
+            <span className='mt-1 block text-sm text-muted-foreground'>
+              {t('productDetail.deviceDevelopment.register.addDeviceHint')}
+            </span>
+          </span>
+        </span>
+        <ChevronRight className='h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary' />
+      </button>
+
+      <div className='max-w-2xl border-t pt-6'>
+        <div className='flex items-center gap-2'>
+          <KeyRound className='h-4 w-4 text-primary' />
+          <h4 className='font-semibold'>
+            {t('productDetail.deviceDevelopment.register.resultTitle')}
+          </h4>
+        </div>
+        <div className='mt-4 grid gap-3 sm:grid-cols-2'>
+          {['deviceName', 'deviceSecret'].map((item) => (
+            <div key={item} className='rounded-lg bg-muted/60 p-4'>
+              <p className='text-sm font-medium'>
+                {t(`productDetail.deviceDevelopment.register.${item}`)}
+              </p>
+              <p className='mt-1 text-xs leading-5 text-muted-foreground'>
+                {t(`productDetail.deviceDevelopment.register.${item}Hint`)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <p className='text-sm text-muted-foreground'>
         {t('productDetail.deviceDevelopment.register.skipTip')}
@@ -187,9 +266,12 @@ function AccessStep({
   const currentSDK = deviceSDKs.find((sdk) => sdk.id === selectedSDK)
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-8'>
       <div>
-        <h3 className='text-base font-medium'>
+        <p className='text-sm font-medium text-primary'>
+          {t('productDetail.deviceDevelopment.currentStep', { step: 2 })}
+        </p>
+        <h3 className='mt-2 text-2xl font-semibold tracking-tight'>
           {t('productDetail.deviceDevelopment.access.title')}
         </h3>
       </div>
@@ -204,7 +286,7 @@ function AccessStep({
         <p className='mb-4 text-sm text-muted-foreground'>
           {t('productDetail.deviceDevelopment.access.sdkSelectionNote')}
         </p>
-        <div className='grid grid-cols-4 gap-3'>
+        <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
           {deviceSDKs.map((sdk) => (
             <button
               key={sdk.id}
@@ -233,7 +315,7 @@ function AccessStep({
             <p className='mb-3 text-sm text-muted-foreground'>
               {t('productDetail.deviceDevelopment.access.configNote')}
             </p>
-            <div className='flex gap-3'>
+            <div className='flex flex-wrap gap-3'>
               <a
                 href={currentSDK?.docUrl}
                 target='_blank'
@@ -271,7 +353,7 @@ function AccessStep({
               {t('productDetail.deviceDevelopment.access.deviceConfigNote')}
             </p>
             <Select value={selectedDevice} onValueChange={setSelectedDevice}>
-              <SelectTrigger className='w-80'>
+              <SelectTrigger className='w-full max-w-80'>
                 <SelectValue
                   placeholder={t(
                     'productDetail.deviceDevelopment.access.selectDevice'
@@ -318,9 +400,12 @@ function VerifyStep({
   const { t } = useTranslation('deviceManagement')
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-8'>
       <div>
-        <h3 className='text-base font-medium'>
+        <p className='text-sm font-medium text-primary'>
+          {t('productDetail.deviceDevelopment.currentStep', { step: 3 })}
+        </p>
+        <h3 className='mt-2 text-2xl font-semibold tracking-tight'>
           {t('productDetail.deviceDevelopment.verify.title')}
         </h3>
         <p className='mt-2 text-sm text-muted-foreground'>
@@ -328,8 +413,7 @@ function VerifyStep({
         </p>
       </div>
 
-      <Card>
-        <CardContent className='p-6'>
+      <div className='max-w-2xl rounded-xl border bg-card p-6'>
           <div className='space-y-4'>
             <div className='flex items-start space-x-3'>
               <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary'>
@@ -362,8 +446,7 @@ function VerifyStep({
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </div>
 
       <div className='flex justify-between'>
         <Button variant='outline' onClick={onPrev}>
@@ -378,7 +461,7 @@ function VerifyStep({
 }
 
 // 步骤4: 设备量产
-function ProductionStep({ onPrev }: { productId: string; onPrev: () => void }) {
+function ProductionStep({ onPrev }: { onPrev: () => void }) {
   const { t } = useTranslation('deviceManagement')
   const navigate = useNavigate()
 
@@ -387,9 +470,12 @@ function ProductionStep({ onPrev }: { productId: string; onPrev: () => void }) {
   }
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-8'>
       <div>
-        <h3 className='text-base font-medium'>
+        <p className='text-sm font-medium text-primary'>
+          {t('productDetail.deviceDevelopment.currentStep', { step: 4 })}
+        </p>
+        <h3 className='mt-2 text-2xl font-semibold tracking-tight'>
           {t('productDetail.deviceDevelopment.production.title')}
         </h3>
         <p className='mt-2 text-sm text-muted-foreground'>
@@ -398,19 +484,18 @@ function ProductionStep({ onPrev }: { productId: string; onPrev: () => void }) {
       </div>
 
       <div className='space-y-4'>
-        <Card
-          className='cursor-pointer transition-colors hover:border-primary'
+        <button
+          type='button'
+          className='w-full max-w-2xl rounded-xl border bg-card p-6 text-left transition-colors hover:border-primary/60'
           onClick={handleBatchRegistration}
         >
-          <CardContent className='p-6'>
-            <h4 className='mb-2 font-medium'>
+            <h4 className='mb-2 font-semibold'>
               {t('productDetail.deviceDevelopment.production.batchTitle')}
             </h4>
             <p className='text-sm text-muted-foreground'>
               {t('productDetail.deviceDevelopment.production.batchDescription')}
             </p>
-          </CardContent>
-        </Card>
+        </button>
       </div>
 
       <div className='flex justify-start'>
