@@ -197,7 +197,7 @@ export function ProductsTable() {
         onSearch={handleSearch}
         onRefresh={handleRefresh}
       />
-      <div className='overflow-auto rounded-md border'>
+      <div className='overflow-hidden rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -282,7 +282,7 @@ export function ProductsTable() {
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <DataTablePagination table={table} className='mt-auto' />
       <DataTableBulkActions table={table} />
     </div>
   )

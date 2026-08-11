@@ -22,7 +22,7 @@ export function DeviceManagement() {
 
   return (
     <>
-      <Header>
+      <Header fixed>
         <Search />
         <div className='ms-auto flex items-center space-x-4'>
           <ThemeSwitch />
@@ -31,7 +31,7 @@ export function DeviceManagement() {
         </div>
       </Header>
 
-      <Main fixed>
+      <Main className='flex flex-1 flex-col gap-4 sm:gap-6'>
         <Tabs value={activeTab} className='space-y-4'>
           <TabsList>
             <TabsTrigger value='products' asChild>
@@ -54,7 +54,7 @@ export function DeviceManagement() {
             </TabsTrigger>
           </TabsList>
 
-          <div className='flex flex-1 flex-col overflow-hidden'>
+          <div>
             <Outlet />
           </div>
         </Tabs>

@@ -102,7 +102,7 @@ export function OTAPackagesTable() {
           },
         ]}
       />
-      <div className='overflow-auto rounded-md border'>
+      <div className='overflow-hidden rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -198,7 +198,7 @@ export function OTAPackagesTable() {
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <DataTablePagination table={table} className='mt-auto' />
       <DataTableBulkActions table={table} />
     </div>
   )
