@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package api.client_connect_state.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "telemetry-service/api/client_connect_state/v1;v1";
+
+// ClientConnectStateService provides APIs for publishing client connect state events.
+service ClientConnectStateService {
+  // PublishClientConnectState publishes a client connect state event to Kafka
+  rpc PublishClientConnectState (PublishClientConnectStateRequest) returns (PublishClientConnectStateReply) {
+    option (google.api.http) = {
+      post: "/api/v1/client-connect-state"
+      body: "*"
+    };
+  }
+}
+
+// PublishClientConnectStateRequest is the request for publishing client connect state events
+message PublishClientConnectStateRequest {
+  string clientid = 1;
+  int64 timestamp = 2;
+  string event_type = 3;
+  string username = 4;
+  string reason = 5;
+}
+
+// PublishClientConnectStateReply is the response for publishing client connect state events
+message PublishClientConnectStateReply {
+  int32 code = 1;
+  string message = 2;
+}

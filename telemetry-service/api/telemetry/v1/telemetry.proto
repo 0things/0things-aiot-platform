@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package api.telemetry.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "telemetry-service/api/telemetry/v1;v1";
+
+// TelemetryService provides APIs for publishing telemetry events.
+service TelemetryService {
+  // PublishTelemetry publishes a telemetry event to Kafka
+  rpc PublishTelemetry (PublishTelemetryRequest) returns (PublishTelemetryReply) {
+    option (google.api.http) = {
+      post: "/api/v1/telemetry"
+      body: "*"
+    };
+  }
+}
+
+// PublishTelemetryRequest is the request for publishing telemetry events
+message PublishTelemetryRequest {
+  string type = 1;
+  int64 timestamp = 2;
+  string product_key = 3;
+  string device_key = 4;
+  string session_id = 5;
+  google.protobuf.Struct data = 6;
+}
+
+// PublishTelemetryReply is the response for publishing telemetry events
+message PublishTelemetryReply {
+  int32 code = 1;
+  string message = 2;
+}

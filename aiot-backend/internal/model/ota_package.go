@@ -1,0 +1,74 @@
+package model
+
+import (
+	"encoding/json"
+	"time"
+
+	"gorm.io/gorm"
+)
+
+type OTAPackage struct {
+	ID           int64  `gorm:"primaryKey"`
+	PackageName  string `gorm:"column:package_name"`
+	Version      string
+	ProductID    int64  `gorm:"column:product_id"`
+	PackageType  string `gorm:"column:package_type"`
+	Status       string
+	UploadType   string `gorm:"column:upload_type"`
+	FileURL      string `gorm:"column:file_url"`
+	FileSize     int64  `gorm:"column:file_size"`
+	Checksum     string
+	Description  string
+	ReleaseNotes string          `gorm:"column:release_notes"`
+	Metadata     json.RawMessage `gorm:"type:json"`
+	DeletedAt    gorm.DeletedAt  `gorm:"column:deleted_at"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	ReleasedAt   *time.Time `gorm:"column:released_at"`
+}
+
+func (OTAPackage) TableName() string { return "ota_packages" }
+
+type UpgradeBatch struct {
+	ID                int64  `gorm:"primaryKey"`
+	BatchID           string `gorm:"column:batch_id"`
+	OTAPackageID      string `gorm:"column:ota_package_id"`
+	BatchName         string `gorm:"column:batch_name"`
+	BatchType         string `gorm:"column:batch_type"`
+	UpgradeStrategy   string `gorm:"column:upgrade_strategy"`
+	Status            string
+	TargetDeviceCount int32 `gorm:"column:target_device_count"`
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+func (UpgradeBatch) TableName() string { return "upgrade_batches" }
+
+type DeviceUpgradeStatus struct {
+	ID                   int64  `gorm:"primaryKey"`
+	DeviceID             int64  `gorm:"column:device_id"`
+	OTAPackageID         string `gorm:"column:ota_package_id"`
+	UpgradeBatchID       string `gorm:"column:upgrade_batch_id"`
+	Status               string
+	CurrentVersion       string `gorm:"column:current_version"`
+	LastStatusChangeTime *int64 `gorm:"column:last_status_change_time"`
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
+func (DeviceUpgradeStatus) TableName() string { return "device_upgrade_status" }
+
+// DeviceDeployment is the joined OTA deployment projection used by the
+// repository and service layers. It is not a persisted table model.
+type DeviceDeployment struct {
+	DeviceID             int64     `gorm:"column:device_id"`
+	DeviceKey            string    `gorm:"column:device_key"`
+	DeviceName           string    `gorm:"column:device_name"`
+	ProductID            int64     `gorm:"column:product_id"`
+	ProductKey           string    `gorm:"column:product_key"`
+	CurrentVersion       string    `gorm:"column:current_version"`
+	UpgradeBatchID       string    `gorm:"column:upgrade_batch_id"`
+	Status               string    `gorm:"column:status"`
+	LastStatusChangeTime int64     `gorm:"column:last_status_change_time"`
+	CreatedAt            time.Time `gorm:"column:created_at"`
+}

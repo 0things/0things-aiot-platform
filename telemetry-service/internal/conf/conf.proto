@@ -1,0 +1,81 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "telemetry-service/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+}
+
+message Server {
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  HTTP http = 1;
+  GRPC grpc = 2;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
+  message Redis {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration read_timeout = 3;
+    google.protobuf.Duration write_timeout = 4;
+    int32 db = 5;
+    string username = 6;
+    string password = 7;
+  }
+  message Kafka {
+    repeated string brokers = 1;
+    string client_id = 2;
+
+    message Producer {
+      int32 max_retries = 1;
+      google.protobuf.Duration timeout = 2;
+      // Batch max bytes for producer batching (default: 16KB)
+      int32 batch_max_bytes = 3;
+      // Linger time for batching (default: 0ms - no linger)
+      google.protobuf.Duration linger_ms = 4;
+      // Compression type: none, gzip, snappy, lz4, zstd
+      string compression = 5;
+      // Required acks: none, leader, all (default: leader)
+      string required_acks = 6;
+    }
+
+    message Consumer {
+      string group_id = 1;
+      // Auto offset reset: earliest, latest (default: latest)
+      string auto_offset_reset = 2;
+      // Max bytes to fetch per request
+      int32 fetch_max_bytes = 3;
+      // Max wait time for fetch
+      google.protobuf.Duration fetch_max_wait = 4;
+      // Session timeout
+      google.protobuf.Duration session_timeout = 5;
+      // Rebalance timeout
+      google.protobuf.Duration rebalance_timeout = 6;
+      // Number of concurrent message handlers (default: 10)
+      int32 concurrency = 7;
+    }
+
+    Producer producer = 3;
+    Consumer consumer = 4;
+  }
+  Database database = 1;
+  Redis redis = 2;
+  Kafka kafka = 3;
+}

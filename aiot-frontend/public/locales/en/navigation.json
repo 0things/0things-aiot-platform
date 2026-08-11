@@ -1,0 +1,27 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "apps": "Apps",
+    "users": "Users",
+    "deviceManagement": "Device Management",
+    "products": "Products",
+    "devices": "Devices",
+    "account": "Account",
+    "tasks": "Tasks",
+    "chats": "Chats",
+    "settings": "Settings",
+    "helpCenter": "Help Center",
+    "logout": "Logout",
+    "general": "General",
+    "pages": "Pages"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "dashboard": "Dashboard"
+  },
+  "topNav": {
+    "search": "Search",
+    "notifications": "Notifications",
+    "profile": "Profile"
+  }
+}

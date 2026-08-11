@@ -1,0 +1,43 @@
+env: local
+http:
+  host: 127.0.0.1
+  port: 8000
+security:
+  api_sign:
+    app_key: change-me
+    app_security: change-me
+  jwt:
+    key: change-me-to-a-random-secret
+data:
+  db:
+    user:
+      driver: sqlite
+      dsn: storage/nunu-test.db
+    device:
+      driver: postgres
+      dsn: host=127.0.0.1 port=5432 user=postgres dbname=device_service sslmode=disable
+  redis:
+    addr: 127.0.0.1:6350
+    password: ""
+    db: 0
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+    device:
+      addr: 127.0.0.1:6379
+      password: ""
+      db: 0
+  kafka:
+    device:
+      # Used only by POST /v1/devices/mock-kafka. No consumer is started.
+      brokers: []
+  mongo:
+    uri: mongodb://username:password@localhost:27017
+log:
+  log_level: debug
+  mode: console
+  encoding: console
+  log_file_name: "./storage/logs/server.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true

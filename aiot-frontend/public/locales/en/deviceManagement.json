@@ -1,0 +1,554 @@
+{
+  "title": "Device Management",
+  "description": "Manage your products and devices from this centralized dashboard.",
+  "tabs": {
+    "products": "Products",
+    "devices": "Devices"
+  },
+  "pages": {
+    "devices": {
+      "description": "Monitor and manage your connected devices."
+    }
+  },
+  "productDetail": {
+    "header": {
+      "productKey": "ProductKey",
+      "productSecret": "ProductSecret",
+      "deviceCount": "Devices",
+      "copySuccess": "ProductSecret copied to clipboard"
+    },
+    "tabs": {
+      "info": "Product Info",
+      "topics": "Topic List",
+      "features": "TSL",
+      "parsing": "Message Parsing",
+      "subscription": "Server Subscription",
+      "development": "Device Development",
+      "upload": "File Upload Config"
+    },
+    "loading": "Loading product details...",
+    "notFound": "Product not found",
+    "backButton": "Return to Products",
+    "info": {
+      "title": "Product Information",
+      "editButton": "Edit",
+      "fields": {
+        "name": "Product Name",
+        "category": "Category",
+        "status": "Status",
+        "nodeType": "Node Type",
+        "connectivityMethod": "Connectivity Method",
+        "accessProtocol": "Access Protocol",
+        "gatewayAccessProtocol": "Gateway Access Protocol",
+        "dataFormat": "Data Format",
+        "dataFormatValue": "ICA Standard Data Format",
+        "authMethod": "Authentication Method",
+        "authMethodValue": "Device Password",
+        "createdAt": "Created At",
+        "dataValidationLevel": "Data Validation Level",
+        "dataValidationValue": "Weak Validation",
+        "description": "Description"
+      },
+      "labels": {
+        "title": "Label Information",
+        "empty": "No label information"
+      }
+    },
+    "nodeTypes": {
+      "direct": "Direct Device",
+      "gateway": "Gateway Device",
+      "gateway-sub": "Gateway Sub-device"
+    },
+    "connectivityMethods": {
+      "wifi": "Wi-Fi",
+      "cellular": "Cellular (2G/3G/4G/5G)",
+      "ethernet": "Ethernet",
+      "other": "Other"
+    },
+    "accessProtocols": {
+      "http": "HTTP",
+      "mqtt": "MQTT",
+      "other": "Other",
+      "custom": "Custom",
+      "modbus": "Modbus",
+      "opc-ua": "OPC UA",
+      "zigbee": "ZigBee",
+      "ble": "BLE"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "archived": "Archived",
+      "unknown": "Unknown"
+    },
+    "topics": {
+      "tabs": {
+        "basic": "Basic Communication Topics",
+        "thingModel": "Thing Model Communication Topics",
+        "custom": "Custom Topics"
+      },
+      "table": {
+        "function": "Function",
+        "topicClass": "Topic Class",
+        "permission": "Permission",
+        "description": "Description"
+      },
+      "permissions": {
+        "publish": "Publish",
+        "subscribe": "Subscribe"
+      },
+      "categories": {
+        "otaUpgrade": "OTA Upgrade",
+        "deviceTag": "Device Tag",
+        "timeSync": "Time Sync",
+        "deviceShadow": "Device Shadow",
+        "configUpdate": "Config Update",
+        "broadcast": "Broadcast",
+        "propertyPost": "Property Post",
+        "propertySet": "Property Set",
+        "eventPost": "Event Post",
+        "serviceCall": "Service Call"
+      },
+      "basicTopics": {
+        "otaInform": "Device reports firmware upgrade information",
+        "otaUpgrade": "Firmware upgrade information downstream",
+        "otaProgress": "Device reports firmware upgrade progress",
+        "firmwareGet": "Device actively pulls firmware upgrade information",
+        "deviceInfoUpdate": "Device reports tag data",
+        "deviceInfoUpdateReply": "Cloud responds to tag reporting",
+        "deviceInfoDelete": "Device deletes tag information",
+        "deviceInfoDeleteReply": "Cloud responds to tag deletion",
+        "ntpRequest": "NTP clock synchronization request",
+        "ntpResponse": "NTP clock synchronization response",
+        "shadowUpdate": "Device shadow publish",
+        "shadowGet": "Device receives shadow changes",
+        "configPush": "Cloud actively pushes configuration information",
+        "configGet": "Device queries configuration information",
+        "configGetReply": "Cloud responds to configuration information",
+        "broadcast": "Broadcast Topic. identifier is a user-defined string"
+      },
+      "thingModelTopics": {
+        "propertyPost": "Device property report",
+        "propertyPostReply": "Cloud responds to property report",
+        "propertySet": "Device property setting",
+        "eventPost": "Device event report",
+        "eventPostReply": "Cloud responds to event report",
+        "serviceCall": "Device service call",
+        "serviceCallReply": "Device responds to service call"
+      },
+      "custom": {
+        "placeholder": "Custom Topic feature in development",
+        "description": "Support custom Topic classes, permission configuration, and broadcast functions"
+      }
+    },
+    "featureDefinition": {
+      "templates": {
+        "label": "Quick Templates:",
+        "empty": "Empty Template",
+        "sensor": "Sensor Template",
+        "switch": "Switch Template",
+        "advanced": "Advanced Example"
+      },
+      "templateContent": {
+        "temperature": "Temperature",
+        "humidity": "Humidity",
+        "powerstate": "Power State",
+        "location": "Location",
+        "status": "Status",
+        "tags": "Tags",
+        "temp_humi_report": "Temperature and Humidity Report",
+        "set": "Set",
+        "fault": "Fault Alert",
+        "reboot": "Reboot"
+      },
+      "title": "Thing Specification Language (TSL)",
+      "description": "TSL is a JSON format language for describing IoT device capabilities, including three core elements: properties, events, and services.",
+      "badge": {
+        "jsonFormat": "JSON Format",
+        "realtimeValidation": "Real-time Validation",
+        "standardized": "Standardized"
+      },
+      "buttons": {
+        "format": "Format",
+        "clear": "Clear",
+        "save": "Save TSL",
+        "addProperty": "Add Property",
+        "addService": "Add Service",
+        "addEvent": "Add Event",
+        "edit": "Edit",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "confirmDelete": "Confirm Delete",
+        "saveChange": "Save"
+      },
+      "status": {
+        "propertyAdded": "Property added successfully",
+        "propertyUpdated": "Property updated successfully",
+        "propertyDeleted": "Property deleted successfully",
+        "serviceAdded": "Service added successfully",
+        "serviceUpdated": "Service updated successfully",
+        "serviceDeleted": "Service deleted successfully",
+        "eventAdded": "Event added successfully",
+        "eventUpdated": "Event updated successfully",
+        "eventDeleted": "Event deleted successfully",
+        "templateLoaded": "Template loaded: {{name}}",
+        "jsonFormatted": "JSON formatted successfully",
+        "validationPassed": "TSL validation passed, saved successfully!",
+        "noContentToFormat": "No content to format",
+        "tslContentEmpty": "TSL content cannot be empty",
+        "validationFailed": "Validation failed",
+        "saveSuccess": "TSL saved successfully",
+        "deleteSuccess": "TSL deleted successfully"
+      },
+      "editMode": {
+        "visual": "Visual Edit",
+        "json": "JSON Edit"
+      },
+      "sections": {
+        "properties": "Properties",
+        "services": "Services",
+        "events": "Events"
+      },
+      "propertyDialog": {
+        "title": "{{isEdit}} Property",
+        "add": "Add",
+        "edit": "Edit",
+        "description": "Configure device property basic information and data type",
+        "identifier": "Identifier",
+        "name": "Name",
+        "accessMode": "Access Mode",
+        "dataType": "Data Type",
+        "dataSpecs": "Data Specifications",
+        "min": "Min",
+        "max": "Max",
+        "step": "Step",
+        "unit": "Unit",
+        "enumValues": "Enum Values (JSON format)",
+        "structDef": "Struct Definition (JSON format)",
+        "arrayElemType": "Array Element Type (JSON format)",
+        "arrayElemDesc": "Define array element type and size constraints",
+        "structDefDesc": "Define struct fields, each containing type and other attributes"
+      },
+      "serviceDialog": {
+        "title": "{{isEdit}} Service",
+        "add": "Add",
+        "edit": "Edit",
+        "description": "Configure device service basic information and input/output parameters",
+        "identifier": "Identifier",
+        "name": "Name",
+        "callType": "Call Type",
+        "async": "Async",
+        "sync": "Sync",
+        "inputParams": "Input Parameters (JSON array format)",
+        "outputParams": "Output Parameters (JSON array format)"
+      },
+      "eventDialog": {
+        "title": "{{isEdit}} Event",
+        "add": "Add",
+        "edit": "Edit",
+        "description": "Configure device event basic information and output data",
+        "identifier": "Identifier",
+        "name": "Name",
+        "eventType": "Event Type",
+        "info": "Info",
+        "alert": "Alert",
+        "error": "Error",
+        "outputData": "Output Data (JSON array format)"
+      },
+      "placeholders": {
+        "propertyId": "e.g., temperature",
+        "propertyName": "e.g., Temperature",
+        "serviceId": "e.g., setMotor",
+        "serviceName": "e.g., Set Motor Speed",
+        "eventId": "e.g., lowBattery",
+        "eventName": "e.g., Low Battery Alert"
+      },
+      "instructions": {
+        "title": "Instructions",
+        "properties": "properties: Device properties (read-only/read-write), such as sensor data, switch status",
+        "events": "events: Device events, such as alarms, notifications and other upstream messages",
+        "services": "services: Device services, such as control commands and other downstream calls",
+        "dualMode": "Support both visual editing and JSON editing modes with real-time data synchronization",
+        "visualMode": "In visual mode, you can quickly add and edit function definitions through forms"
+      },
+      "accessMode": {
+        "r": "Read-only (r)",
+        "rw": "Read-write (rw)"
+      },
+      "dataTypes": {
+        "int": "Integer (int)",
+        "float": "Float (float)",
+        "double": "Double (double)",
+        "bool": "Boolean (bool)",
+        "string": "String (string)",
+        "enum": "Enum (enum)",
+        "struct": "Struct (struct)",
+        "array": "Array (array)"
+      },
+      "eventTypes": {
+        "info": "Info (info)",
+        "alert": "Alert (alert)",
+        "error": "Error (error)"
+      },
+      "statusBadge": {
+        "input": "Input",
+        "output": "Output",
+        "valid": "Valid",
+        "invalid": "Invalid",
+        "unknown": "Unknown"
+      },
+      "empty": {
+        "properties": "No properties yet, click \"Add Property\" to start creating",
+        "services": "No services yet, click \"Add Service\" to start creating",
+        "events": "No events yet, click \"Add Event\" to start creating"
+      },
+      "deleteDialog": {
+        "title": "Delete TSL",
+        "description": "Are you sure you want to delete this TSL? This action cannot be undone."
+      },
+      "errors": {
+        "jsonParse": "JSON parse error",
+        "tslValidation": "TSL validation error",
+        "jsonSyntax": "JSON syntax error",
+        "identifierRequired": "identifier cannot be empty",
+        "nameRequired": "name cannot be empty",
+        "productKeyRequired": "productKey cannot be empty"
+      }
+    },
+    "deviceDevelopment": {
+      "steps": {
+        "register": "Device Registration",
+        "access": "Device Access",
+        "verify": "Connection Verification",
+        "production": "Device Production"
+      },
+      "register": {
+        "title": "1. Before device development, you need to register your device first",
+        "note": "Note: A device belongs to a specific product. The IoT platform issues a unique certificate (DeviceName) for each device within the product.",
+        "addDevice": "Add Device",
+        "skipTip": "If you have already added a device, you can proceed directly to the next step.",
+        "nextButton": "Next: Device Access"
+      },
+      "access": {
+        "title": "2. Device Access",
+        "sdkSelection": "Device Development Language/Version",
+        "sdkSelectionNote": "Please select your device development language/version:",
+        "configTitle": "Device Development and Configuration",
+        "configNote": "1. Download the SDK for your selected language and follow the access guide for device certificate acquisition and configuration. The downloaded Demo will include the software license agreement by default",
+        "devDoc": "{{sdk}} Development Documentation",
+        "downloadPackage": "Download {{sdk}} Package",
+        "deviceConfigNote": "2. Use the development configuration information to acquire and configure device certificates",
+        "selectDevice": "Please select the corresponding device",
+        "deviceSelected": "After selecting a device, the device certificate will be displayed here",
+        "nextButton": "Next: Connection Verification"
+      },
+      "verify": {
+        "title": "3. Connection Verification",
+        "description": "Verify that the device has successfully connected to the IoT platform",
+        "step1": "Run your device program, and the device will attempt to connect to the IoT platform",
+        "step2": "Check the device status in the device list to confirm that the device is online",
+        "step3": "View connection logs and communication records on the device details page",
+        "nextButton": "Next: Device Production"
+      },
+      "production": {
+        "title": "4. Device Production",
+        "description": "After completing device development and testing, you can proceed with batch production",
+        "batchTitle": "Batch Device Registration",
+        "batchDescription": "Support batch registration of devices through API or batch import",
+        "certTitle": "Device Certificate Management",
+        "certDescription": "Generate unique certificates for each device to ensure secure device access"
+      },
+      "prevButton": "Previous"
+    }
+  },
+  "deviceDetail": {
+    "header": {
+      "product": "Product",
+      "deviceSecret": "DeviceSecret",
+      "productKey": "ProductKey",
+      "view": "View",
+      "copy": "Copy",
+      "copySuccess": "Copied to clipboard"
+    },
+    "tabs": {
+      "info": "Device Info",
+      "topics": "Topic List",
+      "thingModel": "Thing Model Data",
+      "shadow": "Device Shadow",
+      "telemetry": "Last Telemetry",
+      "files": "File Management",
+      "logs": "Log Service",
+      "debug": "Online Debug",
+      "groups": "Groups",
+      "tasks": "Tasks"
+    },
+    "topicListTab": {
+      "comingSoon": "Topic list coming soon"
+    },
+    "thingModelDataTab": {
+      "comingSoon": "Thing model data coming soon"
+    },
+    "deviceShadowTab": {
+      "comingSoon": "Device shadow coming soon"
+    },
+    "telemetryTab": {
+      "title": "Last Telemetry",
+      "noData": "No telemetry data available",
+      "error": "Failed to fetch telemetry data"
+    },
+    "fileManagementTab": {
+      "comingSoon": "File management coming soon"
+    },
+    "logServiceTab": {
+      "comingSoon": "Log service coming soon"
+    },
+    "onlineDebugTab": {
+      "comingSoon": "Online debugging coming soon"
+    },
+    "groupsTab": {
+      "comingSoon": "Groups coming soon"
+    },
+    "tasksTab": {
+      "comingSoon": "Tasks coming soon"
+    },
+    "loading": "Loading device details...",
+    "notFound": "Device not found",
+    "backButton": "Return to Devices",
+    "activationStatus": {
+      "not_activated": "Not Activated",
+      "activated": "Activated",
+      "disabled": "Disabled",
+      "unknown": "Unknown"
+    },
+    "info": {
+      "title": "Device Information",
+      "edit": "Edit",
+      "test": "Test",
+      "copySuccess": "Copied",
+      "testingLatency": "Testing latency...",
+      "latencyResult": "Latency: {{latency}}",
+      "mqttParamsView": "View MQTT Connection Parameters",
+      "logUploadEnabled": "Device log upload enabled",
+      "logUploadDisabled": "Device log upload disabled",
+      "mqttDialog": {
+        "title": "MQTT Connection Parameters",
+        "loading": "Loading...",
+        "noData": "No data available",
+        "copyAll": "Copy All",
+        "close": "Close",
+        "copyAllSuccess": "All parameters copied to clipboard"
+      },
+      "fields": {
+        "productName": "Product Name",
+        "nodeType": "Node Type",
+        "notes": "Notes",
+        "createdAt": "Created At",
+        "currentStatus": "Current Status",
+        "mqttParams": "MQTT Connection Parameters",
+        "ipAddress": "IP Address",
+        "activationTime": "Activation Time",
+        "realTimeLatency": "Real-time Latency",
+        "lastOfflineTime": "Last Offline Time",
+        "region": "Region",
+        "authMethod": "Authentication Method",
+        "authMethodValue": "Device Password",
+        "firmwareVersion": "Firmware Version",
+        "lastOnlineTime": "Last Online Time",
+        "deviceLogUpload": "Device Log Upload"
+      }
+    },
+    "extendedInfo": {
+      "title": "Device Extended Information",
+      "fields": {
+        "sdkLanguage": "SDK Language",
+        "version": "Version",
+        "moduleVendor": "Module Vendor",
+        "moduleInfo": "Module Info"
+      }
+    },
+    "tags": {
+      "title": "Tag Information",
+      "empty": "No tag information"
+    }
+  },
+  "devices": {
+    "buttons": {
+      "batchUpload": "Batch Upload",
+      "createDevice": "Create Device"
+    },
+    "columns": {
+      "deviceKey": "Device Key",
+      "name": "Name",
+      "product": "Product",
+      "state": "State",
+      "enabled": "Enabled",
+      "lastOnline": "Last Online",
+      "actions": "Actions"
+    },
+    "state": {
+      "online": "Online",
+      "offline": "Offline",
+      "inactive": "Inactive"
+    },
+    "enabled": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "unknown": "Unknown",
+    "never": "Never"
+  },
+  "dialog": {
+    "create": {
+      "title": "Create New Device",
+      "description": "Register a new device. Click save when you're done.",
+      "successMessage": "Device created successfully!",
+      "errorMessage": "Failed to create device"
+    },
+    "edit": {
+      "title": "Edit Device",
+      "description": "Update the device details here. Click save when you're done.",
+      "successMessage": "Device updated successfully!",
+      "errorMessage": "Failed to update device"
+    },
+    "form": {
+      "deviceKey": "Device Key",
+      "name": "Name",
+      "product": "Product",
+      "metadata": "Metadata",
+      "saveButton": "Save changes",
+      "placeholder": {
+        "deviceKey": "device-001",
+        "name": "My Device #1",
+        "product": "Select product",
+        "productLoading": "Loading products...",
+        "metadata": "{\"key\": \"value\"}"
+      }
+    },
+    "batchUpload": {
+      "title": "Batch Upload Devices",
+      "description": "Upload multiple devices from a CSV or Excel file. Download the template to see the required format.",
+      "downloadTemplate": "Download Template",
+      "fileLabel": "File (CSV, Excel)",
+      "uploadButton": "Upload",
+      "uploading": "Uploading...",
+      "succeeded": "Succeeded",
+      "failed": "Failed",
+      "errorDetails": "Error Details",
+      "errorColumns": {
+        "row": "Row",
+        "deviceName": "Device Name",
+        "productKey": "Product Key",
+        "error": "Error"
+      },
+      "closeButton": "Close",
+      "cancelButton": "Cancel",
+      "uploadAgainButton": "Upload Again",
+      "successMessage": "Successfully uploaded {{count}} devices",
+      "errorMessage": "Failed to upload devices. Please try again.",
+      "validation": {
+        "selectFile": "Please select a file to upload",
+        "invalidFileType": "Please upload a CSV or Excel file (.csv, .xlsx, .xls)"
+      }
+    }
+  }
+}

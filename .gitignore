@@ -1,0 +1,33 @@
+# Workspace tooling and runtime logs
+**/.agents/
+**/.claude/
+**/.opencode/
+**/.service-logs/
+
+# Dependencies and generated frontend output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+
+# Local configuration and credentials
+**/.env
+**/.env.local
+**/*.local
+**/config/local.yml
+**/config/prod.yml
+**/configs/config.yaml
+**/*.cert
+**/*.key
+
+# Runtime artifacts
+**/*.log
+**/*.db
+**/bin/
+/aiot-backend/server
+/telemetry-service/telemetry-service
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

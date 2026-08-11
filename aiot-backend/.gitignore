@@ -1,0 +1,8 @@
+storage/logs
+storage/*.db
+config/local.yml
+config/prod.yml
+.idea
+*.log
+deploy/docker-compose/conf
+deploy/docker-compose/data

@@ -1,0 +1,23 @@
+env: local
+http:
+  host: 127.0.0.1
+  port: 18000
+security:
+  jwt:
+    key: integration-test-key
+data:
+  db:
+    user:
+      driver: sqlite
+      dsn: storage/user-integration.db?_busy_timeout=5000
+    device:
+      driver: sqlite
+      dsn: storage/device-integration.db?_busy_timeout=5000
+  redis:
+    device:
+      addr: ""
+log:
+  log_level: error
+  mode: console
+  encoding: console
+  log_file_name: ./storage/logs/integration.log

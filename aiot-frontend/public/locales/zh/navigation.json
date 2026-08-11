@@ -1,0 +1,27 @@
+{
+  "sidebar": {
+    "dashboard": "仪表板",
+    "apps": "应用",
+    "users": "用户",
+    "deviceManagement": "设备管理",
+    "products": "产品",
+    "devices": "设备",
+    "account": "账户",
+    "tasks": "任务",
+    "chats": "聊天",
+    "settings": "设置",
+    "helpCenter": "帮助中心",
+    "logout": "退出登录",
+    "general": "常规",
+    "pages": "页面"
+  },
+  "breadcrumb": {
+    "home": "首页",
+    "dashboard": "仪表板"
+  },
+  "topNav": {
+    "search": "搜索",
+    "notifications": "通知",
+    "profile": "个人资料"
+  }
+}

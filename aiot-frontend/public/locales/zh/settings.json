@@ -1,0 +1,114 @@
+{
+  "title": "设置",
+  "tabs": {
+    "account": "账户",
+    "appearance": "外观",
+    "notifications": "通知",
+    "display": "显示"
+  },
+  "account": {
+    "title": "账户",
+    "description": "更新您的账户设置。设置您偏好的语言和时区。",
+    "name": {
+      "label": "姓名",
+      "placeholder": "您的姓名",
+      "description": "这是将在您的个人资料和邮件中显示的姓名。"
+    },
+    "dob": {
+      "label": "出生日期",
+      "description": "您的出生日期用于计算您的年龄。"
+    },
+    "language": {
+      "label": "语言",
+      "selectPlaceholder": "选择语言",
+      "searchPlaceholder": "搜索语言...",
+      "noLanguageFound": "未找到语言。",
+      "description": "这是将在仪表板中使用的语言。"
+    },
+    "updateButton": "更新账户",
+    "validation": {
+      "nameRequired": "请输入您的姓名。",
+      "nameMinLength": "姓名长度至少为2个字符。",
+      "nameMaxLength": "姓名长度不能超过30个字符。",
+      "dobRequired": "请选择您的出生日期。",
+      "languageRequired": "请选择一种语言。"
+    }
+  },
+  "appearance": {
+    "title": "外观",
+    "description": "自定义应用程序的外观",
+    "theme": {
+      "title": "主题",
+      "description": "选择您偏好的主题",
+      "light": "浅色",
+      "dark": "深色",
+      "system": "系统"
+    },
+    "language": {
+      "title": "语言",
+      "description": "选择您偏好的语言",
+      "selectLanguage": "选择语言"
+    },
+    "layout": {
+      "title": "布局",
+      "description": "选择您偏好的布局"
+    }
+  },
+  "notifications": {
+    "title": "通知",
+    "description": "配置您接收通知的方式。",
+    "notifyLabel": "通知我关于...",
+    "types": {
+      "all": "所有新消息",
+      "mentions": "私信和提及",
+      "none": "无"
+    },
+    "emailSection": "邮件通知",
+    "communication": {
+      "label": "沟通邮件",
+      "description": "接收关于您账户活动的邮件。"
+    },
+    "marketing": {
+      "label": "营销邮件",
+      "description": "接收关于新产品、功能等的邮件。"
+    },
+    "social": {
+      "label": "社交邮件",
+      "description": "接收好友请求、关注等的邮件。"
+    },
+    "security": {
+      "label": "安全邮件",
+      "description": "接收关于您的账户活动和安全的邮件。"
+    },
+    "mobile": {
+      "label": "为我的移动设备使用不同的设置",
+      "description": "您可以在",
+      "descriptionLink": "移动设置",
+      "descriptionSuffix": "页面管理您的移动通知。"
+    },
+    "updateButton": "更新通知",
+    "validation": {
+      "typeRequired": "请选择通知类型。"
+    }
+  },
+  "display": {
+    "title": "显示",
+    "description": "打开或关闭项目以控制应用中显示的内容。",
+    "sidebar": {
+      "label": "侧边栏",
+      "description": "选择您想要在侧边栏中显示的项目。",
+      "items": {
+        "recents": "最近",
+        "home": "主页",
+        "applications": "应用",
+        "desktop": "桌面",
+        "downloads": "下载",
+        "documents": "文档"
+      }
+    },
+    "updateButton": "更新显示",
+    "validation": {
+      "selectAtLeastOne": "您必须至少选择一个项目。"
+    }
+  }
+}

@@ -1,0 +1,172 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: ""
+    version: 0.0.1
+paths:
+    /api/v1/client-connect-state:
+        post:
+            tags:
+                - ClientConnectStateService
+            description: PublishClientConnectState publishes a client connect state event to Kafka
+            operationId: ClientConnectStateService_PublishClientConnectState
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.client_connect_state.v1.PublishClientConnectStateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.client_connect_state.v1.PublishClientConnectStateReply'
+    /api/v1/events:
+        post:
+            tags:
+                - EventService
+            description: PublishEvent publishes a device event to Kafka
+            operationId: EventService_PublishEvent
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.event.v1.PublishEventRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.event.v1.PublishEventReply'
+    /api/v1/telemetry:
+        post:
+            tags:
+                - TelemetryService
+            description: PublishTelemetry publishes a telemetry event to Kafka
+            operationId: TelemetryService_PublishTelemetry
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.telemetry.v1.PublishTelemetryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.telemetry.v1.PublishTelemetryReply'
+    /helloworld/{name}:
+        get:
+            tags:
+                - Greeter
+            description: Sends a greeting
+            operationId: Greeter_SayHello
+            parameters:
+                - name: name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
+components:
+    schemas:
+        api.client_connect_state.v1.PublishClientConnectStateReply:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+            description: PublishClientConnectStateReply is the response for publishing client connect state events
+        api.client_connect_state.v1.PublishClientConnectStateRequest:
+            type: object
+            properties:
+                clientid:
+                    type: string
+                timestamp:
+                    type: string
+                eventType:
+                    type: string
+                username:
+                    type: string
+                reason:
+                    type: string
+            description: PublishClientConnectStateRequest is the request for publishing client connect state events
+        api.event.v1.PublishEventReply:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+            description: PublishEventReply is the response for publishing device events
+        api.event.v1.PublishEventRequest:
+            type: object
+            properties:
+                type:
+                    type: string
+                timestamp:
+                    type: string
+                productKey:
+                    type: string
+                deviceKey:
+                    type: string
+                data:
+                    type: object
+            description: PublishEventRequest is the request for publishing device events
+        api.telemetry.v1.PublishTelemetryReply:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+            description: PublishTelemetryReply is the response for publishing telemetry events
+        api.telemetry.v1.PublishTelemetryRequest:
+            type: object
+            properties:
+                type:
+                    type: string
+                timestamp:
+                    type: string
+                productKey:
+                    type: string
+                deviceKey:
+                    type: string
+                sessionId:
+                    type: string
+                data:
+                    type: object
+            description: PublishTelemetryRequest is the request for publishing telemetry events
+        helloworld.v1.HelloReply:
+            type: object
+            properties:
+                message:
+                    type: string
+            description: The response message containing the greetings
+tags:
+    - name: ClientConnectStateService
+      description: ClientConnectStateService provides APIs for publishing client connect state events.
+    - name: EventService
+      description: EventService provides APIs for publishing device events.
+    - name: Greeter
+      description: The greeting service definition.
+    - name: TelemetryService
+      description: TelemetryService provides APIs for publishing telemetry events.

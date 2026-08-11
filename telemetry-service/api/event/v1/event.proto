@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package api.event.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "telemetry-service/api/event/v1;v1";
+
+// EventService provides APIs for publishing device events.
+service EventService {
+  // PublishEvent publishes a device event to Kafka
+  rpc PublishEvent (PublishEventRequest) returns (PublishEventReply) {
+    option (google.api.http) = {
+      post: "/api/v1/events"
+      body: "*"
+    };
+  }
+}
+
+// PublishEventRequest is the request for publishing device events
+message PublishEventRequest {
+  string type = 1;
+  int64 timestamp = 2;
+  string product_key = 3;
+  string device_key = 4;
+  google.protobuf.Struct data = 5;
+}
+
+// PublishEventReply is the response for publishing device events
+message PublishEventReply {
+  int32 code = 1;
+  string message = 2;
+}

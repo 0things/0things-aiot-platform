@@ -1,0 +1,295 @@
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
+import { Textarea } from '@/components/ui/textarea'
+import { useAllProducts } from '@/features/products/api/queries'
+import { useCreateOTAPackage } from '../api/queries'
+import { packageTypes } from '../data/data'
+import {
+  createPackageFormSchema,
+  type CreatePackageFormData,
+} from '../data/schema'
+import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
+
+export function CreatePackageDialog() {
+  const { t } = useTranslation('operationsMonitoring')
+  const { openDialog, setOpenDialog } = useOTAPackagesContext()
+  const createMutation = useCreateOTAPackage()
+  const { data: productsData, isLoading: isLoadingProducts } = useAllProducts()
+
+  const form = useForm<CreatePackageFormData>({
+    resolver: zodResolver(createPackageFormSchema),
+    defaultValues: {
+      packageName: '',
+      version: '',
+      packageType: 'upgrade',
+      productId: '',
+      description: '',
+      file: undefined,
+    },
+  })
+
+  const onSubmit = async (data: CreatePackageFormData) => {
+    // TODO: Handle file upload - need to upload file first and get fileUrl
+    // For now, we'll create the package without file data
+    await createMutation.mutateAsync(
+      {
+        packageName: data.packageName,
+        version: data.version,
+        packageType: data.packageType,
+        productId: data.productId,
+        description: data.description,
+        uploadType: 'file',
+      },
+      {
+        onSuccess: () => {
+          setOpenDialog(null)
+          form.reset()
+        },
+      }
+    )
+  }
+
+  return (
+    <Sheet
+      open={openDialog === 'create'}
+      onOpenChange={(open) => !open && setOpenDialog(null)}
+    >
+      <SheetContent className='flex w-full flex-col gap-0 p-0 sm:max-w-[480px] lg:max-w-[560px]'>
+        <SheetHeader className='px-6 pt-6'>
+          <SheetTitle>{t('ota.packageForm.create.title')}</SheetTitle>
+          <SheetDescription>
+            {t('ota.packageForm.create.description')}
+          </SheetDescription>
+        </SheetHeader>
+        <div className='flex-1 overflow-y-auto px-6 pb-6'>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className='space-y-4 pt-4'
+            >
+              <FormField
+                control={form.control}
+                name='packageName'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t('ota.packageForm.fields.packageName')}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t(
+                          'ota.packageForm.fields.packageNamePlaceholder'
+                        )}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='version'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('ota.packageForm.fields.version')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t(
+                          'ota.packageForm.fields.versionPlaceholder'
+                        )}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='packageType'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t('ota.packageForm.fields.packageType')}
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t(
+                              'ota.packageForm.fields.packageTypePlaceholder'
+                            )}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {packageTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {t(`ota.packageList.packageTypes.${type.value}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='productId'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t('ota.packageForm.fields.productName')}
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isLoadingProducts}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={
+                              isLoadingProducts
+                                ? t('common:loading', {
+                                    defaultValue: 'Loading...',
+                                  })
+                                : t(
+                                    'ota.packageForm.fields.productNamePlaceholder'
+                                  )
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {isLoadingProducts ? (
+                          <div className='flex items-center justify-center p-2'>
+                            <Loader2 className='h-4 w-4 animate-spin' />
+                          </div>
+                        ) : productsData?.products &&
+                          productsData.products.length > 0 ? (
+                          productsData.products.map((product) => (
+                            <SelectItem
+                              key={product.id}
+                              value={product.id || ''}
+                            >
+                              {product.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <div className='p-2 text-sm text-muted-foreground'>
+                            {t('common:noData', {
+                              defaultValue: 'No products available',
+                            })}
+                          </div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='description'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t('ota.packageForm.fields.description')}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder={t(
+                          'ota.packageForm.fields.descriptionPlaceholder'
+                        )}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='file'
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>{t('ota.packageForm.fields.file')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='file'
+                        accept='.bin,.hex,.elf'
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          onChange(file)
+                        }}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className='sticky bottom-0 flex gap-2 bg-background pt-4 pb-2'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => setOpenDialog(null)}
+                  className='flex-1'
+                >
+                  {t('ota.packageForm.cancel')}
+                </Button>
+                <Button
+                  type='submit'
+                  className='flex-1'
+                  disabled={createMutation.isPending}
+                >
+                  {createMutation.isPending
+                    ? t('common:saving', { defaultValue: 'Saving...' })
+                    : t('ota.packageForm.submit')}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}

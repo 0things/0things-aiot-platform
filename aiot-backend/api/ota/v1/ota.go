@@ -1,0 +1,108 @@
+// Package otav1 owns OTA package HTTP contracts and mirrors device-service.
+package otav1
+
+import (
+	"encoding/json"
+	"time"
+)
+
+type OTAPackageRequest struct {
+	PackageName  string          `json:"packageName" binding:"required"`
+	Version      string          `json:"version"`
+	ProductID    int64           `json:"productId"`
+	PackageType  string          `json:"packageType"`
+	Status       string          `json:"status"`
+	UploadType   string          `json:"uploadType"`
+	FileURL      string          `json:"fileUrl"`
+	FileSize     int64           `json:"fileSize"`
+	Checksum     string          `json:"checksum"`
+	Description  string          `json:"description"`
+	ReleaseNotes string          `json:"releaseNotes"`
+	Metadata     json.RawMessage `json:"metadata"`
+}
+
+type SuccessResponse struct {
+	Success bool `json:"success"`
+}
+
+type OTAPackage struct {
+	ID           int64      `json:"id"`
+	PackageName  string     `json:"packageName"`
+	Version      string     `json:"version"`
+	ProductID    int64      `json:"productId"`
+	PackageType  string     `json:"packageType"`
+	Status       string     `json:"status"`
+	UploadType   string     `json:"uploadType"`
+	FileURL      string     `json:"fileUrl"`
+	FileSize     int64      `json:"fileSize"`
+	Checksum     string     `json:"checksum"`
+	Description  string     `json:"description"`
+	ReleaseNotes string     `json:"releaseNotes"`
+	Metadata     string     `json:"metadata"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	UpdatedAt    time.Time  `json:"updatedAt"`
+	ReleasedAt   *time.Time `json:"releasedAt,omitempty"`
+}
+
+type UpgradeStatistics struct {
+	PackageID          string `json:"packageId"`
+	TotalTargetDevices int64  `json:"totalTargetDevices"`
+	SuccessfulUpgrades int64  `json:"successfulUpgrades"`
+	FailedUpgrades     int64  `json:"failedUpgrades"`
+	CancelledUpgrades  int64  `json:"cancelledUpgrades"`
+	PendingUpgrades    int64  `json:"pendingUpgrades"`
+	InProgressUpgrades int64  `json:"inProgressUpgrades"`
+}
+
+type UpgradeBatch struct {
+	BatchID           string    `json:"batchId"`
+	BatchName         string    `json:"batchName"`
+	BatchType         string    `json:"batchType"`
+	UpgradeStrategy   string    `json:"upgradeStrategy"`
+	Status            string    `json:"status"`
+	TargetDeviceCount int32     `json:"targetDeviceCount"`
+	CreatedAt         time.Time `json:"createdAt"`
+}
+
+type DeviceDeployment struct {
+	DeviceID             int64     `json:"deviceId"`
+	DeviceKey            string    `json:"deviceKey"`
+	DeviceName           string    `json:"deviceName"`
+	ProductID            int64     `json:"productId"`
+	ProductKey           string    `json:"productKey"`
+	CurrentVersion       string    `json:"currentVersion"`
+	UpgradeBatchID       string    `json:"upgradeBatchId"`
+	Status               string    `json:"status"`
+	LastStatusChangeTime int64     `json:"lastStatusChangeTime"`
+	CreatedAt            time.Time `json:"createdAt"`
+}
+
+type ListOTAPackagesResponse struct {
+	OTAPackages []OTAPackage `json:"otaPackages"`
+	Total       int64        `json:"total"`
+	Page        int          `json:"page"`
+	PageSize    int          `json:"pageSize"`
+}
+
+type GetOTAPackageResponse struct {
+	OTAPackage OTAPackage `json:"otaPackage"`
+}
+type CreateOTAPackageResponse struct {
+	OTAPackage OTAPackage `json:"otaPackage"`
+}
+type UpdateOTAPackageResponse struct {
+	OTAPackage OTAPackage `json:"otaPackage"`
+}
+type GetUpgradeStatisticsResponse struct {
+	Statistics UpgradeStatistics `json:"statistics"`
+}
+type ListUpgradeBatchesResponse struct {
+	Batches []UpgradeBatch `json:"batches"`
+}
+
+type ListDeviceDeploymentsResponse struct {
+	Deployments []DeviceDeployment `json:"deployments"`
+	Total       int64              `json:"total"`
+	Page        int                `json:"page"`
+	PageSize    int                `json:"pageSize"`
+}

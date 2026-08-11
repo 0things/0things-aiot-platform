@@ -1,0 +1,28 @@
+schema: spec-driven
+
+context: |
+  Go 1.25 + Kratos v2.9.2 telemetry service.
+
+  Architecture: Clean Architecture (service → biz → data).
+  - api/: Protobuf-first (generates HTTP, gRPC, OpenAPI)
+  - internal/biz/: Business logic + repository interfaces
+  - internal/data/: Repository implementations
+  - cmd/: Wire DI entry points
+
+  Key constraints (often missed):
+  - ALL APIs: define protobuf first, then `make api`
+  - Repository interfaces in biz/, implementations in data/
+  - Run `wire` in cmd/telemetry-service/ after DI changes
+  - Protobuf changes must be backward compatible
+
+rules:
+  specs:
+    - Use Given/When/Then format for behavior specifications
+    - Focus on domain behavior, not implementation details
+  design:
+    - Reference specific layers/files (e.g., "add to internal/biz/")
+    - Note which protos need changes
+  tasks:
+    - Include `make api` step when protobuf changes involved
+    - Include `wire` step when adding new dependencies
+    - Unit tests in biz/, integration tests in data/
