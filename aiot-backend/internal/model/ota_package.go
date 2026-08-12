@@ -12,6 +12,8 @@ type OTAPackage struct {
 	PackageName  string `gorm:"column:package_name"`
 	Version      string
 	ProductID    int64  `gorm:"column:product_id"`
+	ProductKey   string `gorm:"<-:false;column:product_key"`
+	ProductName  string `gorm:"<-:false;column:product_name"`
 	PackageType  string `gorm:"column:package_type"`
 	Status       string
 	UploadType   string `gorm:"column:upload_type"`

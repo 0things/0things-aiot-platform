@@ -18,7 +18,8 @@ func NewOTAHandler(h *Handler, svc *service.OTAService) *OTAHandler {
 
 func otaPackageJSON(pkg model.OTAPackage) otaV1.OTAPackage {
 	return otaV1.OTAPackage{
-		ID: pkg.ID, PackageName: pkg.PackageName, Version: pkg.Version, ProductID: pkg.ProductID,
+		ID: pkg.ID, PackageName: pkg.PackageName, Version: pkg.Version,
+		ProductID: pkg.ProductID, ProductKey: pkg.ProductKey, ProductName: pkg.ProductName,
 		PackageType: pkg.PackageType, Status: pkg.Status, UploadType: pkg.UploadType, FileURL: pkg.FileURL,
 		FileSize: pkg.FileSize, Checksum: pkg.Checksum, Description: pkg.Description, ReleaseNotes: pkg.ReleaseNotes,
 		Metadata: string(pkg.Metadata), CreatedAt: pkg.CreatedAt, UpdatedAt: pkg.UpdatedAt, ReleasedAt: pkg.ReleasedAt,

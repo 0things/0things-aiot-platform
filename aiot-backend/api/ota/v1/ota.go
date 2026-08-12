@@ -45,6 +45,8 @@ type OTAPackage struct {
 	PackageName  string     `json:"packageName"`
 	Version      string     `json:"version"`
 	ProductID    int64      `json:"productId"`
+	ProductKey   string     `json:"productKey,omitempty"`
+	ProductName  string     `json:"productName,omitempty"`
 	PackageType  string     `json:"packageType"`
 	Status       string     `json:"status"`
 	UploadType   string     `json:"uploadType"`

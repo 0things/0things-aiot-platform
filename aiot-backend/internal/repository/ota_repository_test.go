@@ -9,7 +9,7 @@ import (
 )
 
 func TestOTARepository(t *testing.T) {
-	store := newRepositoryTestDB(t, &model.OTAPackage{}, &model.DeviceUpgradeStatus{}, &model.UpgradeBatch{})
+	store := newRepositoryTestDB(t, &model.OTAPackage{}, &model.DeviceUpgradeStatus{}, &model.UpgradeBatch{}, &model.Product{})
 	repo := NewOTARepository(store)
 	ctx := context.Background()
 	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", Status: "draft"}

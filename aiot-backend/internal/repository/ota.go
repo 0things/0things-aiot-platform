@@ -22,9 +22,16 @@ type UpgradeStatistics struct {
 
 func NewOTARepository(db *IoTDB) *OTARepository          { return &OTARepository{db: db} }
 func (r *OTARepository) DB(ctx context.Context) *gorm.DB { return r.db.WithContext(ctx) }
+
+func (r *OTARepository) selectWithProduct(query *gorm.DB) *gorm.DB {
+	return query.
+		Select("ota_packages.*, p.product_key AS product_key, p.name AS product_name").
+		Joins("LEFT JOIN products p ON p.id = ota_packages.product_id")
+}
+
 func (r *OTARepository) Find(ctx context.Context, id int64) (*model.OTAPackage, error) {
 	var pkg model.OTAPackage
-	if err := r.DB(ctx).First(&pkg, id).Error; err != nil {
+	if err := r.selectWithProduct(r.DB(ctx)).First(&pkg, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
@@ -34,7 +41,7 @@ func (r *OTARepository) Find(ctx context.Context, id int64) (*model.OTAPackage, 
 }
 func (r *OTARepository) FindByName(ctx context.Context, name string) (*model.OTAPackage, error) {
 	var pkg model.OTAPackage
-	if err := r.DB(ctx).Where("package_name = ?", name).First(&pkg).Error; err != nil {
+	if err := r.selectWithProduct(r.DB(ctx)).Where("ota_packages.package_name = ?", name).First(&pkg).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
@@ -44,13 +51,14 @@ func (r *OTARepository) FindByName(ctx context.Context, name string) (*model.OTA
 }
 
 func (r *OTARepository) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) {
-	query := r.DB(ctx).Model(&model.OTAPackage{})
+	base := r.DB(ctx).Model(&model.OTAPackage{})
 	var total int64
-	if err := query.Count(&total).Error; err != nil {
+	if err := base.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
+	query := r.selectWithProduct(r.DB(ctx).Model(&model.OTAPackage{}))
 	var packages []model.OTAPackage
-	if err := query.Order("created_at DESC").Offset((page - 1) * size).Limit(size).Find(&packages).Error; err != nil {
+	if err := query.Order("ota_packages.created_at DESC").Offset((page - 1) * size).Limit(size).Find(&packages).Error; err != nil {
 		return nil, 0, err
 	}
 	return packages, total, nil
