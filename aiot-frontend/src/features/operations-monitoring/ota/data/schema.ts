@@ -48,7 +48,7 @@ export const createPackageFormSchema = z.object({
     .min(1, 'operationsMonitoring:ota.packageForm.validation.versionRequired')
     .regex(
       /^\d+\.\d+\.\d+(\.\d+)?$/,
-      'operationsMonitoring:ota.packageForm.validation.versionInvalid'
+      'ota.packageForm.validation.versionInvalid'
     ),
   packageType: otaPackageTypeEnum,
   productKey: z
