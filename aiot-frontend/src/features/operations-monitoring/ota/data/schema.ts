@@ -39,13 +39,10 @@ export type OTAPackageType = z.infer<typeof otaPackageTypeEnum>
 export const createPackageFormSchema = z.object({
   packageName: z
     .string()
-    .min(
-      1,
-      'operationsMonitoring:ota.packageForm.validation.packageNameRequired'
-    ),
+    .min(1, 'ota.packageForm.validation.packageNameRequired'),
   version: z
     .string()
-    .min(1, 'operationsMonitoring:ota.packageForm.validation.versionRequired')
+    .min(1, 'ota.packageForm.validation.versionRequired')
     .regex(
       /^\d+\.\d+\.\d+(\.\d+)?$/,
       'ota.packageForm.validation.versionInvalid'
@@ -53,10 +50,7 @@ export const createPackageFormSchema = z.object({
   packageType: otaPackageTypeEnum,
   productKey: z
     .string()
-    .min(
-      1,
-      'operationsMonitoring:ota.packageForm.validation.productNameRequired'
-    ),
+    .min(1, 'ota.packageForm.validation.productNameRequired'),
   description: z.string().optional(),
   file: z.instanceof(File).optional(),
 })
