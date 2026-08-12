@@ -24,6 +24,1331 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/alerts": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取告警列表，支持按 status、severity、device_key 过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "告警模块"
+                ],
+                "summary": "获取告警列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "严重程度",
+                        "name": "severity",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "device_key",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_alert_v1.ListAlertsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过告警 ID 获取告警详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "告警模块"
+                ],
+                "summary": "获取告警详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "告警 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_alert_v1.GetAlertResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/{id}/ack": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过告警 ID 确认（acknowledged）该告警",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "告警模块"
+                ],
+                "summary": "确认告警",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "告警 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_alert_v1.GetAlertResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/{id}/resolve": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过告警 ID 处理（resolved）该告警",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "告警模块"
+                ],
+                "summary": "处理告警",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "告警 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_alert_v1.GetAlertResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取设备列表，支持按 productId、states、enabled、searchText 过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取设备列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "产品 ID",
+                        "name": "productId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "设备状态",
+                        "name": "states",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否启用",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索关键字",
+                        "name": "searchText",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDevicesResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建一个新的设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "创建设备",
+                "parameters": [
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.CreateDeviceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.CreateDeviceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/batch-template": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "下载设备批量导入的 Excel 模板",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "下载设备批量导入模板",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/batch-upload": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过 Excel 文件批量导入设备",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "批量上传设备",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Excel 模板文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.BatchUploadDevicesResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/key/{deviceKey}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过设备 Key 获取设备详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "通过 deviceKey 获取设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.GetDeviceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/mock-kafka": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "向指定 Kafka topic 发送一条测试消息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "模拟向 Kafka 发送消息",
+                "parameters": [
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.MockKafkaRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.MockKafkaResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/stats": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取设备统计信息（总数、已激活、在线、离线、未激活）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "设备统计",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.DeviceStatisticsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过设备 ID 获取设备详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "通过 ID 获取设备",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.GetDeviceResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过设备 ID 更新设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "更新设备",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.UpdateDeviceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.UpdateDeviceResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过设备 ID 软删除设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "删除设备",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/activate": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过设备 ID 激活设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "激活设备",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ActivateDeviceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/enabled": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过设备 ID 启用或禁用设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "设置设备启用/禁用",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.SetDeviceEnabledRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.SetDeviceEnabledResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/mqtt": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取 MQTT 连接参数",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.MQTTParametersResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/push-records": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取设备的下行推送记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取设备下行推送记录列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作类型",
+                        "name": "operationType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ListPushRecordsResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "清理设备指定时间戳之前的下行推送记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "清理设备下行推送记录",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "清理此时间戳之前的记录（毫秒）",
+                        "name": "beforeTimestamp",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ClearPushRecordsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/push-records/{pushRecordId}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过推送记录 ID 获取单个下行推送记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取设备下行推送记录",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "推送记录 ID",
+                        "name": "pushRecordId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.GetPushRecordResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/restore": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过设备 ID 恢复软删除的设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "恢复已删除的设备",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.RestoreDeviceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/shadow": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取设备影子（Desired、Reported、Delta、Metadata、Version）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取设备影子",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.Shadow"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/shadow/desired": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "由应用侧更新设备的 Desired 影子",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "更新设备影子期望值",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.UpdateDesiredShadowRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.Shadow"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "清空设备影子的 Desired 部分",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "清空设备影子期望值",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ClearDesiredShadowRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.Shadow"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/shadow/history": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取设备影子的变更历史记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取设备影子历史",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDeviceShadowHistoryResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/shadow/reported": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "由设备侧更新 Reported 影子",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "更新设备影子上报值",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.UpdateReportedShadowRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.Shadow"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/simulate-push": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "模拟服务端向设备发起一次下行推送",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "模拟下行推送",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.SimulatePushRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.SimulatePushResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/tags": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取设备的所有标签",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取设备标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "覆盖式设置设备的标签集合（PUT 语义）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "全量覆盖设置设备标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.SetDeviceTagsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "增量式添加设备的标签（POST 语义，保留已存在的标签）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "增量添加设备标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.SetDeviceTagsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除设备指定的标签键",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "删除设备标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.DeleteDeviceTagsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}/telemetry": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取设备的遥测（Telemetry）数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取设备遥测数据",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "设备 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_device_v1.TelemetryResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "consumes": [
@@ -43,7 +1368,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.LoginRequest"
+                            "$ref": "#/definitions/0things-backend_api_v1.LoginRequest"
                         }
                     }
                 ],
@@ -51,7 +1376,778 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.LoginResponse"
+                            "$ref": "#/definitions/0things-backend_api_v1.LoginResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota/packages": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取 OTA 升级包列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "获取 OTA 升级包列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.ListOTAPackagesResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建一个新的 OTA 升级包",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "创建 OTA 升级包",
+                "parameters": [
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.CreateOTAPackageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.CreateOTAPackageResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota/packages/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过升级包 ID 获取 OTA 升级包详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "获取 OTA 升级包详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.GetOTAPackageResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过升级包 ID 更新 OTA 升级包",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "更新 OTA 升级包",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.UpdateOTAPackageResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过升级包 ID 删除 OTA 升级包",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "删除 OTA 升级包",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota/packages/{id}/batches": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取指定 OTA 升级包下的升级批次",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "获取 OTA 升级批次列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.ListUpgradeBatchesResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota/packages/{id}/deployments": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取指定升级包下的设备部署记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "获取 OTA 设备部署列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "部署状态",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.ListDeviceDeploymentsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota/packages/{id}/stats": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取指定 OTA 升级包的升级统计数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "获取 OTA 升级统计",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_ota_v1.GetUpgradeStatisticsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取产品列表，支持按 category、status、searchText 过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "获取产品列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "产品分类",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "产品状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索关键字",
+                        "name": "searchText",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.ListProductsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建一个新的产品",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "创建产品",
+                "parameters": [
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.CreateProductRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.CreateProductResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/key/{productKey}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过产品 Key 获取产品详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "通过 productKey 获取产品",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.GetProductByKeyResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过 productKey 更新产品",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "更新产品",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.UpdateProductRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.UpdateProductResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过产品 ID 获取产品详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "通过 ID 获取产品",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "产品 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.GetProductResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过产品 ID 软删除产品",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "删除产品",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "产品 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}/restore": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过产品 ID 恢复软删除的产品",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "恢复已删除的产品",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "产品 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_v1.RestoreProductResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}/tsl": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过产品 ID 获取其物模型定义（TSL）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "获取产品物模型（TSL）",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "产品 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.GetProductTSLResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过产品 ID 上传或更新物模型定义",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "上传/更新产品物模型（TSL）",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "产品 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.UpsertProductTSLRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过产品 ID 上传或更新物模型定义",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "上传/更新产品物模型（TSL）",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "产品 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.UpsertProductTSLRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过产品 ID 删除其物模型定义",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "删除产品物模型（TSL）",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "产品 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse"
                         }
                     }
                 }
@@ -77,7 +2173,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.RegisterRequest"
+                            "$ref": "#/definitions/0things-backend_api_v1.RegisterRequest"
                         }
                     }
                 ],
@@ -85,7 +2181,332 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.Response"
+                            "$ref": "#/definitions/0things-backend_api_v1.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/rules": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取规则列表，支持按 type、status、search 过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "规则模块"
+                ],
+                "summary": "获取规则列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "规则类型",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索关键字",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.ListRulesResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建一条新的规则",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "规则模块"
+                ],
+                "summary": "创建规则",
+                "parameters": [
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.RuleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.CreateRuleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rules/available-fields": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取规则引擎支持的可用字段列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "规则模块"
+                ],
+                "summary": "获取规则可用字段",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.ListAvailableFieldsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rules/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过规则 ID 获取规则详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "规则模块"
+                ],
+                "summary": "获取规则详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "规则 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.GetRuleResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过规则 ID 更新规则",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "规则模块"
+                ],
+                "summary": "更新规则",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "规则 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.RuleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.UpdateRuleResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过路径参数 id 的后缀执行不同操作：` + "`" + `{id}:enable` + "`" + ` 启用、` + "`" + `{id}:disable` + "`" + ` 禁用、` + "`" + `{id}:evaluate` + "`" + ` 立即评估",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "规则模块"
+                ],
+                "summary": "规则操作（启用/禁用/评估）",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "规则 ID 与动作后缀，例如 1:enable",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.SetRuleStatusResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过规则 ID 删除规则",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "规则模块"
+                ],
+                "summary": "删除规则",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "规则 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rules/{id}/executions": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取指定规则的执行记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "规则模块"
+                ],
+                "summary": "获取规则执行记录",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "规则 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/0things-backend_api_rule_v1.ListRuleExecutionsResponse"
                         }
                     }
                 }
@@ -112,7 +2533,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.GetProfileResponse"
+                            "$ref": "#/definitions/0things-backend_api_v1.GetProfileResponse"
                         }
                     }
                 }
@@ -140,7 +2561,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.UpdateProfileRequest"
+                            "$ref": "#/definitions/0things-backend_api_v1.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -148,7 +2569,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.Response"
+                            "$ref": "#/definitions/0things-backend_api_v1.Response"
                         }
                     }
                 }
@@ -156,21 +2577,1476 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "v1.GetProfileResponse": {
+        "0things-backend_api_alert_v1.Alert": {
+            "type": "object",
+            "properties": {
+                "ackAt": {
+                    "type": "string"
+                },
+                "ackBy": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deviceKey": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastRaisedAt": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "string"
+                },
+                "raisedAt": {
+                    "type": "string"
+                },
+                "resolvedAt": {
+                    "type": "string"
+                },
+                "resolvedBy": {
+                    "type": "string"
+                },
+                "ruleId": {
+                    "type": "integer"
+                },
+                "ruleName": {
+                    "type": "string"
+                },
+                "severity": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_alert_v1.GetAlertResponse": {
+            "type": "object",
+            "properties": {
+                "alert": {
+                    "$ref": "#/definitions/0things-backend_api_alert_v1.Alert"
+                }
+            }
+        },
+        "0things-backend_api_alert_v1.ListAlertsResponse": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_alert_v1.Alert"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.ActivateDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.BatchUploadDevicesResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_device_v1.BatchUploadError"
+                    }
+                },
+                "failureCount": {
+                    "type": "integer"
+                },
+                "successCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.BatchUploadError": {
+            "type": "object",
+            "properties": {
+                "deviceName": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "productKey": {
+                    "type": "string"
+                },
+                "row": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.ClearDesiredShadowRequest": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.ClearPushRecordsResponse": {
+            "type": "object",
+            "properties": {
+                "deletedCount": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.CreateDeviceRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "productId"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "productId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.CreateDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.DeleteDeviceTagsRequest": {
+            "type": "object",
+            "required": [
+                "keys"
+            ],
+            "properties": {
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "0things-backend_api_device_v1.Device": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "deviceKey": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastOfflineTime": {
+                    "type": "integer"
+                },
+                "lastOnlineTime": {
+                    "type": "integer"
+                },
+                "metadata": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productKey": {
+                    "type": "string"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.DeviceShadowHistory": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "desired": {},
+                "deviceId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "reported": {},
+                "source": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.DeviceStatisticsResponse": {
+            "type": "object",
+            "properties": {
+                "activatedDevices": {
+                    "type": "integer"
+                },
+                "inactiveDevices": {
+                    "type": "integer"
+                },
+                "offlineDevices": {
+                    "type": "integer"
+                },
+                "onlineDevices": {
+                    "type": "integer"
+                },
+                "totalDevices": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.DeviceTag": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "deviceId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.GetDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.GetPushRecordResponse": {
+            "type": "object",
+            "properties": {
+                "record": {
+                    "$ref": "#/definitions/0things-backend_api_device_v1.PushRecord"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.ListDeviceShadowHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_device_v1.DeviceShadowHistory"
+                    }
+                }
+            }
+        },
+        "0things-backend_api_device_v1.ListDeviceTagsResponse": {
+            "type": "object",
+            "properties": {
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_device_v1.DeviceTag"
+                    }
+                }
+            }
+        },
+        "0things-backend_api_device_v1.ListDevicesResponse": {
+            "type": "object",
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.ListPushRecordsResponse": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "records": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_device_v1.PushRecord"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.MQTTParametersResponse": {
+            "type": "object",
+            "properties": {
+                "clientId": {
+                    "type": "string"
+                },
+                "mqttHostUrl": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.MockKafkaRequest": {
+            "type": "object",
+            "required": [
+                "topic"
+            ],
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "topic": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.MockKafkaResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.PushRecord": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "deviceId": {
+                    "type": "integer"
+                },
+                "errorMessage": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "operationName": {
+                    "type": "string"
+                },
+                "operationType": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.RestoreDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.SetDeviceEnabledRequest": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.SetDeviceEnabledResponse": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.SetDeviceTagsRequest": {
+            "type": "object",
+            "required": [
+                "tags"
+            ],
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "0things-backend_api_device_v1.Shadow": {
+            "type": "object",
+            "properties": {
+                "delta": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "desired": {},
+                "metadata": {},
+                "reported": {},
+                "updatedAt": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.SimulatePushRequest": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.SimulatePushResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "pushRecordId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.TelemetryResponse": {
+            "type": "object",
+            "properties": {
+                "telemetry": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.UpdateDesiredShadowRequest": {
+            "type": "object",
+            "required": [
+                "desired"
+            ],
+            "properties": {
+                "desired": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.UpdateDeviceRequest": {
+            "type": "object",
+            "properties": {
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.UpdateDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                }
+            }
+        },
+        "0things-backend_api_device_v1.UpdateReportedShadowRequest": {
+            "type": "object",
+            "required": [
+                "reported"
+            ],
+            "properties": {
+                "reported": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.CreateOTAPackageRequest": {
+            "type": "object",
+            "required": [
+                "packageName",
+                "product_key"
+            ],
+            "properties": {
+                "checksum": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "fileSize": {
+                    "type": "integer"
+                },
+                "fileUrl": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "packageName": {
+                    "type": "string"
+                },
+                "packageType": {
+                    "type": "string"
+                },
+                "product_key": {
+                    "type": "string"
+                },
+                "releaseNotes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "uploadType": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.CreateOTAPackageResponse": {
+            "type": "object",
+            "properties": {
+                "otaPackage": {
+                    "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackage"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.DeviceDeployment": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "currentVersion": {
+                    "type": "string"
+                },
+                "deviceId": {
+                    "type": "integer"
+                },
+                "deviceKey": {
+                    "type": "string"
+                },
+                "deviceName": {
+                    "type": "string"
+                },
+                "lastStatusChangeTime": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productKey": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "upgradeBatchId": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.GetOTAPackageResponse": {
+            "type": "object",
+            "properties": {
+                "otaPackage": {
+                    "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackage"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.GetUpgradeStatisticsResponse": {
+            "type": "object",
+            "properties": {
+                "statistics": {
+                    "$ref": "#/definitions/0things-backend_api_ota_v1.UpgradeStatistics"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.ListDeviceDeploymentsResponse": {
+            "type": "object",
+            "properties": {
+                "deployments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_ota_v1.DeviceDeployment"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.ListOTAPackagesResponse": {
+            "type": "object",
+            "properties": {
+                "otaPackages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackage"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.ListUpgradeBatchesResponse": {
+            "type": "object",
+            "properties": {
+                "batches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_ota_v1.UpgradeBatch"
+                    }
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.OTAPackage": {
+            "type": "object",
+            "properties": {
+                "checksum": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "fileSize": {
+                    "type": "integer"
+                },
+                "fileUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "metadata": {
+                    "type": "string"
+                },
+                "packageName": {
+                    "type": "string"
+                },
+                "packageType": {
+                    "type": "string"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productKey": {
+                    "type": "string"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "releaseNotes": {
+                    "type": "string"
+                },
+                "releasedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "uploadType": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.OTAPackageRequest": {
+            "type": "object",
+            "required": [
+                "packageName"
+            ],
+            "properties": {
+                "checksum": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "fileSize": {
+                    "type": "integer"
+                },
+                "fileUrl": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "packageName": {
+                    "type": "string"
+                },
+                "packageType": {
+                    "type": "string"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "releaseNotes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "uploadType": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.UpdateOTAPackageResponse": {
+            "type": "object",
+            "properties": {
+                "otaPackage": {
+                    "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackage"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.UpgradeBatch": {
+            "type": "object",
+            "properties": {
+                "batchId": {
+                    "type": "string"
+                },
+                "batchName": {
+                    "type": "string"
+                },
+                "batchType": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "targetDeviceCount": {
+                    "type": "integer"
+                },
+                "upgradeStrategy": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_ota_v1.UpgradeStatistics": {
+            "type": "object",
+            "properties": {
+                "cancelledUpgrades": {
+                    "type": "integer"
+                },
+                "failedUpgrades": {
+                    "type": "integer"
+                },
+                "inProgressUpgrades": {
+                    "type": "integer"
+                },
+                "packageId": {
+                    "type": "string"
+                },
+                "pendingUpgrades": {
+                    "type": "integer"
+                },
+                "successfulUpgrades": {
+                    "type": "integer"
+                },
+                "totalTargetDevices": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_product_tsl_v1.GetProductTSLResponse": {
+            "type": "object",
+            "properties": {
+                "productTsl": {
+                    "$ref": "#/definitions/0things-backend_api_product_tsl_v1.ProductTSL"
+                }
+            }
+        },
+        "0things-backend_api_product_tsl_v1.ProductTSL": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "tsl": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_product_tsl_v1.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "0things-backend_api_product_tsl_v1.UpsertProductTSLRequest": {
+            "type": "object",
+            "properties": {
+                "tsl": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.CreateProductRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "accessProtocol": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "connectivityMethod": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeType": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.CreateProductResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.GetProductByKeyResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.GetProductResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.ListProductsResponse": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_product_v1.Product"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.Product": {
+            "type": "object",
+            "properties": {
+                "accessProtocol": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "connectivityMethod": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "deviceCount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "metadata": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeType": {
+                    "type": "string"
+                },
+                "productKey": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.RestoreProductResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.UpdateProductRequest": {
+            "type": "object",
+            "properties": {
+                "accessProtocol": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "connectivityMethod": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeType": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_product_v1.UpdateProductResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.AvailableField": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "field": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.CreateRuleResponse": {
+            "type": "object",
+            "properties": {
+                "rule": {
+                    "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.EvaluateRuleResponse": {
+            "type": "object",
+            "properties": {
+                "execution": {
+                    "$ref": "#/definitions/0things-backend_api_rule_v1.RuleExecution"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.GetRuleResponse": {
+            "type": "object",
+            "properties": {
+                "rule": {
+                    "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.ListAvailableFieldsResponse": {
+            "type": "object",
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_rule_v1.AvailableField"
+                    }
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.ListRuleExecutionsResponse": {
+            "type": "object",
+            "properties": {
+                "executions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_rule_v1.RuleExecution"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.ListRulesResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.Rule": {
+            "type": "object",
+            "properties": {
+                "actionConfig": {
+                    "type": "string"
+                },
+                "conditionConfig": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "executionCount": {
+                    "type": "integer"
+                },
+                "failureCount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastExecutedAt": {
+                    "type": "string"
+                },
+                "lastExecutionStatus": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "sqlConfig": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "successCount": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "triggerConfig": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.RuleExecution": {
+            "type": "object",
+            "properties": {
+                "conditionResult": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ruleId": {
+                    "type": "integer"
+                },
+                "ruleName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "triggerData": {
+                    "type": "string"
+                },
+                "triggeredAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.RuleRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "actionConfig": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "conditionConfig": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "sqlConfig": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "triggerConfig": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.SetRuleStatusResponse": {
+            "type": "object",
+            "properties": {
+                "rule": {
+                    "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "0things-backend_api_rule_v1.UpdateRuleResponse": {
+            "type": "object",
+            "properties": {
+                "rule": {
+                    "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
+                }
+            }
+        },
+        "0things-backend_api_v1.GetProfileResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/v1.GetProfileResponseData"
+                    "$ref": "#/definitions/0things-backend_api_v1.GetProfileResponseData"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "v1.GetProfileResponseData": {
+        "0things-backend_api_v1.GetProfileResponseData": {
             "type": "object",
             "properties": {
                 "nickname": {
@@ -182,7 +4058,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.LoginRequest": {
+        "0things-backend_api_v1.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -199,21 +4075,21 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.LoginResponse": {
+        "0things-backend_api_v1.LoginResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/v1.LoginResponseData"
+                    "$ref": "#/definitions/0things-backend_api_v1.LoginResponseData"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "v1.LoginResponseData": {
+        "0things-backend_api_v1.LoginResponseData": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -221,7 +4097,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.RegisterRequest": {
+        "0things-backend_api_v1.RegisterRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -238,7 +4114,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.Response": {
+        "0things-backend_api_v1.Response": {
             "type": "object",
             "properties": {
                 "code": {
@@ -250,7 +4126,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.UpdateProfileRequest": {
+        "0things-backend_api_v1.UpdateProfileRequest": {
             "type": "object",
             "required": [
                 "email"

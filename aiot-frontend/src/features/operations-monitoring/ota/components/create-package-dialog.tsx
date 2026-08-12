@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +26,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
+import { SearchableSelect } from '@/components/searchable-select'
 import { useAllProducts } from '@/features/products/api/queries'
 import { useCreateOTAPackage } from '../api/queries'
 import { packageTypes } from '../data/data'
@@ -175,52 +175,28 @@ export function CreatePackageDialog() {
                     <FormLabel>
                       {t('ota.packageForm.fields.productName')}
                     </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || undefined}
-                      disabled={isLoadingProducts}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={
-                              isLoadingProducts
-                                ? t('common:loading', {
-                                    defaultValue: 'Loading...',
-                                  })
-                                : t(
-                                    'ota.packageForm.fields.productNamePlaceholder'
-                                  )
-                            }
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {isLoadingProducts ? (
-                          <div className='flex items-center justify-center p-2'>
-                            <Loader2 className='h-4 w-4 animate-spin' />
-                          </div>
-                        ) : productsData?.products?.length ? (
-                          productsData.products.map(
-                            (product) =>
-                              product.productKey && (
-                                <SelectItem
-                                  key={product.productKey}
-                                  value={product.productKey}
-                                >
-                                  {product.name}
-                                </SelectItem>
-                              )
-                          )
-                        ) : (
-                          <div className='p-2 text-sm text-muted-foreground'>
-                            {t('common:noData', {
-                              defaultValue: 'No products available',
-                            })}
-                          </div>
+                    <FormControl>
+                      <SearchableSelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={
+                          productsData?.products
+                            ?.filter((product) => product.productKey)
+                            .map((product) => ({
+                              label: product.name || product.productKey!,
+                              value: product.productKey!,
+                            })) || []
+                        }
+                        placeholder={t(
+                          'ota.packageForm.fields.productNamePlaceholder'
                         )}
-                      </SelectContent>
-                    </Select>
+                        searchPlaceholder={t('common:search')}
+                        emptyText={t('common:noData', {
+                          defaultValue: 'No products available',
+                        })}
+                        isLoading={isLoadingProducts}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

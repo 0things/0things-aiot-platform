@@ -41,6 +41,21 @@ func ruleExecutionJSON(execution model.RuleExecution) ruleV1.RuleExecution {
 	}
 }
 
+// ListRules godoc
+// @Summary 获取规则列表
+// @Schemes
+// @Description 分页获取规则列表，支持按 type、status、search 过滤
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param type query string false "规则类型"
+// @Param status query string false "状态"
+// @Param search query string false "搜索关键字"
+// @Success 200 {object} ruleV1.ListRulesResponse
+// @Router /rules [get]
 func (h *RuleHandler) ListRules(c *gin.Context) {
 	pageNumber, pageSize := page(c, 20)
 	rules, total, err := h.svc.List(c, pageNumber, pageSize, c.Query("type"), c.Query("status"), c.Query("search"))
@@ -55,6 +70,17 @@ func (h *RuleHandler) ListRules(c *gin.Context) {
 	c.JSON(200, ruleV1.ListRulesResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
+// GetRule godoc
+// @Summary 获取规则详情
+// @Schemes
+// @Description 通过规则 ID 获取规则详情
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Success 200 {object} ruleV1.GetRuleResponse
+// @Router /rules/{id} [get]
 func (h *RuleHandler) GetRule(c *gin.Context) {
 	ruleID, err := id(c)
 	if err != nil {
@@ -69,6 +95,17 @@ func (h *RuleHandler) GetRule(c *gin.Context) {
 	c.JSON(200, ruleV1.GetRuleResponse{Rule: ruleJSON(*rule)})
 }
 
+// CreateRule godoc
+// @Summary 创建规则
+// @Schemes
+// @Description 创建一条新的规则
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body ruleV1.RuleRequest true "params"
+// @Success 200 {object} ruleV1.CreateRuleResponse
+// @Router /rules [post]
 func (h *RuleHandler) CreateRule(c *gin.Context) {
 	var req ruleV1.RuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -86,6 +123,18 @@ func (h *RuleHandler) CreateRule(c *gin.Context) {
 	c.JSON(200, ruleV1.CreateRuleResponse{Rule: ruleJSON(*rule)})
 }
 
+// UpdateRule godoc
+// @Summary 更新规则
+// @Schemes
+// @Description 通过规则 ID 更新规则
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Param request body ruleV1.RuleRequest true "params"
+// @Success 200 {object} ruleV1.UpdateRuleResponse
+// @Router /rules/{id} [put]
 func (h *RuleHandler) UpdateRule(c *gin.Context) {
 	ruleID, err := id(c)
 	if err != nil {
@@ -112,6 +161,17 @@ func (h *RuleHandler) UpdateRule(c *gin.Context) {
 	c.JSON(200, ruleV1.UpdateRuleResponse{Rule: ruleJSON(*rule)})
 }
 
+// DeleteRule godoc
+// @Summary 删除规则
+// @Schemes
+// @Description 通过规则 ID 删除规则
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Success 200 {object} ruleV1.SuccessResponse
+// @Router /rules/{id} [delete]
 func (h *RuleHandler) DeleteRule(c *gin.Context) {
 	ruleID, err := id(c)
 	if err == nil {
@@ -124,6 +184,17 @@ func (h *RuleHandler) DeleteRule(c *gin.Context) {
 	c.JSON(200, ruleV1.SuccessResponse{Success: true})
 }
 
+// RuleAction godoc
+// @Summary 规则操作（启用/禁用/评估）
+// @Schemes
+// @Description 通过路径参数 id 的后缀执行不同操作：`{id}:enable` 启用、`{id}:disable` 禁用、`{id}:evaluate` 立即评估
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path string true "规则 ID 与动作后缀，例如 1:enable"
+// @Success 200 {object} ruleV1.SetRuleStatusResponse
+// @Router /rules/{id} [post]
 func (h *RuleHandler) RuleAction(c *gin.Context) {
 	rawID := c.Param("id")
 	var status string
@@ -156,6 +227,19 @@ func (h *RuleHandler) RuleAction(c *gin.Context) {
 	c.JSON(200, ruleV1.SetRuleStatusResponse{Rule: ruleJSON(*rule)})
 }
 
+// RuleExecutions godoc
+// @Summary 获取规则执行记录
+// @Schemes
+// @Description 分页获取指定规则的执行记录
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Success 200 {object} ruleV1.ListRuleExecutionsResponse
+// @Router /rules/{id}/executions [get]
 func (h *RuleHandler) RuleExecutions(c *gin.Context) {
 	ruleID, err := id(c)
 	if err != nil {
@@ -175,6 +259,16 @@ func (h *RuleHandler) RuleExecutions(c *gin.Context) {
 	c.JSON(200, ruleV1.ListRuleExecutionsResponse{Executions: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
+// EvaluateRule godoc
+// @Summary 立即评估规则
+// @Schemes
+// @Description 通过规则 ID 立即触发一次评估并返回执行结果。由 RuleAction 通过 `:evaluate` 后缀间接调用
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Success 200 {object} ruleV1.EvaluateRuleResponse
 func (h *RuleHandler) EvaluateRule(c *gin.Context) {
 	ruleID, err := id(c)
 	if err != nil {
@@ -189,6 +283,16 @@ func (h *RuleHandler) EvaluateRule(c *gin.Context) {
 	c.JSON(200, ruleV1.EvaluateRuleResponse{Execution: ruleExecutionJSON(*execution)})
 }
 
+// AvailableFields godoc
+// @Summary 获取规则可用字段
+// @Schemes
+// @Description 获取规则引擎支持的可用字段列表
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} ruleV1.ListAvailableFieldsResponse
+// @Router /rules/available-fields [get]
 func (h *RuleHandler) AvailableFields(c *gin.Context) {
 	c.JSON(200, ruleV1.ListAvailableFieldsResponse{Fields: []ruleV1.AvailableField{}})
 }

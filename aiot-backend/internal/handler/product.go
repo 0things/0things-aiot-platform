@@ -38,6 +38,17 @@ func NewProductHandler(h *Handler, svc *service.ProductService) *ProductHandler 
 	return &ProductHandler{Handler: h, svc: svc}
 }
 
+// Create godoc
+// @Summary 创建产品
+// @Schemes
+// @Description 创建一个新的产品
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body productV1.CreateProductRequest true "params"
+// @Success 200 {object} productV1.CreateProductResponse
+// @Router /products [post]
 func (h *ProductHandler) Create(c *gin.Context) {
 	var req productV1.CreateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -52,6 +63,17 @@ func (h *ProductHandler) Create(c *gin.Context) {
 	c.JSON(200, productV1.CreateProductResponse{Product: productJSON(*product, 0)})
 }
 
+// Get godoc
+// @Summary 通过 ID 获取产品
+// @Schemes
+// @Description 通过产品 ID 获取产品详情
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Success 200 {object} productV1.GetProductResponse
+// @Router /products/{id} [get]
 func (h *ProductHandler) Get(c *gin.Context) {
 	productID, err := id(c)
 	if err != nil {
@@ -66,6 +88,17 @@ func (h *ProductHandler) Get(c *gin.Context) {
 	c.JSON(200, productV1.GetProductResponse{Product: productJSON(*product, 0)})
 }
 
+// GetByKey godoc
+// @Summary 通过 productKey 获取产品
+// @Schemes
+// @Description 通过产品 Key 获取产品详情
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param productKey path string true "产品 Key"
+// @Success 200 {object} productV1.GetProductByKeyResponse
+// @Router /products/key/{productKey} [get]
 func (h *ProductHandler) GetByKey(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
 	if err != nil {
@@ -75,6 +108,21 @@ func (h *ProductHandler) GetByKey(c *gin.Context) {
 	c.JSON(200, productV1.GetProductByKeyResponse{Product: productJSON(*product, 0)})
 }
 
+// List godoc
+// @Summary 获取产品列表
+// @Schemes
+// @Description 分页获取产品列表，支持按 category、status、searchText 过滤
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param category query string false "产品分类"
+// @Param status query string false "产品状态"
+// @Param searchText query string false "搜索关键字"
+// @Success 200 {object} productV1.ListProductsResponse
+// @Router /products [get]
 func (h *ProductHandler) List(c *gin.Context) {
 	pageNumber, pageSize := page(c, 10)
 	products, total, err := h.svc.List(c, pageNumber, pageSize, c.Query("category"), c.Query("status"), c.Query("searchText"))
@@ -89,6 +137,18 @@ func (h *ProductHandler) List(c *gin.Context) {
 	c.JSON(200, productV1.ListProductsResponse{Products: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
+// Update godoc
+// @Summary 更新产品
+// @Schemes
+// @Description 通过 productKey 更新产品
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param productKey path string true "产品 Key"
+// @Param request body productV1.UpdateProductRequest true "params"
+// @Success 200 {object} productV1.UpdateProductResponse
+// @Router /products/key/{productKey} [put]
 func (h *ProductHandler) Update(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
 	if err != nil {
@@ -131,6 +191,17 @@ func (h *ProductHandler) Update(c *gin.Context) {
 	c.JSON(200, productV1.UpdateProductResponse{Product: productJSON(*product, 0)})
 }
 
+// Delete godoc
+// @Summary 删除产品
+// @Schemes
+// @Description 通过产品 ID 软删除产品
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Success 200 {object} productV1.SuccessResponse
+// @Router /products/{id} [delete]
 func (h *ProductHandler) Delete(c *gin.Context) {
 	productID, err := id(c)
 	if err == nil {
@@ -143,6 +214,17 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 	c.JSON(200, productV1.SuccessResponse{Success: true})
 }
 
+// Restore godoc
+// @Summary 恢复已删除的产品
+// @Schemes
+// @Description 通过产品 ID 恢复软删除的产品
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Success 200 {object} productV1.RestoreProductResponse
+// @Router /products/{id}/restore [post]
 func (h *ProductHandler) Restore(c *gin.Context) {
 	productID, err := id(c)
 	if err == nil {

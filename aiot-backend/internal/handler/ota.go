@@ -42,6 +42,18 @@ func otaDeploymentJSON(deployment model.DeviceDeployment) otaV1.DeviceDeployment
 	}
 }
 
+// ListOTA godoc
+// @Summary 获取 OTA 升级包列表
+// @Schemes
+// @Description 分页获取 OTA 升级包列表
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Success 200 {object} otaV1.ListOTAPackagesResponse
+// @Router /ota/packages [get]
 func (h *OTAHandler) ListOTA(c *gin.Context) {
 	pageNumber, pageSize := page(c, 20)
 	packages, total, err := h.svc.List(c, pageNumber, pageSize)
@@ -56,6 +68,17 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 	c.JSON(200, otaV1.ListOTAPackagesResponse{OTAPackages: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
+// GetOTA godoc
+// @Summary 获取 OTA 升级包详情
+// @Schemes
+// @Description 通过升级包 ID 获取 OTA 升级包详情
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Success 200 {object} otaV1.GetOTAPackageResponse
+// @Router /ota/packages/{id} [get]
 func (h *OTAHandler) GetOTA(c *gin.Context) {
 	packageID, err := id(c)
 	if err != nil {
@@ -70,6 +93,17 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 	c.JSON(200, otaV1.GetOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
 }
 
+// CreateOTA godoc
+// @Summary 创建 OTA 升级包
+// @Schemes
+// @Description 创建一个新的 OTA 升级包
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body otaV1.CreateOTAPackageRequest true "params"
+// @Success 200 {object} otaV1.CreateOTAPackageResponse
+// @Router /ota/packages [post]
 func (h *OTAHandler) CreateOTA(c *gin.Context) {
 	var req otaV1.CreateOTAPackageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -87,6 +121,18 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 	c.JSON(200, otaV1.CreateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
 }
 
+// UpdateOTA godoc
+// @Summary 更新 OTA 升级包
+// @Schemes
+// @Description 通过升级包 ID 更新 OTA 升级包
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Param request body otaV1.OTAPackageRequest true "params"
+// @Success 200 {object} otaV1.UpdateOTAPackageResponse
+// @Router /ota/packages/{id} [put]
 func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 	packageID, err := id(c)
 	if err != nil {
@@ -112,6 +158,17 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 	c.JSON(200, otaV1.UpdateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
 }
 
+// DeleteOTA godoc
+// @Summary 删除 OTA 升级包
+// @Schemes
+// @Description 通过升级包 ID 删除 OTA 升级包
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Success 200 {object} otaV1.SuccessResponse
+// @Router /ota/packages/{id} [delete]
 func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 	packageID, err := id(c)
 	if err == nil {
@@ -124,6 +181,17 @@ func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 	c.JSON(200, otaV1.SuccessResponse{Success: true})
 }
 
+// OTAStats godoc
+// @Summary 获取 OTA 升级统计
+// @Schemes
+// @Description 获取指定 OTA 升级包的升级统计数据
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Success 200 {object} otaV1.GetUpgradeStatisticsResponse
+// @Router /ota/packages/{id}/stats [get]
 func (h *OTAHandler) OTAStats(c *gin.Context) {
 	stats, err := h.svc.Statistics(c, c.Param("id"))
 	if err != nil {
@@ -138,6 +206,17 @@ func (h *OTAHandler) OTAStats(c *gin.Context) {
 	}})
 }
 
+// OTABatches godoc
+// @Summary 获取 OTA 升级批次列表
+// @Schemes
+// @Description 获取指定 OTA 升级包下的升级批次
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Success 200 {object} otaV1.ListUpgradeBatchesResponse
+// @Router /ota/packages/{id}/batches [get]
 func (h *OTAHandler) OTABatches(c *gin.Context) {
 	batches, err := h.svc.Batches(c, c.Param("id"))
 	if err != nil {
@@ -151,6 +230,20 @@ func (h *OTAHandler) OTABatches(c *gin.Context) {
 	c.JSON(200, otaV1.ListUpgradeBatchesResponse{Batches: items})
 }
 
+// OTADeployments godoc
+// @Summary 获取 OTA 设备部署列表
+// @Schemes
+// @Description 分页获取指定升级包下的设备部署记录
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param status query string false "部署状态"
+// @Success 200 {object} otaV1.ListDeviceDeploymentsResponse
+// @Router /ota/packages/{id}/deployments [get]
 func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	pageNumber, pageSize := page(c, 100)
 	deployments, total, err := h.svc.Deployments(c, c.Param("id"), pageNumber, pageSize, c.Query("status"))
