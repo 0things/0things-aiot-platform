@@ -1,11 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { otaPackageServiceApi } from '@/api/clients'
+import { axiosInstance, otaPackageServiceApi } from '@/api/clients'
 import type {
   OtaV1CreateOTAPackageRequest,
   OtaV1UpdateOTAPackageRequest,
 } from '@/api/generated/device-service'
 import type { OTAPackage } from '../data/schema'
+
+type CreateOTAPackagePayload = Omit<
+  OtaV1CreateOTAPackageRequest,
+  'productId'
+> & {
+  product_key: string
+}
 
 /**
  * Query key factory for OTA packages
@@ -103,11 +110,8 @@ export function useCreateOTAPackage() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: OtaV1CreateOTAPackageRequest) => {
-      const response =
-        await otaPackageServiceApi.oTAPackageServiceCreateOTAPackage({
-          otaV1CreateOTAPackageRequest: data,
-        })
+    mutationFn: async (data: CreateOTAPackagePayload) => {
+      const response = await axiosInstance.post('/v1/ota-packages', data)
       return response.data
     },
     onSuccess: () => {

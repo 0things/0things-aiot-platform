@@ -70,16 +70,16 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 }
 
 func (h *OTAHandler) CreateOTA(c *gin.Context) {
-	var req otaV1.OTAPackageRequest
+	var req otaV1.CreateOTAPackageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
 	}
-	pkg := &model.OTAPackage{PackageName: req.PackageName, Version: req.Version, ProductID: req.ProductID, PackageType: req.PackageType, Status: req.Status, UploadType: req.UploadType, FileURL: req.FileURL, FileSize: req.FileSize, Checksum: req.Checksum, Description: req.Description, ReleaseNotes: req.ReleaseNotes, Metadata: req.Metadata}
+	pkg := &model.OTAPackage{PackageName: req.PackageName, Version: req.Version, PackageType: req.PackageType, Status: req.Status, UploadType: req.UploadType, FileURL: req.FileURL, FileSize: req.FileSize, Checksum: req.Checksum, Description: req.Description, ReleaseNotes: req.ReleaseNotes, Metadata: req.Metadata}
 	if pkg.Status == "" {
 		pkg.Status = "draft"
 	}
-	if err := h.svc.Create(c, pkg); err != nil {
+	if err := h.svc.Create(c, pkg, req.ProductKey); err != nil {
 		deviceError(c, err)
 		return
 	}

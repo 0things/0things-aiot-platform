@@ -21,6 +21,21 @@ type OTAPackageRequest struct {
 	Metadata     json.RawMessage `json:"metadata"`
 }
 
+type CreateOTAPackageRequest struct {
+	PackageName  string          `json:"packageName" binding:"required"`
+	Version      string          `json:"version"`
+	ProductKey   string          `json:"product_key" binding:"required"`
+	PackageType  string          `json:"packageType"`
+	Status       string          `json:"status"`
+	UploadType   string          `json:"uploadType"`
+	FileURL      string          `json:"fileUrl"`
+	FileSize     int64           `json:"fileSize"`
+	Checksum     string          `json:"checksum"`
+	Description  string          `json:"description"`
+	ReleaseNotes string          `json:"releaseNotes"`
+	Metadata     json.RawMessage `json:"metadata"`
+}
+
 type SuccessResponse struct {
 	Success bool `json:"success"`
 }

@@ -48,7 +48,7 @@ export function CreatePackageDialog() {
       packageName: '',
       version: '',
       packageType: 'upgrade',
-      productId: '',
+      productKey: '',
       description: '',
       file: undefined,
     },
@@ -62,7 +62,7 @@ export function CreatePackageDialog() {
         packageName: data.packageName,
         version: data.version,
         packageType: data.packageType,
-        productId: data.productId,
+        product_key: data.productKey,
         description: data.description,
         uploadType: 'file',
       },
@@ -169,7 +169,7 @@ export function CreatePackageDialog() {
 
               <FormField
                 control={form.control}
-                name='productId'
+                name='productKey'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -177,7 +177,7 @@ export function CreatePackageDialog() {
                     </FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value}
+                      value={field.value || undefined}
                       disabled={isLoadingProducts}
                     >
                       <FormControl>
@@ -200,16 +200,18 @@ export function CreatePackageDialog() {
                           <div className='flex items-center justify-center p-2'>
                             <Loader2 className='h-4 w-4 animate-spin' />
                           </div>
-                        ) : productsData?.products &&
-                          productsData.products.length > 0 ? (
-                          productsData.products.map((product) => (
-                            <SelectItem
-                              key={product.id}
-                              value={product.id || ''}
-                            >
-                              {product.name}
-                            </SelectItem>
-                          ))
+                        ) : productsData?.products?.length ? (
+                          productsData.products.map(
+                            (product) =>
+                              product.productKey && (
+                                <SelectItem
+                                  key={product.productKey}
+                                  value={product.productKey}
+                                >
+                                  {product.name}
+                                </SelectItem>
+                              )
+                          )
                         ) : (
                           <div className='p-2 text-sm text-muted-foreground'>
                             {t('common:noData', {

@@ -51,7 +51,7 @@ export const createPackageFormSchema = z.object({
       'operationsMonitoring:ota.packageForm.validation.versionInvalid'
     ),
   packageType: otaPackageTypeEnum,
-  productId: z
+  productKey: z
     .string()
     .min(
       1,

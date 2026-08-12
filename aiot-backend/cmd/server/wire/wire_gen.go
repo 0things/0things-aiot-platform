@@ -56,7 +56,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	alertService := service.NewAlertService(alertRepository)
 	alertHandler := handler.NewAlertHandler(handlerHandler, alertService)
 	otaRepository := repository.NewOTARepository(ioTDB)
-	otaService := service.NewOTAService(otaRepository)
+	otaService := service.NewOTAService(otaRepository, productRepository)
 	otaHandler := handler.NewOTAHandler(handlerHandler, otaService)
 	routerDeps := router.RouterDeps{
 		Logger:            logger,

@@ -9,7 +9,8 @@ import (
 )
 
 type OTAService struct {
-	repo *repository.OTARepository
+	repo        *repository.OTARepository
+	productRepo *repository.ProductRepository
 }
 
 type UpgradeStatistics struct {
@@ -22,8 +23,8 @@ type UpgradeStatistics struct {
 	InProgressUpgrades int64
 }
 
-func NewOTAService(repo *repository.OTARepository) *OTAService {
-	return &OTAService{repo: repo}
+func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository) *OTAService {
+	return &OTAService{repo: repo, productRepo: productRepo}
 }
 
 func (s *OTAService) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) {
@@ -34,7 +35,12 @@ func (s *OTAService) Get(ctx context.Context, id int64) (*model.OTAPackage, erro
 	return s.repo.Find(ctx, id)
 }
 
-func (s *OTAService) Create(ctx context.Context, pkg *model.OTAPackage) error {
+func (s *OTAService) Create(ctx context.Context, pkg *model.OTAPackage, productKey string) error {
+	product, err := s.productRepo.FindByKey(ctx, productKey)
+	if err != nil {
+		return err
+	}
+	pkg.ProductID = product.ID
 	return s.repo.Create(ctx, pkg)
 }
 
