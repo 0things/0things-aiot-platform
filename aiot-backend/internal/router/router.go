@@ -18,4 +18,5 @@ type RouterDeps struct {
 	RuleHandler       *handler.RuleHandler
 	AlertHandler      *handler.AlertHandler
 	OTAHandler        *handler.OTAHandler
+	DeviceEventHandler *handler.DeviceEventHandler
 }

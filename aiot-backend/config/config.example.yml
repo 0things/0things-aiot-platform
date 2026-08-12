@@ -28,7 +28,7 @@ data:
       db: 0
   kafka:
     device:
-      # Used only by POST /v1/devices/mock-kafka. No consumer is started.
+      # Used by the mock endpoint and the iotEvent consumer.
       brokers: []
   mongo:
     uri: mongodb://username:password@localhost:27017

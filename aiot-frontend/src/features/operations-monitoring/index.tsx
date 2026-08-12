@@ -12,12 +12,11 @@ import { ThemeSwitch } from '@/components/theme-switch'
 export function OperationsMonitoring() {
   const { t } = useTranslation('operationsMonitoring')
   const router = useRouterState()
+  const isEventsPage = router.location.pathname.includes('/events')
 
   const activeTab = router.location.pathname.includes('/analytics')
     ? 'analytics'
-    : router.location.pathname.includes('/packages')
-      ? 'packages'
-      : 'packages'
+    : 'packages'
 
   return (
     <>
@@ -31,32 +30,36 @@ export function OperationsMonitoring() {
       </Header>
 
       <Main className='flex flex-1 flex-col gap-4 sm:gap-6'>
-        <Tabs value={activeTab} className='space-y-4'>
-          <TabsList>
-            <TabsTrigger value='packages' asChild>
-              <Link
-                to='/operations-monitoring/ota/packages'
-                className='flex items-center gap-2'
-              >
-                <Upload size={16} />
-                {t('ota.tabs.packages')}
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value='analytics' asChild>
-              <Link
-                to='/operations-monitoring/ota/analytics'
-                className='flex items-center gap-2'
-              >
-                <BarChart3 size={16} />
-                {t('ota.tabs.analytics')}
-              </Link>
-            </TabsTrigger>
-          </TabsList>
+        {isEventsPage ? (
+          <Outlet />
+        ) : (
+          <Tabs value={activeTab} className='space-y-4'>
+            <TabsList>
+              <TabsTrigger value='packages' asChild>
+                <Link
+                  to='/operations-monitoring/ota/packages'
+                  className='flex items-center gap-2'
+                >
+                  <Upload size={16} />
+                  {t('ota.tabs.packages')}
+                </Link>
+              </TabsTrigger>
+              <TabsTrigger value='analytics' asChild>
+                <Link
+                  to='/operations-monitoring/ota/analytics'
+                  className='flex items-center gap-2'
+                >
+                  <BarChart3 size={16} />
+                  {t('ota.tabs.analytics')}
+                </Link>
+              </TabsTrigger>
+            </TabsList>
 
-          <div>
-            <Outlet />
-          </div>
-        </Tabs>
+            <div>
+              <Outlet />
+            </div>
+          </Tabs>
+        )}
       </Main>
     </>
   )

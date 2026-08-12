@@ -1,6 +1,10 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { enUS, zhCN } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { useOTAAnalytics } from '../hooks/use-ota-analytics'
 import { AnalyticsSummaryCards } from './analytics-summary-cards'
 import { DeploymentStatusChart } from './deployment-status-chart'
@@ -9,7 +13,10 @@ import { FirmwareDistributionChart } from './firmware-distribution-chart'
 import { RecentActivityTable } from './recent-activity-table'
 
 export function OTAAnalytics() {
-  const { data, isLoading, isError, error, refetch } = useOTAAnalytics()
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useOTAAnalytics()
+  const { t, i18n } = useTranslation('operationsMonitoring')
+  const locale = i18n.language?.startsWith('zh') ? zhCN : enUS
 
   if (isError) {
     return (
@@ -19,12 +26,12 @@ export function OTAAnalytics() {
             <div className='flex flex-col items-center gap-2 text-center'>
               <AlertTriangle className='h-10 w-10 text-destructive' />
               <h3 className='text-lg font-semibold'>
-                Failed to load analytics
+                {t('ota.analytics.title')}
               </h3>
               <p className='text-sm text-muted-foreground'>
                 {error instanceof Error
                   ? error.message
-                  : 'An error occurred while loading analytics data. Please try again.'}
+                  : t('ota.analytics.errorFallback')}
               </p>
             </div>
             <Button
@@ -33,7 +40,7 @@ export function OTAAnalytics() {
               variant='outline'
             >
               <RefreshCw className='mr-2 h-4 w-4' />
-              Retry
+              {t('ota.analytics.refresh')}
             </Button>
           </CardContent>
         </Card>
@@ -41,9 +48,46 @@ export function OTAAnalytics() {
     )
   }
 
+  const lastUpdated = data?.meta?.lastUpdatedAt
+    ? formatDistanceToNow(new Date(data.meta.lastUpdatedAt), {
+        addSuffix: true,
+        locale,
+      })
+    : null
+
   return (
-    <div className='flex flex-col gap-4'>
-      {/* Summary Cards */}
+    <div className='flex flex-col gap-6'>
+      {/* Page header */}
+      <div className='flex flex-wrap items-end justify-between gap-3'>
+        <div>
+          <h1 className='text-2xl font-semibold tracking-tight'>
+            {t('ota.analytics.title')}
+          </h1>
+          <p className='mt-1 text-sm text-muted-foreground'>
+            {t('ota.analytics.subtitle')}
+          </p>
+        </div>
+        <div className='flex items-center gap-3'>
+          {lastUpdated && (
+            <span className='text-xs text-muted-foreground tabular-nums'>
+              {t('ota.analytics.lastUpdated', { time: lastUpdated })}
+            </span>
+          )}
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => refetch()}
+            disabled={isRefetching}
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`}
+            />
+            {t('ota.analytics.refresh')}
+          </Button>
+        </div>
+      </div>
+
+      {/* Snapshot: KPIs + status */}
       <AnalyticsSummaryCards
         summary={
           data?.summary || {
@@ -56,7 +100,6 @@ export function OTAAnalytics() {
         isLoading={isLoading}
       />
 
-      {/* Charts Row */}
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
         <DeploymentStatusChart
           data={data?.deploymentStatus || []}
@@ -70,13 +113,14 @@ export function OTAAnalytics() {
         </div>
       </div>
 
-      {/* Firmware Distribution */}
+      <Separator />
+
+      {/* History: firmware + activity */}
       <FirmwareDistributionChart
         data={data?.firmwareDistribution || []}
         isLoading={isLoading}
       />
 
-      {/* Recent Activity */}
       <RecentActivityTable
         data={data?.recentActivity || []}
         isLoading={isLoading}

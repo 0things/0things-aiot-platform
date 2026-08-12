@@ -58,6 +58,11 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	otaRepository := repository.NewOTARepository(ioTDB)
 	otaService := service.NewOTAService(otaRepository, productRepository)
 	otaHandler := handler.NewOTAHandler(handlerHandler, otaService)
+	deviceEventRepository := repository.NewDeviceEventRepository(ioTDB)
+	deviceEventService := service.NewDeviceEventService(deviceEventRepository, deviceRepository)
+	deviceEventHandler := handler.NewDeviceEventHandler(handlerHandler, deviceEventService)
+	deviceEventConsumer, err := job.NewDeviceEventConsumer(viperViper, deviceEventService, logger)
+	if err != nil { return nil, nil, err }
 	routerDeps := router.RouterDeps{
 		Logger:            logger,
 		Config:            viperViper,
@@ -69,11 +74,12 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		RuleHandler:       ruleHandler,
 		AlertHandler:      alertHandler,
 		OTAHandler:        otaHandler,
+		DeviceEventHandler: deviceEventHandler,
 	}
 	httpServer := server.NewHTTPServer(routerDeps)
 	jobJob := job.NewJob(transaction, logger, sidSid)
 	userJob := job.NewUserJob(jobJob, userRepository)
-	jobServer := server.NewJobServer(logger, userJob)
+	jobServer := server.NewJobServer(logger, userJob, deviceEventConsumer)
 	appApp := newApp(httpServer, jobServer)
 	return appApp, func() {
 	}, nil
@@ -81,13 +87,13 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewIoTDB, repository.NewIoTRedis, repository.NewProductRepository, repository.NewProductTSLRepository, repository.NewDeviceRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewRuleRepository, repository.NewAlertRepository, repository.NewOTARepository, repository.NewTransaction, repository.NewUserRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewIoTDB, repository.NewIoTRedis, repository.NewProductRepository, repository.NewProductTSLRepository, repository.NewDeviceRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewRuleRepository, repository.NewAlertRepository, repository.NewOTARepository, repository.NewDeviceEventRepository, repository.NewTransaction, repository.NewUserRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewProductTSLService, service.NewDeviceService, service.NewRuleService, service.NewAlertService, service.NewOTAService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewProductTSLService, service.NewDeviceService, service.NewRuleService, service.NewAlertService, service.NewOTAService, service.NewDeviceEventService)
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewProductTSLHandler, handler.NewDeviceHandler, handler.NewRuleHandler, handler.NewAlertHandler, handler.NewOTAHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewProductTSLHandler, handler.NewDeviceHandler, handler.NewRuleHandler, handler.NewAlertHandler, handler.NewOTAHandler, handler.NewDeviceEventHandler)
 
-var jobSet = wire.NewSet(job.NewJob, job.NewUserJob)
+var jobSet = wire.NewSet(job.NewJob, job.NewUserJob, job.NewDeviceEventConsumer)
 
 var serverSet = wire.NewSet(server.NewHTTPServer, server.NewJobServer)
 

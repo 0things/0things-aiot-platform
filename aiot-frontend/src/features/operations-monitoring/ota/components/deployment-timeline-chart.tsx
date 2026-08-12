@@ -3,18 +3,62 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
-  Legend,
   ResponsiveContainer,
   Tooltip,
+  type TooltipProps,
   XAxis,
   YAxis,
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { OTATimelineDataPoint } from '../data/analytics-schema'
 
 interface DeploymentTimelineChartProps {
   data: OTATimelineDataPoint[]
   isLoading?: boolean
+}
+
+interface TimelineRow {
+  date: string
+  deployments: number
+  successes: number
+  failures: number
+}
+
+function TimelineTooltip({
+  active,
+  payload,
+  label,
+  t,
+}: TooltipProps<number, string> & { t: ReturnType<typeof useTranslation>['t'] }) {
+  if (!active || !payload?.length) return null
+  const row = payload[0].payload as TimelineRow
+  return (
+    <div className='rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-sm'>
+      <div className='mb-1 font-medium tabular-nums'>{label}</div>
+      <div className='flex items-center gap-2'>
+        <span className='h-2 w-2 rounded-full bg-chart-1' />
+        <span className='text-muted-foreground'>
+          {t('ota.analytics.timeline.deployments')}
+        </span>
+        <span className='ml-auto tabular-nums'>{row.deployments}</span>
+      </div>
+      <div className='flex items-center gap-2'>
+        <span className='h-2 w-2 rounded-full bg-chart-2' />
+        <span className='text-muted-foreground'>
+          {t('ota.analytics.timeline.successes')}
+        </span>
+        <span className='ml-auto tabular-nums'>{row.successes}</span>
+      </div>
+      <div className='flex items-center gap-2'>
+        <span className='h-2 w-2 rounded-full bg-chart-5' />
+        <span className='text-muted-foreground'>
+          {t('ota.analytics.timeline.failures')}
+        </span>
+        <span className='ml-auto tabular-nums'>{row.failures}</span>
+      </div>
+    </div>
+  )
 }
 
 export function DeploymentTimelineChart({
@@ -23,88 +67,112 @@ export function DeploymentTimelineChart({
 }: DeploymentTimelineChartProps) {
   const { t } = useTranslation('operationsMonitoring')
 
-  const chartData = data.map((item) => ({
+  const chartData: TimelineRow[] = data.map((item) => ({
     date: new Date(item.date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
     }),
-    [t('ota.analytics.timeline.deployments')]: item.deployments,
-    [t('ota.analytics.timeline.successes')]: item.successes,
-    [t('ota.analytics.timeline.failures')]: item.failures,
+    deployments: item.deployments,
+    successes: item.successes,
+    failures: item.failures,
   }))
 
+  const series: Array<{
+    key: keyof TimelineRow
+    label: string
+    token: string
+  }> = [
+    {
+      key: 'deployments',
+      label: t('ota.analytics.timeline.deployments'),
+      token: 'var(--chart-1)',
+    },
+    {
+      key: 'successes',
+      label: t('ota.analytics.timeline.successes'),
+      token: 'var(--chart-2)',
+    },
+    {
+      key: 'failures',
+      label: t('ota.analytics.timeline.failures'),
+      token: 'var(--chart-5)',
+    },
+  ]
+
   return (
-    <Card>
-      <CardHeader>
+    <Card className='h-full'>
+      <CardHeader className='flex flex-row items-center justify-between space-y-0'>
         <CardTitle>{t('ota.analytics.charts.deploymentTimeline')}</CardTitle>
+        <div className='flex items-center gap-3 text-xs text-muted-foreground'>
+          {series.map((s) => (
+            <span key={s.key} className='flex items-center gap-1.5'>
+              <span
+                className='h-2 w-2 rounded-full'
+                style={{ backgroundColor: s.token }}
+              />
+              {s.label}
+            </span>
+          ))}
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className='flex h-[300px] items-center justify-center'>
-            <div className='h-full w-full animate-pulse rounded bg-muted' />
+          <div className='flex h-[280px] items-center justify-center'>
+            <Skeleton className='h-full w-full rounded-md' />
           </div>
         ) : (
-          <ResponsiveContainer width='100%' height={300}>
-            <AreaChart data={chartData}>
+          <ResponsiveContainer width='100%' height={280}>
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 8, left: -16, bottom: 0 }}
+            >
               <defs>
-                <linearGradient
-                  id='colorDeployments'
-                  x1='0'
-                  y1='0'
-                  x2='0'
-                  y2='1'
-                >
-                  <stop offset='5%' stopColor='#3b82f6' stopOpacity={0.8} />
-                  <stop offset='95%' stopColor='#3b82f6' stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id='colorSuccesses' x1='0' y1='0' x2='0' y2='1'>
-                  <stop offset='5%' stopColor='#22c55e' stopOpacity={0.8} />
-                  <stop offset='95%' stopColor='#22c55e' stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id='colorFailures' x1='0' y1='0' x2='0' y2='1'>
-                  <stop offset='5%' stopColor='#ef4444' stopOpacity={0.8} />
-                  <stop offset='95%' stopColor='#ef4444' stopOpacity={0} />
-                </linearGradient>
+                {series.map((s) => (
+                  <linearGradient
+                    key={s.key}
+                    id={`ota-${s.key}-gradient`}
+                    x1='0'
+                    y1='0'
+                    x2='0'
+                    y2='1'
+                  >
+                    <stop offset='0%' stopColor={s.token} stopOpacity={0.32} />
+                    <stop offset='100%' stopColor={s.token} stopOpacity={0} />
+                  </linearGradient>
+                ))}
               </defs>
               <CartesianGrid
-                strokeDasharray='3 3'
-                stroke='hsl(var(--border))'
+                strokeDasharray='2 4'
+                stroke='var(--border)'
+                vertical={false}
               />
               <XAxis
                 dataKey='date'
-                stroke='hsl(var(--muted-foreground))'
-                fontSize={12}
+                stroke='var(--muted-foreground)'
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                dy={4}
               />
-              <YAxis stroke='hsl(var(--muted-foreground))' fontSize={12} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px',
-                }}
+              <YAxis
+                stroke='var(--muted-foreground)'
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
               />
-              <Legend />
-              <Area
-                type='monotone'
-                dataKey={t('ota.analytics.timeline.deployments')}
-                stroke='#3b82f6'
-                fillOpacity={1}
-                fill='url(#colorDeployments)'
-              />
-              <Area
-                type='monotone'
-                dataKey={t('ota.analytics.timeline.successes')}
-                stroke='#22c55e'
-                fillOpacity={1}
-                fill='url(#colorSuccesses)'
-              />
-              <Area
-                type='monotone'
-                dataKey={t('ota.analytics.timeline.failures')}
-                stroke='#ef4444'
-                fillOpacity={1}
-                fill='url(#colorFailures)'
-              />
+              <Tooltip content={<TimelineTooltip t={t} />} cursor={{ stroke: 'var(--border)', strokeDasharray: '2 4' }} />
+              {series.map((s) => (
+                <Area
+                  key={s.key}
+                  type='monotone'
+                  dataKey={s.key}
+                  stroke={s.token}
+                  strokeWidth={1.75}
+                  fill={`url(#ota-${s.key}-gradient)`}
+                  fillOpacity={1}
+                />
+              ))}
             </AreaChart>
           </ResponsiveContainer>
         )}

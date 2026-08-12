@@ -42,6 +42,10 @@ export const otaAnalyticsDataSchema = z.object({
   timeline: z.array(otaTimelineDataPointSchema),
   firmwareDistribution: z.array(otaFirmwareDistributionSchema),
   recentActivity: z.array(otaRecentActivitySchema),
+  meta: z.object({
+    lastUpdatedAt: z.string(),
+    totalDevices: z.number(),
+  }),
 })
 
 export type OTAAnalyticsSummary = z.infer<typeof otaAnalyticsSummarySchema>

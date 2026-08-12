@@ -152,7 +152,9 @@
     },
     "analytics": {
       "title": "升级分析",
+      "subtitle": "实时查看升级包部署、成功率与设备群分布。",
       "refresh": "刷新",
+      "errorFallback": "加载分析数据时出错，请重试。",
       "lastUpdated": "最后更新：{{time}}",
       "summary": {
         "totalPackages": "总升级包数",
@@ -210,5 +212,32 @@
       "deploymentCancelled": "部署已取消",
       "error": "发生错误，请重试。"
     }
+  },
+  "events": {
+    "title": "事件管理",
+    "description": "查看所有设备上报的物模型事件。",
+    "filters": {
+      "keyword": "搜索设备或事件类型",
+      "eventType": "事件类型",
+      "dateRange": "选择事件时间范围"
+    },
+    "columns": {
+      "eventAt": "事件时间",
+      "productName": "所属产品",
+      "deviceName": "设备",
+      "eventType": "事件类型",
+      "data": "事件数据"
+    },
+    "viewOptions": {
+      "view": "查看",
+      "toggleColumns": "显示列"
+    },
+    "detail": {
+      "title": "事件详情"
+    },
+    "empty": "暂无设备事件",
+    "error": "加载设备事件失败，请重试。",
+    "retry": "重试",
+    "pagination": "第 {{page}} 页，共 {{total}} 条"
   }
 }

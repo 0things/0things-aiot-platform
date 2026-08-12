@@ -4,10 +4,11 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
-  Legend,
   Tooltip,
+  type TooltipProps,
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { OTADeploymentStatus } from '../data/analytics-schema'
 
 interface DeploymentStatusChartProps {
@@ -15,10 +16,29 @@ interface DeploymentStatusChartProps {
   isLoading?: boolean
 }
 
-const COLORS = {
-  success: '#22c55e',
-  failed: '#ef4444',
-  in_progress: '#f59e0b',
+// Mapped to theme.css chart tokens (1..5) so light/dark both work
+const STATUS_TOKEN: Record<OTADeploymentStatus['status'], string> = {
+  success: 'var(--chart-2)',
+  failed: 'var(--chart-5)',
+  in_progress: 'var(--chart-4)',
+}
+
+function StatusTooltip({ active, payload }: TooltipProps<number, string>) {
+  if (!active || !payload?.length) return null
+  const item = payload[0]
+  const original = item.payload as {
+    name: string
+    value: number
+    percentage: number
+  }
+  return (
+    <div className='rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-sm'>
+      <div className='font-medium'>{original.name}</div>
+      <div className='tabular-nums text-muted-foreground'>
+        {original.value} · {original.percentage.toFixed(1)}%
+      </div>
+    </div>
+  )
 }
 
 export function DeploymentStatusChart({
@@ -31,47 +51,58 @@ export function DeploymentStatusChart({
     name: t(`ota.analytics.deploymentStatus.${item.status}`),
     value: item.count,
     percentage: item.percentage,
-    fill: COLORS[item.status],
+    fill: STATUS_TOKEN[item.status],
   }))
 
+  const total = chartData.reduce((acc, c) => acc + c.value, 0)
+  const successItem = chartData.find((c) => c.name === t('ota.analytics.deploymentStatus.success'))
+  const successRate = successItem?.percentage ?? 0
+
   return (
-    <Card>
+    <Card className='h-full'>
       <CardHeader>
         <CardTitle>{t('ota.analytics.charts.deploymentStatus')}</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className='flex h-[300px] items-center justify-center'>
-            <div className='h-40 w-40 animate-pulse rounded-full bg-muted' />
+          <div className='flex h-[280px] items-center justify-center'>
+            <Skeleton className='h-40 w-40 rounded-full' />
           </div>
         ) : (
-          <ResponsiveContainer width='100%' height={300}>
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx='50%'
-                cy='50%'
-                labelLine={false}
-                label={(entry) => `${Math.round((entry.percent ?? 0) * 100)}%`}
-                outerRadius={100}
-                fill='#8884d8'
-                dataKey='value'
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value) => value ?? 0}
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px',
-                }}
-              />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className='relative h-[280px] w-full'>
+            <ResponsiveContainer width='100%' height='100%'>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx='50%'
+                  cy='50%'
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={2}
+                  dataKey='value'
+                  stroke='var(--background)'
+                  strokeWidth={2}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip content={<StatusTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className='pointer-events-none absolute inset-0 flex flex-col items-center justify-center'>
+              <span className='text-3xl font-semibold tracking-tight tabular-nums'>
+                {successRate.toFixed(0)}
+                <span className='ml-0.5 text-base font-medium text-muted-foreground'>
+                  %
+                </span>
+              </span>
+              <span className='text-xs text-muted-foreground'>
+                {t('ota.analytics.deploymentStatus.success')} ·{' '}
+                <span className='tabular-nums'>{total}</span>
+              </span>
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>

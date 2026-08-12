@@ -152,7 +152,9 @@
     },
     "analytics": {
       "title": "Upgrade Analytics",
+      "subtitle": "Real-time view of package deployment, success rates and fleet distribution.",
       "refresh": "Refresh",
+      "errorFallback": "An error occurred while loading analytics data. Please try again.",
       "lastUpdated": "Last updated: {{time}}",
       "summary": {
         "totalPackages": "Total Packages",
@@ -210,5 +212,32 @@
       "deploymentCancelled": "Deployment cancelled",
       "error": "An error occurred. Please try again."
     }
+  },
+  "events": {
+    "title": "Event Management",
+    "description": "View device-model events reported by all devices.",
+    "filters": {
+      "keyword": "Search device or event type",
+      "eventType": "Event type",
+      "dateRange": "Select event time range"
+    },
+    "columns": {
+      "eventAt": "Event time",
+      "productName": "Product",
+      "deviceName": "Device",
+      "eventType": "Event type",
+      "data": "Event data"
+    },
+    "viewOptions": {
+      "view": "View",
+      "toggleColumns": "Toggle columns"
+    },
+    "detail": {
+      "title": "Event details"
+    },
+    "empty": "No device events yet",
+    "error": "Failed to load device events. Please try again.",
+    "retry": "Retry",
+    "pagination": "Page {{page}}, {{total}} total"
   }
 }

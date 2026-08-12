@@ -25,6 +25,7 @@ import {
   Smartphone,
   Activity,
   Upload,
+  List,
   Zap,
   Cpu,
 } from 'lucide-react'
@@ -96,10 +97,12 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
             {
               title: t('navigation:sidebar.products'),
               url: '/device-management/products',
+              icon: Package,
             },
             {
               title: t('navigation:sidebar.devices'),
               url: '/device-management/devices',
+              icon: Smartphone,
             },
           ],
         },
@@ -111,6 +114,11 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
               title: t('operationsMonitoring:ota.title'),
               url: '/operations-monitoring/ota/packages',
               icon: Upload,
+            },
+            {
+              title: t('operationsMonitoring:events.title'),
+              url: '/operations-monitoring/events',
+              icon: List,
             },
           ],
         },

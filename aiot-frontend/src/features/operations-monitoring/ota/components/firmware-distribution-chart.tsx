@@ -6,10 +6,12 @@ import {
   Cell,
   ResponsiveContainer,
   Tooltip,
+  type TooltipProps,
   XAxis,
   YAxis,
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { OTAFirmwareDistribution } from '../data/analytics-schema'
 
 interface FirmwareDistributionChartProps {
@@ -17,7 +19,37 @@ interface FirmwareDistributionChartProps {
   isLoading?: boolean
 }
 
-const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
+// Map each row to a theme token so light/dark both render consistently.
+const FIRMWARE_TOKENS = [
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+]
+
+interface FirmwareRow {
+  version: string
+  devices: number
+  percentage: number
+  fill: string
+}
+
+function FirmwareTooltip({
+  active,
+  payload,
+}: TooltipProps<number, string>) {
+  if (!active || !payload?.length) return null
+  const row = payload[0].payload as FirmwareRow
+  return (
+    <div className='rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-sm'>
+      <div className='font-mono font-medium'>v{row.version}</div>
+      <div className='tabular-nums text-muted-foreground'>
+        {row.devices} devices · {row.percentage.toFixed(1)}%
+      </div>
+    </div>
+  )
+}
 
 export function FirmwareDistributionChart({
   data,
@@ -25,11 +57,11 @@ export function FirmwareDistributionChart({
 }: FirmwareDistributionChartProps) {
   const { t } = useTranslation('operationsMonitoring')
 
-  const chartData = data.map((item, index) => ({
+  const chartData: FirmwareRow[] = data.map((item, index) => ({
     version: item.version,
     devices: item.deviceCount,
     percentage: item.percentage,
-    fill: COLORS[index % COLORS.length],
+    fill: FIRMWARE_TOKENS[index % FIRMWARE_TOKENS.length],
   }))
 
   return (
@@ -40,30 +72,39 @@ export function FirmwareDistributionChart({
       <CardContent>
         {isLoading ? (
           <div className='flex h-[300px] items-center justify-center'>
-            <div className='h-full w-full animate-pulse rounded bg-muted' />
+            <Skeleton className='h-full w-full rounded-md' />
           </div>
         ) : (
           <ResponsiveContainer width='100%' height={300}>
-            <BarChart data={chartData}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 10, right: 8, left: -16, bottom: 0 }}
+            >
               <CartesianGrid
-                strokeDasharray='3 3'
-                stroke='hsl(var(--border))'
+                strokeDasharray='2 4'
+                stroke='var(--border)'
+                vertical={false}
               />
               <XAxis
                 dataKey='version'
-                stroke='hsl(var(--muted-foreground))'
-                fontSize={12}
+                stroke='var(--muted-foreground)'
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v: string) => `v${v}`}
               />
-              <YAxis stroke='hsl(var(--muted-foreground))' fontSize={12} />
+              <YAxis
+                stroke='var(--muted-foreground)'
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+              />
               <Tooltip
-                formatter={(value) => `${value ?? 0} devices`}
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px',
-                }}
+                content={<FirmwareTooltip />}
+                cursor={{ fill: 'var(--muted)', opacity: 0.4 }}
               />
-              <Bar dataKey='devices' radius={[8, 8, 0, 0]}>
+              <Bar dataKey='devices' radius={[6, 6, 0, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}

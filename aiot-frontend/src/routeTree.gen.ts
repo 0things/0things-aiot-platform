@@ -43,6 +43,7 @@ import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedOperationsMonitoringEventsIndexRouteImport } from './routes/_authenticated/operations-monitoring/events/index'
 import { Route as AuthenticatedDeviceManagementProductsIndexRouteImport } from './routes/_authenticated/device-management/products/index'
 import { Route as AuthenticatedDeviceManagementDevicesIndexRouteImport } from './routes/_authenticated/device-management/devices/index'
 import { Route as AuthenticatedOperationsMonitoringOtaPackagesIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/packages/index'
@@ -231,6 +232,12 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOperationsMonitoringEventsIndexRoute =
+  AuthenticatedOperationsMonitoringEventsIndexRouteImport.update({
+    id: '/events/',
+    path: '/events/',
+    getParentRoute: () => AuthenticatedOperationsMonitoringRouteRoute,
+  } as any)
 const AuthenticatedDeviceManagementProductsIndexRoute =
   AuthenticatedDeviceManagementProductsIndexRouteImport.update({
     id: '/products/',
@@ -308,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersIndexRoute
   '/device-management/devices': typeof AuthenticatedDeviceManagementDevicesIndexRoute
   '/device-management/products': typeof AuthenticatedDeviceManagementProductsIndexRoute
+  '/operations-monitoring/events': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
   '/device-management/devices/$deviceKey': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
   '/device-management/products/$productKey': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/operations-monitoring/ota/analytics': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
@@ -347,6 +355,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersIndexRoute
   '/device-management/devices': typeof AuthenticatedDeviceManagementDevicesIndexRoute
   '/device-management/products': typeof AuthenticatedDeviceManagementProductsIndexRoute
+  '/operations-monitoring/events': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
   '/device-management/devices/$deviceKey': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
   '/device-management/products/$productKey': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/operations-monitoring/ota/analytics': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
@@ -391,6 +400,7 @@ export interface FileRoutesById {
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/device-management/devices/': typeof AuthenticatedDeviceManagementDevicesIndexRoute
   '/_authenticated/device-management/products/': typeof AuthenticatedDeviceManagementProductsIndexRoute
+  '/_authenticated/operations-monitoring/events/': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
   '/_authenticated/device-management/devices/$deviceKey/': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
   '/_authenticated/device-management/products/$productKey/': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/_authenticated/operations-monitoring/ota/analytics/': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
@@ -433,6 +443,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/device-management/devices'
     | '/device-management/products'
+    | '/operations-monitoring/events'
     | '/device-management/devices/$deviceKey'
     | '/device-management/products/$productKey'
     | '/operations-monitoring/ota/analytics'
@@ -472,6 +483,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/device-management/devices'
     | '/device-management/products'
+    | '/operations-monitoring/events'
     | '/device-management/devices/$deviceKey'
     | '/device-management/products/$productKey'
     | '/operations-monitoring/ota/analytics'
@@ -515,6 +527,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users/'
     | '/_authenticated/device-management/devices/'
     | '/_authenticated/device-management/products/'
+    | '/_authenticated/operations-monitoring/events/'
     | '/_authenticated/device-management/devices/$deviceKey/'
     | '/_authenticated/device-management/products/$productKey/'
     | '/_authenticated/operations-monitoring/ota/analytics/'
@@ -777,6 +790,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/operations-monitoring/events/': {
+      id: '/_authenticated/operations-monitoring/events/'
+      path: '/events'
+      fullPath: '/operations-monitoring/events'
+      preLoaderRoute: typeof AuthenticatedOperationsMonitoringEventsIndexRouteImport
+      parentRoute: typeof AuthenticatedOperationsMonitoringRouteRoute
+    }
     '/_authenticated/device-management/products/': {
       id: '/_authenticated/device-management/products/'
       path: '/products'
@@ -854,6 +874,7 @@ const AuthenticatedDeviceManagementRouteRouteWithChildren =
   )
 
 interface AuthenticatedOperationsMonitoringRouteRouteChildren {
+  AuthenticatedOperationsMonitoringEventsIndexRoute: typeof AuthenticatedOperationsMonitoringEventsIndexRoute
   AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute: typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   AuthenticatedOperationsMonitoringOtaPackagesIndexRoute: typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
   AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute: typeof AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute
@@ -861,6 +882,8 @@ interface AuthenticatedOperationsMonitoringRouteRouteChildren {
 
 const AuthenticatedOperationsMonitoringRouteRouteChildren: AuthenticatedOperationsMonitoringRouteRouteChildren =
   {
+    AuthenticatedOperationsMonitoringEventsIndexRoute:
+      AuthenticatedOperationsMonitoringEventsIndexRoute,
     AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute:
       AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute,
     AuthenticatedOperationsMonitoringOtaPackagesIndexRoute:

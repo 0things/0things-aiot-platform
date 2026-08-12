@@ -35,6 +35,7 @@ var repositorySet = wire.NewSet(
 	repository.NewRuleRepository,
 	repository.NewAlertRepository,
 	repository.NewOTARepository,
+	repository.NewDeviceEventRepository,
 	repository.NewTransaction,
 	repository.NewUserRepository,
 )
@@ -48,6 +49,7 @@ var serviceSet = wire.NewSet(
 	service.NewRuleService,
 	service.NewAlertService,
 	service.NewOTAService,
+	service.NewDeviceEventService,
 )
 
 var handlerSet = wire.NewSet(
@@ -59,11 +61,13 @@ var handlerSet = wire.NewSet(
 	handler.NewRuleHandler,
 	handler.NewAlertHandler,
 	handler.NewOTAHandler,
+	handler.NewDeviceEventHandler,
 )
 
 var jobSet = wire.NewSet(
 	job.NewJob,
 	job.NewUserJob,
+	job.NewDeviceEventConsumer,
 )
 var serverSet = wire.NewSet(
 	server.NewHTTPServer,

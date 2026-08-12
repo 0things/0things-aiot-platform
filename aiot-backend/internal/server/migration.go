@@ -36,13 +36,17 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 			return fmt.Errorf("legacy device table %q is missing; refusing to create legacy data tables", table)
 		}
 	}
-	// These three tables were designed in device-service but were not wired
+	// These domain tables are not part of the legacy product/device schema.
 	// there. AutoMigrate only creates missing tables; it does not touch the
 	// pre-existing legacy product/device/OTA/rule tables validated above.
-	if err := m.deviceDB.AutoMigrate(&model.DeviceShadow{}, &model.DeviceTag{}, &model.DeviceShadowHistory{}); err != nil {
+	if err := m.deviceDB.AutoMigrate(&model.DeviceShadow{}, &model.DeviceTag{}, &model.DeviceShadowHistory{}, &model.DeviceEvent{}); err != nil {
 		return err
 	}
+	if !m.deviceDB.Migrator().HasTable(&model.DeviceEvent{}) {
+		return fmt.Errorf("device_events migration did not create the table")
+	}
 	m.log.Info("AutoMigrate success")
+	fmt.Println("migration complete: device_events table is ready")
 	os.Exit(0)
 	return nil
 }

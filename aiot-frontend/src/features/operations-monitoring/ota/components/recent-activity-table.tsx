@@ -1,8 +1,9 @@
 import { formatDistanceToNow } from 'date-fns'
-import { CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react'
+import { enUS, zhCN } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -18,125 +19,93 @@ interface RecentActivityTableProps {
   isLoading?: boolean
 }
 
-const statusConfig = {
-  success: {
-    icon: CheckCircle2,
-    variant: 'default' as const,
-    className: 'bg-green-100 text-green-800 hover:bg-green-100',
-  },
-  failed: {
-    icon: XCircle,
-    variant: 'destructive' as const,
-    className: 'bg-red-100 text-red-800 hover:bg-red-100',
-  },
-  in_progress: {
-    icon: Loader2,
-    variant: 'secondary' as const,
-    className: 'bg-amber-100 text-amber-800 hover:bg-amber-100',
-  },
-  pending: {
-    icon: Clock,
-    variant: 'outline' as const,
-    className: 'bg-gray-100 text-gray-800 hover:bg-gray-100',
-  },
-}
+type StatusKey = OTARecentActivity['status']
 
-const actionConfig = {
-  created: 'default' as const,
-  deployed: 'secondary' as const,
-  completed: 'default' as const,
-  failed: 'destructive' as const,
+const STATUS_VARIANT: Record<StatusKey, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  success: 'default',
+  failed: 'destructive',
+  in_progress: 'secondary',
+  pending: 'outline',
 }
 
 export function RecentActivityTable({
   data,
   isLoading,
 }: RecentActivityTableProps) {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t, i18n } = useTranslation('operationsMonitoring')
+  const locale = i18n.language?.startsWith('zh') ? zhCN : enUS
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t('ota.analytics.recentActivity.title')}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className='overflow-auto rounded-md border'>
+      <CardContent className='px-0 pt-0'>
+        {isLoading ? (
+          <div className='space-y-2 px-6 pb-2'>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className='h-10 w-full' />
+            ))}
+          </div>
+        ) : data.length === 0 ? (
+          <div className='px-6 pb-6 pt-2 text-sm text-muted-foreground'>
+            {t('ota.analytics.recentActivity.noData')}
+          </div>
+        ) : (
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>
+              <TableRow className='hover:bg-transparent'>
+                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
                   {t('ota.analytics.recentActivity.packageName')}
                 </TableHead>
-                <TableHead>
+                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
                   {t('ota.analytics.recentActivity.version')}
                 </TableHead>
-                <TableHead>
+                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
                   {t('ota.analytics.recentActivity.action')}
                 </TableHead>
-                <TableHead>
+                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
                   {t('ota.analytics.recentActivity.productName')}
                 </TableHead>
-                <TableHead>
+                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
                   {t('ota.analytics.recentActivity.status')}
                 </TableHead>
-                <TableHead>{t('ota.analytics.recentActivity.time')}</TableHead>
+                <TableHead className='text-right text-xs uppercase tracking-wide text-muted-foreground'>
+                  {t('ota.analytics.recentActivity.time')}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, index) => (
-                  <TableRow key={index}>
-                    {Array.from({ length: 6 }).map((_, cellIndex) => (
-                      <TableCell key={cellIndex}>
-                        <div className='h-5 w-full animate-pulse rounded bg-muted' />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : data.length > 0 ? (
-                data.map((activity) => {
-                  const StatusIcon = statusConfig[activity.status].icon
-                  return (
-                    <TableRow key={activity.id}>
-                      <TableCell className='font-medium'>
-                        {activity.packageName}
-                      </TableCell>
-                      <TableCell>{activity.version}</TableCell>
-                      <TableCell>
-                        <Badge variant={actionConfig[activity.action]}>
-                          {t(`ota.analytics.actions.${activity.action}`)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{activity.productName}</TableCell>
-                      <TableCell>
-                        <div className='flex items-center gap-2'>
-                          <Badge
-                            variant={statusConfig[activity.status].variant}
-                            className={statusConfig[activity.status].className}
-                          >
-                            <StatusIcon className='mr-1 h-3 w-3' />
-                            {t(`ota.analytics.statuses.${activity.status}`)}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell className='text-muted-foreground'>
-                        {formatDistanceToNow(new Date(activity.timestamp), {
-                          addSuffix: true,
-                        })}
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className='h-24 text-center'>
-                    {t('ota.analytics.recentActivity.noData')}
+              {data.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className='font-medium'>{item.packageName}</TableCell>
+                  <TableCell className='font-mono text-xs text-muted-foreground'>
+                    v{item.version}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant='outline' className='font-normal'>
+                      {t(`ota.analytics.actions.${item.action}` as const)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className='text-muted-foreground'>
+                    {item.productName}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={STATUS_VARIANT[item.status as StatusKey]}>
+                      {t(`ota.analytics.statuses.${item.status}` as const)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className='text-right font-mono text-xs tabular-nums text-muted-foreground'>
+                    {formatDistanceToNow(new Date(item.timestamp), {
+                      addSuffix: true,
+                      locale,
+                    })}
                   </TableCell>
                 </TableRow>
-              )}
+              ))}
             </TableBody>
           </Table>
-        </div>
+        )}
       </CardContent>
     </Card>
   )

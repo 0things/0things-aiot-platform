@@ -105,6 +105,10 @@ function generateMockAnalyticsData(): OTAAnalyticsData {
         status: 'success',
       },
     ],
+    meta: {
+      lastUpdatedAt: new Date().toISOString(),
+      totalDevices: 1000,
+    },
   }
 }
 
