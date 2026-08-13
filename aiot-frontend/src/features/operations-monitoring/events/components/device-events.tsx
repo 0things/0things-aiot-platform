@@ -89,6 +89,7 @@ export function DeviceEvents() {
     buildFilters(defaultDraft)
   )
   const [selectedEvent, setSelectedEvent] = useState<DeviceEvent | null>(null)
+  const [datePickerOpen, setDatePickerOpen] = useState(false)
   const { data, isLoading, isError, refetch } = useDeviceEvents(filters)
   const queryClient = useQueryClient()
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
@@ -221,7 +222,7 @@ export function DeviceEvents() {
             placeholder={t('events.filters.eventType')}
             className='h-9 w-full sm:w-44'
           />
-          <Popover>
+          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant='outline'
@@ -238,10 +239,12 @@ export function DeviceEvents() {
             <PopoverContent className='w-auto p-0' align='start'>
               <Calendar
                 mode='range'
+                defaultMonth={draft.dateRange?.from}
                 selected={draft.dateRange}
-                onSelect={(range) =>
+                onSelect={(range) => {
                   setDraft((current) => ({ ...current, dateRange: range }))
-                }
+                  if (range?.from && range?.to) setDatePickerOpen(false)
+                }}
                 numberOfMonths={2}
               />
             </PopoverContent>
