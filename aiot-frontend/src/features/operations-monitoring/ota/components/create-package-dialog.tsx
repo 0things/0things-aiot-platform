@@ -252,7 +252,7 @@ export function CreatePackageDialog() {
                   onClick={() => setOpenDialog(null)}
                   className='flex-1'
                 >
-                  {t('ota.packageForm.cancel')}
+                  {t('common:cancel')}
                 </Button>
                 <Button
                   type='submit'

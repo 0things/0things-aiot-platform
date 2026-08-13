@@ -85,7 +85,7 @@ export function ViewPackageDetailsDialog() {
                 </div>
                 <div className='grid grid-cols-3 gap-2'>
                   <span className='text-sm text-muted-foreground'>
-                    {t('ota.packageList.columns.status')}
+                    {t('common:status')}
                   </span>
                   <div className='col-span-2'>
                     <Badge
@@ -213,7 +213,7 @@ export function ViewPackageDetailsDialog() {
               <div className='grid gap-3 rounded-lg border p-4'>
                 <div className='grid grid-cols-3 gap-2'>
                   <span className='text-sm text-muted-foreground'>
-                    {t('ota.viewDialog.fields.createdAt')}
+                    {t('common:createdAt')}
                   </span>
                   <span className='col-span-2 text-sm'>
                     {formatDate(selectedPackage.createdAt)}
@@ -221,7 +221,7 @@ export function ViewPackageDetailsDialog() {
                 </div>
                 <div className='grid grid-cols-3 gap-2'>
                   <span className='text-sm text-muted-foreground'>
-                    {t('ota.viewDialog.fields.updatedAt')}
+                    {t('common:updatedAt')}
                   </span>
                   <span className='col-span-2 text-sm'>
                     {formatDate(selectedPackage.updatedAt)}
@@ -246,7 +246,7 @@ export function ViewPackageDetailsDialog() {
               onClick={() => setOpenDialog(null)}
               className='flex-1'
             >
-              {t('ota.viewDialog.close')}
+              {t('common:close')}
             </Button>
           </div>
         </div>

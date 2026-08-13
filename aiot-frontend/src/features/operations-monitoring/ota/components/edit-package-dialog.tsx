@@ -250,7 +250,7 @@ export function EditPackageDialog() {
                   className='flex-1'
                   disabled={updatePackage.isPending}
                 >
-                  {t('ota.packageForm.cancel')}
+                  {t('common:cancel')}
                 </Button>
                 <Button
                   type='submit'

@@ -284,7 +284,7 @@ export function DeviceEvents() {
         <DataTableViewOptions
           table={table}
           labels={{
-            view: t('events.viewOptions.view'),
+            view: t('common:view'),
             toggleColumns: t('events.viewOptions.toggleColumns'),
             columns: {
               eventAt: t('events.columns.eventAt'),

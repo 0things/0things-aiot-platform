@@ -16,9 +16,7 @@
         "packageType": "包类型",
         "productName": "所属产品",
         "moduleName": "模块名称",
-        "status": "状态",
-        "createdAt": "添加时间",
-        "actions": "操作"
+        "createdAt": "添加时间"
       },
       "filters": {
         "allPackages": "全部产品",
@@ -43,8 +41,6 @@
       },
       "actions": {
         "create": "创建包",
-        "edit": "编辑",
-        "delete": "删除",
         "deploy": "验证",
         "cancel": "取消部署",
         "viewDetails": "查看详情",
@@ -95,8 +91,7 @@
         "invalidUrl": "请提供有效的URL"
       },
       "submit": "创建升级包",
-      "update": "更新升级包",
-      "cancel": "取消"
+      "update": "更新升级包"
     },
     "deployForm": {
       "title": "部署升级包",
@@ -116,20 +111,16 @@
         "message": "确定要将此升级包部署到 {{count}} 台设备吗？",
         "warning": "此操作无法撤销。"
       },
-      "submit": "立即部署",
-      "cancel": "取消"
+      "submit": "立即部署"
     },
     "deleteDialog": {
       "title": "删除升级包",
       "description": "确定要删除\"{{packageName}}\"吗？",
-      "warning": "此操作无法撤销。",
-      "confirm": "删除",
-      "cancel": "取消"
+      "warning": "此操作无法撤销。"
     },
     "viewDialog": {
       "title": "升级包详情",
       "description": "查看升级包的详细信息。",
-      "close": "关闭",
       "sections": {
         "basicInfo": "基本信息",
         "fileInfo": "文件信息",
@@ -145,15 +136,12 @@
         "failureCount": "失败数",
         "deploymentProgress": "部署进度",
         "deployedAt": "部署时间",
-        "createdAt": "创建时间",
-        "updatedAt": "更新时间",
         "createdBy": "创建者"
       }
     },
     "analytics": {
       "title": "升级分析",
       "subtitle": "实时查看升级包部署、成功率与设备群分布。",
-      "refresh": "刷新",
       "errorFallback": "加载分析数据时出错，请重试。",
       "lastUpdated": "最后更新：{{time}}",
       "summary": {
@@ -229,7 +217,6 @@
       "deviceKey": "设备 Key"
     },
     "viewOptions": {
-      "view": "查看",
       "toggleColumns": "显示列"
     },
     "detail": {

@@ -65,7 +65,7 @@ export function OTAPackagesDialogs() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteMutation.isPending}>
-              {t('ota.deleteDialog.cancel')}
+              {t('common:cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               className='text-destructive-foreground bg-destructive hover:bg-destructive/90'
@@ -74,7 +74,7 @@ export function OTAPackagesDialogs() {
             >
               {deleteMutation.isPending
                 ? t('common:deleting', { defaultValue: 'Deleting...' })
-                : t('ota.deleteDialog.confirm')}
+                : t('common:delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

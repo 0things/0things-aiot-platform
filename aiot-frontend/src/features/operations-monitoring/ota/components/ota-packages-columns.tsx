@@ -123,7 +123,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={t('ota.packageList.columns.status')}
+          title={t('common:status')}
         />
       ),
       cell: ({ row }) => {
@@ -163,7 +163,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
       id: 'actions',
       header: () => (
         <div className='text-center'>
-          {t('ota.packageList.columns.actions')}
+          {t('common:actions')}
         </div>
       ),
       cell: DataTableRowActions,

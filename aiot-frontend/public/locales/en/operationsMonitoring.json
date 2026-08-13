@@ -16,9 +16,7 @@
         "packageType": "Package Type",
         "productName": "Product Name",
         "moduleName": "Module Name",
-        "status": "Status",
-        "createdAt": "Created",
-        "actions": "Actions"
+        "createdAt": "Created"
       },
       "filters": {
         "allPackages": "All Packages",
@@ -43,8 +41,6 @@
       },
       "actions": {
         "create": "Create Package",
-        "edit": "Edit",
-        "delete": "Delete",
         "deploy": "Deploy",
         "cancel": "Cancel Deployment",
         "viewDetails": "View Details",
@@ -95,8 +91,7 @@
         "invalidUrl": "Please provide a valid URL"
       },
       "submit": "Create Package",
-      "update": "Update Package",
-      "cancel": "Cancel"
+      "update": "Update Package"
     },
     "deployForm": {
       "title": "Deploy Upgrade Package",
@@ -116,20 +111,16 @@
         "message": "Are you sure you want to deploy this package to {{count}} devices?",
         "warning": "This action cannot be undone."
       },
-      "submit": "Deploy Now",
-      "cancel": "Cancel"
+      "submit": "Deploy Now"
     },
     "deleteDialog": {
       "title": "Delete Upgrade Package",
       "description": "Are you sure you want to delete \"{{packageName}}\"?",
-      "warning": "This action cannot be undone.",
-      "confirm": "Delete",
-      "cancel": "Cancel"
+      "warning": "This action cannot be undone."
     },
     "viewDialog": {
       "title": "Package Details",
       "description": "View detailed information about the upgrade package.",
-      "close": "Close",
       "sections": {
         "basicInfo": "Basic Information",
         "fileInfo": "File Information",
@@ -145,15 +136,12 @@
         "failureCount": "Failures",
         "deploymentProgress": "Progress",
         "deployedAt": "Deployed At",
-        "createdAt": "Created At",
-        "updatedAt": "Updated At",
         "createdBy": "Created By"
       }
     },
     "analytics": {
       "title": "Upgrade Analytics",
       "subtitle": "Real-time view of package deployment, success rates and fleet distribution.",
-      "refresh": "Refresh",
       "errorFallback": "An error occurred while loading analytics data. Please try again.",
       "lastUpdated": "Last updated: {{time}}",
       "summary": {
@@ -229,7 +217,6 @@
       "deviceKey": "Device Key"
     },
     "viewOptions": {
-      "view": "View",
       "toggleColumns": "Toggle columns"
     },
     "detail": {

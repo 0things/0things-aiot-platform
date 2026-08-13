@@ -94,7 +94,7 @@ export function OTAPackagesTable() {
           },
           {
             columnId: 'status',
-            title: t('ota.packageList.columns.status'),
+            title: t('common:status'),
             options: statuses.map((status) => ({
               label: t(`ota.packageList.statuses.${status.value}`),
               value: status.value,

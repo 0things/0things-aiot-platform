@@ -251,7 +251,7 @@ export function DeployPackageDialog() {
             onClick={() => setOpenDialog(null)}
             disabled={isDeploying}
           >
-            {t('ota.deployForm.cancel')}
+            {t('common:cancel')}
           </Button>
           <Button
             onClick={handleDeploy}

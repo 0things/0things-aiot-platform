@@ -52,7 +52,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           onSelect={() => canEdit && handleAction('edit')}
         >
           <Pencil className='me-2 h-4 w-4' />
-          {t('ota.packageList.actions.edit')}
+          {t('common:edit')}
         </DropdownMenuItem>
         <DropdownMenuItem
           disabled={!canDeploy}
@@ -68,7 +68,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           className='text-destructive'
         >
           <Trash2 className='me-2 h-4 w-4' />
-          {t('ota.packageList.actions.delete')}
+          {t('common:delete')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

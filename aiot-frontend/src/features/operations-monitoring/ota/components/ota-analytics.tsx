@@ -40,7 +40,7 @@ export function OTAAnalytics() {
               variant='outline'
             >
               <RefreshCw className='mr-2 h-4 w-4' />
-              {t('ota.analytics.refresh')}
+              {t('common:refresh')}
             </Button>
           </CardContent>
         </Card>
@@ -82,7 +82,7 @@ export function OTAAnalytics() {
             <RefreshCw
               className={`mr-2 h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`}
             />
-            {t('ota.analytics.refresh')}
+            {t('common:refresh')}
           </Button>
         </div>
       </div>
