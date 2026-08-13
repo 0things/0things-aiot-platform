@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { endOfDay, format, startOfDay, subDays } from 'date-fns'
 import {
   type ColumnDef,
@@ -8,7 +9,7 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { AlertTriangle, CalendarDays, RefreshCw } from 'lucide-react'
+import { AlertTriangle, CalendarDays, RefreshCw, Search } from 'lucide-react'
 import type { DateRange } from 'react-day-picker'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -41,6 +42,7 @@ import {
   DataTableViewOptions,
 } from '@/components/data-table'
 import {
+  deviceEventKeys,
   type DeviceEvent,
   type DeviceEventFilters,
   useDeviceEvents,
@@ -56,24 +58,39 @@ const defaultDateRange = () => {
   }
 }
 
-const defaultFilters = (): DeviceEventFilters => {
-  const range = defaultDateRange()
+type EventFiltersDraft = {
+  keyword: string
+  eventType: string
+  dateRange: DateRange | undefined
+}
+
+const defaultDraft: EventFiltersDraft = {
+  keyword: '',
+  eventType: '',
+  dateRange: defaultDateRange(),
+}
+
+const buildFilters = (draft: EventFiltersDraft): DeviceEventFilters => {
+  const range = draft.dateRange
   return {
     page: 1,
     pageSize,
-    startAt: range.from.toISOString(),
-    endAt: range.to.toISOString(),
+    keyword: draft.keyword || undefined,
+    eventType: draft.eventType || undefined,
+    startAt: range?.from ? startOfDay(range.from).toISOString() : undefined,
+    endAt: range?.to ? endOfDay(range.to).toISOString() : undefined,
   }
 }
 
 export function DeviceEvents() {
   const { t } = useTranslation('operationsMonitoring')
-  const [filters, setFilters] = useState<DeviceEventFilters>(defaultFilters)
-  const [selectedEvent, setSelectedEvent] = useState<DeviceEvent | null>(null)
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(
-    defaultDateRange
+  const [draft, setDraft] = useState<EventFiltersDraft>(defaultDraft)
+  const [filters, setFilters] = useState<DeviceEventFilters>(() =>
+    buildFilters(defaultDraft)
   )
+  const [selectedEvent, setSelectedEvent] = useState<DeviceEvent | null>(null)
   const { data, isLoading, isError, refetch } = useDeviceEvents(filters)
+  const queryClient = useQueryClient()
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
   const columns: ColumnDef<DeviceEvent>[] = [
     {
@@ -166,9 +183,12 @@ export function DeviceEvents() {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   })
-  const updateFilters = (values: Partial<DeviceEventFilters>) => {
-    setFilters((current) => ({ ...current, ...values, page: 1 }))
+  const applySearch = () => {
+    setFilters((current) => ({ ...buildFilters(draft), pageSize: current.pageSize }))
+    queryClient.invalidateQueries({ queryKey: deviceEventKeys.all })
   }
+  const handleRefresh = () =>
+    queryClient.invalidateQueries({ queryKey: deviceEventKeys.all })
   return (
     <div className='flex flex-1 flex-col gap-4'>
       <div>
@@ -181,16 +201,23 @@ export function DeviceEvents() {
       <div className='flex items-start justify-between gap-2'>
         <div className='flex flex-wrap items-center gap-2'>
           <Input
-            value={filters.keyword || ''}
-            onChange={(event) => updateFilters({ keyword: event.target.value })}
+            value={draft.keyword}
+            onChange={(event) =>
+              setDraft((current) => ({ ...current, keyword: event.target.value }))
+            }
+            onKeyDown={(event) => event.key === 'Enter' && applySearch()}
             placeholder={t('events.filters.keyword')}
             className='h-9 w-full sm:w-56'
           />
           <Input
-            value={filters.eventType || ''}
+            value={draft.eventType}
             onChange={(event) =>
-              updateFilters({ eventType: event.target.value })
+              setDraft((current) => ({
+                ...current,
+                eventType: event.target.value,
+              }))
             }
+            onKeyDown={(event) => event.key === 'Enter' && applySearch()}
             placeholder={t('events.filters.eventType')}
             className='h-9 w-full sm:w-44'
           />
@@ -201,33 +228,29 @@ export function DeviceEvents() {
                 className='h-9 w-full justify-start font-normal sm:w-64'
               >
                 <CalendarDays className='size-4 text-muted-foreground' />
-                {dateRange?.from
-                  ? dateRange.to
-                    ? `${format(dateRange.from, 'yyyy-MM-dd')} ~ ${format(dateRange.to, 'yyyy-MM-dd')}`
-                    : format(dateRange.from, 'yyyy-MM-dd')
+                {draft.dateRange?.from
+                  ? draft.dateRange.to
+                    ? `${format(draft.dateRange.from, 'yyyy-MM-dd')} ~ ${format(draft.dateRange.to, 'yyyy-MM-dd')}`
+                    : format(draft.dateRange.from, 'yyyy-MM-dd')
                   : t('events.filters.dateRange')}
               </Button>
             </PopoverTrigger>
             <PopoverContent className='w-auto p-0' align='start'>
               <Calendar
                 mode='range'
-                selected={dateRange}
-                onSelect={(range) => {
-                  setDateRange(range)
-                  updateFilters({
-                    startAt: range?.from
-                      ? startOfDay(range.from).toISOString()
-                      : undefined,
-                    endAt: range?.to
-                      ? endOfDay(range.to).toISOString()
-                      : undefined,
-                  })
-                }}
+                selected={draft.dateRange}
+                onSelect={(range) =>
+                  setDraft((current) => ({ ...current, dateRange: range }))
+                }
                 numberOfMonths={2}
               />
             </PopoverContent>
           </Popover>
-          <Button variant='outline' size='sm' onClick={() => refetch()}>
+          <Button variant='default' size='sm' onClick={applySearch}>
+            <Search className='size-4' />
+            {t('common:search')}
+          </Button>
+          <Button variant='outline' size='sm' onClick={handleRefresh}>
             <RefreshCw className='size-4' />
             {t('common:refresh')}
           </Button>
@@ -235,8 +258,8 @@ export function DeviceEvents() {
             variant='ghost'
             size='sm'
             onClick={() => {
-              setDateRange(defaultDateRange())
-              setFilters(defaultFilters())
+              setDraft(defaultDraft)
+              setFilters(buildFilters(defaultDraft))
             }}
           >
             {t('common:reset')}
