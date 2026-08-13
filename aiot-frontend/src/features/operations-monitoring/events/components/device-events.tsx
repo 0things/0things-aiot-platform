@@ -48,6 +48,7 @@ import {
   useDeviceEvents,
 } from '../api/queries'
 import { EventsBulkActions } from './events-bulk-actions'
+import { EventsRowActions } from './events-row-actions'
 
 const pageSize = 20
 const defaultDateRange = () => {
@@ -136,26 +137,40 @@ export function DeviceEvents() {
       accessorKey: 'deviceKey',
       header: t('events.columns.deviceKey'),
       cell: ({ row }) => (
-        <span className='font-mono text-xs'>{row.original.deviceKey}</span>
+          <span className='font-mono text-sm'>{row.original.deviceKey}</span>
       ),
     },
     {
       accessorKey: 'eventType',
       header: t('events.columns.eventType'),
       cell: ({ row }) => (
-        <span className='rounded-full bg-muted px-2 py-1 font-mono text-xs'>
-          {row.original.eventType}
-        </span>
+          <span className='rounded-full bg-muted px-2 py-1 font-mono text-sm'>
+            {row.original.eventType}
+          </span>
       ),
     },
     {
       accessorKey: 'data',
       header: t('events.columns.data'),
       cell: ({ row }) => (
-        <span className='block max-w-80 truncate font-mono text-xs text-muted-foreground'>
+        <span
+          className='block max-w-80 cursor-pointer truncate font-mono text-sm text-muted-foreground hover:underline'
+          onClick={(event) => {
+            event.stopPropagation()
+            setSelectedEvent(row.original)
+          }}
+        >
           {row.original.data || '{}'}
         </span>
       ),
+    },
+    {
+      id: 'actions',
+      header: () => (
+        <div className='text-center'>{t('common:actions')}</div>
+      ),
+      cell: ({ row }) => <EventsRowActions row={row} />,
+      enableHiding: false,
     },
   ]
   const table = useReactTable({
@@ -330,11 +345,7 @@ export function DeviceEvents() {
               </TableRow>
             ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className='cursor-pointer'
-                  onClick={() => setSelectedEvent(row.original)}
-                >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
