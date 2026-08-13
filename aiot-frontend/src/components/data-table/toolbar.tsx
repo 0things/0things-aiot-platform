@@ -115,7 +115,7 @@ export function DataTableToolbar<TData>({
               table.setGlobalFilter('')
               onRefresh()
             }}
-            className='h-8'
+            className='h-9'
           >
             <RefreshCw className='size-4' />
             {t('refresh')}
