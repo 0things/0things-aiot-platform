@@ -6,7 +6,6 @@ export type DeviceEvent = {
   id: number
   deviceKey: string
   deviceName: string
-  productName: string
   eventType: string
   eventAt: string
   data: string

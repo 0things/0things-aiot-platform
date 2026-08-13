@@ -223,10 +223,10 @@
     },
     "columns": {
       "eventAt": "事件时间",
-      "productName": "所属产品",
-      "deviceName": "设备",
       "eventType": "事件类型",
-      "data": "事件数据"
+      "data": "事件数据",
+      "deviceName": "设备",
+      "deviceKey": "设备 Key"
     },
     "viewOptions": {
       "view": "查看",
@@ -238,6 +238,12 @@
     "empty": "暂无设备事件",
     "error": "加载设备事件失败，请重试。",
     "retry": "重试",
-    "pagination": "第 {{page}} 页，共 {{total}} 条"
+    "pagination": "第 {{page}} 页，共 {{total}} 条",
+    "bulkActions": {
+      "export": "导出选中",
+      "delete": "删除选中",
+      "exportPlaceholder": "正在导出 {{count}} 条事件（未实现）",
+      "deletePlaceholder": "正在删除 {{count}} 条事件（未实现）"
+    }
   }
 }

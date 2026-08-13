@@ -26,7 +26,6 @@ func TestDeviceEventRepositoryList(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, int64(2), total)
 	require.Equal(t, "overheat", events[0].EventType)
-	require.Equal(t, "Sensor", events[0].ProductName)
 	require.Equal(t, "D001", events[0].DeviceKey)
 
 	startAt := time.Now().Add(-30 * time.Minute)

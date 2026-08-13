@@ -5,6 +5,7 @@ import {
   flexRender,
   functionalUpdate,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from '@tanstack/react-table'
 import { AlertTriangle, CalendarDays, RefreshCw } from 'lucide-react'
@@ -12,6 +13,7 @@ import type { DateRange } from 'react-day-picker'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -43,6 +45,7 @@ import {
   type DeviceEventFilters,
   useDeviceEvents,
 } from '../api/queries'
+import { EventsBulkActions } from './events-bulk-actions'
 
 const pageSize = 20
 const defaultDateRange = () => {
@@ -71,7 +74,33 @@ export function DeviceEvents() {
     defaultDateRange
   )
   const { data, isLoading, isError, refetch } = useDeviceEvents(filters)
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
   const columns: ColumnDef<DeviceEvent>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label='Select all'
+          className='translate-y-[2px]'
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onClick={(event) => event.stopPropagation()}
+          aria-label='Select row'
+          className='translate-y-[2px]'
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'eventAt',
       header: t('events.columns.eventAt'),
@@ -81,11 +110,17 @@ export function DeviceEvents() {
         </span>
       ),
     },
-    { accessorKey: 'productName', header: t('events.columns.productName') },
     {
       accessorKey: 'deviceName',
       header: t('events.columns.deviceName'),
       cell: ({ row }) => row.original.deviceName || row.original.deviceKey,
+    },
+    {
+      accessorKey: 'deviceKey',
+      header: t('events.columns.deviceKey'),
+      cell: ({ row }) => (
+        <span className='font-mono text-xs'>{row.original.deviceKey}</span>
+      ),
     },
     {
       accessorKey: 'eventType',
@@ -111,7 +146,10 @@ export function DeviceEvents() {
     columns,
     state: {
       pagination: { pageIndex: filters.page - 1, pageSize: filters.pageSize },
+      rowSelection,
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     manualPagination: true,
     pageCount: Math.max(1, Math.ceil((data?.total || 0) / filters.pageSize)),
     onPaginationChange: (updater) => {
@@ -126,6 +164,7 @@ export function DeviceEvents() {
       }))
     },
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   })
   const updateFilters = (values: Partial<DeviceEventFilters>) => {
     setFilters((current) => ({ ...current, ...values, page: 1 }))
@@ -210,8 +249,8 @@ export function DeviceEvents() {
             toggleColumns: t('events.viewOptions.toggleColumns'),
             columns: {
               eventAt: t('events.columns.eventAt'),
-              productName: t('events.columns.productName'),
               deviceName: t('events.columns.deviceName'),
+              deviceKey: t('events.columns.deviceKey'),
               eventType: t('events.columns.eventType'),
               data: t('events.columns.data'),
             },
@@ -297,6 +336,8 @@ export function DeviceEvents() {
       </div>
 
       <DataTablePagination table={table} className='mt-auto' />
+
+      <EventsBulkActions table={table} />
 
       <Dialog
         open={!!selectedEvent}

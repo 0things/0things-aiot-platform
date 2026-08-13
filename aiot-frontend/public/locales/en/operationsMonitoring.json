@@ -223,10 +223,10 @@
     },
     "columns": {
       "eventAt": "Event time",
-      "productName": "Product",
-      "deviceName": "Device",
       "eventType": "Event type",
-      "data": "Event data"
+      "data": "Event data",
+      "deviceName": "Device",
+      "deviceKey": "Device Key"
     },
     "viewOptions": {
       "view": "View",
@@ -238,6 +238,12 @@
     "empty": "No device events yet",
     "error": "Failed to load device events. Please try again.",
     "retry": "Retry",
-    "pagination": "Page {{page}}, {{total}} total"
+    "pagination": "Page {{page}}, {{total}} total",
+    "bulkActions": {
+      "export": "Export selected",
+      "delete": "Delete selected",
+      "exportPlaceholder": "Exporting {{count}} event(s) (not implemented)",
+      "deletePlaceholder": "Deleting {{count}} event(s) (not implemented)"
+    }
   }
 }

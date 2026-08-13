@@ -6,7 +6,6 @@ type DeviceEvent struct {
 	ID          int64     `json:"id"`
 	DeviceKey   string    `json:"deviceKey"`
 	DeviceName  string    `json:"deviceName"`
-	ProductName string    `json:"productName"`
 	EventType   string    `json:"eventType"`
 	EventAt     time.Time `json:"eventAt"`
 	Data        string    `json:"data"`

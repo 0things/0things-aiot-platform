@@ -20,8 +20,7 @@ func (r *DeviceEventRepository) Create(ctx context.Context, event *model.DeviceE
 
 func (r *DeviceEventRepository) List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error) {
 	base := r.DB(ctx).Model(&model.DeviceEvent{}).
-		Joins("JOIN devices d ON d.id = device_events.device_id").
-		Joins("JOIN products p ON p.id = d.product_id")
+		Joins("LEFT JOIN devices d ON d.id = device_events.device_id")
 	if keyword != "" {
 		term := "%" + strings.ToLower(keyword) + "%"
 		base = base.Where("LOWER(d.device_key) LIKE ? OR LOWER(d.name) LIKE ? OR LOWER(device_events.event_type) LIKE ?", term, term, term)
@@ -35,7 +34,7 @@ func (r *DeviceEventRepository) List(ctx context.Context, page, size int, keywor
 	var total int64
 	if err := base.Count(&total).Error; err != nil { return nil, 0, err }
 	var events []model.DeviceEvent
-	err := base.Select("device_events.*, d.device_key AS device_key, d.name AS device_name, p.name AS product_name").
+	err := base.Select("device_events.*, d.device_key AS device_key, d.name AS device_name").
 		Order("device_events.event_at DESC").Offset((page-1)*size).Limit(size).Find(&events).Error
 	return events, total, err
 }
