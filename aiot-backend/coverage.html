@@ -57,7 +57,7 @@
 				
 				<option value="file0">0things-backend/internal/handler/alert.go (100.0%)</option>
 				
-				<option value="file1">0things-backend/internal/handler/device.go (99.2%)</option>
+				<option value="file1">0things-backend/internal/handler/device.go (86.6%)</option>
 				
 				<option value="file2">0things-backend/internal/handler/device_event.go (100.0%)</option>
 				
@@ -449,7 +449,7 @@ func (h *DeviceHandler) ListDevices(c *gin.Context) <span class="cov8" title="1"
 // @Router /devices/{id} [put]
 func (h *DeviceHandler) UpdateDevice(c *gin.Context) <span class="cov8" title="1">{
         i, e := id(c)
-        if e != nil </span><span class="cov8" title="1">{
+        if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
@@ -459,7 +459,7 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) <span class="cov8" title="1
                 return
         }</span>
         <span class="cov8" title="1">d, e := h.svc.UpdateDevice(c, i, req.Name, req.State, req.Metadata)
-        if e != nil </span><span class="cov8" title="1">{
+        if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
@@ -481,7 +481,7 @@ func (h *DeviceHandler) DeleteDevice(c *gin.Context) <span class="cov8" title="1
         if e == nil </span><span class="cov8" title="1">{
                 e = h.svc.DeleteDevice(c, i)
         }</span>
-        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
@@ -500,12 +500,12 @@ func (h *DeviceHandler) DeleteDevice(c *gin.Context) <span class="cov8" title="1
 // @Router /devices/{id}/activate [post]
 func (h *DeviceHandler) Activate(c *gin.Context) <span class="cov8" title="1">{
         i, e := id(c)
-        if e != nil </span><span class="cov8" title="1">{
+        if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
         <span class="cov8" title="1">d, e := h.svc.Activate(c, i)
-        if e != nil </span><span class="cov8" title="1">{
+        if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
@@ -529,12 +529,12 @@ func (h *DeviceHandler) Enabled(c *gin.Context) <span class="cov8" title="1">{
         if e == nil </span><span class="cov8" title="1">{
                 e = c.ShouldBindJSON(&amp;req)
         }</span>
-        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
         <span class="cov8" title="1">d, e := h.svc.SetEnabled(c, i, req.Enabled)
-        if e != nil </span><span class="cov8" title="1">{
+        if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
@@ -552,7 +552,7 @@ func (h *DeviceHandler) Enabled(c *gin.Context) <span class="cov8" title="1">{
 // @Router /devices/stats [get]
 func (h *DeviceHandler) Stats(c *gin.Context) <span class="cov8" title="1">{
         x, e := h.svc.Stats(c)
-        if e != nil </span><span class="cov8" title="1">{
+        if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
@@ -614,12 +614,12 @@ func (h *DeviceHandler) MQTT(c *gin.Context) <span class="cov8" title="1">{
 // @Router /devices/{id}/restore [post]
 func (h *DeviceHandler) Restore(c *gin.Context) <span class="cov8" title="1">{
         i, e := id(c)
-        if e != nil </span><span class="cov8" title="1">{
+        if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
         <span class="cov8" title="1">d, e := h.svc.RestoreDevice(c, i)
-        if e != nil </span><span class="cov8" title="1">{
+        if e != nil </span><span class="cov0" title="0">{
                 deviceError(c, e)
                 return
         }</span>
@@ -869,7 +869,7 @@ func (h *DeviceHandler) SimulatePush(c *gin.Context) <span class="cov8" title="1
                 return
         }</span>
         <span class="cov8" title="1">record, err := h.svc.SimulatePush(c, c.Param("id"), req.Payload, c.GetHeader("X-User-ID"))
-        if err != nil </span><span class="cov8" title="1">{
+        if err != nil </span><span class="cov0" title="0">{
                 deviceError(c, err)
                 return
         }</span>
@@ -893,7 +893,7 @@ func (h *DeviceHandler) SimulatePush(c *gin.Context) <span class="cov8" title="1
 func (h *DeviceHandler) PushRecords(c *gin.Context) <span class="cov8" title="1">{
         p, s := page(c, 20)
         records, total, err := h.svc.ListPushRecords(c, c.Param("id"), p, s, c.Query("operationType"), c.Query("status"))
-        if err != nil </span><span class="cov8" title="1">{
+        if err != nil </span><span class="cov0" title="0">{
                 deviceError(c, err)
                 return
         }</span>
@@ -917,12 +917,12 @@ func (h *DeviceHandler) PushRecords(c *gin.Context) <span class="cov8" title="1"
 // @Router /devices/{id}/push-records/{pushRecordId} [get]
 func (h *DeviceHandler) PushRecord(c *gin.Context) <span class="cov8" title="1">{
         pushRecordID, err := strconv.ParseInt(c.Param("pushRecordId"), 10, 64)
-        if err != nil </span><span class="cov8" title="1">{
+        if err != nil </span><span class="cov0" title="0">{
                 deviceError(c, err)
                 return
         }</span>
         <span class="cov8" title="1">record, err := h.svc.PushRecord(c, pushRecordID)
-        if err != nil </span><span class="cov8" title="1">{
+        if err != nil </span><span class="cov0" title="0">{
                 deviceError(c, err)
                 return
         }</span>
@@ -942,14 +942,14 @@ func (h *DeviceHandler) PushRecord(c *gin.Context) <span class="cov8" title="1">
 // @Router /devices/{id}/push-records [delete]
 func (h *DeviceHandler) ClearPushRecords(c *gin.Context) <span class="cov8" title="1">{
         var before *time.Time
-        if v := c.Query("beforeTimestamp"); v != "" </span><span class="cov8" title="1">{
-                if milliseconds, _ := strconv.ParseInt(v, 10, 64); milliseconds &gt; 0 </span><span class="cov8" title="1">{
+        if v := c.Query("beforeTimestamp"); v != "" </span><span class="cov0" title="0">{
+                if milliseconds, _ := strconv.ParseInt(v, 10, 64); milliseconds &gt; 0 </span><span class="cov0" title="0">{
                         value := time.UnixMilli(milliseconds)
                         before = &amp;value
                 }</span>
         }
         <span class="cov8" title="1">deletedCount, err := h.svc.ClearPushRecords(c, c.Param("id"), before)
-        if err != nil </span><span class="cov8" title="1">{
+        if err != nil </span><span class="cov0" title="0">{
                 deviceError(c, err)
                 return
         }</span>
