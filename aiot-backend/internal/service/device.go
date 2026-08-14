@@ -12,6 +12,7 @@ import (
 
 	"0things-backend/internal/model"
 	"0things-backend/internal/repository"
+	"0things-backend/internal/tenant"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/xuri/excelize/v2"
 )
@@ -92,6 +93,7 @@ func (s *DeviceService) CreateDevice(ctx context.Context, d *model.Device) (*mod
 	if d.DeviceKey == "" {
 		d.DeviceKey = deviceKey()
 	}
+	d.TenantID = tenant.GetTenantID(ctx)
 	if err := s.repo.Create(ctx, d); err != nil {
 		return nil, err
 	}

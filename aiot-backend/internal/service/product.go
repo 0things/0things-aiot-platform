@@ -10,6 +10,7 @@ import (
 
 	"0things-backend/internal/model"
 	"0things-backend/internal/repository"
+	"0things-backend/internal/tenant"
 )
 
 type ProductService struct {
@@ -61,9 +62,7 @@ func (s *ProductService) Create(ctx context.Context, product *model.Product) (*m
 	if product.NodeType == "" {
 		product.NodeType = "direct"
 	}
-	if product.TenantID == 0 {
-		product.TenantID = 1
-	}
+	product.TenantID = tenant.GetTenantID(ctx)
 	if err := s.repo.Create(ctx, product); err != nil {
 		return nil, err
 	}

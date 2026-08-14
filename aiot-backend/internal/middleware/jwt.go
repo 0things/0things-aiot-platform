@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"0things-backend/api/v1"
+	"0things-backend/internal/tenant"
 	"0things-backend/pkg/jwt"
 	"0things-backend/pkg/log"
 	"go.uber.org/zap"
@@ -34,6 +35,7 @@ func StrictAuth(j *jwt.JWT, logger *log.Logger) gin.HandlerFunc {
 		}
 
 		ctx.Set("claims", claims)
+		ctx.Request = ctx.Request.WithContext(tenant.WithTenant(ctx.Request.Context(), claims.TenantID))
 		recoveryLoggerFunc(ctx, logger)
 		ctx.Next()
 	}
@@ -60,6 +62,7 @@ func NoStrictAuth(j *jwt.JWT, logger *log.Logger) gin.HandlerFunc {
 		}
 
 		ctx.Set("claims", claims)
+		ctx.Request = ctx.Request.WithContext(tenant.WithTenant(ctx.Request.Context(), claims.TenantID))
 		recoveryLoggerFunc(ctx, logger)
 		ctx.Next()
 	}

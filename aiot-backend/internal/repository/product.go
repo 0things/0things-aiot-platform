@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"0things-backend/internal/model"
+	"0things-backend/internal/repository/scope"
 	"gorm.io/gorm"
 )
 
@@ -22,7 +23,7 @@ func (r *ProductRepository) DB(ctx context.Context) *gorm.DB {
 
 func (r *ProductRepository) Find(ctx context.Context, id int64) (*model.Product, error) {
 	var product model.Product
-	if err := r.DB(ctx).First(&product, id).Error; err != nil {
+	if err := r.DB(ctx).Scopes(scope.Tenant).First(&product, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
@@ -33,7 +34,7 @@ func (r *ProductRepository) Find(ctx context.Context, id int64) (*model.Product,
 
 func (r *ProductRepository) FindByKey(ctx context.Context, key string) (*model.Product, error) {
 	var product model.Product
-	if err := r.DB(ctx).Where("product_key = ?", key).First(&product).Error; err != nil {
+	if err := r.DB(ctx).Scopes(scope.Tenant).Where("product_key = ?", key).First(&product).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
@@ -61,7 +62,7 @@ func (r *ProductRepository) Delete(ctx context.Context, product *model.Product) 
 }
 
 func (r *ProductRepository) List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error) {
-	query := r.DB(ctx).Model(&model.Product{})
+	query := r.DB(ctx).Model(&model.Product{}).Scopes(scope.Tenant)
 	if category != "" {
 		query = query.Where("category = ?", category)
 	}
@@ -83,5 +84,5 @@ func (r *ProductRepository) List(ctx context.Context, page, size int, category, 
 }
 
 func (r *ProductRepository) Restore(ctx context.Context, id int64) error {
-	return r.DB(ctx).Unscoped().Model(&model.Product{}).Where("id = ?", id).Update("deleted_at", nil).Error
+	return r.DB(ctx).Unscoped().Scopes(scope.Tenant).Model(&model.Product{}).Where("id = ?", id).Update("deleted_at", nil).Error
 }

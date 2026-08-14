@@ -12,6 +12,7 @@ type Device struct {
 	DeviceKey string          `gorm:"column:device_key" json:"deviceKey"`
 	Name      string          `json:"name"`
 	ProductID int64           `gorm:"column:product_id" json:"productId"`
+	TenantID  int64           `gorm:"column:tenant_id;not null;default:1" json:"tenantId"`
 	Enabled   bool            `json:"enabled"`
 	Metadata  json.RawMessage `gorm:"type:json" json:"metadata"`
 	DeletedAt gorm.DeletedAt  `gorm:"column:deleted_at" json:"-"`

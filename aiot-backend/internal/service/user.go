@@ -5,6 +5,7 @@ import (
 	v1 "0things-backend/api/v1"
 	"0things-backend/internal/model"
 	"0things-backend/internal/repository"
+	"0things-backend/internal/tenant"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -77,7 +78,8 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, 
 	if err != nil {
 		return "", err
 	}
-	token, err := s.jwt.GenToken(user.UserId, time.Now().Add(time.Hour*24*90))
+	tenantID := tenant.GetTenantID(ctx)
+	token, err := s.jwt.GenToken(user.UserId, tenantID, time.Now().Add(time.Hour*24*90))
 	if err != nil {
 		return "", err
 	}

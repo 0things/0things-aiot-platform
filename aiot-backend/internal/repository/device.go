@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"0things-backend/internal/model"
+	"0things-backend/internal/repository/scope"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -38,7 +39,7 @@ func (r *DeviceRepository) DB(ctx context.Context) *gorm.DB {
 
 func (r *DeviceRepository) Find(ctx context.Context, id int64) (*model.Device, error) {
 	var item model.Device
-	if err := r.DB(ctx).Preload("Product").Preload("State").First(&item, id).Error; err != nil {
+	if err := r.DB(ctx).Scopes(scope.Tenant).Preload("Product").Preload("State").First(&item, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
@@ -48,6 +49,19 @@ func (r *DeviceRepository) Find(ctx context.Context, id int64) (*model.Device, e
 }
 
 func (r *DeviceRepository) FindByKey(ctx context.Context, key string) (*model.Device, error) {
+	var item model.Device
+	if err := r.DB(ctx).Scopes(scope.Tenant).Preload("Product").Preload("State").Where("device_key = ?", key).First(&item).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return &item, nil
+}
+
+// FindByKeyForEvent resolves a device from a broker event, which has no user
+// request context. Device keys are globally unique in the device protocol.
+func (r *DeviceRepository) FindByKeyForEvent(ctx context.Context, key string) (*model.Device, error) {
 	var item model.Device
 	if err := r.DB(ctx).Preload("Product").Preload("State").Where("device_key = ?", key).First(&item).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -68,7 +82,7 @@ func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) err
 }
 
 func (r *DeviceRepository) List(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) {
-	query := r.DB(ctx).Model(&model.Device{}).Joins("JOIN device_states ON device_states.device_id = devices.id")
+	query := r.DB(ctx).Model(&model.Device{}).Scopes(scope.Tenant).Joins("JOIN device_states ON device_states.device_id = devices.id")
 	if productID > 0 {
 		query = query.Where("devices.product_id = ?", productID)
 	}
@@ -107,11 +121,11 @@ func (r *DeviceRepository) SaveEnabled(ctx context.Context, device *model.Device
 
 func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, error) {
 	var total, online, offline, inactive int64
-	if err := r.DB(ctx).Model(&model.Device{}).Count(&total).Error; err != nil {
+	if err := r.DB(ctx).Scopes(scope.Tenant).Model(&model.Device{}).Count(&total).Error; err != nil {
 		return DeviceStatistics{}, err
 	}
 	for state, target := range map[string]*int64{"online": &online, "offline": &offline, "inactive": &inactive} {
-		if err := r.DB(ctx).Model(&model.DeviceState{}).Where("state = ?", state).Count(target).Error; err != nil {
+		if err := r.DB(ctx).Scopes(scope.Tenant).Model(&model.Device{}).Joins("JOIN device_states ON device_states.device_id = devices.id").Where("device_states.state = ?", state).Count(target).Error; err != nil {
 			return DeviceStatistics{}, err
 		}
 	}
@@ -126,7 +140,7 @@ func (r *DeviceRepository) Delete(ctx context.Context, device *model.Device) err
 }
 
 func (r *DeviceRepository) Restore(ctx context.Context, id int64) error {
-	return r.DB(ctx).Unscoped().Model(&model.Device{}).Where("id = ?", id).Update("deleted_at", nil).Error
+	return r.DB(ctx).Unscoped().Scopes(scope.Tenant).Model(&model.Device{}).Where("id = ?", id).Update("deleted_at", nil).Error
 }
 
 func (r *DeviceRepository) Telemetry(ctx context.Context, key string) (string, error) {
