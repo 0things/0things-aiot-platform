@@ -6,9 +6,10 @@ import (
 	"0things-backend/pkg/log"
 	"context"
 	"fmt"
+	"os"
+
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"os"
 )
 
 type MigrateServer struct {
@@ -36,11 +37,20 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 			return fmt.Errorf("legacy device table %q is missing; refusing to create legacy data tables", table)
 		}
 	}
-	// These domain tables are not part of the legacy product/device schema.
-	// there. AutoMigrate only creates missing tables; it does not touch the
-	// pre-existing legacy product/device/OTA/rule tables validated above.
-	if err := m.deviceDB.AutoMigrate(&model.DeviceShadow{}, &model.DeviceTag{}, &model.DeviceShadowHistory{}, &model.DeviceEvent{}); err != nil {
+	if err := m.deviceDB.AutoMigrate(
+		&model.Product{},
+		&model.Device{},
+		&model.DeviceShadow{},
+		&model.DeviceTag{},
+		&model.DeviceShadowHistory{},
+		&model.DeviceEvent{},
+	); err != nil {
 		return err
+	}
+	for _, table := range []string{"products", "devices"} {
+		if err := m.deviceDB.Exec("UPDATE " + table + " SET tenant_id = 1 WHERE tenant_id IS NULL OR tenant_id = 0").Error; err != nil {
+			return fmt.Errorf("backfill tenant_id for %s: %w", table, err)
+		}
 	}
 	if !m.deviceDB.Migrator().HasTable(&model.DeviceEvent{}) {
 		return fmt.Errorf("device_events migration did not create the table")
