@@ -1,8 +1,11 @@
-.PHONY: init
+.PHONY: init gen
 init:
 	go install github.com/google/wire/cmd/wire@latest
 	go install github.com/golang/mock/mockgen@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
+
+gen:
+	go generate ./cmd/gormgen
 
 .PHONY: bootstrap
 bootstrap:
