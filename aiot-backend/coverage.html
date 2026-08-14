@@ -1,0 +1,4409 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>handler: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">0things-backend/internal/handler/alert.go (100.0%)</option>
+				
+				<option value="file1">0things-backend/internal/handler/device.go (99.2%)</option>
+				
+				<option value="file2">0things-backend/internal/handler/device_event.go (100.0%)</option>
+				
+				<option value="file3">0things-backend/internal/handler/handler.go (100.0%)</option>
+				
+				<option value="file4">0things-backend/internal/handler/ota.go (100.0%)</option>
+				
+				<option value="file5">0things-backend/internal/handler/product.go (94.8%)</option>
+				
+				<option value="file6">0things-backend/internal/handler/product_tsl.go (100.0%)</option>
+				
+				<option value="file7">0things-backend/internal/handler/response.go (100.0%)</option>
+				
+				<option value="file8">0things-backend/internal/handler/rule.go (98.1%)</option>
+				
+				<option value="file9">0things-backend/internal/handler/user.go (100.0%)</option>
+				
+				<option value="file10">0things-backend/internal/repository/alert.go (93.1%)</option>
+				
+				<option value="file11">0things-backend/internal/repository/device.go (83.3%)</option>
+				
+				<option value="file12">0things-backend/internal/repository/device_event.go (85.7%)</option>
+				
+				<option value="file13">0things-backend/internal/repository/device_shadow.go (82.9%)</option>
+				
+				<option value="file14">0things-backend/internal/repository/device_tag.go (81.8%)</option>
+				
+				<option value="file15">0things-backend/internal/repository/ota.go (78.5%)</option>
+				
+				<option value="file16">0things-backend/internal/repository/product.go (82.5%)</option>
+				
+				<option value="file17">0things-backend/internal/repository/product_tsl.go (90.0%)</option>
+				
+				<option value="file18">0things-backend/internal/repository/push_record.go (88.5%)</option>
+				
+				<option value="file19">0things-backend/internal/repository/query.go (100.0%)</option>
+				
+				<option value="file20">0things-backend/internal/repository/repository.go (7.0%)</option>
+				
+				<option value="file21">0things-backend/internal/repository/rule.go (86.8%)</option>
+				
+				<option value="file22">0things-backend/internal/repository/user.go (78.9%)</option>
+				
+				<option value="file23">0things-backend/internal/service/alert.go (92.9%)</option>
+				
+				<option value="file24">0things-backend/internal/service/device.go (89.7%)</option>
+				
+				<option value="file25">0things-backend/internal/service/device_event.go (93.8%)</option>
+				
+				<option value="file26">0things-backend/internal/service/ota.go (88.9%)</option>
+				
+				<option value="file27">0things-backend/internal/service/product.go (87.5%)</option>
+				
+				<option value="file28">0things-backend/internal/service/product_tsl.go (95.0%)</option>
+				
+				<option value="file29">0things-backend/internal/service/rule.go (87.0%)</option>
+				
+				<option value="file30">0things-backend/internal/service/service.go (100.0%)</option>
+				
+				<option value="file31">0things-backend/internal/service/user.go (75.6%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package handler
+
+import (
+        "fmt"
+
+        alertV1 "0things-backend/api/alert/v1"
+        "0things-backend/internal/model"
+        "0things-backend/internal/service"
+        "github.com/gin-gonic/gin"
+)
+
+type AlertHandler struct {
+        *Handler
+        svc service.AlertServiceInterface
+}
+
+func NewAlertHandler(h *Handler, svc service.AlertServiceInterface) *AlertHandler <span class="cov8" title="1">{
+        return &amp;AlertHandler{Handler: h, svc: svc}
+}</span>
+
+func alertResponse(alert model.Alert) alertV1.Alert <span class="cov8" title="1">{
+        return alertV1.Alert{ID: alert.ID, RuleID: alert.RuleID, RuleName: alert.RuleName, DeviceKey: alert.DeviceKey, Severity: alert.Severity, Status: alert.Status, Summary: alert.Summary, Payload: fmt.Sprint(raw(alert.Payload)), Count: alert.Count, RaisedAt: alert.RaisedAt, LastRaisedAt: alert.LastRaisedAt, AckAt: alert.AckAt, AckBy: alert.AckBy, ResolvedAt: alert.ResolvedAt, ResolvedBy: alert.ResolvedBy, CreatedAt: alert.CreatedAt, UpdatedAt: alert.UpdatedAt}
+}</span>
+// ListAlerts godoc
+// @Summary 获取告警列表
+// @Schemes
+// @Description 分页获取告警列表，支持按 status、severity、device_key 过滤
+// @Tags 告警模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param status query string false "状态"
+// @Param severity query string false "严重程度"
+// @Param device_key query string false "设备 Key"
+// @Success 200 {object} alertV1.ListAlertsResponse
+// @Router /alerts [get]
+func (h *AlertHandler) ListAlerts(c *gin.Context) <span class="cov8" title="1">{
+        pageNumber, pageSize := page(c, 20)
+        alerts, total, err := h.svc.List(c, pageNumber, pageSize, c.Query("status"), c.Query("severity"), c.Query("device_key"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">out := make([]alertV1.Alert, 0, len(alerts))
+        for _, alert := range alerts </span><span class="cov8" title="1">{
+                out = append(out, alertResponse(alert))
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, alertV1.ListAlertsResponse{Alerts: out, Total: total, Page: pageNumber, PageSize: pageSize})</span>
+}
+
+// GetAlert godoc
+// @Summary 获取告警详情
+// @Schemes
+// @Description 通过告警 ID 获取告警详情
+// @Tags 告警模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "告警 ID"
+// @Success 200 {object} alertV1.GetAlertResponse
+// @Router /alerts/{id} [get]
+func (h *AlertHandler) GetAlert(c *gin.Context) <span class="cov8" title="1">{
+        alertID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">alert, err := h.svc.Get(c, alertID)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, alertV1.GetAlertResponse{Alert: alertResponse(*alert)})</span>
+}
+
+// AckAlert godoc
+// @Summary 确认告警
+// @Schemes
+// @Description 通过告警 ID 确认（acknowledged）该告警
+// @Tags 告警模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "告警 ID"
+// @Success 200 {object} alertV1.GetAlertResponse
+// @Router /alerts/{id}/ack [post]
+func (h *AlertHandler) AckAlert(c *gin.Context) <span class="cov8" title="1">{
+        h.AlertStatus(c, "acknowledged")
+}</span>
+
+// ResolveAlert godoc
+// @Summary 处理告警
+// @Schemes
+// @Description 通过告警 ID 处理（resolved）该告警
+// @Tags 告警模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "告警 ID"
+// @Success 200 {object} alertV1.GetAlertResponse
+// @Router /alerts/{id}/resolve [post]
+func (h *AlertHandler) ResolveAlert(c *gin.Context) <span class="cov8" title="1">{
+        h.AlertStatus(c, "resolved")
+}</span>
+
+func (h *AlertHandler) AlertStatus(c *gin.Context, status string) <span class="cov8" title="1">{
+        alertID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">alert, err := h.svc.SetStatus(c, alertID, status)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, alertV1.GetAlertResponse{Alert: alertResponse(*alert)})</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package handler
+
+import (
+        "encoding/json"
+        "fmt"
+        "io"
+        "strconv"
+        "time"
+
+        deviceV1 "0things-backend/api/device/v1"
+        "0things-backend/internal/model"
+        "0things-backend/internal/service"
+        "github.com/gin-gonic/gin"
+        "github.com/spf13/viper"
+)
+
+// DeviceHandler deliberately writes the legacy raw response bodies. Device
+// clients predate the backend's common response envelope.
+type DeviceHandler struct {
+        *Handler
+        svc    service.DeviceServiceInterface
+        config *viper.Viper
+}
+
+func NewDeviceHandler(h *Handler, svc service.DeviceServiceInterface, config *viper.Viper) *DeviceHandler <span class="cov8" title="1">{
+        return &amp;DeviceHandler{Handler: h, svc: svc, config: config}
+}</span>
+
+func deviceJSON(device model.Device) deviceV1.Device <span class="cov8" title="1">{
+        return deviceV1.Device{
+                ID:              device.ID,
+                DeviceKey:       device.DeviceKey,
+                Name:            device.Name,
+                ProductID:       device.ProductID,
+                ProductKey:      device.Product.ProductKey,
+                ProductName:     device.Product.Name,
+                State:           device.State.State,
+                Enabled:         device.Enabled,
+                LastOnlineTime:  device.State.LastOnlineTime,
+                LastOfflineTime: device.State.LastOfflineTime,
+                Metadata:        fmt.Sprint(raw(device.Metadata)),
+                CreatedAt:       device.CreatedAt,
+                UpdatedAt:       device.UpdatedAt,
+                DeletedAt:       deletedAt(device.DeletedAt),
+        }
+}</span>
+
+func deviceTagJSON(tag model.DeviceTag) deviceV1.DeviceTag <span class="cov8" title="1">{
+        return deviceV1.DeviceTag{
+                ID: tag.ID, DeviceID: tag.DeviceID, Key: tag.Key, Value: tag.Value, Source: tag.Source,
+                CreatedAt: tag.CreatedAt, UpdatedAt: tag.UpdatedAt, DeletedAt: deletedAt(tag.DeletedAt),
+        }
+}</span>
+
+func deviceTagsJSON(tags []model.DeviceTag) []deviceV1.DeviceTag <span class="cov8" title="1">{
+        items := make([]deviceV1.DeviceTag, len(tags))
+        for i, tag := range tags </span><span class="cov8" title="1">{
+                items[i] = deviceTagJSON(tag)
+        }</span>
+        <span class="cov8" title="1">return items</span>
+}
+
+func shadowHistoryJSON(history model.DeviceShadowHistory) deviceV1.DeviceShadowHistory <span class="cov8" title="1">{
+        var desired, reported any
+        _ = json.Unmarshal(history.Desired, &amp;desired)
+        _ = json.Unmarshal(history.Reported, &amp;reported)
+        return deviceV1.DeviceShadowHistory{
+                ID: history.ID, DeviceID: history.DeviceID, Version: history.Version, Source: history.Source,
+                Desired: desired, Reported: reported, CreatedAt: history.CreatedAt,
+        }
+}</span>
+
+func pushRecordJSON(record model.DevicePushRecord) deviceV1.PushRecord <span class="cov8" title="1">{
+        return deviceV1.PushRecord{
+                ID: record.ID, DeviceID: record.DeviceID, OperationType: record.OperationType, OperationName: record.OperationName,
+                Payload: record.Payload, Status: record.Status, ErrorMessage: record.ErrorMessage, CreatedBy: record.CreatedBy,
+                CreatedAt: record.CreatedAt, UpdatedAt: record.UpdatedAt,
+        }
+}</span>
+
+// CreateDevice godoc
+// @Summary 创建设备
+// @Schemes
+// @Description 创建一个新的设备
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body deviceV1.CreateDeviceRequest true "params"
+// @Success 200 {object} deviceV1.CreateDeviceResponse
+// @Router /devices [post]
+func (h *DeviceHandler) CreateDevice(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.CreateDeviceRequest
+        if e := c.ShouldBindJSON(&amp;req); e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">d, e := h.svc.CreateDevice(c, &amp;model.Device{Name: req.Name, ProductID: req.ProductID, Enabled: req.Enabled, Metadata: req.Metadata})
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.CreateDeviceResponse{Device: deviceJSON(*d)})</span>
+}
+// GetDevice godoc
+// @Summary 通过 ID 获取设备
+// @Schemes
+// @Description 通过设备 ID 获取设备详情
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.GetDeviceResponse
+// @Router /devices/{id} [get]
+func (h *DeviceHandler) GetDevice(c *gin.Context) <span class="cov8" title="1">{
+        i, e := id(c)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">d, e := h.svc.Device(c, i)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.GetDeviceResponse{Device: deviceJSON(*d)})</span>
+}
+// GetDeviceByKey godoc
+// @Summary 通过 deviceKey 获取设备
+// @Schemes
+// @Description 通过设备 Key 获取设备详情
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param deviceKey path string true "设备 Key"
+// @Success 200 {object} deviceV1.GetDeviceResponse
+// @Router /devices/key/{deviceKey} [get]
+func (h *DeviceHandler) GetDeviceByKey(c *gin.Context) <span class="cov8" title="1">{
+        d, e := h.svc.DeviceByKey(c, c.Param("deviceKey"))
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.GetDeviceResponse{Device: deviceJSON(*d)})</span>
+}
+// ListDevices godoc
+// @Summary 获取设备列表
+// @Schemes
+// @Description 分页获取设备列表，支持按 productId、states、enabled、searchText 过滤
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param productId query int false "产品 ID"
+// @Param states query []string false "设备状态"
+// @Param enabled query bool false "是否启用"
+// @Param searchText query string false "搜索关键字"
+// @Success 200 {object} deviceV1.ListDevicesResponse
+// @Router /devices [get]
+func (h *DeviceHandler) ListDevices(c *gin.Context) <span class="cov8" title="1">{
+        p, s := page(c, 10)
+        pid, _ := strconv.ParseInt(c.Query("productId"), 10, 64)
+        var enabled *bool
+        if x, ok := c.GetQuery("enabled"); ok </span><span class="cov8" title="1">{
+                v, _ := strconv.ParseBool(x)
+                enabled = &amp;v
+        }</span>
+        <span class="cov8" title="1">d, n, e := h.svc.ListDevices(c, p, s, pid, c.QueryArray("states"), enabled, c.Query("searchText"))
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">out := make([]deviceV1.Device, 0, len(d))
+        for _, v := range d </span><span class="cov8" title="1">{
+                out = append(out, deviceJSON(v))
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.ListDevicesResponse{Devices: out, Total: n, Page: p, PageSize: s})</span>
+}
+// UpdateDevice godoc
+// @Summary 更新设备
+// @Schemes
+// @Description 通过设备 ID 更新设备
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.UpdateDeviceRequest true "params"
+// @Success 200 {object} deviceV1.UpdateDeviceResponse
+// @Router /devices/{id} [put]
+func (h *DeviceHandler) UpdateDevice(c *gin.Context) <span class="cov8" title="1">{
+        i, e := id(c)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">var req deviceV1.UpdateDeviceRequest
+        if e = c.ShouldBindJSON(&amp;req); e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">d, e := h.svc.UpdateDevice(c, i, req.Name, req.State, req.Metadata)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.UpdateDeviceResponse{Device: deviceJSON(*d)})</span>
+}
+// DeleteDevice godoc
+// @Summary 删除设备
+// @Schemes
+// @Description 通过设备 ID 软删除设备
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.SuccessResponse
+// @Router /devices/{id} [delete]
+func (h *DeviceHandler) DeleteDevice(c *gin.Context) <span class="cov8" title="1">{
+        i, e := id(c)
+        if e == nil </span><span class="cov8" title="1">{
+                e = h.svc.DeleteDevice(c, i)
+        }</span>
+        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.SuccessResponse{Success: true})</span>
+}
+// Activate godoc
+// @Summary 激活设备
+// @Schemes
+// @Description 通过设备 ID 激活设备
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.ActivateDeviceResponse
+// @Router /devices/{id}/activate [post]
+func (h *DeviceHandler) Activate(c *gin.Context) <span class="cov8" title="1">{
+        i, e := id(c)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">d, e := h.svc.Activate(c, i)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.ActivateDeviceResponse{Device: deviceJSON(*d)})</span>
+}
+// Enabled godoc
+// @Summary 设置设备启用/禁用
+// @Schemes
+// @Description 通过设备 ID 启用或禁用设备
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.SetDeviceEnabledRequest true "params"
+// @Success 200 {object} deviceV1.SetDeviceEnabledResponse
+// @Router /devices/{id}/enabled [put]
+func (h *DeviceHandler) Enabled(c *gin.Context) <span class="cov8" title="1">{
+        i, e := id(c)
+        var req deviceV1.SetDeviceEnabledRequest
+        if e == nil </span><span class="cov8" title="1">{
+                e = c.ShouldBindJSON(&amp;req)
+        }</span>
+        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">d, e := h.svc.SetEnabled(c, i, req.Enabled)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.SetDeviceEnabledResponse{Device: deviceJSON(*d)})</span>
+}
+// Stats godoc
+// @Summary 设备统计
+// @Schemes
+// @Description 获取设备统计信息（总数、已激活、在线、离线、未激活）
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} deviceV1.DeviceStatisticsResponse
+// @Router /devices/stats [get]
+func (h *DeviceHandler) Stats(c *gin.Context) <span class="cov8" title="1">{
+        x, e := h.svc.Stats(c)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.DeviceStatisticsResponse{
+                TotalDevices: x.TotalDevices, ActivatedDevices: x.ActivatedDevices, OnlineDevices: x.OnlineDevices,
+                OfflineDevices: x.OfflineDevices, InactiveDevices: x.InactiveDevices,
+        })</span>
+}
+// Telemetry godoc
+// @Summary 获取设备遥测数据
+// @Schemes
+// @Description 获取设备的遥测（Telemetry）数据
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.TelemetryResponse
+// @Router /devices/{id}/telemetry [get]
+func (h *DeviceHandler) Telemetry(c *gin.Context) <span class="cov8" title="1">{
+        x, e := h.svc.Telemetry(c, c.Param("id"))
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.TelemetryResponse{Telemetry: x})</span>
+}
+// MQTT godoc
+// @Summary 获取 MQTT 连接参数
+// @Schemes
+// @Description 获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.MQTTParametersResponse
+// @Router /devices/{id}/mqtt [get]
+func (h *DeviceHandler) MQTT(c *gin.Context) <span class="cov8" title="1">{
+        x, e := h.svc.MQTT(c, c.Param("id"))
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.MQTTParametersResponse{
+                ClientID: x.ClientID, Username: x.Username, MQTTHostURL: x.MQTTHostURL, Password: x.Password, Port: x.Port,
+        })</span>
+}
+// Restore godoc
+// @Summary 恢复已删除的设备
+// @Schemes
+// @Description 通过设备 ID 恢复软删除的设备
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.RestoreDeviceResponse
+// @Router /devices/{id}/restore [post]
+func (h *DeviceHandler) Restore(c *gin.Context) <span class="cov8" title="1">{
+        i, e := id(c)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">d, e := h.svc.RestoreDevice(c, i)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.RestoreDeviceResponse{Device: deviceJSON(*d)})</span>
+}
+
+// GetTags godoc
+// @Summary 获取设备标签
+// @Schemes
+// @Description 获取设备的所有标签
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.ListDeviceTagsResponse
+// @Router /devices/{id}/tags [get]
+func (h *DeviceHandler) GetTags(c *gin.Context) <span class="cov8" title="1">{
+        x, e := h.svc.Tags(c, c.Param("id"))
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})</span>
+}
+// PutTags godoc
+// @Summary 全量覆盖设置设备标签
+// @Schemes
+// @Description 覆盖式设置设备的标签集合（PUT 语义）
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.SetDeviceTagsRequest true "params"
+// @Success 200 {object} deviceV1.ListDeviceTagsResponse
+// @Router /devices/{id}/tags [put]
+func (h *DeviceHandler) PutTags(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.SetDeviceTagsRequest
+        e := c.ShouldBindJSON(&amp;req)
+        var x []model.DeviceTag
+        if e == nil </span><span class="cov8" title="1">{
+                x, e = h.svc.SetTags(c, c.Param("id"), req.Tags, true)
+        }</span>
+        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})</span>
+}
+// PostTags godoc
+// @Summary 增量添加设备标签
+// @Schemes
+// @Description 增量式添加设备的标签（POST 语义，保留已存在的标签）
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.SetDeviceTagsRequest true "params"
+// @Success 200 {object} deviceV1.ListDeviceTagsResponse
+// @Router /devices/{id}/tags [post]
+func (h *DeviceHandler) PostTags(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.SetDeviceTagsRequest
+        e := c.ShouldBindJSON(&amp;req)
+        var x []model.DeviceTag
+        if e == nil </span><span class="cov8" title="1">{
+                x, e = h.svc.SetTags(c, c.Param("id"), req.Tags, false)
+        }</span>
+        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})</span>
+}
+// DeleteTags godoc
+// @Summary 删除设备标签
+// @Schemes
+// @Description 删除设备指定的标签键
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.DeleteDeviceTagsRequest true "params"
+// @Success 200 {object} deviceV1.SuccessResponse
+// @Router /devices/{id}/tags [delete]
+func (h *DeviceHandler) DeleteTags(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.DeleteDeviceTagsRequest
+        e := c.ShouldBindJSON(&amp;req)
+        if e == nil </span><span class="cov8" title="1">{
+                e = h.svc.RemoveTags(c, c.Param("id"), req.Keys)
+        }</span>
+        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.SuccessResponse{Success: true})</span>
+}
+func shadowJSON(x *model.DeviceShadow) deviceV1.Shadow <span class="cov8" title="1">{
+        var d, r, m any
+        _ = json.Unmarshal(x.Desired, &amp;d)
+        _ = json.Unmarshal(x.Reported, &amp;r)
+        _ = json.Unmarshal(x.Metadata, &amp;m)
+        dm := map[string]any{}
+        if ds, ok := d.(map[string]any); ok </span><span class="cov8" title="1">{
+                rs, _ := r.(map[string]any)
+                for k, v := range ds </span><span class="cov8" title="1">{
+                        if fmt.Sprint(rs[k]) != fmt.Sprint(v) </span><span class="cov8" title="1">{
+                                dm[k] = v
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return deviceV1.Shadow{Desired: d, Reported: r, Delta: dm, Metadata: m, Version: x.Version, UpdatedAt: x.UpdatedAt}</span>
+}
+// GetShadow godoc
+// @Summary 获取设备影子
+// @Schemes
+// @Description 获取设备影子（Desired、Reported、Delta、Metadata、Version）
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.Shadow
+// @Router /devices/{id}/shadow [get]
+func (h *DeviceHandler) GetShadow(c *gin.Context) <span class="cov8" title="1">{
+        x, e := h.svc.Shadow(c, c.Param("id"))
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, shadowJSON(x))</span>
+}
+// Desired godoc
+// @Summary 更新设备影子期望值
+// @Schemes
+// @Description 由应用侧更新设备的 Desired 影子
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.UpdateDesiredShadowRequest true "params"
+// @Success 200 {object} deviceV1.Shadow
+// @Router /devices/{id}/shadow/desired [put]
+func (h *DeviceHandler) Desired(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.UpdateDesiredShadowRequest
+        e := c.ShouldBindJSON(&amp;req)
+        var x *model.DeviceShadow
+        if e == nil </span><span class="cov8" title="1">{
+                x, e = h.svc.MutateShadow(c, c.Param("id"), req.Version, "app", &amp;req.Desired, nil, false)
+        }</span>
+        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, shadowJSON(x))</span>
+}
+// Reported godoc
+// @Summary 更新设备影子上报值
+// @Schemes
+// @Description 由设备侧更新 Reported 影子
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.UpdateReportedShadowRequest true "params"
+// @Success 200 {object} deviceV1.Shadow
+// @Router /devices/{id}/shadow/reported [put]
+func (h *DeviceHandler) Reported(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.UpdateReportedShadowRequest
+        e := c.ShouldBindJSON(&amp;req)
+        var x *model.DeviceShadow
+        if e == nil </span><span class="cov8" title="1">{
+                x, e = h.svc.MutateShadow(c, c.Param("id"), req.Version, "device", nil, &amp;req.Reported, false)
+        }</span>
+        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, shadowJSON(x))</span>
+}
+// ClearDesired godoc
+// @Summary 清空设备影子期望值
+// @Schemes
+// @Description 清空设备影子的 Desired 部分
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.ClearDesiredShadowRequest true "params"
+// @Success 200 {object} deviceV1.Shadow
+// @Router /devices/{id}/shadow/desired [delete]
+func (h *DeviceHandler) ClearDesired(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.ClearDesiredShadowRequest
+        _ = c.ShouldBindJSON(&amp;req)
+        x, e := h.svc.MutateShadow(c, c.Param("id"), req.Version, "app", nil, nil, true)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, shadowJSON(x))</span>
+}
+// History godoc
+// @Summary 获取设备影子历史
+// @Schemes
+// @Description 获取设备影子的变更历史记录
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Success 200 {object} deviceV1.ListDeviceShadowHistoryResponse
+// @Router /devices/{id}/shadow/history [get]
+func (h *DeviceHandler) History(c *gin.Context) <span class="cov8" title="1">{
+        x, e := h.svc.ShadowHistory(c, c.Param("id"))
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]deviceV1.DeviceShadowHistory, len(x))
+        for i, history := range x </span><span class="cov8" title="1">{
+                items[i] = shadowHistoryJSON(history)
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.ListDeviceShadowHistoryResponse{History: items})</span>
+}
+
+// SimulatePush godoc
+// @Summary 模拟下行推送
+// @Schemes
+// @Description 模拟服务端向设备发起一次下行推送
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param request body deviceV1.SimulatePushRequest true "params"
+// @Success 200 {object} deviceV1.SimulatePushResponse
+// @Router /devices/{id}/simulate-push [post]
+func (h *DeviceHandler) SimulatePush(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.SimulatePushRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">record, err := h.svc.SimulatePush(c, c.Param("id"), req.Payload, c.GetHeader("X-User-ID"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.SimulatePushResponse{PushRecordID: strconv.FormatInt(record.ID, 10), Timestamp: record.CreatedAt.UnixMilli(), Status: record.Status, Message: "success"})</span>
+}
+// PushRecords godoc
+// @Summary 获取设备下行推送记录列表
+// @Schemes
+// @Description 分页获取设备的下行推送记录
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param operationType query string false "操作类型"
+// @Param status query string false "状态"
+// @Success 200 {object} deviceV1.ListPushRecordsResponse
+// @Router /devices/{id}/push-records [get]
+func (h *DeviceHandler) PushRecords(c *gin.Context) <span class="cov8" title="1">{
+        p, s := page(c, 20)
+        records, total, err := h.svc.ListPushRecords(c, c.Param("id"), p, s, c.Query("operationType"), c.Query("status"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]deviceV1.PushRecord, len(records))
+        for i, record := range records </span><span class="cov8" title="1">{
+                items[i] = pushRecordJSON(record)
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.ListPushRecordsResponse{Records: items, Total: total, Page: p, PageSize: s})</span>
+}
+// PushRecord godoc
+// @Summary 获取设备下行推送记录
+// @Schemes
+// @Description 通过推送记录 ID 获取单个下行推送记录
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param pushRecordId path int true "推送记录 ID"
+// @Success 200 {object} deviceV1.GetPushRecordResponse
+// @Router /devices/{id}/push-records/{pushRecordId} [get]
+func (h *DeviceHandler) PushRecord(c *gin.Context) <span class="cov8" title="1">{
+        pushRecordID, err := strconv.ParseInt(c.Param("pushRecordId"), 10, 64)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">record, err := h.svc.PushRecord(c, pushRecordID)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.GetPushRecordResponse{Record: pushRecordJSON(*record)})</span>
+}
+// ClearPushRecords godoc
+// @Summary 清理设备下行推送记录
+// @Schemes
+// @Description 清理设备指定时间戳之前的下行推送记录
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "设备 ID"
+// @Param beforeTimestamp query int false "清理此时间戳之前的记录（毫秒）"
+// @Success 200 {object} deviceV1.ClearPushRecordsResponse
+// @Router /devices/{id}/push-records [delete]
+func (h *DeviceHandler) ClearPushRecords(c *gin.Context) <span class="cov8" title="1">{
+        var before *time.Time
+        if v := c.Query("beforeTimestamp"); v != "" </span><span class="cov8" title="1">{
+                if milliseconds, _ := strconv.ParseInt(v, 10, 64); milliseconds &gt; 0 </span><span class="cov8" title="1">{
+                        value := time.UnixMilli(milliseconds)
+                        before = &amp;value
+                }</span>
+        }
+        <span class="cov8" title="1">deletedCount, err := h.svc.ClearPushRecords(c, c.Param("id"), before)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.ClearPushRecordsResponse{DeletedCount: deletedCount, Success: true})</span>
+}
+
+// BatchTemplate godoc
+// @Summary 下载设备批量导入模板
+// @Schemes
+// @Description 下载设备批量导入的 Excel 模板
+// @Tags 设备模块
+// @Produce octet-stream
+// @Security Bearer
+// @Success 200 {file} file
+// @Router /devices/batch-template [get]
+func (h *DeviceHandler) BatchTemplate(c *gin.Context) <span class="cov8" title="1">{
+        b, e := h.svc.BatchTemplate()
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.Header("Content-Disposition", "attachment; filename=device_import_template.xlsx")
+        c.Data(200, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", b)</span>
+}
+// BatchUpload godoc
+// @Summary 批量上传设备
+// @Schemes
+// @Description 通过 Excel 文件批量导入设备
+// @Tags 设备模块
+// @Accept multipart/form-data
+// @Produce json
+// @Security Bearer
+// @Param file formData file true "Excel 模板文件"
+// @Success 200 {object} deviceV1.BatchUploadDevicesResponse
+// @Router /devices/batch-upload [post]
+func (h *DeviceHandler) BatchUpload(c *gin.Context) <span class="cov8" title="1">{
+        f, _, e := c.Request.FormFile("file")
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+        b, e := io.ReadAll(io.LimitReader(f, 10&lt;&lt;20))
+        if e != nil </span><span class="cov0" title="0">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">n, errs, e := h.svc.BatchCreate(c, b)
+        if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]deviceV1.BatchUploadError, len(errs))
+        for i, item := range errs </span><span class="cov8" title="1">{
+                items[i] = deviceV1.BatchUploadError{Row: item.Row, ProductKey: item.ProductKey, DeviceName: item.DeviceName, Error: item.Error}
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.BatchUploadDevicesResponse{SuccessCount: n, FailureCount: len(items), Errors: items})</span>
+}
+// MockKafka godoc
+// @Summary 模拟向 Kafka 发送消息
+// @Schemes
+// @Description 向指定 Kafka topic 发送一条测试消息
+// @Tags 设备模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body deviceV1.MockKafkaRequest true "params"
+// @Success 200 {object} deviceV1.MockKafkaResponse
+// @Router /devices/mock-kafka [post]
+func (h *DeviceHandler) MockKafka(c *gin.Context) <span class="cov8" title="1">{
+        var req deviceV1.MockKafkaRequest
+        e := c.ShouldBindJSON(&amp;req)
+        if e == nil </span><span class="cov8" title="1">{
+                e = h.svc.MockKafka(c, h.config.GetStringSlice("data.kafka.device.brokers"), req.Topic, req.Data)
+        }</span>
+        <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                deviceError(c, e)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, deviceV1.MockKafkaResponse{Success: true, Message: "Message sent successfully to topic: " + req.Topic})</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package handler
+
+import (
+        "net/http"
+        "time"
+
+        eventV1 "0things-backend/api/event/v1"
+        "0things-backend/internal/model"
+        "0things-backend/internal/service"
+        "github.com/gin-gonic/gin"
+)
+
+type DeviceEventHandler struct { *Handler; svc service.DeviceEventServiceInterface }
+
+func NewDeviceEventHandler(h *Handler, svc service.DeviceEventServiceInterface) *DeviceEventHandler <span class="cov8" title="1">{ return &amp;DeviceEventHandler{Handler: h, svc: svc} }</span>
+
+func deviceEventResponse(event model.DeviceEvent) eventV1.DeviceEvent <span class="cov8" title="1">{
+        return eventV1.DeviceEvent{ID: event.ID, DeviceKey: event.DeviceKey, DeviceName: event.DeviceName, EventType: event.EventType, EventAt: event.EventAt, Data: string(event.Data)}
+}</span>
+
+// ListDeviceEvents godoc
+// @Summary 获取设备事件列表
+// @Description 分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选
+// @Tags 事件管理
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param keyword query string false "关键词"
+// @Param device_key query string false "设备 Key"
+// @Param event_type query string false "事件类型"
+// @Param start_at query string false "开始时间 RFC3339"
+// @Param end_at query string false "结束时间 RFC3339"
+// @Success 200 {object} eventV1.ListDeviceEventsResponse
+// @Router /device-events [get]
+func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) <span class="cov8" title="1">{
+        pageNumber, pageSize := page(c, 20)
+        startAt, err := eventTime(c.Query("start_at"))
+        if err != nil </span><span class="cov8" title="1">{
+                c.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "invalid start_at: " + err.Error()})
+                return
+        }</span>
+        <span class="cov8" title="1">endAt, err := eventTime(c.Query("end_at"))
+        if err != nil </span><span class="cov8" title="1">{
+                c.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "invalid end_at: " + err.Error()})
+                return
+        }</span>
+        <span class="cov8" title="1">events, total, err := h.svc.List(c, pageNumber, pageSize, c.Query("keyword"), c.Query("device_key"), c.Query("event_type"), startAt, endAt)
+        if err != nil </span><span class="cov8" title="1">{ deviceError(c, err); return }</span>
+        <span class="cov8" title="1">out := make([]eventV1.DeviceEvent, 0, len(events))
+        for _, event := range events </span><span class="cov8" title="1">{ out = append(out, deviceEventResponse(event)) }</span>
+        <span class="cov8" title="1">c.JSON(200, eventV1.ListDeviceEventsResponse{Events: out, Total: total, Page: pageNumber, PageSize: pageSize})</span>
+}
+
+func eventTime(value string) (*time.Time, error) <span class="cov8" title="1">{
+        if value == "" </span><span class="cov8" title="1">{ return nil, nil }</span>
+        <span class="cov8" title="1">parsed, err := time.Parse(time.RFC3339, value)
+        if err != nil </span><span class="cov8" title="1">{ return nil, err }</span>
+        <span class="cov8" title="1">return &amp;parsed, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package handler
+
+import (
+        "github.com/gin-gonic/gin"
+        "0things-backend/pkg/jwt"
+        "0things-backend/pkg/log"
+)
+
+type Handler struct {
+        logger *log.Logger
+}
+
+func NewHandler(
+        logger *log.Logger,
+) *Handler <span class="cov8" title="1">{
+        return &amp;Handler{
+                logger: logger,
+        }
+}</span>
+func GetUserIdFromCtx(ctx *gin.Context) string <span class="cov8" title="1">{
+        v, exists := ctx.Get("claims")
+        if !exists </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+        <span class="cov8" title="1">return v.(*jwt.MyCustomClaims).UserId</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package handler
+
+import (
+        otaV1 "0things-backend/api/ota/v1"
+        "0things-backend/internal/model"
+        "0things-backend/internal/service"
+        "github.com/gin-gonic/gin"
+)
+
+type OTAHandler struct {
+        *Handler
+        svc service.OTAServiceInterface
+}
+
+func NewOTAHandler(h *Handler, svc service.OTAServiceInterface) *OTAHandler <span class="cov8" title="1">{
+        return &amp;OTAHandler{Handler: h, svc: svc}
+}</span>
+
+func otaPackageJSON(pkg model.OTAPackage) otaV1.OTAPackage <span class="cov8" title="1">{
+        return otaV1.OTAPackage{
+                ID: pkg.ID, PackageName: pkg.PackageName, Version: pkg.Version,
+                ProductID: pkg.ProductID, ProductKey: pkg.ProductKey, ProductName: pkg.ProductName,
+                PackageType: pkg.PackageType, Status: pkg.Status, UploadType: pkg.UploadType, FileURL: pkg.FileURL,
+                FileSize: pkg.FileSize, Checksum: pkg.Checksum, Description: pkg.Description, ReleaseNotes: pkg.ReleaseNotes,
+                Metadata: string(pkg.Metadata), CreatedAt: pkg.CreatedAt, UpdatedAt: pkg.UpdatedAt, ReleasedAt: pkg.ReleasedAt,
+        }
+}</span>
+
+func otaBatchJSON(batch model.UpgradeBatch) otaV1.UpgradeBatch <span class="cov8" title="1">{
+        return otaV1.UpgradeBatch{
+                BatchID: batch.BatchID, BatchName: batch.BatchName, BatchType: batch.BatchType,
+                UpgradeStrategy: batch.UpgradeStrategy, Status: batch.Status, TargetDeviceCount: batch.TargetDeviceCount, CreatedAt: batch.CreatedAt,
+        }
+}</span>
+
+func otaDeploymentJSON(deployment model.DeviceDeployment) otaV1.DeviceDeployment <span class="cov8" title="1">{
+        return otaV1.DeviceDeployment{
+                DeviceID: deployment.DeviceID, DeviceKey: deployment.DeviceKey, DeviceName: deployment.DeviceName,
+                ProductID: deployment.ProductID, ProductKey: deployment.ProductKey, CurrentVersion: deployment.CurrentVersion,
+                UpgradeBatchID: deployment.UpgradeBatchID, Status: deployment.Status,
+                LastStatusChangeTime: deployment.LastStatusChangeTime, CreatedAt: deployment.CreatedAt,
+        }
+}</span>
+
+// ListOTA godoc
+// @Summary 获取 OTA 升级包列表
+// @Schemes
+// @Description 分页获取 OTA 升级包列表
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Success 200 {object} otaV1.ListOTAPackagesResponse
+// @Router /ota/packages [get]
+func (h *OTAHandler) ListOTA(c *gin.Context) <span class="cov8" title="1">{
+        pageNumber, pageSize := page(c, 20)
+        packages, total, err := h.svc.List(c, pageNumber, pageSize)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]otaV1.OTAPackage, len(packages))
+        for i, pkg := range packages </span><span class="cov8" title="1">{
+                items[i] = otaPackageJSON(pkg)
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, otaV1.ListOTAPackagesResponse{OTAPackages: items, Total: total, Page: pageNumber, PageSize: pageSize})</span>
+}
+
+// GetOTA godoc
+// @Summary 获取 OTA 升级包详情
+// @Schemes
+// @Description 通过升级包 ID 获取 OTA 升级包详情
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Success 200 {object} otaV1.GetOTAPackageResponse
+// @Router /ota/packages/{id} [get]
+func (h *OTAHandler) GetOTA(c *gin.Context) <span class="cov8" title="1">{
+        packageID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">pkg, err := h.svc.Get(c, packageID)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, otaV1.GetOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})</span>
+}
+
+// CreateOTA godoc
+// @Summary 创建 OTA 升级包
+// @Schemes
+// @Description 创建一个新的 OTA 升级包
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body otaV1.CreateOTAPackageRequest true "params"
+// @Success 200 {object} otaV1.CreateOTAPackageResponse
+// @Router /ota/packages [post]
+func (h *OTAHandler) CreateOTA(c *gin.Context) <span class="cov8" title="1">{
+        var req otaV1.CreateOTAPackageRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">pkg := &amp;model.OTAPackage{PackageName: req.PackageName, Version: req.Version, PackageType: req.PackageType, Status: req.Status, UploadType: req.UploadType, FileURL: req.FileURL, FileSize: req.FileSize, Checksum: req.Checksum, Description: req.Description, ReleaseNotes: req.ReleaseNotes, Metadata: req.Metadata}
+        if pkg.Status == "" </span><span class="cov8" title="1">{
+                pkg.Status = "draft"
+        }</span>
+        <span class="cov8" title="1">if err := h.svc.Create(c, pkg, req.ProductKey); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, otaV1.CreateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})</span>
+}
+
+// UpdateOTA godoc
+// @Summary 更新 OTA 升级包
+// @Schemes
+// @Description 通过升级包 ID 更新 OTA 升级包
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Param request body otaV1.OTAPackageRequest true "params"
+// @Success 200 {object} otaV1.UpdateOTAPackageResponse
+// @Router /ota/packages/{id} [put]
+func (h *OTAHandler) UpdateOTA(c *gin.Context) <span class="cov8" title="1">{
+        packageID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">var req otaV1.OTAPackageRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">pkg, err := h.svc.Get(c, packageID)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">pkg.PackageName, pkg.Version, pkg.ProductID, pkg.PackageType, pkg.Status, pkg.UploadType = req.PackageName, req.Version, req.ProductID, req.PackageType, req.Status, req.UploadType
+        pkg.FileURL, pkg.FileSize, pkg.Checksum, pkg.Description, pkg.ReleaseNotes, pkg.Metadata = req.FileURL, req.FileSize, req.Checksum, req.Description, req.ReleaseNotes, req.Metadata
+        if err := h.svc.Update(c, pkg); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, otaV1.UpdateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})</span>
+}
+
+// DeleteOTA godoc
+// @Summary 删除 OTA 升级包
+// @Schemes
+// @Description 通过升级包 ID 删除 OTA 升级包
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Success 200 {object} otaV1.SuccessResponse
+// @Router /ota/packages/{id} [delete]
+func (h *OTAHandler) DeleteOTA(c *gin.Context) <span class="cov8" title="1">{
+        packageID, err := id(c)
+        if err == nil </span><span class="cov8" title="1">{
+                err = h.svc.Delete(c, packageID)
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, otaV1.SuccessResponse{Success: true})</span>
+}
+
+// OTAStats godoc
+// @Summary 获取 OTA 升级统计
+// @Schemes
+// @Description 获取指定 OTA 升级包的升级统计数据
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Success 200 {object} otaV1.GetUpgradeStatisticsResponse
+// @Router /ota/packages/{id}/stats [get]
+func (h *OTAHandler) OTAStats(c *gin.Context) <span class="cov8" title="1">{
+        stats, err := h.svc.Statistics(c, c.Param("id"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, otaV1.GetUpgradeStatisticsResponse{Statistics: otaV1.UpgradeStatistics{
+                PackageID: stats.PackageID, TotalTargetDevices: stats.TotalTargetDevices,
+                SuccessfulUpgrades: stats.SuccessfulUpgrades, FailedUpgrades: stats.FailedUpgrades,
+                CancelledUpgrades: stats.CancelledUpgrades, PendingUpgrades: stats.PendingUpgrades,
+                InProgressUpgrades: stats.InProgressUpgrades,
+        }})</span>
+}
+
+// OTABatches godoc
+// @Summary 获取 OTA 升级批次列表
+// @Schemes
+// @Description 获取指定 OTA 升级包下的升级批次
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Success 200 {object} otaV1.ListUpgradeBatchesResponse
+// @Router /ota/packages/{id}/batches [get]
+func (h *OTAHandler) OTABatches(c *gin.Context) <span class="cov8" title="1">{
+        batches, err := h.svc.Batches(c, c.Param("id"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]otaV1.UpgradeBatch, len(batches))
+        for i, batch := range batches </span><span class="cov8" title="1">{
+                items[i] = otaBatchJSON(batch)
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, otaV1.ListUpgradeBatchesResponse{Batches: items})</span>
+}
+
+// OTADeployments godoc
+// @Summary 获取 OTA 设备部署列表
+// @Schemes
+// @Description 分页获取指定升级包下的设备部署记录
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param status query string false "部署状态"
+// @Success 200 {object} otaV1.ListDeviceDeploymentsResponse
+// @Router /ota/packages/{id}/deployments [get]
+func (h *OTAHandler) OTADeployments(c *gin.Context) <span class="cov8" title="1">{
+        pageNumber, pageSize := page(c, 100)
+        deployments, total, err := h.svc.Deployments(c, c.Param("id"), pageNumber, pageSize, c.Query("status"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]otaV1.DeviceDeployment, len(deployments))
+        for i, deployment := range deployments </span><span class="cov8" title="1">{
+                items[i] = otaDeploymentJSON(deployment)
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, otaV1.ListDeviceDeploymentsResponse{Deployments: items, Total: total, Page: pageNumber, PageSize: pageSize})</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package handler
+
+import (
+        "fmt"
+
+        productV1 "0things-backend/api/product/v1"
+        "0things-backend/internal/model"
+        "0things-backend/internal/service"
+        "github.com/gin-gonic/gin"
+)
+
+func productJSON(product model.Product, count int64) productV1.Product <span class="cov8" title="1">{
+        return productV1.Product{
+                ID:                 product.ID,
+                ProductKey:         product.ProductKey,
+                Name:               product.Name,
+                Description:        product.Description,
+                Category:           product.Category,
+                Status:             product.Status,
+                Metadata:           fmt.Sprint(raw(product.Metadata)),
+                DeviceCount:        int32(count),
+                NodeType:           product.NodeType,
+                ConnectivityMethod: product.ConnectivityMethod,
+                AccessProtocol:     product.AccessProtocol,
+                TenantID:           product.TenantID,
+                CreatedAt:          product.CreatedAt,
+                UpdatedAt:          product.UpdatedAt,
+                DeletedAt:          deletedAt(product.DeletedAt),
+        }
+}</span>
+
+type ProductHandler struct {
+        *Handler
+        svc service.ProductServiceInterface
+}
+
+func NewProductHandler(h *Handler, svc service.ProductServiceInterface) *ProductHandler <span class="cov8" title="1">{
+        return &amp;ProductHandler{Handler: h, svc: svc}
+}</span>
+
+// Create godoc
+// @Summary 创建产品
+// @Schemes
+// @Description 创建一个新的产品
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body productV1.CreateProductRequest true "params"
+// @Success 200 {object} productV1.CreateProductResponse
+// @Router /products [post]
+func (h *ProductHandler) Create(c *gin.Context) <span class="cov8" title="1">{
+        var req productV1.CreateProductRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">product, err := h.svc.Create(c, &amp;model.Product{Name: req.Name, Description: req.Description, Category: req.Category, Status: req.Status, Metadata: req.Metadata, NodeType: req.NodeType, ConnectivityMethod: req.ConnectivityMethod, AccessProtocol: req.AccessProtocol})
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productV1.CreateProductResponse{Product: productJSON(*product, 0)})</span>
+}
+
+// Get godoc
+// @Summary 通过 ID 获取产品
+// @Schemes
+// @Description 通过产品 ID 获取产品详情
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Success 200 {object} productV1.GetProductResponse
+// @Router /products/{id} [get]
+func (h *ProductHandler) Get(c *gin.Context) <span class="cov8" title="1">{
+        productID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">product, err := h.svc.Get(c, productID)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productV1.GetProductResponse{Product: productJSON(*product, 0)})</span>
+}
+
+// GetByKey godoc
+// @Summary 通过 productKey 获取产品
+// @Schemes
+// @Description 通过产品 Key 获取产品详情
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param productKey path string true "产品 Key"
+// @Success 200 {object} productV1.GetProductByKeyResponse
+// @Router /products/key/{productKey} [get]
+func (h *ProductHandler) GetByKey(c *gin.Context) <span class="cov8" title="1">{
+        product, err := h.svc.GetByKey(c, c.Param("productKey"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productV1.GetProductByKeyResponse{Product: productJSON(*product, 0)})</span>
+}
+
+// List godoc
+// @Summary 获取产品列表
+// @Schemes
+// @Description 分页获取产品列表，支持按 category、status、searchText 过滤
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param category query string false "产品分类"
+// @Param status query string false "产品状态"
+// @Param searchText query string false "搜索关键字"
+// @Success 200 {object} productV1.ListProductsResponse
+// @Router /products [get]
+func (h *ProductHandler) List(c *gin.Context) <span class="cov8" title="1">{
+        pageNumber, pageSize := page(c, 10)
+        products, total, err := h.svc.List(c, pageNumber, pageSize, c.Query("category"), c.Query("status"), c.Query("searchText"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]productV1.Product, 0, len(products))
+        for _, product := range products </span><span class="cov8" title="1">{
+                items = append(items, productJSON(product, 0))
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productV1.ListProductsResponse{Products: items, Total: total, Page: pageNumber, PageSize: pageSize})</span>
+}
+
+// Update godoc
+// @Summary 更新产品
+// @Schemes
+// @Description 通过 productKey 更新产品
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param productKey path string true "产品 Key"
+// @Param request body productV1.UpdateProductRequest true "params"
+// @Success 200 {object} productV1.UpdateProductResponse
+// @Router /products/key/{productKey} [put]
+func (h *ProductHandler) Update(c *gin.Context) <span class="cov8" title="1">{
+        product, err := h.svc.GetByKey(c, c.Param("productKey"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">var req productV1.UpdateProductRequest
+        if err = c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">if req.Name != "" </span><span class="cov8" title="1">{
+                product.Name = req.Name
+        }</span>
+        <span class="cov8" title="1">if req.Description != "" </span><span class="cov8" title="1">{
+                product.Description = req.Description
+        }</span>
+        <span class="cov8" title="1">if req.Category != "" </span><span class="cov8" title="1">{
+                product.Category = req.Category
+        }</span>
+        <span class="cov8" title="1">if req.Status != "" </span><span class="cov8" title="1">{
+                product.Status = req.Status
+        }</span>
+        <span class="cov8" title="1">if len(req.Metadata) &gt; 0 </span><span class="cov0" title="0">{
+                product.Metadata = req.Metadata
+        }</span>
+        <span class="cov8" title="1">if req.NodeType != "" </span><span class="cov0" title="0">{
+                product.NodeType = req.NodeType
+        }</span>
+        <span class="cov8" title="1">if req.ConnectivityMethod != "" </span><span class="cov0" title="0">{
+                product.ConnectivityMethod = req.ConnectivityMethod
+        }</span>
+        <span class="cov8" title="1">if req.AccessProtocol != "" </span><span class="cov0" title="0">{
+                product.AccessProtocol = req.AccessProtocol
+        }</span>
+        <span class="cov8" title="1">if err = h.svc.Save(c, product); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productV1.UpdateProductResponse{Product: productJSON(*product, 0)})</span>
+}
+
+// Delete godoc
+// @Summary 删除产品
+// @Schemes
+// @Description 通过产品 ID 软删除产品
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Success 200 {object} productV1.SuccessResponse
+// @Router /products/{id} [delete]
+func (h *ProductHandler) Delete(c *gin.Context) <span class="cov8" title="1">{
+        productID, err := id(c)
+        if err == nil </span><span class="cov8" title="1">{
+                err = h.svc.Delete(c, productID)
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productV1.SuccessResponse{Success: true})</span>
+}
+
+// Restore godoc
+// @Summary 恢复已删除的产品
+// @Schemes
+// @Description 通过产品 ID 恢复软删除的产品
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Success 200 {object} productV1.RestoreProductResponse
+// @Router /products/{id}/restore [post]
+func (h *ProductHandler) Restore(c *gin.Context) <span class="cov8" title="1">{
+        productID, err := id(c)
+        if err == nil </span><span class="cov8" title="1">{
+                var product *model.Product
+                product, err = h.svc.Restore(c, productID)
+                if err == nil </span><span class="cov8" title="1">{
+                        c.JSON(200, productV1.RestoreProductResponse{Product: productJSON(*product, 0)})
+                        return
+                }</span>
+        }
+        <span class="cov8" title="1">deviceError(c, err)</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package handler
+
+import (
+        productTSLV1 "0things-backend/api/product_tsl/v1"
+        "0things-backend/internal/service"
+        "github.com/gin-gonic/gin"
+)
+
+type ProductTSLHandler struct {
+        *Handler
+        svc service.ProductTSLServiceInterface
+}
+
+func NewProductTSLHandler(h *Handler, svc service.ProductTSLServiceInterface) *ProductTSLHandler <span class="cov8" title="1">{
+        return &amp;ProductTSLHandler{Handler: h, svc: svc}
+}</span>
+
+// Get godoc
+// @Summary 获取产品物模型（TSL）
+// @Schemes
+// @Description 通过产品 ID 获取其物模型定义（TSL）
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Success 200 {object} productTSLV1.GetProductTSLResponse
+// @Router /products/{id}/tsl [get]
+func (h *ProductTSLHandler) Get(c *gin.Context) <span class="cov8" title="1">{
+        tsl, err := h.svc.Get(c, c.Param("id"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">productID := int64(0)
+        if tsl.ProductID != nil </span><span class="cov8" title="1">{
+                productID = *tsl.ProductID
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productTSLV1.GetProductTSLResponse{ProductTSL: productTSLV1.ProductTSL{ID: tsl.ID, ProductID: productID, TSL: tsl.TSL, CreatedAt: tsl.CreatedAt, UpdatedAt: tsl.UpdatedAt}})</span>
+}
+
+// Put godoc
+// @Summary 上传/更新产品物模型（TSL）
+// @Schemes
+// @Description 通过产品 ID 上传或更新物模型定义
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Param request body productTSLV1.UpsertProductTSLRequest true "params"
+// @Success 200 {object} productTSLV1.SuccessResponse
+// @Router /products/{id}/tsl [post]
+// @Router /products/{id}/tsl [put]
+func (h *ProductTSLHandler) Put(c *gin.Context) <span class="cov8" title="1">{
+        var req productTSLV1.UpsertProductTSLRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">if err := h.svc.Upsert(c, c.Param("id"), req.TSL); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productTSLV1.SuccessResponse{Success: true})</span>
+}
+
+// Delete godoc
+// @Summary 删除产品物模型（TSL）
+// @Schemes
+// @Description 通过产品 ID 删除其物模型定义
+// @Tags 产品模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "产品 ID"
+// @Success 200 {object} productTSLV1.SuccessResponse
+// @Router /products/{id}/tsl [delete]
+func (h *ProductTSLHandler) Delete(c *gin.Context) <span class="cov8" title="1">{
+        if err := h.svc.Delete(c, c.Param("id")); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, productTSLV1.SuccessResponse{Success: true})</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package handler
+
+import (
+        "encoding/json"
+        "errors"
+        "net/http"
+        "strconv"
+        "time"
+
+        "0things-backend/internal/repository"
+        "github.com/gin-gonic/gin"
+        "gorm.io/gorm"
+)
+
+func deviceError(c *gin.Context, err error) <span class="cov8" title="1">{
+        status := http.StatusInternalServerError
+        if errors.Is(err, repository.ErrNotFound) || errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                status = http.StatusNotFound
+        }</span> else<span class="cov8" title="1"> if errors.Is(err, repository.ErrVersionConflict) </span><span class="cov8" title="1">{
+                status = http.StatusConflict
+        }</span> else<span class="cov8" title="1"> if err.Error() == "invalid status transition" ||
+                err.Error() == "device already activated" ||
+                err.Error() == "name is required" ||
+                err.Error() == "invalid tag key" </span><span class="cov8" title="1">{
+                status = http.StatusBadRequest
+        }</span>
+
+        <span class="cov8" title="1">c.JSON(status, gin.H{"code": status, "message": err.Error()})</span>
+}
+
+func id(c *gin.Context) (int64, error) <span class="cov8" title="1">{
+        return strconv.ParseInt(c.Param("id"), 10, 64)
+}</span>
+
+func page(c *gin.Context, defaultSize int) (int, int) <span class="cov8" title="1">{
+        pageNumber, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+        pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", strconv.Itoa(defaultSize)))
+        if pageNumber &lt; 1 </span><span class="cov8" title="1">{
+                pageNumber = 1
+        }</span>
+        <span class="cov8" title="1">if pageSize &lt; 1 </span><span class="cov8" title="1">{
+                pageSize = defaultSize
+        }</span>
+        <span class="cov8" title="1">if pageSize &gt; 100 </span><span class="cov8" title="1">{
+                pageSize = 100
+        }</span>
+        <span class="cov8" title="1">return pageNumber, pageSize</span>
+}
+
+func raw(value json.RawMessage) any <span class="cov8" title="1">{
+        if len(value) == 0 </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">var legacyString string
+        if json.Unmarshal(value, &amp;legacyString) == nil </span><span class="cov8" title="1">{
+                return legacyString
+        }</span>
+        <span class="cov8" title="1">return string(value)</span>
+}
+
+func deletedAt(value gorm.DeletedAt) *time.Time <span class="cov8" title="1">{
+        if value.Valid </span><span class="cov8" title="1">{
+                return &amp;value.Time
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package handler
+
+import (
+        "encoding/json"
+        "errors"
+        "strings"
+
+        ruleV1 "0things-backend/api/rule/v1"
+        "0things-backend/internal/model"
+        "0things-backend/internal/service"
+        "github.com/gin-gonic/gin"
+)
+
+type RuleHandler struct {
+        *Handler
+        svc service.RuleServiceInterface
+}
+
+func NewRuleHandler(h *Handler, svc service.RuleServiceInterface) *RuleHandler <span class="cov8" title="1">{
+        return &amp;RuleHandler{Handler: h, svc: svc}
+}</span>
+
+func ruleJSON(rule model.Rule) ruleV1.Rule <span class="cov8" title="1">{
+        var tags []string
+        _ = json.Unmarshal(rule.Tags, &amp;tags)
+        return ruleV1.Rule{
+                ID: rule.ID, Name: rule.Name, Description: rule.Description, Type: rule.Type, Status: rule.Status,
+                ProductID: rule.ProductID, Priority: rule.Priority, TriggerConfig: string(rule.TriggerConfig),
+                ConditionConfig: string(rule.ConditionConfig), ActionConfig: string(rule.ActionConfig), SQLConfig: string(rule.SQLConfig),
+                ExecutionCount: rule.ExecutionCount, SuccessCount: rule.SuccessCount, FailureCount: rule.FailureCount,
+                LastExecutionStatus: rule.LastExecutionStatus, CreatedBy: rule.CreatedBy, Tags: tags,
+                LastExecutedAt: rule.LastExecutedAt, CreatedAt: rule.CreatedAt, UpdatedAt: rule.UpdatedAt,
+        }
+}</span>
+
+func ruleExecutionJSON(execution model.RuleExecution) ruleV1.RuleExecution <span class="cov8" title="1">{
+        return ruleV1.RuleExecution{
+                ID: execution.ID, RuleID: execution.RuleID, RuleName: execution.RuleName, Status: execution.Status,
+                TriggeredAt: execution.TriggeredAt, TriggerData: string(execution.TriggerData),
+                ConditionResult: execution.ConditionResult, Duration: execution.Duration, Error: execution.Error, CreatedAt: execution.CreatedAt,
+        }
+}</span>
+
+// ListRules godoc
+// @Summary 获取规则列表
+// @Schemes
+// @Description 分页获取规则列表，支持按 type、status、search 过滤
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Param type query string false "规则类型"
+// @Param status query string false "状态"
+// @Param search query string false "搜索关键字"
+// @Success 200 {object} ruleV1.ListRulesResponse
+// @Router /rules [get]
+func (h *RuleHandler) ListRules(c *gin.Context) <span class="cov8" title="1">{
+        pageNumber, pageSize := page(c, 20)
+        rules, total, err := h.svc.List(c, pageNumber, pageSize, c.Query("type"), c.Query("status"), c.Query("search"))
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]ruleV1.Rule, len(rules))
+        for i, rule := range rules </span><span class="cov8" title="1">{
+                items[i] = ruleJSON(rule)
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, ruleV1.ListRulesResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})</span>
+}
+
+// GetRule godoc
+// @Summary 获取规则详情
+// @Schemes
+// @Description 通过规则 ID 获取规则详情
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Success 200 {object} ruleV1.GetRuleResponse
+// @Router /rules/{id} [get]
+func (h *RuleHandler) GetRule(c *gin.Context) <span class="cov8" title="1">{
+        ruleID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">rule, err := h.svc.Get(c, ruleID)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, ruleV1.GetRuleResponse{Rule: ruleJSON(*rule)})</span>
+}
+
+// CreateRule godoc
+// @Summary 创建规则
+// @Schemes
+// @Description 创建一条新的规则
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body ruleV1.RuleRequest true "params"
+// @Success 200 {object} ruleV1.CreateRuleResponse
+// @Router /rules [post]
+func (h *RuleHandler) CreateRule(c *gin.Context) <span class="cov8" title="1">{
+        var req ruleV1.RuleRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">rule := &amp;model.Rule{Name: req.Name, Description: req.Description, Type: req.Type, Status: req.Status, ProductID: req.ProductID, Priority: req.Priority, TriggerConfig: req.TriggerConfig, ConditionConfig: req.ConditionConfig, ActionConfig: req.ActionConfig, SQLConfig: req.SQLConfig, Tags: req.Tags}
+        if rule.Status == "" </span><span class="cov8" title="1">{
+                rule.Status = "draft"
+        }</span>
+        <span class="cov8" title="1">if err := h.svc.Create(c, rule); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, ruleV1.CreateRuleResponse{Rule: ruleJSON(*rule)})</span>
+}
+
+// UpdateRule godoc
+// @Summary 更新规则
+// @Schemes
+// @Description 通过规则 ID 更新规则
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Param request body ruleV1.RuleRequest true "params"
+// @Success 200 {object} ruleV1.UpdateRuleResponse
+// @Router /rules/{id} [put]
+func (h *RuleHandler) UpdateRule(c *gin.Context) <span class="cov8" title="1">{
+        ruleID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">var req ruleV1.RuleRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">rule, err := h.svc.Get(c, ruleID)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">rule.Name, rule.Description, rule.Type, rule.Status = req.Name, req.Description, req.Type, req.Status
+        rule.ProductID, rule.Priority = req.ProductID, req.Priority
+        rule.TriggerConfig, rule.ConditionConfig, rule.ActionConfig, rule.SQLConfig, rule.Tags = req.TriggerConfig, req.ConditionConfig, req.ActionConfig, req.SQLConfig, req.Tags
+        if err := h.svc.Update(c, rule); err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, ruleV1.UpdateRuleResponse{Rule: ruleJSON(*rule)})</span>
+}
+
+// DeleteRule godoc
+// @Summary 删除规则
+// @Schemes
+// @Description 通过规则 ID 删除规则
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Success 200 {object} ruleV1.SuccessResponse
+// @Router /rules/{id} [delete]
+func (h *RuleHandler) DeleteRule(c *gin.Context) <span class="cov8" title="1">{
+        ruleID, err := id(c)
+        if err == nil </span><span class="cov8" title="1">{
+                err = h.svc.Delete(c, ruleID)
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, ruleV1.SuccessResponse{Success: true})</span>
+}
+
+// RuleAction godoc
+// @Summary 规则操作（启用/禁用/评估）
+// @Schemes
+// @Description 通过路径参数 id 的后缀执行不同操作：`{id}:enable` 启用、`{id}:disable` 禁用、`{id}:evaluate` 立即评估
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path string true "规则 ID 与动作后缀，例如 1:enable"
+// @Success 200 {object} ruleV1.SetRuleStatusResponse
+// @Router /rules/{id} [post]
+func (h *RuleHandler) RuleAction(c *gin.Context) <span class="cov8" title="1">{
+        rawID := c.Param("id")
+        var status string
+        var ruleIDText string
+        switch </span>{
+        case strings.HasSuffix(rawID, ":enable"):<span class="cov8" title="1">
+                status = "enabled"
+                ruleIDText = strings.TrimSuffix(rawID, ":enable")</span>
+        case strings.HasSuffix(rawID, ":disable"):<span class="cov8" title="1">
+                status = "disabled"
+                ruleIDText = strings.TrimSuffix(rawID, ":disable")</span>
+        case strings.HasSuffix(rawID, ":evaluate"):<span class="cov0" title="0">
+                h.EvaluateRule(c)
+                return</span>
+        default:<span class="cov8" title="1">
+                deviceError(c, errors.New("unknown rule action"))
+                return</span>
+        }
+        <span class="cov8" title="1">c.Params = gin.Params{{Key: "id", Value: ruleIDText}}
+        ruleID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">rule, err := h.svc.SetStatus(c, ruleID, status)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, ruleV1.SetRuleStatusResponse{Rule: ruleJSON(*rule)})</span>
+}
+
+// RuleExecutions godoc
+// @Summary 获取规则执行记录
+// @Schemes
+// @Description 分页获取指定规则的执行记录
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Param page query int false "页码"
+// @Param pageSize query int false "每页数量"
+// @Success 200 {object} ruleV1.ListRuleExecutionsResponse
+// @Router /rules/{id}/executions [get]
+func (h *RuleHandler) RuleExecutions(c *gin.Context) <span class="cov8" title="1">{
+        ruleID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">pageNumber, pageSize := page(c, 20)
+        executions, total, err := h.svc.ListExecutions(c, ruleID, pageNumber, pageSize)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">items := make([]ruleV1.RuleExecution, len(executions))
+        for i, execution := range executions </span><span class="cov8" title="1">{
+                items[i] = ruleExecutionJSON(execution)
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, ruleV1.ListRuleExecutionsResponse{Executions: items, Total: total, Page: pageNumber, PageSize: pageSize})</span>
+}
+
+// EvaluateRule godoc
+// @Summary 立即评估规则
+// @Schemes
+// @Description 通过规则 ID 立即触发一次评估并返回执行结果。由 RuleAction 通过 `:evaluate` 后缀间接调用
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "规则 ID"
+// @Success 200 {object} ruleV1.EvaluateRuleResponse
+func (h *RuleHandler) EvaluateRule(c *gin.Context) <span class="cov8" title="1">{
+        ruleID, err := id(c)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">execution, err := h.svc.Evaluate(c, ruleID)
+        if err != nil </span><span class="cov8" title="1">{
+                deviceError(c, err)
+                return
+        }</span>
+        <span class="cov8" title="1">c.JSON(200, ruleV1.EvaluateRuleResponse{Execution: ruleExecutionJSON(*execution)})</span>
+}
+
+// AvailableFields godoc
+// @Summary 获取规则可用字段
+// @Schemes
+// @Description 获取规则引擎支持的可用字段列表
+// @Tags 规则模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} ruleV1.ListAvailableFieldsResponse
+// @Router /rules/available-fields [get]
+func (h *RuleHandler) AvailableFields(c *gin.Context) <span class="cov8" title="1">{
+        c.JSON(200, ruleV1.ListAvailableFieldsResponse{Fields: []ruleV1.AvailableField{}})
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package handler
+
+import (
+        "github.com/gin-gonic/gin"
+        "0things-backend/api/v1"
+        "0things-backend/internal/service"
+        "go.uber.org/zap"
+        "net/http"
+)
+
+type UserHandler struct {
+        *Handler
+        userService service.UserService
+}
+
+func NewUserHandler(handler *Handler, userService service.UserService) *UserHandler <span class="cov8" title="1">{
+        return &amp;UserHandler{
+                Handler:     handler,
+                userService: userService,
+        }
+}</span>
+
+// Register godoc
+// @Summary 用户注册
+// @Schemes
+// @Description 目前只支持邮箱登录
+// @Tags 用户模块
+// @Accept json
+// @Produce json
+// @Param request body v1.RegisterRequest true "params"
+// @Success 200 {object} v1.Response
+// @Router /register [post]
+func (h *UserHandler) Register(ctx *gin.Context) <span class="cov8" title="1">{
+        req := new(v1.RegisterRequest)
+        if err := ctx.ShouldBindJSON(req); err != nil </span><span class="cov8" title="1">{
+                v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := h.userService.Register(ctx, req); err != nil </span><span class="cov8" title="1">{
+                h.logger.WithContext(ctx).Error("userService.Register error", zap.Error(err))
+                v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+                return
+        }</span>
+
+        <span class="cov8" title="1">v1.HandleSuccess(ctx, nil)</span>
+}
+
+// Login godoc
+// @Summary 账号登录
+// @Schemes
+// @Description
+// @Tags 用户模块
+// @Accept json
+// @Produce json
+// @Param request body v1.LoginRequest true "params"
+// @Success 200 {object} v1.LoginResponse
+// @Router /login [post]
+func (h *UserHandler) Login(ctx *gin.Context) <span class="cov8" title="1">{
+        var req v1.LoginRequest
+        if err := ctx.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+                return
+        }</span>
+
+        <span class="cov8" title="1">token, err := h.userService.Login(ctx, &amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+                return
+        }</span>
+        <span class="cov8" title="1">v1.HandleSuccess(ctx, v1.LoginResponseData{
+                AccessToken: token,
+        })</span>
+}
+
+// GetProfile godoc
+// @Summary 获取用户信息
+// @Schemes
+// @Description
+// @Tags 用户模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} v1.GetProfileResponse
+// @Router /user [get]
+func (h *UserHandler) GetProfile(ctx *gin.Context) <span class="cov8" title="1">{
+        userId := GetUserIdFromCtx(ctx)
+        if userId == "" </span><span class="cov8" title="1">{
+                v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+                return
+        }</span>
+
+        <span class="cov8" title="1">user, err := h.userService.GetProfile(ctx, userId)
+        if err != nil </span><span class="cov8" title="1">{
+                v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+                return
+        }</span>
+
+        <span class="cov8" title="1">v1.HandleSuccess(ctx, user)</span>
+}
+
+// UpdateProfile godoc
+// @Summary 修改用户信息
+// @Schemes
+// @Description
+// @Tags 用户模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body v1.UpdateProfileRequest true "params"
+// @Success 200 {object} v1.Response
+// @Router /user [put]
+func (h *UserHandler) UpdateProfile(ctx *gin.Context) <span class="cov8" title="1">{
+        userId := GetUserIdFromCtx(ctx)
+
+        var req v1.UpdateProfileRequest
+        if err := ctx.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := h.userService.UpdateProfile(ctx, userId, &amp;req); err != nil </span><span class="cov8" title="1">{
+                v1.HandleError(ctx, http.StatusInternalServerError, v1.ErrInternalServerError, nil)
+                return
+        }</span>
+
+        <span class="cov8" title="1">v1.HandleSuccess(ctx, nil)</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package repository
+
+import (
+        "context"
+        "errors"
+        "time"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/tenant"
+        "gorm.io/gorm"
+)
+
+type AlertRepository struct {
+        db *IoTDB
+}
+
+func NewAlertRepository(db *IoTDB) *AlertRepository <span class="cov8" title="1">{ return &amp;AlertRepository{db: db} }</span>
+func (r *AlertRepository) Find(ctx context.Context, id int64) (*model.Alert, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        alert, err := q.Alert.WithContext(ctx).Join(q.Rule, q.Rule.ID.EqCol(q.Alert.RuleID)).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.Alert.ID.Eq(id), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return alert, nil</span>
+}
+
+func (r *AlertRepository) List(ctx context.Context, page, size int, status, severity, deviceKey string) ([]model.Alert, int64, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        alerts := q.Alert.WithContext(ctx).Join(q.Rule, q.Rule.ID.EqCol(q.Alert.RuleID)).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.Product.TenantID.Eq(tenant.GetTenantID(ctx)))
+        if status != "" </span><span class="cov8" title="1">{
+                alerts = alerts.Where(q.Alert.Status.Eq(status))
+        }</span>
+        <span class="cov8" title="1">if severity != "" </span><span class="cov8" title="1">{
+                alerts = alerts.Where(q.Alert.Severity.Eq(severity))
+        }</span>
+        <span class="cov8" title="1">if deviceKey != "" </span><span class="cov8" title="1">{
+                alerts = alerts.Where(q.Alert.DeviceKey.Eq(deviceKey))
+        }</span>
+        <span class="cov8" title="1">items, total, err := alerts.Order(q.Alert.LastRaisedAt.Desc()).FindByPage((page-1)*size, size)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">result := make([]model.Alert, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                result[i] = *items[i]
+        }</span>
+        <span class="cov8" title="1">return result, total, nil</span>
+}
+
+func (r *AlertRepository) UpdateStatus(ctx context.Context, alert *model.Alert, status string, at time.Time) error <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        if status == "acknowledged" </span><span class="cov8" title="1">{
+                _, err := q.Alert.WithContext(ctx).Where(q.Alert.ID.Eq(alert.ID)).UpdateSimple(q.Alert.Status.Value(status), q.Alert.AckAt.Value(at))
+                return err
+        }</span>
+        <span class="cov8" title="1">_, err := q.Alert.WithContext(ctx).Where(q.Alert.ID.Eq(alert.ID)).UpdateSimple(q.Alert.Status.Value(status), q.Alert.ResolvedAt.Value(at))
+        return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package repository
+
+import (
+        "context"
+        "errors"
+        "fmt"
+
+        "0things-backend/internal/dal/query"
+        "0things-backend/internal/model"
+        "0things-backend/internal/tenant"
+        "github.com/redis/go-redis/v9"
+        "gorm.io/gen/field"
+        "gorm.io/gorm"
+)
+
+var (
+        ErrNotFound        = errors.New("not found")
+        ErrVersionConflict = errors.New("shadow version conflict")
+)
+
+type DeviceRepository struct {
+        db    *gorm.DB
+        redis *redis.Client
+}
+
+type DeviceStatistics struct {
+        TotalDevices     int64
+        ActivatedDevices int64
+        OnlineDevices    int64
+        OfflineDevices   int64
+        InactiveDevices  int64
+}
+
+func NewDeviceRepository(db *IoTDB, redis *IoTRedis) *DeviceRepository <span class="cov8" title="1">{
+        return &amp;DeviceRepository{db: db.DB, redis: redis.Client}
+}</span>
+
+func (r *DeviceRepository) DB(ctx context.Context) *gorm.DB <span class="cov8" title="1">{
+        return r.db.WithContext(ctx)
+}</span>
+
+func (r *DeviceRepository) Find(ctx context.Context, id int64) (*model.Device, error) <span class="cov8" title="1">{
+        q := useQuery(r.db)
+        item, err := q.Device.WithContext(ctx).Where(q.Device.ID.Eq(id), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Preload(q.Device.Product, q.Device.State).First()
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return item, nil</span>
+}
+
+func (r *DeviceRepository) FindByKey(ctx context.Context, key string) (*model.Device, error) <span class="cov8" title="1">{
+        q := useQuery(r.db)
+        item, err := q.Device.WithContext(ctx).Where(q.Device.DeviceKey.Eq(key), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Preload(q.Device.Product, q.Device.State).First()
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return item, nil</span>
+}
+
+// FindByKeyForEvent resolves a device from a broker event, which has no user
+// request context. Device keys are globally unique in the device protocol.
+func (r *DeviceRepository) FindByKeyForEvent(ctx context.Context, key string) (*model.Device, error) <span class="cov8" title="1">{
+        q := useQuery(r.db)
+        item, err := q.Device.WithContext(ctx).Where(q.Device.DeviceKey.Eq(key)).Preload(q.Device.Product, q.Device.State).First()
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return item, nil</span>
+}
+
+func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) error <span class="cov8" title="1">{
+        return useQuery(r.db).Transaction(func(tx *query.Query) error </span><span class="cov8" title="1">{
+                if err := tx.Device.WithContext(ctx).Create(device); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tx.DeviceState.WithContext(ctx).Create(&amp;model.DeviceState{DeviceID: device.ID, State: "inactive"})</span>
+        })
+}
+
+func (r *DeviceRepository) List(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) <span class="cov8" title="1">{
+        q := useQuery(r.db)
+        devices := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceID.EqCol(q.Device.ID)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)))
+        if productID &gt; 0 </span><span class="cov8" title="1">{
+                devices = devices.Where(q.Device.ProductID.Eq(productID))
+        }</span>
+        <span class="cov8" title="1">if len(states) &gt; 0 </span><span class="cov8" title="1">{
+                devices = devices.Where(q.DeviceState.State.In(states...))
+        }</span>
+        <span class="cov8" title="1">if enabled != nil </span><span class="cov8" title="1">{
+                devices = devices.Where(q.Device.Enabled.Is(*enabled))
+        }</span>
+        <span class="cov8" title="1">if search != "" </span><span class="cov8" title="1">{
+                devices = devices.Where(field.Or(q.Device.DeviceKey.Like("%"+search+"%"), q.Device.Name.Like("%"+search+"%")))
+        }</span>
+        <span class="cov8" title="1">items, total, err := devices.Preload(q.Device.Product, q.Device.State).Order(q.Device.CreatedAt.Desc()).FindByPage((page-1)*size, size)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">result := make([]model.Device, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                result[i] = *items[i]
+        }</span>
+        <span class="cov8" title="1">return result, total, nil</span>
+}
+
+func (r *DeviceRepository) Save(ctx context.Context, device *model.Device) error <span class="cov8" title="1">{
+        return useQuery(r.db).Transaction(func(tx *query.Query) error </span><span class="cov8" title="1">{
+                if err := tx.Device.WithContext(ctx).Save(device); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tx.DeviceState.WithContext(ctx).Save(&amp;device.State)</span>
+        })
+}
+
+func (r *DeviceRepository) SaveEnabled(ctx context.Context, device *model.Device) error <span class="cov8" title="1">{
+        return useQuery(r.db).Device.WithContext(ctx).Save(device)
+}</span>
+
+func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, error) <span class="cov8" title="1">{
+        var total, online, offline, inactive int64
+        var err error
+        q := useQuery(r.db)
+        if total, err = q.Device.WithContext(ctx).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Count(); err != nil </span><span class="cov0" title="0">{
+                return DeviceStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">for state, target := range map[string]*int64{"online": &amp;online, "offline": &amp;offline, "inactive": &amp;inactive} </span><span class="cov8" title="1">{
+                count, err := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceID.EqCol(q.Device.ID)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)), q.DeviceState.State.Eq(state)).Count()
+                *target = count
+                if err != nil </span><span class="cov0" title="0">{
+                        return DeviceStatistics{}, err
+                }</span>
+        }
+        <span class="cov8" title="1">return DeviceStatistics{
+                TotalDevices: total, ActivatedDevices: online + offline, OnlineDevices: online,
+                OfflineDevices: offline, InactiveDevices: inactive,
+        }, nil</span>
+}
+
+func (r *DeviceRepository) Delete(ctx context.Context, device *model.Device) error <span class="cov8" title="1">{
+        q := useQuery(r.db)
+        _, err := q.Device.WithContext(ctx).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Delete(device)
+        return err
+}</span>
+
+func (r *DeviceRepository) Restore(ctx context.Context, id int64) error <span class="cov8" title="1">{
+        q := useQuery(r.db)
+        _, err := q.Device.WithContext(ctx).Unscoped().Where(q.Device.ID.Eq(id), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).UpdateSimple(q.Device.DeletedAt.Null())
+        return err
+}</span>
+
+func (r *DeviceRepository) Telemetry(ctx context.Context, key string) (string, error) <span class="cov8" title="1">{
+        if r.redis == nil </span><span class="cov8" title="1">{
+                return "", fmt.Errorf("redis is not configured")
+        }</span>
+        <span class="cov0" title="0">v, err := r.redis.Get(ctx, "telemetry:device:"+key+":latest").Result()
+        if errors.Is(err, redis.Nil) </span><span class="cov0" title="0">{
+                return "", nil
+        }</span>
+        <span class="cov0" title="0">return v, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package repository
+
+import (
+        "context"
+        "strings"
+        "time"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/tenant"
+        "gorm.io/gen/field"
+)
+
+type DeviceEventRepository struct{ db *IoTDB }
+
+func NewDeviceEventRepository(db *IoTDB) *DeviceEventRepository <span class="cov8" title="1">{
+        return &amp;DeviceEventRepository{db: db}
+}</span>
+func (r *DeviceEventRepository) Create(ctx context.Context, event *model.DeviceEvent) error <span class="cov8" title="1">{
+        return useIoTQuery(r.db).DeviceEvent.WithContext(ctx).Create(event)
+}</span>
+
+func (r *DeviceEventRepository) List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        base := q.DeviceEvent.WithContext(ctx).Join(q.Device, q.Device.ID.EqCol(q.DeviceEvent.DeviceID)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)))
+        if keyword != "" </span><span class="cov8" title="1">{
+                term := "%" + strings.ToLower(keyword) + "%"
+                base = base.Where(field.Or(q.Device.DeviceKey.Lower().Like(term), q.Device.Name.Lower().Like(term), q.DeviceEvent.EventType.Lower().Like(term)))
+        }</span>
+        <span class="cov8" title="1">if deviceKey != "" </span><span class="cov8" title="1">{
+                base = base.Where(q.Device.DeviceKey.Eq(deviceKey))
+        }</span>
+        <span class="cov8" title="1">if eventType != "" </span><span class="cov8" title="1">{
+                base = base.Where(q.DeviceEvent.EventType.Lower().Like("%" + strings.ToLower(eventType) + "%"))
+        }</span>
+        <span class="cov8" title="1">if startAt != nil </span><span class="cov0" title="0">{
+                base = base.Where(q.DeviceEvent.EventAt.Gte(*startAt))
+        }</span>
+        <span class="cov8" title="1">if endAt != nil </span><span class="cov0" title="0">{
+                base = base.Where(q.DeviceEvent.EventAt.Lte(*endAt))
+        }</span>
+        <span class="cov8" title="1">total, err := base.Count()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">var events []model.DeviceEvent
+        err = base.Select(q.DeviceEvent.ALL, q.Device.DeviceKey.As("device_key"), q.Device.Name.As("device_name")).Order(q.DeviceEvent.EventAt.Desc()).Offset((page - 1) * size).Limit(size).Scan(&amp;events)
+        return events, total, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package repository
+
+import (
+        "context"
+        "encoding/json"
+        "errors"
+        "time"
+
+        "0things-backend/internal/model"
+        "gorm.io/gorm"
+)
+
+type DeviceShadowRepository struct {
+        db *IoTDB
+}
+
+func NewDeviceShadowRepository(db *IoTDB) *DeviceShadowRepository <span class="cov8" title="1">{
+        return &amp;DeviceShadowRepository{db: db}
+}</span>
+
+func (r *DeviceShadowRepository) DB(ctx context.Context) *gorm.DB <span class="cov8" title="1">{
+        return r.db.WithContext(ctx)
+}</span>
+
+func (r *DeviceShadowRepository) GetShadow(ctx context.Context, deviceID int64) (*model.DeviceShadow, error) <span class="cov8" title="1">{
+        var shadow model.DeviceShadow
+        if err := r.DB(ctx).Where("device_id = ?", deviceID).First(&amp;shadow).Error; err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return &amp;shadow, nil</span>
+}
+
+// MutateShadow uses a version predicate in SQL so concurrent writes cannot
+// silently overwrite each other. It also writes history in the same transaction.
+func (r *DeviceShadowRepository) MutateShadow(ctx context.Context, deviceID, expected int64, source string, desired, reported *map[string]any, clearDesired bool) (*model.DeviceShadow, error) <span class="cov8" title="1">{
+        var out model.DeviceShadow
+        err := r.DB(ctx).Transaction(func(tx *gorm.DB) error </span><span class="cov8" title="1">{
+                var current model.DeviceShadow
+                err := tx.Where("device_id = ?", deviceID).First(&amp;current).Error
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        if expected != 0 </span><span class="cov0" title="0">{
+                                return ErrVersionConflict
+                        }</span>
+                        <span class="cov8" title="1">current = model.DeviceShadow{DeviceID: deviceID, Desired: json.RawMessage(`{}`), Reported: json.RawMessage(`{}`), Metadata: json.RawMessage(`{}`), Version: 0}
+                        if err := tx.Create(&amp;current).Error; err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                } else<span class="cov8" title="1"> if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">if current.Version != expected </span><span class="cov0" title="0">{
+                        return ErrVersionConflict
+                }</span>
+                <span class="cov8" title="1">if desired != nil </span><span class="cov8" title="1">{
+                        b, _ := json.Marshal(*desired)
+                        current.Desired = b
+                }</span>
+                <span class="cov8" title="1">if reported != nil </span><span class="cov8" title="1">{
+                        b, _ := json.Marshal(*reported)
+                        current.Reported = b
+                }</span>
+                <span class="cov8" title="1">if clearDesired </span><span class="cov8" title="1">{
+                        current.Desired = json.RawMessage(`{}`)
+                }</span>
+                <span class="cov8" title="1">current.Version++
+                if err := tx.Model(&amp;model.DeviceShadow{}).Where("id = ? AND version = ?", current.ID, expected).Updates(map[string]any{
+                        "desired": current.Desired, "reported": current.Reported, "version": current.Version, "updated_at": time.Now(),
+                }).Error; err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">if err := tx.Create(&amp;model.DeviceShadowHistory{DeviceID: deviceID, Version: current.Version, Source: source, Desired: current.Desired, Reported: current.Reported, CreatedAt: time.Now()}).Error; err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">out = current
+                return nil</span>
+        })
+        <span class="cov8" title="1">return &amp;out, err</span>
+}
+
+func (r *DeviceShadowRepository) ListShadowHistory(ctx context.Context, deviceID int64) ([]model.DeviceShadowHistory, error) <span class="cov8" title="1">{
+        var history []model.DeviceShadowHistory
+        err := r.DB(ctx).Where("device_id = ?", deviceID).Order("version DESC").Find(&amp;history).Error
+        return history, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package repository
+
+import (
+        "context"
+        "errors"
+
+        "0things-backend/internal/model"
+        "gorm.io/gorm"
+)
+
+type DeviceTagRepository struct {
+        db *IoTDB
+}
+
+func NewDeviceTagRepository(db *IoTDB) *DeviceTagRepository <span class="cov8" title="1">{
+        return &amp;DeviceTagRepository{db: db}
+}</span>
+
+func (r *DeviceTagRepository) DB(ctx context.Context) *gorm.DB <span class="cov8" title="1">{
+        return r.db.WithContext(ctx)
+}</span>
+
+func (r *DeviceTagRepository) ListTags(ctx context.Context, deviceID int64) ([]model.DeviceTag, error) <span class="cov8" title="1">{
+        var tags []model.DeviceTag
+        err := r.DB(ctx).Where("device_id = ?", deviceID).Order("key").Find(&amp;tags).Error
+        return tags, err
+}</span>
+
+func (r *DeviceTagRepository) SetTags(ctx context.Context, deviceID int64, tags map[string]string, replace bool) error <span class="cov8" title="1">{
+        return r.DB(ctx).Transaction(func(tx *gorm.DB) error </span><span class="cov8" title="1">{
+                if replace </span><span class="cov8" title="1">{
+                        if err := tx.Where("device_id = ?", deviceID).Delete(&amp;model.DeviceTag{}).Error; err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                }
+                <span class="cov8" title="1">for key, value := range tags </span><span class="cov8" title="1">{
+                        var tag model.DeviceTag
+                        err := tx.Unscoped().Where("device_id = ? AND key = ?", deviceID, key).First(&amp;tag).Error
+                        if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                                if err := tx.Create(&amp;model.DeviceTag{DeviceID: deviceID, Key: key, Value: value, Source: "manual"}).Error; err != nil </span><span class="cov0" title="0">{
+                                        return err
+                                }</span>
+                                <span class="cov8" title="1">continue</span>
+                        }
+                        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">if err := tx.Unscoped().Model(&amp;tag).Updates(map[string]any{"value": value, "source": "manual", "deleted_at": nil}).Error; err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                }
+                <span class="cov8" title="1">return nil</span>
+        })
+}
+
+func (r *DeviceTagRepository) DeleteTags(ctx context.Context, deviceID int64, keys []string) error <span class="cov8" title="1">{
+        return r.DB(ctx).Where("device_id = ? AND key IN ?", deviceID, keys).Delete(&amp;model.DeviceTag{}).Error
+}</span>
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package repository
+
+import (
+        "context"
+        "errors"
+        "strconv"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/tenant"
+        "gorm.io/gorm"
+)
+
+type OTARepository struct{ db *IoTDB }
+
+type UpgradeStatistics struct {
+        Total      int64
+        Success    int64
+        Failed     int64
+        Cancelled  int64
+        Pending    int64
+        InProgress int64
+}
+
+func NewOTARepository(db *IoTDB) *OTARepository          <span class="cov8" title="1">{ return &amp;OTARepository{db: db} }</span>
+func (r *OTARepository) DB(ctx context.Context) *gorm.DB <span class="cov8" title="1">{ return r.db.WithContext(ctx) }</span>
+
+func (r *OTARepository) selectWithProduct(ctx context.Context, query *gorm.DB) *gorm.DB <span class="cov8" title="1">{
+        return query.
+                Select("ota_packages.*, p.product_key AS product_key, p.name AS product_name").
+                Joins("JOIN products p ON p.id = ota_packages.product_id").
+                Where("p.tenant_id = ?", tenant.GetTenantID(ctx))
+}</span>
+
+func (r *OTARepository) Find(ctx context.Context, id int64) (*model.OTAPackage, error) <span class="cov8" title="1">{
+        var pkg model.OTAPackage
+        if err := r.selectWithProduct(ctx, r.DB(ctx).Model(&amp;model.OTAPackage{})).First(&amp;pkg, id).Error; err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return &amp;pkg, nil</span>
+}
+func (r *OTARepository) FindByName(ctx context.Context, name string) (*model.OTAPackage, error) <span class="cov8" title="1">{
+        var pkg model.OTAPackage
+        if err := r.selectWithProduct(ctx, r.DB(ctx).Model(&amp;model.OTAPackage{})).Where("ota_packages.package_name = ?", name).First(&amp;pkg).Error; err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return &amp;pkg, nil</span>
+}
+
+func (r *OTARepository) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) <span class="cov8" title="1">{
+        base := r.selectWithProduct(ctx, r.DB(ctx).Model(&amp;model.OTAPackage{}))
+        var total int64
+        if err := base.Count(&amp;total).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">query := r.selectWithProduct(ctx, r.DB(ctx).Model(&amp;model.OTAPackage{}))
+        var packages []model.OTAPackage
+        if err := query.Order("ota_packages.created_at DESC").Offset((page - 1) * size).Limit(size).Find(&amp;packages).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">return packages, total, nil</span>
+}
+
+func (r *OTARepository) Create(ctx context.Context, pkg *model.OTAPackage) error <span class="cov8" title="1">{
+        return r.DB(ctx).Create(pkg).Error
+}</span>
+
+func (r *OTARepository) Save(ctx context.Context, pkg *model.OTAPackage) error <span class="cov8" title="1">{
+        return r.DB(ctx).Save(pkg).Error
+}</span>
+
+func (r *OTARepository) Delete(ctx context.Context, id int64) error <span class="cov8" title="1">{
+        pkg, err := r.Find(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return r.DB(ctx).Delete(pkg).Error</span>
+}
+
+func (r *OTARepository) Statistics(ctx context.Context, packageID int64) (UpgradeStatistics, error) <span class="cov8" title="1">{
+        baseQuery := r.DB(ctx).Model(&amp;model.DeviceUpgradeStatus{}).Where("ota_package_id = ?", strconv.FormatInt(packageID, 10))
+        var total int64
+        if err := baseQuery.Count(&amp;total).Error; err != nil </span><span class="cov0" title="0">{
+                return UpgradeStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">counts := UpgradeStatistics{Total: total}
+        countStatus := func(status string) (int64, error) </span><span class="cov8" title="1">{
+                var count int64
+                if err := r.DB(ctx).Model(&amp;model.DeviceUpgradeStatus{}).
+                        Where("ota_package_id = ? AND status = ?", strconv.FormatInt(packageID, 10), status).
+                        Count(&amp;count).Error; err != nil </span><span class="cov0" title="0">{
+                        return 0, err
+                }</span>
+                <span class="cov8" title="1">return count, nil</span>
+        }
+        <span class="cov8" title="1">var err error
+        if counts.Success, err = countStatus("success"); err != nil </span><span class="cov0" title="0">{
+                return UpgradeStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">if counts.Failed, err = countStatus("failed"); err != nil </span><span class="cov0" title="0">{
+                return UpgradeStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">if counts.Cancelled, err = countStatus("cancelled"); err != nil </span><span class="cov0" title="0">{
+                return UpgradeStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">if counts.Pending, err = countStatus("pending"); err != nil </span><span class="cov0" title="0">{
+                return UpgradeStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">if counts.InProgress, err = countStatus("in_progress"); err != nil </span><span class="cov0" title="0">{
+                return UpgradeStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">return counts, nil</span>
+}
+
+func (r *OTARepository) Batches(ctx context.Context, packageID int64) ([]model.UpgradeBatch, error) <span class="cov8" title="1">{
+        var batches []model.UpgradeBatch
+        err := r.DB(ctx).Where("ota_package_id = ?", strconv.FormatInt(packageID, 10)).Find(&amp;batches).Error
+        return batches, err
+}</span>
+
+func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, size int, status string) ([]model.DeviceDeployment, int64, error) <span class="cov8" title="1">{
+        query := r.DB(ctx).Table("device_upgrade_status dus").
+                Select("dus.device_id, d.device_key, d.name as device_name, d.product_id, p.product_key, dus.current_version, dus.upgrade_batch_id, dus.status, dus.last_status_change_time, dus.created_at").
+                Joins("JOIN devices d ON d.id = dus.device_id").
+                Joins("JOIN products p ON p.id = d.product_id").
+                Where("dus.ota_package_id = ?", strconv.FormatInt(packageID, 10))
+        if status != "" </span><span class="cov0" title="0">{
+                query = query.Where("dus.status = ?", status)
+        }</span>
+        <span class="cov8" title="1">var total int64
+        if err := query.Count(&amp;total).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">var deployments []model.DeviceDeployment
+        if err := query.Offset((page - 1) * size).Limit(size).Find(&amp;deployments).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">return deployments, total, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package repository
+
+import (
+        "context"
+        "errors"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/tenant"
+        "gorm.io/gen/field"
+        "gorm.io/gorm"
+)
+
+type ProductRepository struct {
+        db *IoTDB
+}
+
+func NewProductRepository(db *IoTDB) *ProductRepository <span class="cov8" title="1">{
+        return &amp;ProductRepository{db: db}
+}</span>
+
+func (r *ProductRepository) DB(ctx context.Context) *gorm.DB <span class="cov0" title="0">{
+        return r.db.WithContext(ctx)
+}</span>
+
+func (r *ProductRepository) Find(ctx context.Context, id int64) (*model.Product, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        product, err := q.Product.WithContext(ctx).Where(q.Product.ID.Eq(id), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return product, nil</span>
+}
+
+func (r *ProductRepository) FindByKey(ctx context.Context, key string) (*model.Product, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        product, err := q.Product.WithContext(ctx).Where(q.Product.ProductKey.Eq(key), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return product, nil</span>
+}
+
+func (r *ProductRepository) Create(ctx context.Context, product *model.Product) error <span class="cov8" title="1">{
+        return useIoTQuery(r.db).Product.WithContext(ctx).Create(product)
+}</span>
+
+func (r *ProductRepository) Save(ctx context.Context, product *model.Product) error <span class="cov8" title="1">{
+        return useIoTQuery(r.db).Product.WithContext(ctx).Save(product)
+}</span>
+
+func (r *ProductRepository) CountDevices(ctx context.Context, productID int64) (int64, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        return q.Device.WithContext(ctx).Where(q.Device.ProductID.Eq(productID), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Count()
+}</span>
+
+func (r *ProductRepository) Delete(ctx context.Context, product *model.Product) error <span class="cov8" title="1">{
+        _, err := useIoTQuery(r.db).Product.WithContext(ctx).Where(useIoTQuery(r.db).Product.TenantID.Eq(tenant.GetTenantID(ctx))).Delete(product)
+        return err
+}</span>
+
+func (r *ProductRepository) List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        products := q.Product.WithContext(ctx).Where(q.Product.TenantID.Eq(tenant.GetTenantID(ctx)))
+        if category != "" </span><span class="cov0" title="0">{
+                products = products.Where(q.Product.Category.Eq(category))
+        }</span>
+        <span class="cov8" title="1">if status != "" </span><span class="cov0" title="0">{
+                products = products.Where(q.Product.Status.Eq(status))
+        }</span>
+        <span class="cov8" title="1">if search != "" </span><span class="cov0" title="0">{
+                products = products.Where(field.Or(q.Product.ProductKey.Like("%"+search+"%"), q.Product.Name.Like("%"+search+"%")))
+        }</span>
+        <span class="cov8" title="1">items, total, err := products.Order(q.Product.CreatedAt.Desc()).FindByPage((page-1)*size, size)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">result := make([]model.Product, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                result[i] = *items[i]
+        }</span>
+        <span class="cov8" title="1">return result, total, nil</span>
+}
+
+func (r *ProductRepository) Restore(ctx context.Context, id int64) error <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        _, err := q.Product.WithContext(ctx).Unscoped().Where(q.Product.ID.Eq(id), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).UpdateSimple(q.Product.DeletedAt.Null())
+        return err
+}</span>
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package repository
+
+import (
+        "context"
+        "errors"
+
+        "0things-backend/internal/model"
+        "gorm.io/gorm"
+)
+
+type ProductTSLRepository struct {
+        db *IoTDB
+}
+
+func NewProductTSLRepository(db *IoTDB) *ProductTSLRepository <span class="cov8" title="1">{
+        return &amp;ProductTSLRepository{db: db}
+}</span>
+
+func (r *ProductTSLRepository) FindByProductID(ctx context.Context, productID int64) (*model.ProductTSL, error) <span class="cov8" title="1">{
+        var tsl model.ProductTSL
+        if err := r.db.WithContext(ctx).Where("product_product_tsl = ?", productID).First(&amp;tsl).Error; err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return &amp;tsl, nil</span>
+}
+
+func (r *ProductTSLRepository) Save(ctx context.Context, tsl *model.ProductTSL) error <span class="cov8" title="1">{
+        return r.db.WithContext(ctx).Save(tsl).Error
+}</span>
+
+func (r *ProductTSLRepository) Create(ctx context.Context, tsl *model.ProductTSL) error <span class="cov8" title="1">{
+        return r.db.WithContext(ctx).Create(tsl).Error
+}</span>
+
+func (r *ProductTSLRepository) Delete(ctx context.Context, tsl *model.ProductTSL) error <span class="cov8" title="1">{
+        return r.db.WithContext(ctx).Delete(tsl).Error
+}</span>
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package repository
+
+import (
+        "context"
+        "errors"
+        "time"
+
+        "0things-backend/internal/model"
+        "gorm.io/gorm"
+)
+
+type PushRecordRepository struct {
+        db *IoTDB
+}
+
+func NewPushRecordRepository(db *IoTDB) *PushRecordRepository <span class="cov8" title="1">{
+        return &amp;PushRecordRepository{db: db}
+}</span>
+
+func (r *PushRecordRepository) DB(ctx context.Context) *gorm.DB <span class="cov8" title="1">{
+        return r.db.WithContext(ctx)
+}</span>
+
+func (r *PushRecordRepository) CreatePushRecord(ctx context.Context, record *model.DevicePushRecord) error <span class="cov8" title="1">{
+        return r.DB(ctx).Create(record).Error
+}</span>
+
+func (r *PushRecordRepository) ListPushRecords(ctx context.Context, deviceID int64, page, size int, operationType, status string) ([]model.DevicePushRecord, int64, error) <span class="cov8" title="1">{
+        query := r.DB(ctx).Model(&amp;model.DevicePushRecord{}).Where("device_id = ?", deviceID)
+        if operationType != "" </span><span class="cov8" title="1">{
+                query = query.Where("operation_type = ?", operationType)
+        }</span>
+        <span class="cov8" title="1">if status != "" </span><span class="cov8" title="1">{
+                query = query.Where("status = ?", status)
+        }</span>
+        <span class="cov8" title="1">var total int64
+        if err := query.Count(&amp;total).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">var records []model.DevicePushRecord
+        if err := query.Order("created_at DESC").Offset((page - 1) * size).Limit(size).Find(&amp;records).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">return records, total, nil</span>
+}
+
+func (r *PushRecordRepository) FindPushRecord(ctx context.Context, id int64) (*model.DevicePushRecord, error) <span class="cov8" title="1">{
+        var record model.DevicePushRecord
+        if err := r.DB(ctx).First(&amp;record, id).Error; err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return &amp;record, nil</span>
+}
+
+func (r *PushRecordRepository) DeletePushRecords(ctx context.Context, deviceID int64, before *time.Time) (int64, error) <span class="cov8" title="1">{
+        query := r.DB(ctx).Where("device_id = ?", deviceID)
+        if before != nil </span><span class="cov8" title="1">{
+                query = query.Where("created_at &lt; ?", *before)
+        }</span>
+        <span class="cov8" title="1">result := query.Delete(&amp;model.DevicePushRecord{})
+        return result.RowsAffected, result.Error</span>
+}
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package repository
+
+import (
+        "0things-backend/internal/dal/query"
+        "gorm.io/gorm"
+)
+
+func useIoTQuery(db *IoTDB) *query.Query <span class="cov8" title="1">{
+        return query.Use(db.DB)
+}</span>
+
+func useQuery(db *gorm.DB) *query.Query <span class="cov8" title="1">{
+        return query.Use(db)
+}</span>
+</pre>
+		
+		<pre class="file" id="file20" style="display: none">package repository
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        "0things-backend/pkg/log"
+        "0things-backend/pkg/zapgorm2"
+        "github.com/glebarez/sqlite"
+        "github.com/redis/go-redis/v9"
+        "github.com/spf13/viper"
+        "go.mongodb.org/mongo-driver/mongo"
+        "go.mongodb.org/mongo-driver/mongo/options"
+        "gorm.io/driver/mysql"
+        "gorm.io/driver/postgres"
+        "gorm.io/gorm"
+)
+
+const ctxTxKey = "TxKey"
+
+type Repository struct {
+        db *gorm.DB
+        //rdb    *redis.Client
+        //mongo  *mongo.Client
+        logger *log.Logger
+}
+
+func NewRepository(
+        logger *log.Logger,
+        db *gorm.DB,
+        // rdb *redis.Client,
+        //
+        //        mongo *mongo.Client,
+) *Repository <span class="cov8" title="1">{
+        return &amp;Repository{
+                db: db,
+                //rdb:    rdb,
+                //mongo:  mongo,
+                logger: logger,
+        }
+}</span>
+
+type Transaction interface {
+        Transaction(ctx context.Context, fn func(ctx context.Context) error) error
+}
+
+func NewTransaction(r *Repository) Transaction <span class="cov0" title="0">{
+        return r
+}</span>
+
+// DB return tx
+// If you need to create a Transaction, you must call DB(ctx) and Transaction(ctx,fn)
+func (r *Repository) DB(ctx context.Context) *gorm.DB <span class="cov8" title="1">{
+        v := ctx.Value(ctxTxKey)
+        if v != nil </span><span class="cov0" title="0">{
+                if tx, ok := v.(*gorm.DB); ok </span><span class="cov0" title="0">{
+                        return tx
+                }</span>
+        }
+        <span class="cov8" title="1">return r.db.WithContext(ctx)</span>
+}
+
+func (r *Repository) Transaction(ctx context.Context, fn func(ctx context.Context) error) error <span class="cov0" title="0">{
+        return r.DB(ctx).Transaction(func(tx *gorm.DB) error </span><span class="cov0" title="0">{
+                ctx = context.WithValue(ctx, ctxTxKey, tx)
+                return fn(ctx)
+        }</span>)
+}
+
+func NewDB(conf *viper.Viper, l *log.Logger) *gorm.DB <span class="cov0" title="0">{
+        return newDB(conf, l, "data.db.user")
+}</span>
+
+// NewIoTDB opens the independent legacy device-service database. Keeping it
+// separate prevents this migration from changing the user service datasource.
+type IoTDB struct{ *gorm.DB }
+
+func NewIoTDB(conf *viper.Viper, l *log.Logger) *IoTDB <span class="cov0" title="0">{
+        return &amp;IoTDB{newDB(conf, l, "data.db.device")}
+}</span>
+
+func newDB(conf *viper.Viper, l *log.Logger, key string) *gorm.DB <span class="cov0" title="0">{
+        var (
+                db  *gorm.DB
+                err error
+        )
+
+        logger := zapgorm2.New(l.Logger)
+        driver := conf.GetString(key + ".driver")
+        dsn := conf.GetString(key + ".dsn")
+        if driver == "" || dsn == "" </span><span class="cov0" title="0">{
+                panic("database configuration is missing for " + key)</span>
+        }
+
+        // GORM doc: https://gorm.io/docs/connecting_to_the_database.html
+        <span class="cov0" title="0">switch driver </span>{
+        case "mysql":<span class="cov0" title="0">
+                db, err = gorm.Open(mysql.Open(dsn), &amp;gorm.Config{
+                        Logger: logger,
+                })</span>
+        case "postgres":<span class="cov0" title="0">
+                db, err = gorm.Open(postgres.New(postgres.Config{
+                        DSN:                  dsn,
+                        PreferSimpleProtocol: true, // disables implicit prepared statement usage
+                }), &amp;gorm.Config{})</span>
+        case "sqlite":<span class="cov0" title="0">
+                db, err = gorm.Open(sqlite.Open(dsn), &amp;gorm.Config{})</span>
+        default:<span class="cov0" title="0">
+                panic("unknown db driver")</span>
+        }
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">db = db.Debug()
+
+        // Connection Pool config
+        sqlDB, err := db.DB()
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">sqlDB.SetMaxIdleConns(10)
+        sqlDB.SetMaxOpenConns(100)
+        sqlDB.SetConnMaxLifetime(time.Hour)
+        return db</span>
+}
+func NewRedis(conf *viper.Viper) *redis.Client <span class="cov0" title="0">{
+        rdb := redis.NewClient(&amp;redis.Options{
+                Addr:     conf.GetString("data.redis.addr"),
+                Password: conf.GetString("data.redis.password"),
+                DB:       conf.GetInt("data.redis.db"),
+        })
+
+        ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
+
+        _, err := rdb.Ping(ctx).Result()
+        if err != nil </span><span class="cov0" title="0">{
+                panic(fmt.Sprintf("redis error: %s", err.Error()))</span>
+        }
+
+        <span class="cov0" title="0">return rdb</span>
+}
+
+type IoTRedis struct{ *redis.Client }
+
+// NewIoTRedis is intentionally lazy: device CRUD must remain usable when
+// telemetry storage is unavailable, just as the legacy service did.
+func NewIoTRedis(conf *viper.Viper) *IoTRedis <span class="cov0" title="0">{
+        addr := conf.GetString("data.redis.device.addr")
+        if addr == "" </span><span class="cov0" title="0">{
+                return &amp;IoTRedis{}
+        }</span>
+        <span class="cov0" title="0">return &amp;IoTRedis{redis.NewClient(&amp;redis.Options{
+                Addr: addr, Password: conf.GetString("data.redis.device.password"), DB: conf.GetInt("data.redis.device.db"),
+        })}</span>
+}
+func NewMongo(conf *viper.Viper) (*mongo.Client, func(), error) <span class="cov0" title="0">{
+        // https://www.mongodb.com/zh-cn/docs/drivers/go/current/
+        uri := conf.GetString("data.mongo.uri")
+        client, err := mongo.Connect(context.TODO(), options.Client().
+                ApplyURI(uri))
+        if err != nil </span><span class="cov0" title="0">{
+                panic(fmt.Sprintf("mongo client error: %s", err.Error()))</span>
+        }
+
+        <span class="cov0" title="0">ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+        defer cancel()
+
+        err = client.Ping(ctx, nil)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(fmt.Sprintf("mongo ping error: %s", err.Error()))</span>
+        }
+
+        <span class="cov0" title="0">return client, func() </span><span class="cov0" title="0">{
+                err = client.Disconnect(ctx)
+                if err != nil </span><span class="cov0" title="0">{
+                        panic(fmt.Sprintf("mongo disconnect error: %s", err.Error()))</span>
+                }
+        }, err
+}
+</pre>
+		
+		<pre class="file" id="file21" style="display: none">package repository
+
+import (
+        "context"
+        "errors"
+        "time"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/tenant"
+        "gorm.io/gorm"
+)
+
+type RuleRepository struct {
+        db *IoTDB
+}
+
+func NewRuleRepository(db *IoTDB) *RuleRepository <span class="cov8" title="1">{
+        return &amp;RuleRepository{db: db}
+}</span>
+
+func (r *RuleRepository) DB(ctx context.Context) *gorm.DB <span class="cov0" title="0">{
+        return r.db.WithContext(ctx)
+}</span>
+
+func (r *RuleRepository) Find(ctx context.Context, id int64) (*model.Rule, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        rule, err := q.Rule.WithContext(ctx).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.Rule.ID.Eq(id), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return rule, nil</span>
+}
+
+func (r *RuleRepository) List(ctx context.Context, page, size int, ruleType, status, search string) ([]model.Rule, int64, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        rules := q.Rule.WithContext(ctx).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.Product.TenantID.Eq(tenant.GetTenantID(ctx)))
+        if ruleType != "" </span><span class="cov8" title="1">{
+                rules = rules.Where(q.Rule.Type.Eq(ruleType))
+        }</span>
+        <span class="cov8" title="1">if status != "" </span><span class="cov8" title="1">{
+                rules = rules.Where(q.Rule.Status.Eq(status))
+        }</span>
+        <span class="cov8" title="1">if search != "" </span><span class="cov8" title="1">{
+                rules = rules.Where(q.Rule.Name.Like("%" + search + "%"))
+        }</span>
+        <span class="cov8" title="1">items, total, err := rules.Order(q.Rule.CreatedAt.Desc()).FindByPage((page-1)*size, size)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">result := make([]model.Rule, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                result[i] = *items[i]
+        }</span>
+        <span class="cov8" title="1">return result, total, nil</span>
+}
+
+func (r *RuleRepository) Create(ctx context.Context, rule *model.Rule) error <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        if _, err := q.Product.WithContext(ctx).Where(q.Product.ID.Eq(rule.ProductID), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First(); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return q.Rule.WithContext(ctx).Create(rule)</span>
+}
+
+func (r *RuleRepository) Save(ctx context.Context, rule *model.Rule) error <span class="cov8" title="1">{
+        if _, err := r.Find(ctx, rule.ID); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return useIoTQuery(r.db).Rule.WithContext(ctx).Save(rule)</span>
+}
+
+func (r *RuleRepository) Delete(ctx context.Context, id int64) error <span class="cov8" title="1">{
+        rule, err := r.Find(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">_, err = useIoTQuery(r.db).Rule.WithContext(ctx).Delete(rule)
+        return err</span>
+}
+
+func (r *RuleRepository) UpdateStatus(ctx context.Context, rule *model.Rule, status string) error <span class="cov8" title="1">{
+        _, err := useIoTQuery(r.db).Rule.WithContext(ctx).Where(useIoTQuery(r.db).Rule.ID.Eq(rule.ID)).UpdateSimple(useIoTQuery(r.db).Rule.Status.Value(status))
+        return err
+}</span>
+
+func (r *RuleRepository) ListExecutions(ctx context.Context, ruleID int64, page, size int) ([]model.RuleExecution, int64, error) <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        executions := q.RuleExecution.WithContext(ctx).Join(q.Rule, q.Rule.ID.EqCol(q.RuleExecution.RuleID)).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.RuleExecution.RuleID.Eq(ruleID), q.Product.TenantID.Eq(tenant.GetTenantID(ctx)))
+        items, total, err := executions.Order(q.RuleExecution.CreatedAt.Desc()).FindByPage((page-1)*size, size)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">result := make([]model.RuleExecution, len(items))
+        for i := range items </span><span class="cov8" title="1">{
+                result[i] = *items[i]
+        }</span>
+        <span class="cov8" title="1">return result, total, nil</span>
+}
+
+func (r *RuleRepository) CreateExecution(ctx context.Context, execution *model.RuleExecution) error <span class="cov8" title="1">{
+        if _, err := r.Find(ctx, execution.RuleID); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return useIoTQuery(r.db).RuleExecution.WithContext(ctx).Create(execution)</span>
+}
+
+func (r *RuleRepository) UpdateExecutionStats(ctx context.Context, rule *model.Rule, executedAt time.Time) error <span class="cov8" title="1">{
+        q := useIoTQuery(r.db)
+        _, err := q.Rule.WithContext(ctx).Where(q.Rule.ID.Eq(rule.ID)).UpdateSimple(q.Rule.ExecutionCount.Value(rule.ExecutionCount+1), q.Rule.SuccessCount.Value(rule.SuccessCount+1), q.Rule.LastExecutionStatus.Value("success"), q.Rule.LastExecutedAt.Value(executedAt))
+        return err
+}</span>
+</pre>
+		
+		<pre class="file" id="file22" style="display: none">package repository
+
+import (
+        v1 "0things-backend/api/v1"
+        "0things-backend/internal/model"
+        "context"
+        "errors"
+        "gorm.io/gorm"
+)
+
+type UserRepository interface {
+        Create(ctx context.Context, user *model.User) error
+        Update(ctx context.Context, user *model.User) error
+        GetByID(ctx context.Context, id string) (*model.User, error)
+        GetByEmail(ctx context.Context, email string) (*model.User, error)
+}
+
+func NewUserRepository(
+        r *Repository,
+) UserRepository <span class="cov8" title="1">{
+        return &amp;userRepository{
+                Repository: r,
+        }
+}</span>
+
+type userRepository struct {
+        *Repository
+}
+
+func (r *userRepository) Create(ctx context.Context, user *model.User) error <span class="cov8" title="1">{
+        if err := r.DB(ctx).Create(user).Error; err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (r *userRepository) Update(ctx context.Context, user *model.User) error <span class="cov8" title="1">{
+        if err := r.DB(ctx).Save(user).Error; err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (r *userRepository) GetByID(ctx context.Context, userId string) (*model.User, error) <span class="cov8" title="1">{
+        var user model.User
+        if err := r.DB(ctx).Where("user_id = ?", userId).First(&amp;user).Error; err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, v1.ErrNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return &amp;user, nil</span>
+}
+
+func (r *userRepository) GetByEmail(ctx context.Context, email string) (*model.User, error) <span class="cov8" title="1">{
+        var user model.User
+        if err := r.DB(ctx).Where("email = ?", email).First(&amp;user).Error; err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return &amp;user, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file23" style="display: none">package service
+
+import (
+        "context"
+        "time"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/repository"
+)
+
+type AlertServiceInterface interface {
+        List(ctx context.Context, page, size int, status, severity, deviceKey string) ([]model.Alert, int64, error)
+        Get(ctx context.Context, id int64) (*model.Alert, error)
+        SetStatus(ctx context.Context, id int64, status string) (*model.Alert, error)
+}
+
+type AlertService struct{ repo *repository.AlertRepository }
+
+func NewAlertService(repo *repository.AlertRepository) *AlertService <span class="cov8" title="1">{
+        return &amp;AlertService{repo: repo}
+}</span>
+func (s *AlertService) List(ctx context.Context, page, size int, status, severity, deviceKey string) ([]model.Alert, int64, error) <span class="cov8" title="1">{
+        return s.repo.List(ctx, page, size, status, severity, deviceKey)
+}</span>
+
+func (s *AlertService) Get(ctx context.Context, id int64) (*model.Alert, error) <span class="cov8" title="1">{
+        return s.repo.Find(ctx, id)
+}</span>
+func (s *AlertService) SetStatus(ctx context.Context, id int64, status string) (*model.Alert, error) <span class="cov8" title="1">{
+        alert, err := s.Get(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">now := time.Now()
+        if err = s.repo.UpdateStatus(ctx, alert, status, now); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">alert.Status = status
+        if status == "acknowledged" </span><span class="cov8" title="1">{
+                alert.AckAt = &amp;now
+        }</span> else<span class="cov8" title="1"> {
+                alert.ResolvedAt = &amp;now
+        }</span>
+        <span class="cov8" title="1">return alert, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file24" style="display: none">package service
+
+import (
+        "bytes"
+        "context"
+        "crypto/rand"
+        "encoding/hex"
+        "encoding/json"
+        "errors"
+        "strings"
+        "time"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/repository"
+        "0things-backend/internal/tenant"
+        "github.com/twmb/franz-go/pkg/kgo"
+        "github.com/xuri/excelize/v2"
+)
+
+type DeviceServiceInterface interface {
+        CreateDevice(ctx context.Context, d *model.Device) (*model.Device, error)
+        Device(ctx context.Context, id int64) (*model.Device, error)
+        DeviceByKey(ctx context.Context, key string) (*model.Device, error)
+        ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error)
+        UpdateDevice(ctx context.Context, id int64, name, state string, metadata json.RawMessage) (*model.Device, error)
+        Activate(ctx context.Context, id int64) (*model.Device, error)
+        SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error)
+        DeleteDevice(ctx context.Context, id int64) error
+        Stats(ctx context.Context) (DeviceStatistics, error)
+        RestoreDevice(ctx context.Context, id int64) (*model.Device, error)
+        Tags(ctx context.Context, key string) ([]model.DeviceTag, error)
+        SetTags(ctx context.Context, key string, tags map[string]string, replace bool) ([]model.DeviceTag, error)
+        RemoveTags(ctx context.Context, key string, keys []string) error
+        Shadow(ctx context.Context, key string) (*model.DeviceShadow, error)
+        MutateShadow(ctx context.Context, key string, version int64, source string, desired, reported *map[string]any, clear bool) (*model.DeviceShadow, error)
+        ShadowHistory(ctx context.Context, key string) ([]model.DeviceShadowHistory, error)
+        Telemetry(ctx context.Context, key string) (string, error)
+        MQTT(ctx context.Context, key string) (MQTTParameters, error)
+        SimulatePush(ctx context.Context, deviceKey, payload, createdBy string) (*model.DevicePushRecord, error)
+        ListPushRecords(ctx context.Context, deviceKey string, page, size int, operationType, status string) ([]model.DevicePushRecord, int64, error)
+        PushRecord(ctx context.Context, id int64) (*model.DevicePushRecord, error)
+        ClearPushRecords(ctx context.Context, deviceKey string, before *time.Time) (int64, error)
+        BatchTemplate() ([]byte, error)
+        BatchCreate(ctx context.Context, content []byte) (int, []BatchUploadError, error)
+        MockKafka(ctx context.Context, brokers []string, topic, data string) error
+}
+
+type DeviceService struct {
+        repo        *repository.DeviceRepository
+        products    *repository.ProductRepository
+        tags        *repository.DeviceTagRepository
+        shadows     *repository.DeviceShadowRepository
+        pushRecords *repository.PushRecordRepository
+}
+
+type BatchUploadError struct {
+        Row        int
+        ProductKey string
+        DeviceName string
+        Error      string
+}
+
+type DeviceStatistics struct {
+        TotalDevices     int64
+        ActivatedDevices int64
+        OnlineDevices    int64
+        OfflineDevices   int64
+        InactiveDevices  int64
+}
+
+type MQTTParameters struct {
+        ClientID    string
+        Username    string
+        MQTTHostURL string
+        Password    string
+        Port        int32
+}
+
+func NewDeviceService(
+        repo *repository.DeviceRepository,
+        products *repository.ProductRepository,
+        tags *repository.DeviceTagRepository,
+        shadows *repository.DeviceShadowRepository,
+        pushRecords *repository.PushRecordRepository,
+) *DeviceService <span class="cov8" title="1">{
+        return &amp;DeviceService{repo: repo, products: products, tags: tags, shadows: shadows, pushRecords: pushRecords}
+}</span>
+
+func normalizeDeviceMetadata(value json.RawMessage) (json.RawMessage, error) <span class="cov8" title="1">{
+        if len(value) == 0 </span><span class="cov8" title="1">{
+                return value, nil
+        }</span>
+
+        <span class="cov8" title="1">var legacyString string
+        if json.Unmarshal(value, &amp;legacyString) == nil </span><span class="cov8" title="1">{
+                if !json.Valid([]byte(legacyString)) </span><span class="cov8" title="1">{
+                        return nil, errors.New("invalid metadata")
+                }</span>
+                <span class="cov8" title="1">return json.RawMessage(legacyString), nil</span>
+        }
+        <span class="cov8" title="1">if !json.Valid(value) </span><span class="cov8" title="1">{
+                return nil, errors.New("invalid metadata")
+        }</span>
+        <span class="cov8" title="1">return value, nil</span>
+}
+
+func deviceKey() string <span class="cov8" title="1">{
+        b := make([]byte, 8)
+        _, _ = rand.Read(b)
+        return "D" + strings.ToUpper(hex.EncodeToString(b))
+}</span>
+
+func (s *DeviceService) CreateDevice(ctx context.Context, d *model.Device) (*model.Device, error) <span class="cov8" title="1">{
+        var err error
+        if d.Metadata, err = normalizeDeviceMetadata(d.Metadata); err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if _, err := s.products.Find(ctx, d.ProductID); err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if d.DeviceKey == "" </span><span class="cov8" title="1">{
+                d.DeviceKey = deviceKey()
+        }</span>
+        <span class="cov8" title="1">d.TenantID = tenant.GetTenantID(ctx)
+        if err := s.repo.Create(ctx, d); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.repo.Find(ctx, d.ID)</span>
+}
+func (s *DeviceService) Device(ctx context.Context, id int64) (*model.Device, error) <span class="cov8" title="1">{
+        return s.repo.Find(ctx, id)
+}</span>
+func (s *DeviceService) DeviceByKey(ctx context.Context, key string) (*model.Device, error) <span class="cov8" title="1">{
+        return s.repo.FindByKey(ctx, key)
+}</span>
+func (s *DeviceService) ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) <span class="cov8" title="1">{
+        return s.repo.List(ctx, page, size, productID, states, enabled, search)
+}</span>
+func (s *DeviceService) UpdateDevice(ctx context.Context, id int64, name, state string, metadata json.RawMessage) (*model.Device, error) <span class="cov8" title="1">{
+        d, err := s.Device(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if name != "" </span><span class="cov8" title="1">{
+                d.Name = name
+        }</span>
+        <span class="cov8" title="1">if len(metadata) &gt; 0 </span><span class="cov8" title="1">{
+                d.Metadata = metadata
+        }</span>
+        <span class="cov8" title="1">if state != "" &amp;&amp; state != d.State.State </span><span class="cov8" title="1">{
+                valid := map[string][]string{"inactive": {"offline"}, "offline": {"online"}, "online": {"offline"}}
+                ok := false
+                for _, v := range valid[d.State.State] </span><span class="cov8" title="1">{
+                        if v == state </span><span class="cov8" title="1">{
+                                ok = true
+                        }</span>
+                }
+                <span class="cov8" title="1">if !ok </span><span class="cov8" title="1">{
+                        return nil, errors.New("invalid status transition")
+                }</span>
+                <span class="cov8" title="1">d.State.State = state</span>
+        }
+        <span class="cov8" title="1">err = s.repo.Save(ctx, d)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.Device(ctx, id)</span>
+}
+func (s *DeviceService) Activate(ctx context.Context, id int64) (*model.Device, error) <span class="cov8" title="1">{
+        d, err := s.Device(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if d.State.State != "inactive" </span><span class="cov0" title="0">{
+                return nil, errors.New("device already activated")
+        }</span>
+        <span class="cov8" title="1">return s.UpdateDevice(ctx, id, "", "offline", nil)</span>
+}
+func (s *DeviceService) SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error) <span class="cov8" title="1">{
+        d, err := s.Device(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">d.Enabled = v
+        err = s.repo.SaveEnabled(ctx, d)
+        return d, err</span>
+}
+
+func (s *DeviceService) Tags(ctx context.Context, key string) ([]model.DeviceTag, error) <span class="cov8" title="1">{
+        d, err := s.DeviceByKey(ctx, key)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.tags.ListTags(ctx, d.ID)</span>
+}
+func (s *DeviceService) SetTags(ctx context.Context, key string, tags map[string]string, replace bool) ([]model.DeviceTag, error) <span class="cov8" title="1">{
+        d, err := s.DeviceByKey(ctx, key)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">for k := range tags </span><span class="cov8" title="1">{
+                if k == "" || len(k) &gt; 128 </span><span class="cov8" title="1">{
+                        return nil, errors.New("invalid tag key")
+                }</span>
+        }
+        <span class="cov8" title="1">err = s.tags.SetTags(ctx, d.ID, tags, replace)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.Tags(ctx, key)</span>
+}
+func (s *DeviceService) RemoveTags(ctx context.Context, key string, keys []string) error <span class="cov8" title="1">{
+        d, err := s.DeviceByKey(ctx, key)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return s.tags.DeleteTags(ctx, d.ID, keys)</span>
+}
+func (s *DeviceService) Shadow(ctx context.Context, key string) (*model.DeviceShadow, error) <span class="cov8" title="1">{
+        d, err := s.DeviceByKey(ctx, key)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.shadows.GetShadow(ctx, d.ID)</span>
+}
+func (s *DeviceService) MutateShadow(ctx context.Context, key string, version int64, source string, desired, reported *map[string]any, clear bool) (*model.DeviceShadow, error) <span class="cov8" title="1">{
+        d, err := s.DeviceByKey(ctx, key)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.shadows.MutateShadow(ctx, d.ID, version, source, desired, reported, clear)</span>
+}
+func (s *DeviceService) ShadowHistory(ctx context.Context, key string) ([]model.DeviceShadowHistory, error) <span class="cov8" title="1">{
+        d, err := s.DeviceByKey(ctx, key)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.shadows.ListShadowHistory(ctx, d.ID)</span>
+}
+func (s *DeviceService) Telemetry(ctx context.Context, key string) (string, error) <span class="cov8" title="1">{
+        return s.repo.Telemetry(ctx, key)
+}</span>
+func (s *DeviceService) Stats(ctx context.Context) (DeviceStatistics, error) <span class="cov8" title="1">{
+        counts, err := s.repo.Statistics(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                return DeviceStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">return DeviceStatistics{
+                TotalDevices: counts.TotalDevices, ActivatedDevices: counts.ActivatedDevices,
+                OnlineDevices: counts.OnlineDevices, OfflineDevices: counts.OfflineDevices, InactiveDevices: counts.InactiveDevices,
+        }, nil</span>
+}
+func (s *DeviceService) MQTT(ctx context.Context, key string) (MQTTParameters, error) <span class="cov8" title="1">{
+        d, err := s.DeviceByKey(ctx, key)
+        if err != nil </span><span class="cov8" title="1">{
+                return MQTTParameters{}, err
+        }</span>
+        <span class="cov8" title="1">return MQTTParameters{
+                ClientID: d.Product.ProductKey, Username: d.DeviceKey, MQTTHostURL: "x39c51fe.ala.cn-hangzhou.emqxsl.cn", Password: d.DeviceKey, Port: 8883,
+        }, nil</span>
+}
+func (s *DeviceService) DeleteDevice(ctx context.Context, id int64) error <span class="cov8" title="1">{
+        d, err := s.Device(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return s.repo.Delete(ctx, d)</span>
+}
+
+func (s *DeviceService) SimulatePush(ctx context.Context, deviceKey, payload, createdBy string) (*model.DevicePushRecord, error) <span class="cov8" title="1">{
+        device, err := s.DeviceByKey(ctx, deviceKey)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if createdBy == "" </span><span class="cov0" title="0">{
+                createdBy = "system"
+        }</span>
+        <span class="cov8" title="1">record := &amp;model.DevicePushRecord{
+                DeviceID:      device.ID,
+                OperationType: "Property",
+                OperationName: "simulate",
+                Payload:       payload,
+                Status:        "success",
+                CreatedBy:     createdBy,
+        }
+        if err := s.pushRecords.CreatePushRecord(ctx, record); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return record, nil</span>
+}
+
+func (s *DeviceService) ListPushRecords(ctx context.Context, deviceKey string, page, size int, operationType, status string) ([]model.DevicePushRecord, int64, error) <span class="cov8" title="1">{
+        device, err := s.DeviceByKey(ctx, deviceKey)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">return s.pushRecords.ListPushRecords(ctx, device.ID, page, size, operationType, status)</span>
+}
+
+func (s *DeviceService) PushRecord(ctx context.Context, id int64) (*model.DevicePushRecord, error) <span class="cov8" title="1">{
+        return s.pushRecords.FindPushRecord(ctx, id)
+}</span>
+
+func (s *DeviceService) ClearPushRecords(ctx context.Context, deviceKey string, before *time.Time) (int64, error) <span class="cov8" title="1">{
+        device, err := s.DeviceByKey(ctx, deviceKey)
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+        <span class="cov8" title="1">return s.pushRecords.DeletePushRecords(ctx, device.ID, before)</span>
+}
+func (s *DeviceService) BatchTemplate() ([]byte, error) <span class="cov8" title="1">{
+        f := excelize.NewFile()
+        defer f.Close()
+        sheet := "设备导入模板"
+        f.SetSheetName("Sheet1", sheet)
+        f.SetCellValue(sheet, "A1", "productKey")
+        f.SetCellValue(sheet, "B1", "deviceName")
+        f.SetCellValue(sheet, "A2", "WMS003")
+        f.SetCellValue(sheet, "B2", "DEV001")
+        var b bytes.Buffer
+        err := f.Write(&amp;b)
+        return b.Bytes(), err
+}</span>
+func (s *DeviceService) BatchCreate(ctx context.Context, content []byte) (int, []BatchUploadError, error) <span class="cov8" title="1">{
+        f, err := excelize.OpenReader(bytes.NewReader(content))
+        if err != nil </span><span class="cov8" title="1">{
+                return 0, nil, err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+        rows, err := f.GetRows(f.GetSheetName(0))
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, nil, err
+        }</span>
+        <span class="cov8" title="1">if len(rows) &lt; 2 </span><span class="cov8" title="1">{
+                return 0, nil, errors.New("no valid data rows")
+        }</span>
+        <span class="cov8" title="1">head := map[string]int{}
+        for i, v := range rows[0] </span><span class="cov8" title="1">{
+                head[strings.ToLower(strings.TrimSpace(v))] = i
+        }</span>
+        <span class="cov8" title="1">pk, ok1 := head["productkey"]
+        dn, ok2 := head["devicename"]
+        if !ok1 || !ok2 </span><span class="cov8" title="1">{
+                return 0, nil, errors.New("missing required column")
+        }</span>
+        <span class="cov8" title="1">success := 0
+        errs := []BatchUploadError{}
+        for i, row := range rows[1:] </span><span class="cov8" title="1">{
+                val := func(n int) string </span><span class="cov8" title="1">{
+                        if n &lt; len(row) </span><span class="cov8" title="1">{
+                                return strings.TrimSpace(row[n])
+                        }</span>
+                        <span class="cov8" title="1">return ""</span>
+                }
+                <span class="cov8" title="1">key, name := val(pk), val(dn)
+                if key == "" &amp;&amp; name == "" </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">p, e := s.products.FindByKey(ctx, key)
+                if e == nil </span><span class="cov8" title="1">{
+                        _, e = s.CreateDevice(ctx, &amp;model.Device{Name: name, ProductID: p.ID})
+                }</span>
+                <span class="cov8" title="1">if e != nil </span><span class="cov8" title="1">{
+                        errs = append(errs, BatchUploadError{Row: i + 2, ProductKey: key, DeviceName: name, Error: e.Error()})
+                }</span> else<span class="cov8" title="1"> {
+                        success++
+                }</span>
+        }
+        <span class="cov8" title="1">return success, errs, nil</span>
+}
+func (s *DeviceService) MockKafka(ctx context.Context, brokers []string, topic, data string) error <span class="cov8" title="1">{
+        if len(brokers) == 0 </span><span class="cov8" title="1">{
+                return errors.New("kafka producer not initialized")
+        }</span>
+        <span class="cov0" title="0">c, err := kgo.NewClient(kgo.SeedBrokers(brokers...))
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">defer c.Close()
+        return c.ProduceSync(ctx, &amp;kgo.Record{Topic: topic, Value: []byte(data)}).FirstErr()</span>
+}
+func (s *DeviceService) RestoreDevice(ctx context.Context, id int64) (*model.Device, error) <span class="cov8" title="1">{
+        if err := s.repo.Restore(ctx, id); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.Device(ctx, id)</span>
+}
+</pre>
+		
+		<pre class="file" id="file25" style="display: none">package service
+
+import (
+        "context"
+        "encoding/json"
+        "errors"
+        "fmt"
+        "time"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/repository"
+)
+
+var ErrInvalidDeviceEvent = errors.New("invalid device event")
+
+type DeviceEventServiceInterface interface {
+        Record(ctx context.Context, productKey, deviceKey, eventType string, timestamp int64, data map[string]any) error
+        List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error)
+}
+
+type DeviceEventService struct {
+        repo    *repository.DeviceEventRepository
+        devices *repository.DeviceRepository
+}
+
+func NewDeviceEventService(repo *repository.DeviceEventRepository, devices *repository.DeviceRepository) *DeviceEventService <span class="cov8" title="1">{
+        return &amp;DeviceEventService{repo: repo, devices: devices}
+}</span>
+
+func (s *DeviceEventService) Record(ctx context.Context, productKey, deviceKey, eventType string, timestamp int64, data map[string]any) error <span class="cov8" title="1">{
+        if productKey == "" || deviceKey == "" || eventType == "" </span><span class="cov8" title="1">{
+                return fmt.Errorf("%w: product_key, device_key and type are required", ErrInvalidDeviceEvent)
+        }</span>
+        <span class="cov8" title="1">device, err := s.devices.FindByKeyForEvent(ctx, deviceKey)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if device.Product.ProductKey != productKey </span><span class="cov8" title="1">{
+                return fmt.Errorf("%w: product_key does not match device", ErrInvalidDeviceEvent)
+        }</span>
+        <span class="cov8" title="1">payload, err := json.Marshal(data)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">eventAt := time.Now()
+        if timestamp &gt; 0 </span><span class="cov8" title="1">{
+                eventAt = time.UnixMilli(timestamp)
+        }</span>
+        <span class="cov8" title="1">return s.repo.Create(ctx, &amp;model.DeviceEvent{DeviceID: device.ID, EventType: eventType, EventAt: eventAt, Data: payload})</span>
+}
+
+func (s *DeviceEventService) List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error) <span class="cov8" title="1">{
+        return s.repo.List(ctx, page, size, keyword, deviceKey, eventType, startAt, endAt)
+}</span>
+</pre>
+		
+		<pre class="file" id="file26" style="display: none">package service
+
+import (
+        "context"
+        "strconv"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/repository"
+)
+
+type OTAServiceInterface interface {
+        List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error)
+        Get(ctx context.Context, id int64) (*model.OTAPackage, error)
+        Create(ctx context.Context, pkg *model.OTAPackage, productKey string) error
+        Update(ctx context.Context, pkg *model.OTAPackage) error
+        Delete(ctx context.Context, id int64) error
+        Statistics(ctx context.Context, packageName string) (UpgradeStatistics, error)
+        Batches(ctx context.Context, packageName string) ([]model.UpgradeBatch, error)
+        Deployments(ctx context.Context, packageName string, page, size int, status string) ([]model.DeviceDeployment, int64, error)
+}
+
+type OTAService struct {
+        repo        *repository.OTARepository
+        productRepo *repository.ProductRepository
+}
+
+type UpgradeStatistics struct {
+        PackageID          string
+        TotalTargetDevices int64
+        SuccessfulUpgrades int64
+        FailedUpgrades     int64
+        CancelledUpgrades  int64
+        PendingUpgrades    int64
+        InProgressUpgrades int64
+}
+
+func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository) *OTAService <span class="cov8" title="1">{
+        return &amp;OTAService{repo: repo, productRepo: productRepo}
+}</span>
+
+func (s *OTAService) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) <span class="cov8" title="1">{
+        return s.repo.List(ctx, page, size)
+}</span>
+
+func (s *OTAService) Get(ctx context.Context, id int64) (*model.OTAPackage, error) <span class="cov8" title="1">{
+        return s.repo.Find(ctx, id)
+}</span>
+
+func (s *OTAService) Create(ctx context.Context, pkg *model.OTAPackage, productKey string) error <span class="cov8" title="1">{
+        product, err := s.productRepo.FindByKey(ctx, productKey)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">pkg.ProductID = product.ID
+        return s.repo.Create(ctx, pkg)</span>
+}
+
+func (s *OTAService) Update(ctx context.Context, pkg *model.OTAPackage) error <span class="cov8" title="1">{
+        if _, err := s.productRepo.Find(ctx, pkg.ProductID); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return s.repo.Save(ctx, pkg)</span>
+}
+
+func (s *OTAService) Delete(ctx context.Context, id int64) error <span class="cov8" title="1">{
+        return s.repo.Delete(ctx, id)
+}</span>
+
+func (s *OTAService) Statistics(ctx context.Context, packageName string) (UpgradeStatistics, error) <span class="cov8" title="1">{
+        pkg, err := s.repo.FindByName(ctx, packageName)
+        if err != nil </span><span class="cov8" title="1">{
+                return UpgradeStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">counts, err := s.repo.Statistics(ctx, pkg.ID)
+        if err != nil </span><span class="cov0" title="0">{
+                return UpgradeStatistics{}, err
+        }</span>
+        <span class="cov8" title="1">return UpgradeStatistics{
+                PackageID: strconv.FormatInt(pkg.ID, 10), TotalTargetDevices: counts.Total,
+                SuccessfulUpgrades: counts.Success, FailedUpgrades: counts.Failed,
+                CancelledUpgrades: counts.Cancelled, PendingUpgrades: counts.Pending,
+                InProgressUpgrades: counts.InProgress,
+        }, nil</span>
+}
+
+func (s *OTAService) Batches(ctx context.Context, packageName string) ([]model.UpgradeBatch, error) <span class="cov8" title="1">{
+        pkg, err := s.repo.FindByName(ctx, packageName)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.repo.Batches(ctx, pkg.ID)</span>
+}
+
+func (s *OTAService) Deployments(ctx context.Context, packageName string, page, size int, status string) ([]model.DeviceDeployment, int64, error) <span class="cov8" title="1">{
+        pkg, err := s.repo.FindByName(ctx, packageName)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, err
+        }</span>
+        <span class="cov8" title="1">return s.repo.Deployments(ctx, pkg.ID, page, size, status)</span>
+}
+</pre>
+		
+		<pre class="file" id="file27" style="display: none">package service
+
+import (
+        "context"
+        "crypto/rand"
+        "encoding/hex"
+        "encoding/json"
+        "errors"
+        "strings"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/repository"
+        "0things-backend/internal/tenant"
+)
+
+type ProductServiceInterface interface {
+        Create(ctx context.Context, product *model.Product) (*model.Product, error)
+        Get(ctx context.Context, id int64) (*model.Product, error)
+        GetByKey(ctx context.Context, key string) (*model.Product, error)
+        Save(ctx context.Context, product *model.Product) error
+        Delete(ctx context.Context, id int64) error
+        List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error)
+        Restore(ctx context.Context, id int64) (*model.Product, error)
+}
+
+type ProductService struct {
+        repo *repository.ProductRepository
+}
+
+func NewProductService(repo *repository.ProductRepository) *ProductService <span class="cov8" title="1">{
+        return &amp;ProductService{repo: repo}
+}</span>
+
+func productKey() string <span class="cov8" title="1">{
+        bytes := make([]byte, 8)
+        _, _ = rand.Read(bytes)
+        return "P" + strings.ToUpper(hex.EncodeToString(bytes))
+}</span>
+
+func normalizeProductMetadata(value json.RawMessage) (json.RawMessage, error) <span class="cov8" title="1">{
+        if len(value) == 0 </span><span class="cov8" title="1">{
+                return value, nil
+        }</span>
+
+        <span class="cov8" title="1">var legacyString string
+        if json.Unmarshal(value, &amp;legacyString) == nil </span><span class="cov8" title="1">{
+                if !json.Valid([]byte(legacyString)) </span><span class="cov8" title="1">{
+                        return nil, errors.New("invalid metadata")
+                }</span>
+                <span class="cov0" title="0">return json.RawMessage(legacyString), nil</span>
+        }
+        <span class="cov8" title="1">if !json.Valid(value) </span><span class="cov8" title="1">{
+                return nil, errors.New("invalid metadata")
+        }</span>
+        <span class="cov0" title="0">return value, nil</span>
+}
+
+func (s *ProductService) Create(ctx context.Context, product *model.Product) (*model.Product, error) <span class="cov8" title="1">{
+        if product.Name == "" </span><span class="cov0" title="0">{
+                return nil, errors.New("name is required")
+        }</span>
+        <span class="cov8" title="1">var err error
+        if product.Metadata, err = normalizeProductMetadata(product.Metadata); err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if product.ProductKey == "" </span><span class="cov8" title="1">{
+                product.ProductKey = productKey()
+        }</span>
+        <span class="cov8" title="1">if product.Status == "" </span><span class="cov8" title="1">{
+                product.Status = "active"
+        }</span>
+        <span class="cov8" title="1">if product.NodeType == "" </span><span class="cov8" title="1">{
+                product.NodeType = "direct"
+        }</span>
+        <span class="cov8" title="1">product.TenantID = tenant.GetTenantID(ctx)
+        if err := s.repo.Create(ctx, product); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return product, nil</span>
+}
+
+func (s *ProductService) Get(ctx context.Context, id int64) (*model.Product, error) <span class="cov8" title="1">{
+        return s.repo.Find(ctx, id)
+}</span>
+
+func (s *ProductService) GetByKey(ctx context.Context, key string) (*model.Product, error) <span class="cov8" title="1">{
+        return s.repo.FindByKey(ctx, key)
+}</span>
+
+func (s *ProductService) Save(ctx context.Context, product *model.Product) error <span class="cov8" title="1">{
+        var err error
+        if product.Metadata, err = normalizeProductMetadata(product.Metadata); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return s.repo.Save(ctx, product)</span>
+}
+
+func (s *ProductService) Delete(ctx context.Context, id int64) error <span class="cov8" title="1">{
+        count, err := s.repo.CountDevices(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if count &gt; 0 </span><span class="cov8" title="1">{
+                return errors.New("product has devices")
+        }</span>
+        <span class="cov8" title="1">product, err := s.Get(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return s.repo.Delete(ctx, product)</span>
+}
+
+func (s *ProductService) List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error) <span class="cov8" title="1">{
+        return s.repo.List(ctx, page, size, category, status, search)
+}</span>
+
+func (s *ProductService) Restore(ctx context.Context, id int64) (*model.Product, error) <span class="cov8" title="1">{
+        if err := s.repo.Restore(ctx, id); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.Get(ctx, id)</span>
+}
+</pre>
+		
+		<pre class="file" id="file28" style="display: none">package service
+
+import (
+        "context"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/repository"
+)
+
+type ProductTSLServiceInterface interface {
+        Get(ctx context.Context, productKey string) (*model.ProductTSL, error)
+        Upsert(ctx context.Context, productKey, content string) error
+        Delete(ctx context.Context, productKey string) error
+}
+
+type ProductTSLService struct {
+        products *repository.ProductRepository
+        tsls     *repository.ProductTSLRepository
+}
+
+func NewProductTSLService(products *repository.ProductRepository, tsls *repository.ProductTSLRepository) *ProductTSLService <span class="cov8" title="1">{
+        return &amp;ProductTSLService{products: products, tsls: tsls}
+}</span>
+
+func (s *ProductTSLService) Get(ctx context.Context, productKey string) (*model.ProductTSL, error) <span class="cov8" title="1">{
+        product, err := s.products.FindByKey(ctx, productKey)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return s.tsls.FindByProductID(ctx, product.ID)</span>
+}
+
+func (s *ProductTSLService) Upsert(ctx context.Context, productKey, content string) error <span class="cov8" title="1">{
+        product, err := s.products.FindByKey(ctx, productKey)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">tsl, err := s.tsls.FindByProductID(ctx, product.ID)
+        if err == repository.ErrNotFound </span><span class="cov8" title="1">{
+                productID := product.ID
+                return s.tsls.Create(ctx, &amp;model.ProductTSL{ProductID: &amp;productID, TSL: content})
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">tsl.TSL = content
+        return s.tsls.Save(ctx, tsl)</span>
+}
+
+func (s *ProductTSLService) Delete(ctx context.Context, productKey string) error <span class="cov8" title="1">{
+        tsl, err := s.Get(ctx, productKey)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return s.tsls.Delete(ctx, tsl)</span>
+}
+</pre>
+		
+		<pre class="file" id="file29" style="display: none">package service
+
+import (
+        "context"
+        "time"
+
+        "0things-backend/internal/model"
+        "0things-backend/internal/repository"
+)
+
+type RuleServiceInterface interface {
+        List(ctx context.Context, page, size int, ruleType, status, search string) ([]model.Rule, int64, error)
+        Get(ctx context.Context, id int64) (*model.Rule, error)
+        Create(ctx context.Context, rule *model.Rule) error
+        Update(ctx context.Context, rule *model.Rule) error
+        Delete(ctx context.Context, id int64) error
+        SetStatus(ctx context.Context, id int64, status string) (*model.Rule, error)
+        ListExecutions(ctx context.Context, id int64, page, size int) ([]model.RuleExecution, int64, error)
+        Evaluate(ctx context.Context, id int64) (*model.RuleExecution, error)
+}
+
+type RuleService struct {
+        repo *repository.RuleRepository
+}
+
+func NewRuleService(repo *repository.RuleRepository) *RuleService <span class="cov8" title="1">{
+        return &amp;RuleService{repo: repo}
+}</span>
+
+func (s *RuleService) List(ctx context.Context, page, size int, ruleType, status, search string) ([]model.Rule, int64, error) <span class="cov8" title="1">{
+        return s.repo.List(ctx, page, size, ruleType, status, search)
+}</span>
+
+func (s *RuleService) Get(ctx context.Context, id int64) (*model.Rule, error) <span class="cov8" title="1">{
+        return s.repo.Find(ctx, id)
+}</span>
+func (s *RuleService) Create(ctx context.Context, rule *model.Rule) error <span class="cov8" title="1">{
+        return s.repo.Create(ctx, rule)
+}</span>
+func (s *RuleService) Update(ctx context.Context, rule *model.Rule) error <span class="cov8" title="1">{
+        return s.repo.Save(ctx, rule)
+}</span>
+func (s *RuleService) Delete(ctx context.Context, id int64) error <span class="cov8" title="1">{
+        return s.repo.Delete(ctx, id)
+}</span>
+func (s *RuleService) SetStatus(ctx context.Context, id int64, status string) (*model.Rule, error) <span class="cov8" title="1">{
+        rule, err := s.Get(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if err = s.repo.UpdateStatus(ctx, rule, status); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">rule.Status = status
+        return rule, nil</span>
+}
+func (s *RuleService) ListExecutions(ctx context.Context, id int64, page, size int) ([]model.RuleExecution, int64, error) <span class="cov8" title="1">{
+        return s.repo.ListExecutions(ctx, id, page, size)
+}</span>
+
+func (s *RuleService) Evaluate(ctx context.Context, id int64) (*model.RuleExecution, error) <span class="cov8" title="1">{
+        rule, err := s.Get(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">execution := model.RuleExecution{RuleID: id, RuleName: rule.Name, Status: "success", ConditionResult: true, TriggeredAt: time.Now()}
+        if err = s.repo.CreateExecution(ctx, &amp;execution); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if err = s.repo.UpdateExecutionStats(ctx, rule, execution.TriggeredAt); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return &amp;execution, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file30" style="display: none">package service
+
+import (
+        "0things-backend/internal/repository"
+        "0things-backend/pkg/jwt"
+        "0things-backend/pkg/log"
+        "0things-backend/pkg/sid"
+)
+
+type Service struct {
+        logger *log.Logger
+        sid    *sid.Sid
+        jwt    *jwt.JWT
+        tm     repository.Transaction
+}
+
+func NewService(
+        tm repository.Transaction,
+        logger *log.Logger,
+        sid *sid.Sid,
+        jwt *jwt.JWT,
+) *Service <span class="cov8" title="1">{
+        return &amp;Service{
+                logger: logger,
+                sid:    sid,
+                jwt:    jwt,
+                tm:     tm,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file31" style="display: none">package service
+
+import (
+        "context"
+        v1 "0things-backend/api/v1"
+        "0things-backend/internal/model"
+        "0things-backend/internal/repository"
+        "0things-backend/internal/tenant"
+        "golang.org/x/crypto/bcrypt"
+        "time"
+)
+
+type UserService interface {
+        Register(ctx context.Context, req *v1.RegisterRequest) error
+        Login(ctx context.Context, req *v1.LoginRequest) (string, error)
+        GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error)
+        UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error
+}
+
+func NewUserService(
+        service *Service,
+        userRepo repository.UserRepository,
+) UserService <span class="cov8" title="1">{
+        return &amp;userService{
+                userRepo: userRepo,
+                Service:  service,
+        }
+}</span>
+
+type userService struct {
+        userRepo repository.UserRepository
+        *Service
+}
+
+func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) error <span class="cov8" title="1">{
+        // check username
+        user, err := s.userRepo.GetByEmail(ctx, req.Email)
+        if err != nil </span><span class="cov0" title="0">{
+                return v1.ErrInternalServerError
+        }</span>
+        <span class="cov8" title="1">if err == nil &amp;&amp; user != nil </span><span class="cov8" title="1">{
+                return v1.ErrEmailAlreadyUse
+        }</span>
+
+        <span class="cov8" title="1">hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        // Generate user ID
+        <span class="cov8" title="1">userId, err := s.sid.GenString()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">user = &amp;model.User{
+                UserId:   userId,
+                Email:    req.Email,
+                Password: string(hashedPassword),
+        }
+        // Transaction demo
+        err = s.tm.Transaction(ctx, func(ctx context.Context) error </span><span class="cov0" title="0">{
+                // Create a user
+                if err = s.userRepo.Create(ctx, user); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                // TODO: other repo
+                <span class="cov0" title="0">return nil</span>
+        })
+        <span class="cov8" title="1">return err</span>
+}
+
+func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, error) <span class="cov8" title="1">{
+        user, err := s.userRepo.GetByEmail(ctx, req.Email)
+        if err != nil || user == nil </span><span class="cov8" title="1">{
+                return "", v1.ErrUnauthorized
+        }</span>
+
+        <span class="cov8" title="1">err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">tenantID := tenant.GetTenantID(ctx)
+        token, err := s.jwt.GenToken(user.UserId, tenantID, time.Now().Add(time.Hour*24*90))
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">return token, nil</span>
+}
+
+func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error) <span class="cov8" title="1">{
+        user, err := s.userRepo.GetByID(ctx, userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;v1.GetProfileResponseData{
+                UserId:   user.UserId,
+                Nickname: user.Nickname,
+        }, nil</span>
+}
+
+func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error <span class="cov8" title="1">{
+        user, err := s.userRepo.GetByID(ctx, userId)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">user.Email = req.Email
+        user.Nickname = req.Nickname
+
+        if err = s.userRepo.Update(ctx, user); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

@@ -877,3 +877,314 @@ func TestIntegrationProductTSLService_Upsert_ProductNotFound(t *testing.T) {
 	err := svc.Upsert(ctx2(), "NONEXIST", `{"properties":[]}`)
 	assert.Error(t, err)
 }
+
+func TestIntegrationDeviceService_SimulatePush_WithCreatedBy(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	record, err := svc.SimulatePush(ctx2(), "D001", `{"temp":25}`, "admin")
+	require.NoError(t, err)
+	assert.Equal(t, "admin", record.CreatedBy)
+}
+
+func TestIntegrationDeviceService_ListPushRecords_WithOperationType(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	records, total, err := svc.ListPushRecords(ctx2(), "D001", 1, 10, "Property", "")
+	require.NoError(t, err)
+	assert.Equal(t, int64(0), total)
+	assert.Empty(t, records)
+}
+
+func TestIntegrationDeviceService_ListPushRecords_WithStatus(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	records, total, err := svc.ListPushRecords(ctx2(), "D001", 1, 10, "", "success")
+	require.NoError(t, err)
+	assert.Equal(t, int64(0), total)
+	assert.Empty(t, records)
+}
+
+func TestIntegrationDeviceService_ClearPushRecords_NilBefore(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	count, err := svc.ClearPushRecords(ctx2(), "D001", nil)
+	require.NoError(t, err)
+	assert.Equal(t, int64(0), count)
+}
+
+func TestIntegrationDeviceService_SetTags_Valid(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	tags, err := svc.SetTags(ctx2(), "D001", map[string]string{"location": "factory"}, false)
+	require.NoError(t, err)
+	assert.Len(t, tags, 1)
+}
+
+func TestIntegrationDeviceService_SetTags_Replace(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	tags, err := svc.SetTags(ctx2(), "D001", map[string]string{"key1": "val1"}, true)
+	require.NoError(t, err)
+	assert.Len(t, tags, 1)
+}
+
+func TestIntegrationDeviceService_RemoveTags(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	_, err := svc.SetTags(ctx2(), "D001", map[string]string{"env": "prod"}, false)
+	require.NoError(t, err)
+
+	err = svc.RemoveTags(ctx2(), "D001", []string{"env"})
+	assert.NoError(t, err)
+}
+
+func TestIntegrationDeviceService_MutateShadow_UpdateExisting(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	desired := map[string]any{"temp": 25}
+	shadow, err := svc.MutateShadow(ctx2(), "D001", 0, "app", &desired, nil, false)
+	require.NoError(t, err)
+
+	reported := map[string]any{"temp": 26}
+	shadow2, err := svc.MutateShadow(ctx2(), "D001", shadow.Version, "device", nil, &reported, false)
+	require.NoError(t, err)
+	assert.NotNil(t, shadow2)
+}
+
+func TestIntegrationDeviceService_RestoreDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	err := svc.DeleteDevice(ctx2(), 1)
+	require.NoError(t, err)
+
+	device, err := svc.RestoreDevice(ctx2(), 1)
+	require.NoError(t, err)
+	assert.NotNil(t, device)
+}
+
+func TestIntegrationRuleService_SetStatus_NewStatus(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	ruleRepo := repository.NewRuleRepository(&repository.IoTDB{DB: db})
+	svc := service.NewRuleService(ruleRepo)
+
+	rule := &model.Rule{Name: "Test Rule", Type: "threshold", Status: "draft", ProductID: 1}
+	err := ruleRepo.Create(ctx2(), rule)
+	require.NoError(t, err)
+
+	rule2, err := svc.SetStatus(ctx2(), rule.ID, "active")
+	require.NoError(t, err)
+	assert.Equal(t, "active", rule2.Status)
+}
+
+func TestIntegrationProductService_Delete_Success(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewProductService(productRepo)
+
+	// Create a second product with no devices
+	p2 := &model.Product{Name: "No Device Product", ProductKey: "P002", Status: "active", TenantID: 1}
+	err := productRepo.Create(ctx2(), p2)
+	require.NoError(t, err)
+
+	err = svc.Delete(ctx2(), p2.ID)
+	require.NoError(t, err)
+}
+
+func TestIntegrationProductService_Restore_Success(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewProductService(productRepo)
+
+	err := productRepo.Delete(ctx2(), &model.Product{ID: 1})
+	require.NoError(t, err)
+
+	product, err := svc.Restore(ctx2(), 1)
+	require.NoError(t, err)
+	assert.NotNil(t, product)
+}
+
+func TestIntegrationDeviceService_CreateDevice_InvalidLegacyMetadata(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	// valid JSON string wrapping invalid JSON content
+	device := &model.Device{Name: "Legacy Bad", ProductID: 1, TenantID: 1, Metadata: json.RawMessage(`"{\"bad\")"`)}
+	_, err := svc.CreateDevice(ctx2(), device)
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_CreateDevice_InvalidRawMetadata(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	device := &model.Device{Name: "Raw Bad", ProductID: 1, TenantID: 1, Metadata: json.RawMessage(`{bad json}`)}
+	_, err := svc.CreateDevice(ctx2(), device)
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_CreateDevice_EmptyMetadata(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	device := &model.Device{Name: "No Meta", ProductID: 1, TenantID: 1, Metadata: nil}
+	result, err := svc.CreateDevice(ctx2(), device)
+	require.NoError(t, err)
+	assert.NotZero(t, result.ID)
+}
+
+func TestIntegrationProductService_Create_InvalidLegacyMetadata(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewProductService(productRepo)
+
+	product := &model.Product{Name: "Bad Legacy", ProductKey: "P999", Metadata: json.RawMessage(`"{\"bad\")"`), TenantID: 1}
+	_, err := svc.Create(ctx2(), product)
+	assert.Error(t, err)
+}
+
+func TestIntegrationProductService_Create_InvalidRawMetadata(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewProductService(productRepo)
+
+	product := &model.Product{Name: "Bad Raw", ProductKey: "P999", Metadata: json.RawMessage(`{bad}`), TenantID: 1}
+	_, err := svc.Create(ctx2(), product)
+	assert.Error(t, err)
+}
+
+func TestIntegrationProductService_Create_EmptyMetadata(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewProductService(productRepo)
+
+	product := &model.Product{Name: "No Meta", ProductKey: "P999", Metadata: nil, TenantID: 1}
+	result, err := svc.Create(ctx2(), product)
+	require.NoError(t, err)
+	assert.NotZero(t, result.ID)
+}
+
+func TestIntegrationProductService_Save_InvalidLegacyMetadata(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewProductService(productRepo)
+
+	product := &model.Product{ID: 1, Name: "Updated", ProductKey: "P001", Metadata: json.RawMessage(`"{\"bad\")"`), TenantID: 1}
+	err := svc.Save(ctx2(), product)
+	assert.Error(t, err)
+}
+
+func TestIntegrationRuleService_SetStatus_NotFound(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	ruleRepo := repository.NewRuleRepository(&repository.IoTDB{DB: db})
+	svc := service.NewRuleService(ruleRepo)
+
+	_, err := svc.SetStatus(ctx2(), 999, "active")
+	assert.Error(t, err)
+}
+
+func TestIntegrationProductService_GetByKey(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewProductService(productRepo)
+
+	product, err := svc.GetByKey(ctx2(), "P001")
+	require.NoError(t, err)
+	assert.Equal(t, "P001", product.ProductKey)
+}
+
+func TestIntegrationProductService_List(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewProductService(productRepo)
+
+	products, total, err := svc.List(ctx2(), 1, 10, "", "", "")
+	require.NoError(t, err)
+	assert.True(t, total >= 1)
+	assert.Len(t, products, 1)
+}
+
+func TestIntegrationOTAService_Create(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewOTAService(otaRepo, productRepo)
+
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductKey: "P001"}
+	err := svc.Create(ctx2(), pkg, "P001")
+	require.NoError(t, err)
+}
+
+func TestIntegrationOTAService_Create_ProductNotFound(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewOTAService(otaRepo, productRepo)
+
+	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0", ProductKey: "NONEXIST"}
+	err := svc.Create(ctx2(), pkg, "NONEXIST")
+	assert.Error(t, err)
+}
+
+func TestIntegrationOTAService_Batches(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewOTAService(otaRepo, productRepo)
+
+	// Create a package first
+	pkg := &model.OTAPackage{PackageName: "fw-batches", Version: "1.0", ProductKey: "P001"}
+	err := svc.Create(ctx2(), pkg, "P001")
+	require.NoError(t, err)
+
+	batches, err := svc.Batches(ctx2(), "fw-batches")
+	require.NoError(t, err)
+	assert.Empty(t, batches)
+}
+
+func TestIntegrationOTAService_Deployments(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	svc := service.NewOTAService(otaRepo, productRepo)
+
+	// Create a package first
+	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", ProductKey: "P001"}
+	err := svc.Create(ctx2(), pkg, "P001")
+	require.NoError(t, err)
+
+	deployments, total, err := svc.Deployments(ctx2(), "fw-deploy", 1, 10, "")
+	require.NoError(t, err)
+	assert.Equal(t, int64(0), total)
+	assert.Empty(t, deployments)
+}
