@@ -11,10 +11,10 @@ import (
 
 type AlertHandler struct {
 	*Handler
-	svc *service.AlertService
+	svc service.AlertServiceInterface
 }
 
-func NewAlertHandler(h *Handler, svc *service.AlertService) *AlertHandler {
+func NewAlertHandler(h *Handler, svc service.AlertServiceInterface) *AlertHandler {
 	return &AlertHandler{Handler: h, svc: svc}
 }
 

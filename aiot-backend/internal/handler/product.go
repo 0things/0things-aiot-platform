@@ -31,10 +31,10 @@ func productJSON(product model.Product, count int64) productV1.Product {
 
 type ProductHandler struct {
 	*Handler
-	svc *service.ProductService
+	svc service.ProductServiceInterface
 }
 
-func NewProductHandler(h *Handler, svc *service.ProductService) *ProductHandler {
+func NewProductHandler(h *Handler, svc service.ProductServiceInterface) *ProductHandler {
 	return &ProductHandler{Handler: h, svc: svc}
 }
 

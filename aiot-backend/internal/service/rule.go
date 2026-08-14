@@ -8,6 +8,17 @@ import (
 	"0things-backend/internal/repository"
 )
 
+type RuleServiceInterface interface {
+	List(ctx context.Context, page, size int, ruleType, status, search string) ([]model.Rule, int64, error)
+	Get(ctx context.Context, id int64) (*model.Rule, error)
+	Create(ctx context.Context, rule *model.Rule) error
+	Update(ctx context.Context, rule *model.Rule) error
+	Delete(ctx context.Context, id int64) error
+	SetStatus(ctx context.Context, id int64, status string) (*model.Rule, error)
+	ListExecutions(ctx context.Context, id int64, page, size int) ([]model.RuleExecution, int64, error)
+	Evaluate(ctx context.Context, id int64) (*model.RuleExecution, error)
+}
+
 type RuleService struct {
 	repo *repository.RuleRepository
 }

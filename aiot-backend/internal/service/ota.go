@@ -8,6 +8,17 @@ import (
 	"0things-backend/internal/repository"
 )
 
+type OTAServiceInterface interface {
+	List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error)
+	Get(ctx context.Context, id int64) (*model.OTAPackage, error)
+	Create(ctx context.Context, pkg *model.OTAPackage, productKey string) error
+	Update(ctx context.Context, pkg *model.OTAPackage) error
+	Delete(ctx context.Context, id int64) error
+	Statistics(ctx context.Context, packageName string) (UpgradeStatistics, error)
+	Batches(ctx context.Context, packageName string) ([]model.UpgradeBatch, error)
+	Deployments(ctx context.Context, packageName string, page, size int, status string) ([]model.DeviceDeployment, int64, error)
+}
+
 type OTAService struct {
 	repo        *repository.OTARepository
 	productRepo *repository.ProductRepository

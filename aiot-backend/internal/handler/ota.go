@@ -9,10 +9,10 @@ import (
 
 type OTAHandler struct {
 	*Handler
-	svc *service.OTAService
+	svc service.OTAServiceInterface
 }
 
-func NewOTAHandler(h *Handler, svc *service.OTAService) *OTAHandler {
+func NewOTAHandler(h *Handler, svc service.OTAServiceInterface) *OTAHandler {
 	return &OTAHandler{Handler: h, svc: svc}
 }
 

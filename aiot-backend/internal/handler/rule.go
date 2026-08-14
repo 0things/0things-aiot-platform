@@ -13,10 +13,10 @@ import (
 
 type RuleHandler struct {
 	*Handler
-	svc *service.RuleService
+	svc service.RuleServiceInterface
 }
 
-func NewRuleHandler(h *Handler, svc *service.RuleService) *RuleHandler {
+func NewRuleHandler(h *Handler, svc service.RuleServiceInterface) *RuleHandler {
 	return &RuleHandler{Handler: h, svc: svc}
 }
 

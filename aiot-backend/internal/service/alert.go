@@ -8,6 +8,12 @@ import (
 	"0things-backend/internal/repository"
 )
 
+type AlertServiceInterface interface {
+	List(ctx context.Context, page, size int, status, severity, deviceKey string) ([]model.Alert, int64, error)
+	Get(ctx context.Context, id int64) (*model.Alert, error)
+	SetStatus(ctx context.Context, id int64, status string) (*model.Alert, error)
+}
+
 type AlertService struct{ repo *repository.AlertRepository }
 
 func NewAlertService(repo *repository.AlertRepository) *AlertService {

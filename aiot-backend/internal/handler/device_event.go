@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DeviceEventHandler struct { *Handler; svc *service.DeviceEventService }
+type DeviceEventHandler struct { *Handler; svc service.DeviceEventServiceInterface }
 
-func NewDeviceEventHandler(h *Handler, svc *service.DeviceEventService) *DeviceEventHandler { return &DeviceEventHandler{Handler: h, svc: svc} }
+func NewDeviceEventHandler(h *Handler, svc service.DeviceEventServiceInterface) *DeviceEventHandler { return &DeviceEventHandler{Handler: h, svc: svc} }
 
 func deviceEventResponse(event model.DeviceEvent) eventV1.DeviceEvent {
 	return eventV1.DeviceEvent{ID: event.ID, DeviceKey: event.DeviceKey, DeviceName: event.DeviceName, EventType: event.EventType, EventAt: event.EventAt, Data: string(event.Data)}

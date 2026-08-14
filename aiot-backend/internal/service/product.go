@@ -13,6 +13,16 @@ import (
 	"0things-backend/internal/tenant"
 )
 
+type ProductServiceInterface interface {
+	Create(ctx context.Context, product *model.Product) (*model.Product, error)
+	Get(ctx context.Context, id int64) (*model.Product, error)
+	GetByKey(ctx context.Context, key string) (*model.Product, error)
+	Save(ctx context.Context, product *model.Product) error
+	Delete(ctx context.Context, id int64) error
+	List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error)
+	Restore(ctx context.Context, id int64) (*model.Product, error)
+}
+
 type ProductService struct {
 	repo *repository.ProductRepository
 }

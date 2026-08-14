@@ -13,6 +13,11 @@ import (
 
 var ErrInvalidDeviceEvent = errors.New("invalid device event")
 
+type DeviceEventServiceInterface interface {
+	Record(ctx context.Context, productKey, deviceKey, eventType string, timestamp int64, data map[string]any) error
+	List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error)
+}
+
 type DeviceEventService struct {
 	repo    *repository.DeviceEventRepository
 	devices *repository.DeviceRepository

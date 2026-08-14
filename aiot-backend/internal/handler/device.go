@@ -18,11 +18,11 @@ import (
 // clients predate the backend's common response envelope.
 type DeviceHandler struct {
 	*Handler
-	svc    *service.DeviceService
+	svc    service.DeviceServiceInterface
 	config *viper.Viper
 }
 
-func NewDeviceHandler(h *Handler, svc *service.DeviceService, config *viper.Viper) *DeviceHandler {
+func NewDeviceHandler(h *Handler, svc service.DeviceServiceInterface, config *viper.Viper) *DeviceHandler {
 	return &DeviceHandler{Handler: h, svc: svc, config: config}
 }
 

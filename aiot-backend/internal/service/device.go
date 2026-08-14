@@ -17,6 +17,34 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+type DeviceServiceInterface interface {
+	CreateDevice(ctx context.Context, d *model.Device) (*model.Device, error)
+	Device(ctx context.Context, id int64) (*model.Device, error)
+	DeviceByKey(ctx context.Context, key string) (*model.Device, error)
+	ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error)
+	UpdateDevice(ctx context.Context, id int64, name, state string, metadata json.RawMessage) (*model.Device, error)
+	Activate(ctx context.Context, id int64) (*model.Device, error)
+	SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error)
+	DeleteDevice(ctx context.Context, id int64) error
+	Stats(ctx context.Context) (DeviceStatistics, error)
+	RestoreDevice(ctx context.Context, id int64) (*model.Device, error)
+	Tags(ctx context.Context, key string) ([]model.DeviceTag, error)
+	SetTags(ctx context.Context, key string, tags map[string]string, replace bool) ([]model.DeviceTag, error)
+	RemoveTags(ctx context.Context, key string, keys []string) error
+	Shadow(ctx context.Context, key string) (*model.DeviceShadow, error)
+	MutateShadow(ctx context.Context, key string, version int64, source string, desired, reported *map[string]any, clear bool) (*model.DeviceShadow, error)
+	ShadowHistory(ctx context.Context, key string) ([]model.DeviceShadowHistory, error)
+	Telemetry(ctx context.Context, key string) (string, error)
+	MQTT(ctx context.Context, key string) (MQTTParameters, error)
+	SimulatePush(ctx context.Context, deviceKey, payload, createdBy string) (*model.DevicePushRecord, error)
+	ListPushRecords(ctx context.Context, deviceKey string, page, size int, operationType, status string) ([]model.DevicePushRecord, int64, error)
+	PushRecord(ctx context.Context, id int64) (*model.DevicePushRecord, error)
+	ClearPushRecords(ctx context.Context, deviceKey string, before *time.Time) (int64, error)
+	BatchTemplate() ([]byte, error)
+	BatchCreate(ctx context.Context, content []byte) (int, []BatchUploadError, error)
+	MockKafka(ctx context.Context, brokers []string, topic, data string) error
+}
+
 type DeviceService struct {
 	repo        *repository.DeviceRepository
 	products    *repository.ProductRepository
