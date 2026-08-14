@@ -45,6 +45,9 @@ func (s *OTAService) Create(ctx context.Context, pkg *model.OTAPackage, productK
 }
 
 func (s *OTAService) Update(ctx context.Context, pkg *model.OTAPackage) error {
+	if _, err := s.productRepo.Find(ctx, pkg.ProductID); err != nil {
+		return err
+	}
 	return s.repo.Save(ctx, pkg)
 }
 
