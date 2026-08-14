@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"0things-backend/internal/model"
+	"0things-backend/internal/tenant"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,4 +41,31 @@ func TestDeviceRepositories(t *testing.T) {
 	require.NoError(t, err)
 	require.EqualValues(t, 1, total)
 	require.Len(t, storedRecords, 1)
+}
+
+func TestDeviceRepositoryListScopesSearchToTenant(t *testing.T) {
+	store := newRepositoryTestDB(t, &model.Product{}, &model.Device{}, &model.DeviceState{})
+	repo := &DeviceRepository{db: store.DB}
+	ctx := context.Background()
+
+	product1 := &model.Product{ProductKey: "P001", TenantID: 1}
+	product2 := &model.Product{ProductKey: "P002", TenantID: 2}
+	require.NoError(t, store.Create(product1).Error)
+	require.NoError(t, store.Create(product2).Error)
+	device1 := &model.Device{DeviceKey: "D001", Name: "Tenant one", ProductID: product1.ID, TenantID: 1}
+	device2 := &model.Device{DeviceKey: "D002", Name: "Tenant two", ProductID: product2.ID, TenantID: 2}
+	require.NoError(t, store.Create(device1).Error)
+	require.NoError(t, store.Create(device2).Error)
+	require.NoError(t, store.Create(&model.DeviceState{DeviceID: device1.ID, State: "online"}).Error)
+	require.NoError(t, store.Create(&model.DeviceState{DeviceID: device2.ID, State: "online"}).Error)
+
+	items, total, err := repo.List(ctx, 1, 20, 0, nil, nil, "Tenant")
+	require.NoError(t, err)
+	require.EqualValues(t, 1, total)
+	require.Len(t, items, 1)
+
+	items, total, err = repo.List(tenant.WithTenant(ctx, 2), 1, 20, 0, nil, nil, "Tenant")
+	require.NoError(t, err)
+	require.EqualValues(t, 1, total)
+	require.Len(t, items, 1)
 }

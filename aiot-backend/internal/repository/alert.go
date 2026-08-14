@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"0things-backend/internal/model"
+	"0things-backend/internal/tenant"
 	"gorm.io/gorm"
 )
 
@@ -13,47 +14,48 @@ type AlertRepository struct {
 	db *IoTDB
 }
 
-func NewAlertRepository(db *IoTDB) *AlertRepository        { return &AlertRepository{db: db} }
-func (r *AlertRepository) DB(ctx context.Context) *gorm.DB { return r.db.WithContext(ctx) }
+func NewAlertRepository(db *IoTDB) *AlertRepository { return &AlertRepository{db: db} }
 func (r *AlertRepository) Find(ctx context.Context, id int64) (*model.Alert, error) {
-	var alert model.Alert
-	if err := r.DB(ctx).First(&alert, id).Error; err != nil {
+	q := useIoTQuery(r.db)
+	alert, err := q.Alert.WithContext(ctx).Join(q.Rule, q.Rule.ID.EqCol(q.Alert.RuleID)).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.Alert.ID.Eq(id), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
 		return nil, err
 	}
-	return &alert, nil
+	return alert, nil
 }
 
 func (r *AlertRepository) List(ctx context.Context, page, size int, status, severity, deviceKey string) ([]model.Alert, int64, error) {
-	query := r.DB(ctx).Model(&model.Alert{})
+	q := useIoTQuery(r.db)
+	alerts := q.Alert.WithContext(ctx).Join(q.Rule, q.Rule.ID.EqCol(q.Alert.RuleID)).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.Product.TenantID.Eq(tenant.GetTenantID(ctx)))
 	if status != "" {
-		query = query.Where("status = ?", status)
+		alerts = alerts.Where(q.Alert.Status.Eq(status))
 	}
 	if severity != "" {
-		query = query.Where("severity = ?", severity)
+		alerts = alerts.Where(q.Alert.Severity.Eq(severity))
 	}
 	if deviceKey != "" {
-		query = query.Where("device_key = ?", deviceKey)
+		alerts = alerts.Where(q.Alert.DeviceKey.Eq(deviceKey))
 	}
-	var total int64
-	if err := query.Count(&total).Error; err != nil {
+	items, total, err := alerts.Order(q.Alert.LastRaisedAt.Desc()).FindByPage((page-1)*size, size)
+	if err != nil {
 		return nil, 0, err
 	}
-	var alerts []model.Alert
-	if err := query.Order("last_raised_at DESC").Offset((page - 1) * size).Limit(size).Find(&alerts).Error; err != nil {
-		return nil, 0, err
+	result := make([]model.Alert, len(items))
+	for i := range items {
+		result[i] = *items[i]
 	}
-	return alerts, total, nil
+	return result, total, nil
 }
 
 func (r *AlertRepository) UpdateStatus(ctx context.Context, alert *model.Alert, status string, at time.Time) error {
-	fields := map[string]any{"status": status}
+	q := useIoTQuery(r.db)
 	if status == "acknowledged" {
-		fields["ack_at"] = at
-	} else {
-		fields["resolved_at"] = at
+		_, err := q.Alert.WithContext(ctx).Where(q.Alert.ID.Eq(alert.ID)).UpdateSimple(q.Alert.Status.Value(status), q.Alert.AckAt.Value(at))
+		return err
 	}
-	return r.DB(ctx).Model(alert).Updates(fields).Error
+	_, err := q.Alert.WithContext(ctx).Where(q.Alert.ID.Eq(alert.ID)).UpdateSimple(q.Alert.Status.Value(status), q.Alert.ResolvedAt.Value(at))
+	return err
 }

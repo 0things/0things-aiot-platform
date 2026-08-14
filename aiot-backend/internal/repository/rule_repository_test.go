@@ -10,10 +10,12 @@ import (
 )
 
 func TestRuleRepository(t *testing.T) {
-	store := newRepositoryTestDB(t, &model.Rule{}, &model.RuleExecution{})
+	store := newRepositoryTestDB(t, &model.Product{}, &model.Rule{}, &model.RuleExecution{})
 	repo := NewRuleRepository(store)
 	ctx := context.Background()
-	rule := &model.Rule{Name: "temperature", Type: "sql", Status: "draft"}
+	product := &model.Product{ProductKey: "test-product", TenantID: 1}
+	require.NoError(t, store.Create(product).Error)
+	rule := &model.Rule{Name: "temperature", Type: "sql", Status: "draft", ProductID: product.ID}
 	require.NoError(t, repo.Create(ctx, rule))
 	require.NoError(t, repo.UpdateStatus(ctx, rule, "enabled"))
 	require.NoError(t, repo.CreateExecution(ctx, &model.RuleExecution{RuleID: rule.ID, RuleName: rule.Name, Status: "success", TriggeredAt: time.Now()}))

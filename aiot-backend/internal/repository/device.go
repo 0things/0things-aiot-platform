@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 
+	"0things-backend/internal/dal/query"
 	"0things-backend/internal/model"
-	"0things-backend/internal/repository/scope"
+	"0things-backend/internal/tenant"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -38,94 +40,102 @@ func (r *DeviceRepository) DB(ctx context.Context) *gorm.DB {
 }
 
 func (r *DeviceRepository) Find(ctx context.Context, id int64) (*model.Device, error) {
-	var item model.Device
-	if err := r.DB(ctx).Scopes(scope.Tenant).Preload("Product").Preload("State").First(&item, id).Error; err != nil {
+	q := useQuery(r.db)
+	item, err := q.Device.WithContext(ctx).Where(q.Device.ID.Eq(id), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Preload(q.Device.Product, q.Device.State).First()
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
 		return nil, err
 	}
-	return &item, nil
+	return item, nil
 }
 
 func (r *DeviceRepository) FindByKey(ctx context.Context, key string) (*model.Device, error) {
-	var item model.Device
-	if err := r.DB(ctx).Scopes(scope.Tenant).Preload("Product").Preload("State").Where("device_key = ?", key).First(&item).Error; err != nil {
+	q := useQuery(r.db)
+	item, err := q.Device.WithContext(ctx).Where(q.Device.DeviceKey.Eq(key), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Preload(q.Device.Product, q.Device.State).First()
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
 		return nil, err
 	}
-	return &item, nil
+	return item, nil
 }
 
 // FindByKeyForEvent resolves a device from a broker event, which has no user
 // request context. Device keys are globally unique in the device protocol.
 func (r *DeviceRepository) FindByKeyForEvent(ctx context.Context, key string) (*model.Device, error) {
-	var item model.Device
-	if err := r.DB(ctx).Preload("Product").Preload("State").Where("device_key = ?", key).First(&item).Error; err != nil {
+	q := useQuery(r.db)
+	item, err := q.Device.WithContext(ctx).Where(q.Device.DeviceKey.Eq(key)).Preload(q.Device.Product, q.Device.State).First()
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
 		return nil, err
 	}
-	return &item, nil
+	return item, nil
 }
 
 func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) error {
-	return r.DB(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(device).Error; err != nil {
+	return useQuery(r.db).Transaction(func(tx *query.Query) error {
+		if err := tx.Device.WithContext(ctx).Create(device); err != nil {
 			return err
 		}
-		return tx.Create(&model.DeviceState{DeviceID: device.ID, State: "inactive"}).Error
+		return tx.DeviceState.WithContext(ctx).Create(&model.DeviceState{DeviceID: device.ID, State: "inactive"})
 	})
 }
 
 func (r *DeviceRepository) List(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) {
-	query := r.DB(ctx).Model(&model.Device{}).Scopes(scope.Tenant).Joins("JOIN device_states ON device_states.device_id = devices.id")
+	q := useQuery(r.db)
+	devices := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceID.EqCol(q.Device.ID)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)))
 	if productID > 0 {
-		query = query.Where("devices.product_id = ?", productID)
+		devices = devices.Where(q.Device.ProductID.Eq(productID))
 	}
 	if len(states) > 0 {
-		query = query.Where("device_states.state IN ?", states)
+		devices = devices.Where(q.DeviceState.State.In(states...))
 	}
 	if enabled != nil {
-		query = query.Where("devices.enabled = ?", *enabled)
+		devices = devices.Where(q.Device.Enabled.Is(*enabled))
 	}
 	if search != "" {
-		query = query.Where("devices.device_key LIKE ? OR devices.name LIKE ?", "%"+search+"%", "%"+search+"%")
+		devices = devices.Where(field.Or(q.Device.DeviceKey.Like("%"+search+"%"), q.Device.Name.Like("%"+search+"%")))
 	}
-	var total int64
-	if err := query.Count(&total).Error; err != nil {
+	items, total, err := devices.Preload(q.Device.Product, q.Device.State).Order(q.Device.CreatedAt.Desc()).FindByPage((page-1)*size, size)
+	if err != nil {
 		return nil, 0, err
 	}
-	var devices []model.Device
-	if err := query.Preload("Product").Preload("State").Order("devices.created_at DESC").Offset((page - 1) * size).Limit(size).Find(&devices).Error; err != nil {
-		return nil, 0, err
+	result := make([]model.Device, len(items))
+	for i := range items {
+		result[i] = *items[i]
 	}
-	return devices, total, nil
+	return result, total, nil
 }
 
 func (r *DeviceRepository) Save(ctx context.Context, device *model.Device) error {
-	return r.DB(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Save(device).Error; err != nil {
+	return useQuery(r.db).Transaction(func(tx *query.Query) error {
+		if err := tx.Device.WithContext(ctx).Save(device); err != nil {
 			return err
 		}
-		return tx.Save(&device.State).Error
+		return tx.DeviceState.WithContext(ctx).Save(&device.State)
 	})
 }
 
 func (r *DeviceRepository) SaveEnabled(ctx context.Context, device *model.Device) error {
-	return r.DB(ctx).Save(device).Error
+	return useQuery(r.db).Device.WithContext(ctx).Save(device)
 }
 
 func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, error) {
 	var total, online, offline, inactive int64
-	if err := r.DB(ctx).Scopes(scope.Tenant).Model(&model.Device{}).Count(&total).Error; err != nil {
+	var err error
+	q := useQuery(r.db)
+	if total, err = q.Device.WithContext(ctx).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Count(); err != nil {
 		return DeviceStatistics{}, err
 	}
 	for state, target := range map[string]*int64{"online": &online, "offline": &offline, "inactive": &inactive} {
-		if err := r.DB(ctx).Scopes(scope.Tenant).Model(&model.Device{}).Joins("JOIN device_states ON device_states.device_id = devices.id").Where("device_states.state = ?", state).Count(target).Error; err != nil {
+		count, err := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceID.EqCol(q.Device.ID)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)), q.DeviceState.State.Eq(state)).Count()
+		*target = count
+		if err != nil {
 			return DeviceStatistics{}, err
 		}
 	}
@@ -136,11 +146,15 @@ func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, er
 }
 
 func (r *DeviceRepository) Delete(ctx context.Context, device *model.Device) error {
-	return r.DB(ctx).Delete(device).Error
+	q := useQuery(r.db)
+	_, err := q.Device.WithContext(ctx).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Delete(device)
+	return err
 }
 
 func (r *DeviceRepository) Restore(ctx context.Context, id int64) error {
-	return r.DB(ctx).Unscoped().Scopes(scope.Tenant).Model(&model.Device{}).Where("id = ?", id).Update("deleted_at", nil).Error
+	q := useQuery(r.db)
+	_, err := q.Device.WithContext(ctx).Unscoped().Where(q.Device.ID.Eq(id), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).UpdateSimple(q.Device.DeletedAt.Null())
+	return err
 }
 
 func (r *DeviceRepository) Telemetry(ctx context.Context, key string) (string, error) {

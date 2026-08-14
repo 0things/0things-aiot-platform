@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"0things-backend/internal/model"
+	"0things-backend/internal/tenant"
 	"gorm.io/gorm"
 )
 
@@ -23,15 +24,16 @@ type UpgradeStatistics struct {
 func NewOTARepository(db *IoTDB) *OTARepository          { return &OTARepository{db: db} }
 func (r *OTARepository) DB(ctx context.Context) *gorm.DB { return r.db.WithContext(ctx) }
 
-func (r *OTARepository) selectWithProduct(query *gorm.DB) *gorm.DB {
+func (r *OTARepository) selectWithProduct(ctx context.Context, query *gorm.DB) *gorm.DB {
 	return query.
 		Select("ota_packages.*, p.product_key AS product_key, p.name AS product_name").
-		Joins("LEFT JOIN products p ON p.id = ota_packages.product_id")
+		Joins("JOIN products p ON p.id = ota_packages.product_id").
+		Where("p.tenant_id = ?", tenant.GetTenantID(ctx))
 }
 
 func (r *OTARepository) Find(ctx context.Context, id int64) (*model.OTAPackage, error) {
 	var pkg model.OTAPackage
-	if err := r.selectWithProduct(r.DB(ctx)).First(&pkg, id).Error; err != nil {
+	if err := r.selectWithProduct(ctx, r.DB(ctx).Model(&model.OTAPackage{})).First(&pkg, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
@@ -41,7 +43,7 @@ func (r *OTARepository) Find(ctx context.Context, id int64) (*model.OTAPackage, 
 }
 func (r *OTARepository) FindByName(ctx context.Context, name string) (*model.OTAPackage, error) {
 	var pkg model.OTAPackage
-	if err := r.selectWithProduct(r.DB(ctx)).Where("ota_packages.package_name = ?", name).First(&pkg).Error; err != nil {
+	if err := r.selectWithProduct(ctx, r.DB(ctx).Model(&model.OTAPackage{})).Where("ota_packages.package_name = ?", name).First(&pkg).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
@@ -51,12 +53,12 @@ func (r *OTARepository) FindByName(ctx context.Context, name string) (*model.OTA
 }
 
 func (r *OTARepository) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) {
-	base := r.DB(ctx).Model(&model.OTAPackage{})
+	base := r.selectWithProduct(ctx, r.DB(ctx).Model(&model.OTAPackage{}))
 	var total int64
 	if err := base.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	query := r.selectWithProduct(r.DB(ctx).Model(&model.OTAPackage{}))
+	query := r.selectWithProduct(ctx, r.DB(ctx).Model(&model.OTAPackage{}))
 	var packages []model.OTAPackage
 	if err := query.Order("ota_packages.created_at DESC").Offset((page - 1) * size).Limit(size).Find(&packages).Error; err != nil {
 		return nil, 0, err
@@ -73,7 +75,11 @@ func (r *OTARepository) Save(ctx context.Context, pkg *model.OTAPackage) error {
 }
 
 func (r *OTARepository) Delete(ctx context.Context, id int64) error {
-	return r.DB(ctx).Delete(&model.OTAPackage{}, id).Error
+	pkg, err := r.Find(ctx, id)
+	if err != nil {
+		return err
+	}
+	return r.DB(ctx).Delete(pkg).Error
 }
 
 func (r *OTARepository) Statistics(ctx context.Context, packageID int64) (UpgradeStatistics, error) {

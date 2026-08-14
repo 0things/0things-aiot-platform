@@ -12,7 +12,9 @@ func TestOTARepository(t *testing.T) {
 	store := newRepositoryTestDB(t, &model.OTAPackage{}, &model.DeviceUpgradeStatus{}, &model.UpgradeBatch{}, &model.Product{})
 	repo := NewOTARepository(store)
 	ctx := context.Background()
-	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", Status: "draft"}
+	product := &model.Product{ProductKey: "P001", Name: "Sensor", TenantID: 1}
+	require.NoError(t, store.WithContext(ctx).Create(product).Error)
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", ProductID: product.ID, Status: "draft"}
 	require.NoError(t, repo.Create(ctx, pkg))
 	found, err := repo.FindByName(ctx, "firmware-1")
 	require.NoError(t, err)
