@@ -8,10 +8,10 @@ import (
 
 type ProductTSLHandler struct {
 	*Handler
-	svc *service.ProductTSLService
+	svc service.ProductTSLServiceInterface
 }
 
-func NewProductTSLHandler(h *Handler, svc *service.ProductTSLService) *ProductTSLHandler {
+func NewProductTSLHandler(h *Handler, svc service.ProductTSLServiceInterface) *ProductTSLHandler {
 	return &ProductTSLHandler{Handler: h, svc: svc}
 }
 

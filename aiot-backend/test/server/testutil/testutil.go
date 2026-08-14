@@ -96,6 +96,12 @@ func NewTestDeviceEventService(db *gorm.DB) *service.DeviceEventService {
 	return service.NewDeviceEventService(eventRepo, deviceRepo)
 }
 
+func NewTestProductTSLService(db *gorm.DB) *service.ProductTSLService {
+	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	tslRepo := repository.NewProductTSLRepository(&repository.IoTDB{DB: db})
+	return service.NewProductTSLService(productRepo, tslRepo)
+}
+
 func ContextWithTenant(ctx context.Context, tenantID int64) context.Context {
 	return context.WithValue(ctx, "tenant_id", tenantID)
 }

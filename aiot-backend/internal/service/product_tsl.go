@@ -7,6 +7,12 @@ import (
 	"0things-backend/internal/repository"
 )
 
+type ProductTSLServiceInterface interface {
+	Get(ctx context.Context, productKey string) (*model.ProductTSL, error)
+	Upsert(ctx context.Context, productKey, content string) error
+	Delete(ctx context.Context, productKey string) error
+}
+
 type ProductTSLService struct {
 	products *repository.ProductRepository
 	tsls     *repository.ProductTSLRepository
