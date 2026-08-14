@@ -1,18 +1,35 @@
-# Nunu — A CLI tool for building Go applications.
+# AIoT Backend Service
 
-Nunu is a scaffolding tool for building Go applications. Its name comes from a game character in League of Legends, a little boy riding on the shoulders of a Yeti. Just like Nunu, this project stands on the shoulders of giants, as it is built upon a combination of popular libraries from the Go ecosystem. This combination allows you to quickly build efficient and reliable applications.
+Go 后端服务，基于 Gin + GORM + Wire 构建。
 
-[简体中文介绍](https://github.com/go-nunu/nunu/blob/main/README_zh.md)
+## 常用命令
 
-![Nunu](https://github.com/go-nunu/nunu/blob/main/.github/assets/banner.png)
+```bash
+make init       # 安装开发工具（wire, mockgen, swag）
+make gen        # 生成 GORM Gen 查询代码
+make swag       # 生成 Swagger 文档
+make test       # 运行测试并生成覆盖率报告
+make build      # 构建可执行文件
+make bootstrap  # 启动 Docker 依赖 + 数据库迁移 + 启动服务
+```
 
-## Documentation
-* [User Guide](https://github.com/go-nunu/nunu/blob/main/docs/en/guide.md)
-* [Architecture](https://github.com/go-nunu/nunu/blob/main/docs/en/architecture.md)
-* [Getting Started Tutorial](https://github.com/go-nunu/nunu/blob/main/docs/en/tutorial.md)
-* [Unit Testing](https://github.com/go-nunu/nunu/blob/main/docs/en/unit_testing.md)
+## Swagger 文档生成
 
+```bash
+# 确保先安装 swag
+make init
+
+# 生成 swagger 文档到 docs/ 目录
+make swag
+```
+
+生成的文件：
+- `docs/swagger.yaml` — OpenAPI 2.0 规范（YAML）
+- `docs/swagger.json` — OpenAPI 2.0 规范（JSON）
+- `docs/docs.go` — 嵌入式 Go 文件，支持静态托管
+
+启动服务后访问：`http://localhost:8000/swagger/index.html`
 
 ## License
 
-Nunu is released under the MIT License. For more information, see the [LICENSE](LICENSE) file.
+MIT
