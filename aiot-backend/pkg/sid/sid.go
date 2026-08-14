@@ -1,27 +1,13 @@
 package sid
 
-import (
-	"github.com/sony/sonyflake"
-)
+import "github.com/google/uuid"
 
-type Sid struct {
-	sf *sonyflake.Sonyflake
-}
+type Sid struct{}
 
 func NewSid() *Sid {
-	sf := sonyflake.NewSonyflake(sonyflake.Settings{})
-	if sf == nil {
-		panic("sonyflake not created")
-	}
-	return &Sid{sf}
+	return &Sid{}
 }
+
 func (s Sid) GenString() (string, error) {
-	id, err := s.sf.NextID()
-	if err != nil {
-		return "", err
-	}
-	return IntToBase62(int(id)), nil
-}
-func (s Sid) GenUint64() (uint64, error) {
-	return s.sf.NextID()
+	return uuid.New().String(), nil
 }
