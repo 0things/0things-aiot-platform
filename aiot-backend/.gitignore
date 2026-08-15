@@ -6,3 +6,4 @@ config/prod.yml
 *.log
 deploy/docker-compose/conf
 deploy/docker-compose/data
+coverage.out
