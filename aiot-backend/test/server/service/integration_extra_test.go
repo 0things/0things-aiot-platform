@@ -534,6 +534,282 @@ func TestIntegrationDeviceEventService_Record_DeviceNotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestIntegrationDeviceService_Activate_AlreadyActivated(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	// Device is already "online", activating should fail
+	_, err := svc.Activate(ctx2(), 1)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "device already activated")
+}
+
+func TestIntegrationDeviceService_UpdateDevice_SameState(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	// Device is "online", updating to "online" (same state) should be a no-op
+	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", nil)
+	require.NoError(t, err)
+	assert.Equal(t, "online", device.State.State)
+}
+
+func TestIntegrationDeviceService_UpdateDevice_OfflineToOnline(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	// First set to offline
+	db.Model(&model.DeviceState{}).Where("device_id = ?", 1).Update("state", "offline")
+
+	// Then transition to online
+	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", nil)
+	require.NoError(t, err)
+	assert.Equal(t, "online", device.State.State)
+}
+
+func TestIntegrationDeviceService_UpdateDevice_InactiveToOnline(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	// Set to inactive
+	db.Model(&model.DeviceState{}).Where("device_id = ?", 1).Update("state", "inactive")
+
+	// Try to go directly to online (invalid: must go through offline)
+	_, err := svc.UpdateDevice(ctx2(), 1, "", "online", nil)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid status transition")
+}
+
+func TestIntegrationDeviceService_Telemetry_NilRedis(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	_, err := svc.Telemetry(ctx2(), "D001")
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_BatchCreate_SingleDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	var buf bytes.Buffer
+	f := excelize.NewFile()
+	f.SetSheetRow("Sheet1", "A1", &[]string{"ProductKey", "DeviceName"})
+	f.SetSheetRow("Sheet1", "A2", &[]string{"P001", "Single Device"})
+	f.Write(&buf)
+
+	n, errs, err := svc.BatchCreate(ctx2(), buf.Bytes())
+	require.NoError(t, err)
+	assert.Equal(t, 1, n)
+	assert.Empty(t, errs)
+}
+
+func TestIntegrationProductTSLService_Upsert_ProductNotFound(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestProductTSLService(db)
+
+	err := svc.Upsert(ctx2(), "NONEXIST", `{"properties":[]}`)
+	assert.Error(t, err)
+}
+
+func TestIntegrationProductTSLService_Delete_ProductNotFound(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestProductTSLService(db)
+
+	err := svc.Delete(ctx2(), "NONEXIST")
+	assert.Error(t, err)
+}
+
+func TestIntegrationProductTSLService_Get_ProductNotFound(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestProductTSLService(db)
+
+	_, err := svc.Get(ctx2(), "NONEXIST")
+	assert.Error(t, err)
+}
+
+func TestIntegrationRuleService_Update_NotFound(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestRuleService(db)
+
+	err := svc.Update(ctx2(), &model.Rule{ID: 999, Name: "Ghost"})
+	assert.Error(t, err)
+}
+
+func TestIntegrationRuleService_CreateExecution(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestRuleService(db)
+
+	rule := &model.Rule{Name: "Test Rule", ProductID: 1, Type: "threshold", Status: "active"}
+	err := svc.Create(ctx2(), rule)
+	require.NoError(t, err)
+
+	execution, err := svc.Evaluate(ctx2(), rule.ID)
+	require.NoError(t, err)
+	assert.NotNil(t, execution)
+	assert.Equal(t, "success", execution.Status)
+}
+
+func TestIntegrationAlertService_Get(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestAlertService(db)
+
+	rule := &model.Rule{Name: "Test Rule", ProductID: 1, Type: "threshold", Status: "active"}
+	err := db.Create(rule).Error
+	require.NoError(t, err)
+
+	alert := &model.Alert{RuleID: rule.ID, RuleName: rule.Name, Status: "active", Severity: "critical"}
+	err = db.Create(alert).Error
+	require.NoError(t, err)
+
+	result, err := svc.Get(ctx2(), alert.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "active", result.Status)
+}
+
+func TestIntegrationOTAService_Get(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestOTATotalService(db)
+
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductKey: "P001"}
+	err := svc.Create(ctx2(), pkg, "P001")
+	require.NoError(t, err)
+
+	result, err := svc.Get(ctx2(), pkg.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "fw-1", result.PackageName)
+}
+
+func TestIntegrationProductService_Save_Success(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestProductService(db)
+
+	product, err := svc.Get(ctx2(), 1)
+	require.NoError(t, err)
+
+	product.Name = "Updated Product"
+	err = svc.Save(ctx2(), product)
+	require.NoError(t, err)
+
+	updated, err := svc.Get(ctx2(), 1)
+	require.NoError(t, err)
+	assert.Equal(t, "Updated Product", updated.Name)
+}
+
+func TestIntegrationDeviceService_CreateDevice_ProductNotFound(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestDeviceService(db)
+
+	device := &model.Device{Name: "Orphan", ProductID: 999, TenantID: 1}
+	_, err := svc.CreateDevice(ctx2(), device)
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_ListPushRecords_NotFoundDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestDeviceService(db)
+
+	_, _, err := svc.ListPushRecords(ctx2(), "NONEXIST", 1, 10, "", "")
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_SimulatePush_NoCreatedBy(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestDeviceService(db)
+
+	record, err := svc.SimulatePush(ctx2(), "D001", `{"temp":25}`, "")
+	require.NoError(t, err)
+	assert.Equal(t, "system", record.CreatedBy)
+}
+
+func TestIntegrationDeviceService_ClearPushRecords_NotFoundDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestDeviceService(db)
+
+	_, err := svc.ClearPushRecords(ctx2(), "NONEXIST", nil)
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_RemoveTags_NotFoundDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestDeviceService(db)
+
+	err := svc.RemoveTags(ctx2(), "NONEXIST", []string{"key"})
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_ShadowHistory_NotFoundDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestDeviceService(db)
+
+	_, err := svc.ShadowHistory(ctx2(), "NONEXIST")
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_MQTT_NotFoundDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestDeviceService(db)
+
+	_, err := svc.MQTT(ctx2(), "NONEXIST")
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_MutateShadow_NotFoundDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestDeviceService(db)
+
+	desired := map[string]any{"temp": 25}
+	_, err := svc.MutateShadow(ctx2(), "NONEXIST", 0, "app", &desired, nil, false)
+	assert.Error(t, err)
+}
+
+func TestIntegrationDeviceService_SetTags_NotFoundDevice(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	svc := testutil.NewTestDeviceService(db)
+
+	_, err := svc.SetTags(ctx2(), "NONEXIST", map[string]string{"k": "v"}, false)
+	assert.Error(t, err)
+}
+
+func TestIntegrationOTAService_FindByName(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestOTATotalService(db)
+
+	pkg := &model.OTAPackage{PackageName: "fw-unique", Version: "1.0", ProductKey: "P001"}
+	err := svc.Create(ctx2(), pkg, "P001")
+	require.NoError(t, err)
+
+	result, err := svc.Get(ctx2(), pkg.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "fw-unique", result.PackageName)
+}
+
+func TestIntegrationRuleService_FindByName(t *testing.T) {
+	db := testutil.SetupTestDB(t)
+	testutil.SeedTestData(t, db)
+	svc := testutil.NewTestRuleService(db)
+
+	rule := &model.Rule{Name: "Unique Rule", ProductID: 1, Type: "threshold", Status: "active"}
+	err := svc.Create(ctx2(), rule)
+	require.NoError(t, err)
+
+	result, err := svc.Get(ctx2(), rule.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "Unique Rule", result.Name)
+}
+
 func TestIntegrationRuleService_Evaluate(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)

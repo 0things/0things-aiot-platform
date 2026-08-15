@@ -3,7 +3,7 @@
 import { Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import type { DeviceV1GetMqttParametersResponse } from '@/api/generated/device-service'
+import type { DeviceMQTTParametersResponse as DeviceV1GetMqttParametersResponse } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,

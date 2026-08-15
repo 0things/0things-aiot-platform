@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ArrowLeft, Copy, Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import type { ProductV1Product } from '@/api/generated/device-service'
+import type { Product as ProductV1Product } from '@/api/generated/model'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 

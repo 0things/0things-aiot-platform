@@ -14,7 +14,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import type { DeviceV1Device } from '@/api/generated/device-service'
+import type { Device as DeviceV1Device } from '@/api/generated/model'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import {

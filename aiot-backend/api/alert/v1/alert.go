@@ -5,15 +5,15 @@ import "time"
 
 type AckAlertRequest struct {
 	AckBy string `json:"ackBy"`
-}
+}//@name AlertAckAlertRequest
 
 type ResolveAlertRequest struct {
 	ResolvedBy string `json:"resolvedBy"`
-}
+}//@name AlertResolveAlertRequest
 
 type SuccessResponse struct {
 	Success bool `json:"success"`
-}
+}//@name AlertSuccessResponse
 
 type Alert struct {
 	ID           int64      `json:"id"`
@@ -33,15 +33,15 @@ type Alert struct {
 	ResolvedBy   string     `json:"resolvedBy"`
 	CreatedAt    time.Time  `json:"createdAt"`
 	UpdatedAt    time.Time  `json:"updatedAt"`
-}
+}//@name Alert
 
 type ListAlertsResponse struct {
 	Alerts   []Alert `json:"alerts"`
 	Total    int64   `json:"total"`
 	Page     int     `json:"page"`
 	PageSize int     `json:"pageSize"`
-}
+}//@name AlertListAlertsResponse
 
 type GetAlertResponse struct {
 	Alert Alert `json:"alert"`
-}
+}//@name AlertGetAlertResponse

@@ -6,7 +6,7 @@ import { Download, Upload } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { DEVICE_SERVICE_BASE_URL } from '@/api/config'
-import type { DeviceV1BatchUploadError } from '@/api/generated/device-service'
+import type { DeviceBatchUploadError as DeviceV1BatchUploadError } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,

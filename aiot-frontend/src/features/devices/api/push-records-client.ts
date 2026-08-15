@@ -1,19 +1,26 @@
-import { deviceServiceApi, productTSLServiceApi } from '@/api/clients'
 import type {
-  DeviceV1SimulatePushRequest,
-} from '@/api/generated/device-service'
+  DeviceSimulatePushRequest,
+} from '@/api/generated/model'
+import {
+  deleteDevicesIdPushRecords,
+  getDevicesIdPushRecords,
+  getDevicesPushRecordsPushRecordId,
+  postDevicesIdSimulatePush,
+} from '@/api/generated'
+import {
+  getProductsIdTsl,
+  getProductsKeyProductKey,
+} from '@/api/generated'
+import { getDeviceId } from './device-id'
 
 /**
  * Simulate a device push
  */
 export async function simulatePush(params: {
   deviceKey: string
-  request: DeviceV1SimulatePushRequest
+  request: DeviceSimulatePushRequest
 }) {
-  return deviceServiceApi.deviceServiceSimulatePush({
-    deviceKey: params.deviceKey,
-    deviceV1SimulatePushRequest: params.request,
-  })
+  return postDevicesIdSimulatePush(await getDeviceId(params.deviceKey), params.request)
 }
 
 /**
@@ -26,8 +33,7 @@ export async function listPushRecords(params: {
   operationType?: string
   status?: string
 }) {
-  return deviceServiceApi.deviceServiceListPushRecords({
-    deviceKey: params.deviceKey,
+  return getDevicesIdPushRecords(await getDeviceId(params.deviceKey), {
     page: params.page,
     pageSize: params.pageSize,
     operationType: params.operationType,
@@ -38,10 +44,9 @@ export async function listPushRecords(params: {
 /**
  * Get a specific push record
  */
-export async function getPushRecord(pushRecordId: string) {
-  return deviceServiceApi.deviceServiceGetPushRecord({
-    pushRecordId,
-  })
+export async function getPushRecord(deviceKey: string, pushRecordId: string) {
+  await getDeviceId(deviceKey)
+  return getDevicesPushRecordsPushRecordId(Number(pushRecordId))
 }
 
 /**
@@ -51,9 +56,8 @@ export async function clearPushRecords(params: {
   deviceKey: string
   beforeTimestamp?: string
 }) {
-  return deviceServiceApi.deviceServiceClearPushRecords({
-    deviceKey: params.deviceKey,
-    beforeTimestamp: params.beforeTimestamp,
+  return deleteDevicesIdPushRecords(await getDeviceId(params.deviceKey), {
+    beforeTimestamp: params.beforeTimestamp ? Number(params.beforeTimestamp) : undefined,
   })
 }
 
@@ -61,7 +65,7 @@ export async function clearPushRecords(params: {
  * Get product TSL (Thing Specification Language)
  */
 export async function getProductTSL(productKey: string) {
-  return productTSLServiceApi.productTSLServiceGetProductTSL({
-    productKey,
-  })
+  const product = await getProductsKeyProductKey(productKey)
+  if (product.product?.id === undefined) throw new Error('Product not found')
+  return getProductsIdTsl(product.product.id)
 }

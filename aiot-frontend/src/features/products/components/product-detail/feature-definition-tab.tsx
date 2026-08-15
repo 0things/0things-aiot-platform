@@ -20,7 +20,12 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { productTSLServiceApi } from '@/api/clients'
+import {
+  deleteProductsIdTsl,
+  getProductsIdTsl,
+  getProductsKeyProductKey,
+  postProductsIdTsl,
+} from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -436,13 +441,13 @@ export function FeatureDefinitionTab({
     queryKey: ['product-tsl', productKey],
     queryFn: async () => {
       try {
-        const response =
-          await productTSLServiceApi.productTSLServiceGetProductTSL({
-            productKey,
-          })
+        const product = await getProductsKeyProductKey(productKey)
+        const id = product.product?.id
+        if (id === undefined) return null
+        const response = await getProductsIdTsl(id)
         // Parse the TSL string from API into TSLModel
-        if (response.data.productTsl?.tsl) {
-          return JSON.parse(response.data.productTsl.tsl) as TSLModel
+        if (response.productTsl?.tsl) {
+          return JSON.parse(response.productTsl.tsl) as TSLModel
         }
         return null
       } catch (error: unknown) {
@@ -460,12 +465,9 @@ export function FeatureDefinitionTab({
   const saveTSLMutation = useMutation({
     mutationFn: async (tsl: TSLModel) => {
       const tslJsonString = JSON.stringify(tsl)
-      const response =
-        await productTSLServiceApi.productTSLServiceCreateProductTSL({
-          productKey,
-          productTslV1CreateProductTSLRequest: { tsl: tslJsonString },
-        })
-      return response.data
+      const product = await getProductsKeyProductKey(productKey)
+      if (product.product?.id === undefined) throw new Error('Product not found')
+      return postProductsIdTsl(product.product.id, { tsl: tslJsonString })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product-tsl', productKey] })
@@ -479,11 +481,9 @@ export function FeatureDefinitionTab({
   // Mutation for deleting TSL
   const deleteTSLMutation = useMutation({
     mutationFn: async () => {
-      const response =
-        await productTSLServiceApi.productTSLServiceDeleteProductTSL({
-          productKey,
-        })
-      return response.data
+      const product = await getProductsKeyProductKey(productKey)
+      if (product.product?.id === undefined) throw new Error('Product not found')
+      return deleteProductsIdTsl(product.product.id)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product-tsl', productKey] })

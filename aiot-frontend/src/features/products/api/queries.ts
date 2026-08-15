@@ -1,9 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { productServiceApi } from '@/api/clients'
 import type {
-  ProductV1CreateProductRequest,
-  ProductV1UpdateProductRequest,
-} from '@/api/generated/device-service'
+  ProductCreateProductRequest as ProductV1CreateProductRequest,
+  ProductGetProductByKeyResponse as ProductV1GetProductByKeyResponse,
+  ProductListProductsResponse as ProductV1ListProductsResponse,
+  ProductUpdateProductRequest as ProductV1UpdateProductRequest,
+  ProductUpdateProductResponse as ProductV1UpdateProductResponse,
+} from '@/api/generated/model'
+import {
+  deleteProductsId,
+  getProducts,
+  getProductsKeyProductKey,
+  postProducts,
+  putProductsKeyProductKey,
+} from '@/api/generated'
 
 // ============================================================================
 // Query Keys
@@ -41,21 +50,7 @@ export function useProducts(params: {
   return useQuery({
     queryKey: productKeys.list(params),
     queryFn: async () => {
-      const response = await productServiceApi.productServiceListProducts(
-        {
-          page: params.page,
-          pageSize: params.pageSize,
-          category: params.category,
-          status: params.status,
-        },
-        {
-          // Pass searchText as additional query parameter via axios options
-          params: {
-            ...(params.searchText && { searchText: params.searchText }),
-          },
-        }
-      )
-      return response.data
+      return getProducts(params) as unknown as ProductV1ListProductsResponse
     },
   })
 }
@@ -67,12 +62,11 @@ export function useAllProducts() {
   return useQuery({
     queryKey: productKeys.list({ pageSize: 1000, status: 'active' }),
     queryFn: async () => {
-      const response = await productServiceApi.productServiceListProducts({
+      return getProducts({
         page: 1,
         pageSize: 1000,
         status: 'active',
-      })
-      return response.data
+      }) as unknown as ProductV1ListProductsResponse
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   })
@@ -85,10 +79,7 @@ export function useProduct(productKey: string) {
   return useQuery({
     queryKey: productKeys.detail(productKey),
     queryFn: async () => {
-      const response = await productServiceApi.productServiceGetProductByKey({
-        productKey,
-      })
-      return response.data
+      return getProductsKeyProductKey(productKey) as unknown as ProductV1GetProductByKeyResponse
     },
     enabled: !!productKey,
   })
@@ -105,12 +96,7 @@ export function useCreateProduct() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: ProductV1CreateProductRequest) => {
-      const response = await productServiceApi.productServiceCreateProduct({
-        productV1CreateProductRequest: data,
-      })
-      return response.data
-    },
+    mutationFn: (data: ProductV1CreateProductRequest) => postProducts(data as never),
     onSuccess: () => {
       // Invalidate all product lists to refetch
       queryClient.invalidateQueries({ queryKey: productKeys.lists() })
@@ -132,11 +118,7 @@ export function useUpdateProduct() {
       productKey: string
       data: ProductV1UpdateProductRequest
     }) => {
-      const response = await productServiceApi.productServiceUpdateProduct({
-        productKey,
-        productV1UpdateProductRequest: data,
-      })
-      return response.data
+      return putProductsKeyProductKey(productKey, data as never) as unknown as ProductV1UpdateProductResponse
     },
     onSuccess: (response) => {
       // Invalidate the specific product detail using productKey
@@ -158,12 +140,7 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await productServiceApi.productServiceDeleteProduct({
-        id,
-      })
-      return response.data
-    },
+    mutationFn: (id: string) => deleteProductsId(Number(id)),
     onSuccess: () => {
       // Invalidate all product lists to refetch
       queryClient.invalidateQueries({ queryKey: productKeys.lists() })

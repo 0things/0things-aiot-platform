@@ -11,10 +11,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "knip": "knip",
-    "generate:api": "pnpm run generate:api:device && pnpm run generate:api:auth && pnpm run generate:api:notification",
-    "generate:api:device": "openapi-generator-cli generate -i http://localhost:8002/openapi-secrity.yaml -g typescript-axios -o src/api/generated/device-service --additional-properties=npmName=@api/device-service,npmVersion=1.0.0,supportsES6=true,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models,useSingleRequestParameter=true,withInterfaces=true",
-    "generate:api:auth": "openapi-generator-cli generate -i http://localhost:8003/openapi.yaml -g typescript-axios -o src/api/generated/auth-service --additional-properties=npmName=@api/auth-service,npmVersion=1.0.0,supportsES6=true,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models,useSingleRequestParameter=true,withInterfaces=true",
-    "generate:api:notification": "openapi-generator-cli generate -i http://localhost:8004/openapi.yaml -g typescript-axios -o src/api/generated/notification-service --additional-properties=npmName=@api/notification-service,npmVersion=1.0.0,supportsES6=true,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models,useSingleRequestParameter=true,withInterfaces=true"
+    "generate:api": "orval --config orval.config.ts"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.58.1",
@@ -68,7 +65,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@faker-js/faker": "^10.1.0",
-    "@openapitools/openapi-generator-cli": "^2.27.0",
+    "orval": "^8.3.0",
     "@tanstack/eslint-plugin-query": "^5.91.2",
     "@tanstack/react-query-devtools": "^5.91.1",
     "@tanstack/react-router-devtools": "^1.141.2",

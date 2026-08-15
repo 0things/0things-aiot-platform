@@ -1,5 +1,5 @@
 definitions:
-  0things-backend_api_alert_v1.Alert:
+  Alert:
     properties:
       ackAt:
         type: string
@@ -36,16 +36,16 @@ definitions:
       updatedAt:
         type: string
     type: object
-  0things-backend_api_alert_v1.GetAlertResponse:
+  AlertGetAlertResponse:
     properties:
       alert:
-        $ref: '#/definitions/0things-backend_api_alert_v1.Alert'
+        $ref: '#/definitions/Alert'
     type: object
-  0things-backend_api_alert_v1.ListAlertsResponse:
+  AlertListAlertsResponse:
     properties:
       alerts:
         items:
-          $ref: '#/definitions/0things-backend_api_alert_v1.Alert'
+          $ref: '#/definitions/Alert'
         type: array
       page:
         type: integer
@@ -54,76 +54,81 @@ definitions:
       total:
         type: integer
     type: object
-  0things-backend_api_device_v1.ActivateDeviceResponse:
+  ApiGetProfileResponse:
     properties:
-      device:
-        $ref: '#/definitions/0things-backend_api_device_v1.Device'
-    type: object
-  0things-backend_api_device_v1.BatchUploadDevicesResponse:
-    properties:
-      errors:
-        items:
-          $ref: '#/definitions/0things-backend_api_device_v1.BatchUploadError'
-        type: array
-      failureCount:
+      code:
         type: integer
-      successCount:
-        type: integer
-    type: object
-  0things-backend_api_device_v1.BatchUploadError:
-    properties:
-      deviceName:
+      data:
+        $ref: '#/definitions/ApiGetProfileResponseData'
+      message:
         type: string
-      error:
-        type: string
-      productKey:
-        type: string
-      row:
-        type: integer
     type: object
-  0things-backend_api_device_v1.ClearDesiredShadowRequest:
+  ApiGetProfileResponseData:
     properties:
-      version:
-        type: integer
-    type: object
-  0things-backend_api_device_v1.ClearPushRecordsResponse:
-    properties:
-      deletedCount:
-        type: integer
-      success:
-        type: boolean
-    type: object
-  0things-backend_api_device_v1.CreateDeviceRequest:
-    properties:
-      enabled:
-        type: boolean
-      metadata:
-        items:
-          type: integer
-        type: array
-      name:
+      nickname:
+        example: alan
         type: string
-      productId:
-        type: integer
+      userId:
+        type: string
+    type: object
+  ApiLoginRequest:
+    properties:
+      email:
+        example: 1234@gmail.com
+        type: string
+      password:
+        example: "123456"
+        type: string
     required:
-    - name
-    - productId
+    - email
+    - password
     type: object
-  0things-backend_api_device_v1.CreateDeviceResponse:
+  ApiLoginResponse:
     properties:
-      device:
-        $ref: '#/definitions/0things-backend_api_device_v1.Device'
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ApiLoginResponseData'
+      message:
+        type: string
     type: object
-  0things-backend_api_device_v1.DeleteDeviceTagsRequest:
+  ApiLoginResponseData:
     properties:
-      keys:
-        items:
-          type: string
-        type: array
+      accessToken:
+        type: string
+    type: object
+  ApiRegisterRequest:
+    properties:
+      email:
+        example: 1234@gmail.com
+        type: string
+      password:
+        example: "123456"
+        type: string
     required:
-    - keys
+    - email
+    - password
     type: object
-  0things-backend_api_device_v1.Device:
+  ApiResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  ApiUpdateProfileRequest:
+    properties:
+      email:
+        example: 1234@gmail.com
+        type: string
+      nickname:
+        example: alan
+        type: string
+    required:
+    - email
+    type: object
+  Device:
     properties:
       createdAt:
         type: string
@@ -154,82 +159,95 @@ definitions:
       updatedAt:
         type: string
     type: object
-  0things-backend_api_device_v1.DeviceShadowHistory:
+  DeviceActivateDeviceResponse:
     properties:
-      createdAt:
-        type: string
-      desired: {}
-      deviceId:
+      device:
+        $ref: '#/definitions/Device'
+    type: object
+  DeviceBatchUploadDevicesResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/DeviceBatchUploadError'
+        type: array
+      failureCount:
         type: integer
-      id:
+      successCount:
         type: integer
-      reported: {}
-      source:
+    type: object
+  DeviceBatchUploadError:
+    properties:
+      deviceName:
         type: string
+      error:
+        type: string
+      productKey:
+        type: string
+      row:
+        type: integer
+    type: object
+  DeviceClearDesiredShadowRequest:
+    properties:
       version:
         type: integer
     type: object
-  0things-backend_api_device_v1.DeviceStatisticsResponse:
+  DeviceClearPushRecordsResponse:
     properties:
-      activatedDevices:
+      deletedCount:
         type: integer
-      inactiveDevices:
-        type: integer
-      offlineDevices:
-        type: integer
-      onlineDevices:
-        type: integer
-      totalDevices:
-        type: integer
+      success:
+        type: boolean
     type: object
-  0things-backend_api_device_v1.DeviceTag:
+  DeviceCreateDeviceRequest:
     properties:
-      createdAt:
+      enabled:
+        type: boolean
+      metadata:
+        items:
+          type: integer
+        type: array
+      name:
         type: string
-      deletedAt:
-        type: string
-      deviceId:
+      productId:
         type: integer
-      id:
-        type: integer
-      key:
-        type: string
-      source:
-        type: string
-      updatedAt:
-        type: string
-      value:
-        type: string
+    required:
+    - name
+    - productId
     type: object
-  0things-backend_api_device_v1.GetDeviceResponse:
+  DeviceCreateDeviceResponse:
     properties:
       device:
-        $ref: '#/definitions/0things-backend_api_device_v1.Device'
+        $ref: '#/definitions/Device'
     type: object
-  0things-backend_api_device_v1.GetPushRecordResponse:
+  DeviceDeleteDeviceTagsRequest:
     properties:
-      record:
-        $ref: '#/definitions/0things-backend_api_device_v1.PushRecord'
-    type: object
-  0things-backend_api_device_v1.ListDeviceShadowHistoryResponse:
-    properties:
-      history:
+      keys:
         items:
-          $ref: '#/definitions/0things-backend_api_device_v1.DeviceShadowHistory'
+          type: string
         type: array
+    required:
+    - keys
     type: object
-  0things-backend_api_device_v1.ListDeviceTagsResponse:
+  DeviceEvent:
     properties:
-      tags:
-        items:
-          $ref: '#/definitions/0things-backend_api_device_v1.DeviceTag'
-        type: array
+      data:
+        type: string
+      deviceKey:
+        type: string
+      deviceName:
+        type: string
+      eventAt:
+        type: string
+      eventType:
+        type: string
+      id:
+        type: integer
     type: object
-  0things-backend_api_device_v1.ListDevicesResponse:
+  DeviceEventListDeviceEventsResponse:
     properties:
-      devices:
+      events:
         items:
-          $ref: '#/definitions/0things-backend_api_device_v1.Device'
+          $ref: '#/definitions/DeviceEvent'
         type: array
       page:
         type: integer
@@ -238,7 +256,44 @@ definitions:
       total:
         type: integer
     type: object
-  0things-backend_api_device_v1.ListPushRecordsResponse:
+  DeviceGetDeviceResponse:
+    properties:
+      device:
+        $ref: '#/definitions/Device'
+    type: object
+  DeviceGetPushRecordResponse:
+    properties:
+      record:
+        $ref: '#/definitions/DevicePushRecord'
+    type: object
+  DeviceListDeviceShadowHistoryResponse:
+    properties:
+      history:
+        items:
+          $ref: '#/definitions/DeviceShadowHistory'
+        type: array
+    type: object
+  DeviceListDeviceTagsResponse:
+    properties:
+      tags:
+        items:
+          $ref: '#/definitions/DeviceTag'
+        type: array
+    type: object
+  DeviceListDevicesResponse:
+    properties:
+      devices:
+        items:
+          $ref: '#/definitions/Device'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  DeviceListPushRecordsResponse:
     properties:
       page:
         type: integer
@@ -246,12 +301,12 @@ definitions:
         type: integer
       records:
         items:
-          $ref: '#/definitions/0things-backend_api_device_v1.PushRecord'
+          $ref: '#/definitions/DevicePushRecord'
         type: array
       total:
         type: integer
     type: object
-  0things-backend_api_device_v1.MQTTParametersResponse:
+  DeviceMQTTParametersResponse:
     properties:
       clientId:
         type: string
@@ -264,7 +319,7 @@ definitions:
       username:
         type: string
     type: object
-  0things-backend_api_device_v1.MockKafkaRequest:
+  DeviceMockKafkaRequest:
     properties:
       data:
         type: string
@@ -273,14 +328,14 @@ definitions:
     required:
     - topic
     type: object
-  0things-backend_api_device_v1.MockKafkaResponse:
+  DeviceMockKafkaResponse:
     properties:
       message:
         type: string
       success:
         type: boolean
     type: object
-  0things-backend_api_device_v1.PushRecord:
+  DevicePushRecord:
     properties:
       createdAt:
         type: string
@@ -303,22 +358,22 @@ definitions:
       updatedAt:
         type: string
     type: object
-  0things-backend_api_device_v1.RestoreDeviceResponse:
+  DeviceRestoreDeviceResponse:
     properties:
       device:
-        $ref: '#/definitions/0things-backend_api_device_v1.Device'
+        $ref: '#/definitions/Device'
     type: object
-  0things-backend_api_device_v1.SetDeviceEnabledRequest:
+  DeviceSetDeviceEnabledRequest:
     properties:
       enabled:
         type: boolean
     type: object
-  0things-backend_api_device_v1.SetDeviceEnabledResponse:
+  DeviceSetDeviceEnabledResponse:
     properties:
       device:
-        $ref: '#/definitions/0things-backend_api_device_v1.Device'
+        $ref: '#/definitions/Device'
     type: object
-  0things-backend_api_device_v1.SetDeviceTagsRequest:
+  DeviceSetDeviceTagsRequest:
     properties:
       tags:
         additionalProperties:
@@ -327,7 +382,7 @@ definitions:
     required:
     - tags
     type: object
-  0things-backend_api_device_v1.Shadow:
+  DeviceShadow:
     properties:
       delta:
         additionalProperties: {}
@@ -340,12 +395,27 @@ definitions:
       version:
         type: integer
     type: object
-  0things-backend_api_device_v1.SimulatePushRequest:
+  DeviceShadowHistory:
+    properties:
+      createdAt:
+        type: string
+      desired: {}
+      deviceId:
+        type: integer
+      id:
+        type: integer
+      reported: {}
+      source:
+        type: string
+      version:
+        type: integer
+    type: object
+  DeviceSimulatePushRequest:
     properties:
       payload:
         type: string
     type: object
-  0things-backend_api_device_v1.SimulatePushResponse:
+  DeviceSimulatePushResponse:
     properties:
       message:
         type: string
@@ -356,17 +426,49 @@ definitions:
       timestamp:
         type: integer
     type: object
-  0things-backend_api_device_v1.SuccessResponse:
+  DeviceStatisticsResponse:
+    properties:
+      activatedDevices:
+        type: integer
+      inactiveDevices:
+        type: integer
+      offlineDevices:
+        type: integer
+      onlineDevices:
+        type: integer
+      totalDevices:
+        type: integer
+    type: object
+  DeviceSuccessResponse:
     properties:
       success:
         type: boolean
     type: object
-  0things-backend_api_device_v1.TelemetryResponse:
+  DeviceTag:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      deviceId:
+        type: integer
+      id:
+        type: integer
+      key:
+        type: string
+      source:
+        type: string
+      updatedAt:
+        type: string
+      value:
+        type: string
+    type: object
+  DeviceTelemetryResponse:
     properties:
       telemetry:
         type: string
     type: object
-  0things-backend_api_device_v1.UpdateDesiredShadowRequest:
+  DeviceUpdateDesiredShadowRequest:
     properties:
       desired:
         additionalProperties: {}
@@ -376,7 +478,7 @@ definitions:
     required:
     - desired
     type: object
-  0things-backend_api_device_v1.UpdateDeviceRequest:
+  DeviceUpdateDeviceRequest:
     properties:
       metadata:
         items:
@@ -387,12 +489,12 @@ definitions:
       state:
         type: string
     type: object
-  0things-backend_api_device_v1.UpdateDeviceResponse:
+  DeviceUpdateDeviceResponse:
     properties:
       device:
-        $ref: '#/definitions/0things-backend_api_device_v1.Device'
+        $ref: '#/definitions/Device'
     type: object
-  0things-backend_api_device_v1.UpdateReportedShadowRequest:
+  DeviceUpdateReportedShadowRequest:
     properties:
       reported:
         additionalProperties: {}
@@ -402,7 +504,7 @@ definitions:
     required:
     - reported
     type: object
-  0things-backend_api_ota_v1.CreateOTAPackageRequest:
+  OtaCreateOTAPackageRequest:
     properties:
       checksum:
         type: string
@@ -434,12 +536,12 @@ definitions:
     - packageName
     - product_key
     type: object
-  0things-backend_api_ota_v1.CreateOTAPackageResponse:
+  OtaCreateOTAPackageResponse:
     properties:
       otaPackage:
-        $ref: '#/definitions/0things-backend_api_ota_v1.OTAPackage'
+        $ref: '#/definitions/OtaOTAPackage'
     type: object
-  0things-backend_api_ota_v1.DeviceDeployment:
+  OtaDeviceDeployment:
     properties:
       createdAt:
         type: string
@@ -462,21 +564,21 @@ definitions:
       upgradeBatchId:
         type: string
     type: object
-  0things-backend_api_ota_v1.GetOTAPackageResponse:
+  OtaGetOTAPackageResponse:
     properties:
       otaPackage:
-        $ref: '#/definitions/0things-backend_api_ota_v1.OTAPackage'
+        $ref: '#/definitions/OtaOTAPackage'
     type: object
-  0things-backend_api_ota_v1.GetUpgradeStatisticsResponse:
+  OtaGetUpgradeStatisticsResponse:
     properties:
       statistics:
-        $ref: '#/definitions/0things-backend_api_ota_v1.UpgradeStatistics'
+        $ref: '#/definitions/OtaUpgradeStatistics'
     type: object
-  0things-backend_api_ota_v1.ListDeviceDeploymentsResponse:
+  OtaListDeviceDeploymentsResponse:
     properties:
       deployments:
         items:
-          $ref: '#/definitions/0things-backend_api_ota_v1.DeviceDeployment'
+          $ref: '#/definitions/OtaDeviceDeployment'
         type: array
       page:
         type: integer
@@ -485,11 +587,11 @@ definitions:
       total:
         type: integer
     type: object
-  0things-backend_api_ota_v1.ListOTAPackagesResponse:
+  OtaListOTAPackagesResponse:
     properties:
       otaPackages:
         items:
-          $ref: '#/definitions/0things-backend_api_ota_v1.OTAPackage'
+          $ref: '#/definitions/OtaOTAPackage'
         type: array
       page:
         type: integer
@@ -498,14 +600,14 @@ definitions:
       total:
         type: integer
     type: object
-  0things-backend_api_ota_v1.ListUpgradeBatchesResponse:
+  OtaListUpgradeBatchesResponse:
     properties:
       batches:
         items:
-          $ref: '#/definitions/0things-backend_api_ota_v1.UpgradeBatch'
+          $ref: '#/definitions/OtaUpgradeBatch'
         type: array
     type: object
-  0things-backend_api_ota_v1.OTAPackage:
+  OtaOTAPackage:
     properties:
       checksum:
         type: string
@@ -544,7 +646,7 @@ definitions:
       version:
         type: string
     type: object
-  0things-backend_api_ota_v1.OTAPackageRequest:
+  OtaOTAPackageRequest:
     properties:
       checksum:
         type: string
@@ -575,17 +677,17 @@ definitions:
     required:
     - packageName
     type: object
-  0things-backend_api_ota_v1.SuccessResponse:
+  OtaSuccessResponse:
     properties:
       success:
         type: boolean
     type: object
-  0things-backend_api_ota_v1.UpdateOTAPackageResponse:
+  OtaUpdateOTAPackageResponse:
     properties:
       otaPackage:
-        $ref: '#/definitions/0things-backend_api_ota_v1.OTAPackage'
+        $ref: '#/definitions/OtaOTAPackage'
     type: object
-  0things-backend_api_ota_v1.UpgradeBatch:
+  OtaUpgradeBatch:
     properties:
       batchId:
         type: string
@@ -602,7 +704,7 @@ definitions:
       upgradeStrategy:
         type: string
     type: object
-  0things-backend_api_ota_v1.UpgradeStatistics:
+  OtaUpgradeStatistics:
     properties:
       cancelledUpgrades:
         type: integer
@@ -619,86 +721,7 @@ definitions:
       totalTargetDevices:
         type: integer
     type: object
-  0things-backend_api_product_tsl_v1.GetProductTSLResponse:
-    properties:
-      productTsl:
-        $ref: '#/definitions/0things-backend_api_product_tsl_v1.ProductTSL'
-    type: object
-  0things-backend_api_product_tsl_v1.ProductTSL:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: integer
-      productId:
-        type: integer
-      tsl:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  0things-backend_api_product_tsl_v1.SuccessResponse:
-    properties:
-      success:
-        type: boolean
-    type: object
-  0things-backend_api_product_tsl_v1.UpsertProductTSLRequest:
-    properties:
-      tsl:
-        type: string
-    type: object
-  0things-backend_api_product_v1.CreateProductRequest:
-    properties:
-      accessProtocol:
-        type: string
-      category:
-        type: string
-      connectivityMethod:
-        type: string
-      description:
-        type: string
-      metadata:
-        items:
-          type: integer
-        type: array
-      name:
-        type: string
-      nodeType:
-        type: string
-      status:
-        type: string
-    required:
-    - name
-    type: object
-  0things-backend_api_product_v1.CreateProductResponse:
-    properties:
-      product:
-        $ref: '#/definitions/0things-backend_api_product_v1.Product'
-    type: object
-  0things-backend_api_product_v1.GetProductByKeyResponse:
-    properties:
-      product:
-        $ref: '#/definitions/0things-backend_api_product_v1.Product'
-    type: object
-  0things-backend_api_product_v1.GetProductResponse:
-    properties:
-      product:
-        $ref: '#/definitions/0things-backend_api_product_v1.Product'
-    type: object
-  0things-backend_api_product_v1.ListProductsResponse:
-    properties:
-      page:
-        type: integer
-      pageSize:
-        type: integer
-      products:
-        items:
-          $ref: '#/definitions/0things-backend_api_product_v1.Product'
-        type: array
-      total:
-        type: integer
-    type: object
-  0things-backend_api_product_v1.Product:
+  Product:
     properties:
       accessProtocol:
         type: string
@@ -731,17 +754,96 @@ definitions:
       updatedAt:
         type: string
     type: object
-  0things-backend_api_product_v1.RestoreProductResponse:
+  ProductCreateProductRequest:
+    properties:
+      accessProtocol:
+        type: string
+      category:
+        type: string
+      connectivityMethod:
+        type: string
+      description:
+        type: string
+      metadata:
+        items:
+          type: integer
+        type: array
+      name:
+        type: string
+      nodeType:
+        type: string
+      status:
+        type: string
+    required:
+    - name
+    type: object
+  ProductCreateProductResponse:
     properties:
       product:
-        $ref: '#/definitions/0things-backend_api_product_v1.Product'
+        $ref: '#/definitions/Product'
     type: object
-  0things-backend_api_product_v1.SuccessResponse:
+  ProductGetProductByKeyResponse:
+    properties:
+      product:
+        $ref: '#/definitions/Product'
+    type: object
+  ProductGetProductResponse:
+    properties:
+      product:
+        $ref: '#/definitions/Product'
+    type: object
+  ProductListProductsResponse:
+    properties:
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/Product'
+        type: array
+      total:
+        type: integer
+    type: object
+  ProductRestoreProductResponse:
+    properties:
+      product:
+        $ref: '#/definitions/Product'
+    type: object
+  ProductSuccessResponse:
     properties:
       success:
         type: boolean
     type: object
-  0things-backend_api_product_v1.UpdateProductRequest:
+  ProductTslGetProductTSLResponse:
+    properties:
+      productTsl:
+        $ref: '#/definitions/ProductTslProductTSL'
+    type: object
+  ProductTslProductTSL:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      productId:
+        type: integer
+      tsl:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  ProductTslSuccessResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  ProductTslUpsertProductTSLRequest:
+    properties:
+      tsl:
+        type: string
+    type: object
+  ProductUpdateProductRequest:
     properties:
       accessProtocol:
         type: string
@@ -762,71 +864,12 @@ definitions:
       status:
         type: string
     type: object
-  0things-backend_api_product_v1.UpdateProductResponse:
+  ProductUpdateProductResponse:
     properties:
       product:
-        $ref: '#/definitions/0things-backend_api_product_v1.Product'
+        $ref: '#/definitions/Product'
     type: object
-  0things-backend_api_rule_v1.AvailableField:
-    properties:
-      description:
-        type: string
-      field:
-        type: string
-      label:
-        type: string
-      type:
-        type: string
-    type: object
-  0things-backend_api_rule_v1.CreateRuleResponse:
-    properties:
-      rule:
-        $ref: '#/definitions/0things-backend_api_rule_v1.Rule'
-    type: object
-  0things-backend_api_rule_v1.EvaluateRuleResponse:
-    properties:
-      execution:
-        $ref: '#/definitions/0things-backend_api_rule_v1.RuleExecution'
-    type: object
-  0things-backend_api_rule_v1.GetRuleResponse:
-    properties:
-      rule:
-        $ref: '#/definitions/0things-backend_api_rule_v1.Rule'
-    type: object
-  0things-backend_api_rule_v1.ListAvailableFieldsResponse:
-    properties:
-      fields:
-        items:
-          $ref: '#/definitions/0things-backend_api_rule_v1.AvailableField'
-        type: array
-    type: object
-  0things-backend_api_rule_v1.ListRuleExecutionsResponse:
-    properties:
-      executions:
-        items:
-          $ref: '#/definitions/0things-backend_api_rule_v1.RuleExecution'
-        type: array
-      page:
-        type: integer
-      pageSize:
-        type: integer
-      total:
-        type: integer
-    type: object
-  0things-backend_api_rule_v1.ListRulesResponse:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/0things-backend_api_rule_v1.Rule'
-        type: array
-      page:
-        type: integer
-      pageSize:
-        type: integer
-      total:
-        type: integer
-    type: object
-  0things-backend_api_rule_v1.Rule:
+  Rule:
     properties:
       actionConfig:
         type: string
@@ -871,7 +914,28 @@ definitions:
       updatedAt:
         type: string
     type: object
-  0things-backend_api_rule_v1.RuleExecution:
+  RuleAvailableField:
+    properties:
+      description:
+        type: string
+      field:
+        type: string
+      label:
+        type: string
+      type:
+        type: string
+    type: object
+  RuleCreateRuleResponse:
+    properties:
+      rule:
+        $ref: '#/definitions/Rule'
+    type: object
+  RuleEvaluateRuleResponse:
+    properties:
+      execution:
+        $ref: '#/definitions/RuleExecution'
+    type: object
+  RuleExecution:
     properties:
       conditionResult:
         type: boolean
@@ -894,7 +958,45 @@ definitions:
       triggeredAt:
         type: string
     type: object
-  0things-backend_api_rule_v1.RuleRequest:
+  RuleGetRuleResponse:
+    properties:
+      rule:
+        $ref: '#/definitions/Rule'
+    type: object
+  RuleListAvailableFieldsResponse:
+    properties:
+      fields:
+        items:
+          $ref: '#/definitions/RuleAvailableField'
+        type: array
+    type: object
+  RuleListRuleExecutionsResponse:
+    properties:
+      executions:
+        items:
+          $ref: '#/definitions/RuleExecution'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  RuleListRulesResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/Rule'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  RuleRequest:
     properties:
       actionConfig:
         items:
@@ -931,94 +1033,20 @@ definitions:
     required:
     - name
     type: object
-  0things-backend_api_rule_v1.SetRuleStatusResponse:
+  RuleSetRuleStatusResponse:
     properties:
       rule:
-        $ref: '#/definitions/0things-backend_api_rule_v1.Rule'
+        $ref: '#/definitions/Rule'
     type: object
-  0things-backend_api_rule_v1.SuccessResponse:
+  RuleSuccessResponse:
     properties:
       success:
         type: boolean
     type: object
-  0things-backend_api_rule_v1.UpdateRuleResponse:
+  RuleUpdateRuleResponse:
     properties:
       rule:
-        $ref: '#/definitions/0things-backend_api_rule_v1.Rule'
-    type: object
-  0things-backend_api_v1.GetProfileResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/0things-backend_api_v1.GetProfileResponseData'
-      message:
-        type: string
-    type: object
-  0things-backend_api_v1.GetProfileResponseData:
-    properties:
-      nickname:
-        example: alan
-        type: string
-      userId:
-        type: string
-    type: object
-  0things-backend_api_v1.LoginRequest:
-    properties:
-      email:
-        example: 1234@gmail.com
-        type: string
-      password:
-        example: "123456"
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  0things-backend_api_v1.LoginResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/0things-backend_api_v1.LoginResponseData'
-      message:
-        type: string
-    type: object
-  0things-backend_api_v1.LoginResponseData:
-    properties:
-      accessToken:
-        type: string
-    type: object
-  0things-backend_api_v1.RegisterRequest:
-    properties:
-      email:
-        example: 1234@gmail.com
-        type: string
-      password:
-        example: "123456"
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  0things-backend_api_v1.Response:
-    properties:
-      code:
-        type: integer
-      data: {}
-      message:
-        type: string
-    type: object
-  0things-backend_api_v1.UpdateProfileRequest:
-    properties:
-      email:
-        example: 1234@gmail.com
-        type: string
-      nickname:
-        example: alan
-        type: string
-    required:
-    - email
+        $ref: '#/definitions/Rule'
     type: object
 host: localhost:8000
 info:
@@ -1066,7 +1094,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_alert_v1.ListAlertsResponse'
+            $ref: '#/definitions/AlertListAlertsResponse'
       security:
       - Bearer: []
       summary: 获取告警列表
@@ -1089,7 +1117,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_alert_v1.GetAlertResponse'
+            $ref: '#/definitions/AlertGetAlertResponse'
       security:
       - Bearer: []
       summary: 获取告警详情
@@ -1112,7 +1140,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_alert_v1.GetAlertResponse'
+            $ref: '#/definitions/AlertGetAlertResponse'
       security:
       - Bearer: []
       summary: 确认告警
@@ -1135,12 +1163,73 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_alert_v1.GetAlertResponse'
+            $ref: '#/definitions/AlertGetAlertResponse'
       security:
       - Bearer: []
       summary: 处理告警
       tags:
       - 告警模块
+  /device-events:
+    get:
+      description: 分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 关键词
+        in: query
+        name: keyword
+        type: string
+      - description: 设备 Key
+        in: query
+        name: device_key
+        type: string
+      - description: 事件类型
+        in: query
+        name: event_type
+        type: string
+      - description: 开始时间 RFC3339
+        in: query
+        name: start_at
+        type: string
+      - description: 结束时间 RFC3339
+        in: query
+        name: end_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/DeviceEventListDeviceEventsResponse'
+      security:
+      - Bearer: []
+      summary: 获取设备事件列表
+      tags:
+      - 事件管理
+  /device-statistics:
+    get:
+      consumes:
+      - application/json
+      description: 获取设备统计信息（总数、已激活、在线、离线、未激活）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/DeviceStatisticsResponse'
+      security:
+      - Bearer: []
+      summary: 设备统计
+      tags:
+      - 设备模块
   /devices:
     get:
       consumes:
@@ -1180,7 +1269,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.ListDevicesResponse'
+            $ref: '#/definitions/DeviceListDevicesResponse'
       security:
       - Bearer: []
       summary: 获取设备列表
@@ -1196,14 +1285,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.CreateDeviceRequest'
+          $ref: '#/definitions/DeviceCreateDeviceRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.CreateDeviceResponse'
+            $ref: '#/definitions/DeviceCreateDeviceResponse'
       security:
       - Bearer: []
       summary: 创建设备
@@ -1226,7 +1315,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.SuccessResponse'
+            $ref: '#/definitions/DeviceSuccessResponse'
       security:
       - Bearer: []
       summary: 删除设备
@@ -1248,7 +1337,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.GetDeviceResponse'
+            $ref: '#/definitions/DeviceGetDeviceResponse'
       security:
       - Bearer: []
       summary: 通过 ID 获取设备
@@ -1269,14 +1358,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.UpdateDeviceRequest'
+          $ref: '#/definitions/DeviceUpdateDeviceRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.UpdateDeviceResponse'
+            $ref: '#/definitions/DeviceUpdateDeviceResponse'
       security:
       - Bearer: []
       summary: 更新设备
@@ -1299,14 +1388,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.ActivateDeviceResponse'
+            $ref: '#/definitions/DeviceActivateDeviceResponse'
       security:
       - Bearer: []
       summary: 激活设备
       tags:
       - 设备模块
   /devices/{id}/enabled:
-    put:
+    post:
       consumes:
       - application/json
       description: 通过设备 ID 启用或禁用设备
@@ -1321,20 +1410,20 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.SetDeviceEnabledRequest'
+          $ref: '#/definitions/DeviceSetDeviceEnabledRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.SetDeviceEnabledResponse'
+            $ref: '#/definitions/DeviceSetDeviceEnabledResponse'
       security:
       - Bearer: []
       summary: 设置设备启用/禁用
       tags:
       - 设备模块
-  /devices/{id}/mqtt:
+  /devices/{id}/mqtt-parameters:
     get:
       consumes:
       - application/json
@@ -1351,7 +1440,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.MQTTParametersResponse'
+            $ref: '#/definitions/DeviceMQTTParametersResponse'
       security:
       - Bearer: []
       summary: 获取 MQTT 连接参数
@@ -1378,7 +1467,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.ClearPushRecordsResponse'
+            $ref: '#/definitions/DeviceClearPushRecordsResponse'
       security:
       - Bearer: []
       summary: 清理设备下行推送记录
@@ -1416,38 +1505,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.ListPushRecordsResponse'
+            $ref: '#/definitions/DeviceListPushRecordsResponse'
       security:
       - Bearer: []
       summary: 获取设备下行推送记录列表
-      tags:
-      - 设备模块
-  /devices/{id}/push-records/{pushRecordId}:
-    get:
-      consumes:
-      - application/json
-      description: 通过推送记录 ID 获取单个下行推送记录
-      parameters:
-      - description: 设备 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 推送记录 ID
-        in: path
-        name: pushRecordId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.GetPushRecordResponse'
-      security:
-      - Bearer: []
-      summary: 获取设备下行推送记录
       tags:
       - 设备模块
   /devices/{id}/restore:
@@ -1467,7 +1528,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.RestoreDeviceResponse'
+            $ref: '#/definitions/DeviceRestoreDeviceResponse'
       security:
       - Bearer: []
       summary: 恢复已删除的设备
@@ -1490,7 +1551,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.Shadow'
+            $ref: '#/definitions/DeviceShadow'
       security:
       - Bearer: []
       summary: 获取设备影子
@@ -1512,14 +1573,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.ClearDesiredShadowRequest'
+          $ref: '#/definitions/DeviceClearDesiredShadowRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.Shadow'
+            $ref: '#/definitions/DeviceShadow'
       security:
       - Bearer: []
       summary: 清空设备影子期望值
@@ -1540,14 +1601,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.UpdateDesiredShadowRequest'
+          $ref: '#/definitions/DeviceUpdateDesiredShadowRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.Shadow'
+            $ref: '#/definitions/DeviceShadow'
       security:
       - Bearer: []
       summary: 更新设备影子期望值
@@ -1570,7 +1631,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.ListDeviceShadowHistoryResponse'
+            $ref: '#/definitions/DeviceListDeviceShadowHistoryResponse'
       security:
       - Bearer: []
       summary: 获取设备影子历史
@@ -1592,14 +1653,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.UpdateReportedShadowRequest'
+          $ref: '#/definitions/DeviceUpdateReportedShadowRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.Shadow'
+            $ref: '#/definitions/DeviceShadow'
       security:
       - Bearer: []
       summary: 更新设备影子上报值
@@ -1621,14 +1682,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.SimulatePushRequest'
+          $ref: '#/definitions/DeviceSimulatePushRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.SimulatePushResponse'
+            $ref: '#/definitions/DeviceSimulatePushResponse'
       security:
       - Bearer: []
       summary: 模拟下行推送
@@ -1650,14 +1711,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.DeleteDeviceTagsRequest'
+          $ref: '#/definitions/DeviceDeleteDeviceTagsRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.SuccessResponse'
+            $ref: '#/definitions/DeviceSuccessResponse'
       security:
       - Bearer: []
       summary: 删除设备标签
@@ -1679,7 +1740,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse'
+            $ref: '#/definitions/DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
       summary: 获取设备标签
@@ -1700,14 +1761,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.SetDeviceTagsRequest'
+          $ref: '#/definitions/DeviceSetDeviceTagsRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse'
+            $ref: '#/definitions/DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
       summary: 增量添加设备标签
@@ -1728,14 +1789,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.SetDeviceTagsRequest'
+          $ref: '#/definitions/DeviceSetDeviceTagsRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse'
+            $ref: '#/definitions/DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
       summary: 全量覆盖设置设备标签
@@ -1758,13 +1819,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.TelemetryResponse'
+            $ref: '#/definitions/DeviceTelemetryResponse'
       security:
       - Bearer: []
       summary: 获取设备遥测数据
       tags:
       - 设备模块
-  /devices/batch-template:
+  /devices/batch/template:
     get:
       description: 下载设备批量导入的 Excel 模板
       produces:
@@ -1779,7 +1840,7 @@ paths:
       summary: 下载设备批量导入模板
       tags:
       - 设备模块
-  /devices/batch-upload:
+  /devices/batch/upload:
     post:
       consumes:
       - multipart/form-data
@@ -1796,7 +1857,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.BatchUploadDevicesResponse'
+            $ref: '#/definitions/DeviceBatchUploadDevicesResponse'
       security:
       - Bearer: []
       summary: 批量上传设备
@@ -1819,7 +1880,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.GetDeviceResponse'
+            $ref: '#/definitions/DeviceGetDeviceResponse'
       security:
       - Bearer: []
       summary: 通过 deviceKey 获取设备
@@ -1836,34 +1897,40 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_device_v1.MockKafkaRequest'
+          $ref: '#/definitions/DeviceMockKafkaRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.MockKafkaResponse'
+            $ref: '#/definitions/DeviceMockKafkaResponse'
       security:
       - Bearer: []
       summary: 模拟向 Kafka 发送消息
       tags:
       - 设备模块
-  /devices/stats:
+  /devices/push-records/{pushRecordId}:
     get:
       consumes:
       - application/json
-      description: 获取设备统计信息（总数、已激活、在线、离线、未激活）
+      description: 通过推送记录 ID 获取单个下行推送记录
+      parameters:
+      - description: 推送记录 ID
+        in: path
+        name: pushRecordId
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_device_v1.DeviceStatisticsResponse'
+            $ref: '#/definitions/DeviceGetPushRecordResponse'
       security:
       - Bearer: []
-      summary: 设备统计
+      summary: 获取设备下行推送记录
       tags:
       - 设备模块
   /login:
@@ -1876,18 +1943,18 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_v1.LoginRequest'
+          $ref: '#/definitions/ApiLoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_v1.LoginResponse'
+            $ref: '#/definitions/ApiLoginResponse'
       summary: 账号登录
       tags:
       - 用户模块
-  /ota/packages:
+  /ota-packages:
     get:
       consumes:
       - application/json
@@ -1907,7 +1974,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_ota_v1.ListOTAPackagesResponse'
+            $ref: '#/definitions/OtaListOTAPackagesResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 升级包列表
@@ -1923,20 +1990,20 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_ota_v1.CreateOTAPackageRequest'
+          $ref: '#/definitions/OtaCreateOTAPackageRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_ota_v1.CreateOTAPackageResponse'
+            $ref: '#/definitions/OtaCreateOTAPackageResponse'
       security:
       - Bearer: []
       summary: 创建 OTA 升级包
       tags:
       - OTA 模块
-  /ota/packages/{id}:
+  /ota-packages/{id}:
     delete:
       consumes:
       - application/json
@@ -1953,7 +2020,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_ota_v1.SuccessResponse'
+            $ref: '#/definitions/OtaSuccessResponse'
       security:
       - Bearer: []
       summary: 删除 OTA 升级包
@@ -1975,7 +2042,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_ota_v1.GetOTAPackageResponse'
+            $ref: '#/definitions/OtaGetOTAPackageResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 升级包详情
@@ -1996,20 +2063,20 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_ota_v1.OTAPackageRequest'
+          $ref: '#/definitions/OtaOTAPackageRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_ota_v1.UpdateOTAPackageResponse'
+            $ref: '#/definitions/OtaUpdateOTAPackageResponse'
       security:
       - Bearer: []
       summary: 更新 OTA 升级包
       tags:
       - OTA 模块
-  /ota/packages/{id}/batches:
+  /ota-packages/{id}/batches:
     get:
       consumes:
       - application/json
@@ -2026,13 +2093,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_ota_v1.ListUpgradeBatchesResponse'
+            $ref: '#/definitions/OtaListUpgradeBatchesResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 升级批次列表
       tags:
       - OTA 模块
-  /ota/packages/{id}/deployments:
+  /ota-packages/{id}/device-deployments:
     get:
       consumes:
       - application/json
@@ -2061,13 +2128,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_ota_v1.ListDeviceDeploymentsResponse'
+            $ref: '#/definitions/OtaListDeviceDeploymentsResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 设备部署列表
       tags:
       - OTA 模块
-  /ota/packages/{id}/stats:
+  /ota-packages/{id}/upgrade-statistics:
     get:
       consumes:
       - application/json
@@ -2084,7 +2151,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_ota_v1.GetUpgradeStatisticsResponse'
+            $ref: '#/definitions/OtaGetUpgradeStatisticsResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 升级统计
@@ -2122,7 +2189,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_v1.ListProductsResponse'
+            $ref: '#/definitions/ProductListProductsResponse'
       security:
       - Bearer: []
       summary: 获取产品列表
@@ -2138,14 +2205,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_product_v1.CreateProductRequest'
+          $ref: '#/definitions/ProductCreateProductRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_v1.CreateProductResponse'
+            $ref: '#/definitions/ProductCreateProductResponse'
       security:
       - Bearer: []
       summary: 创建产品
@@ -2168,7 +2235,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_v1.SuccessResponse'
+            $ref: '#/definitions/ProductSuccessResponse'
       security:
       - Bearer: []
       summary: 删除产品
@@ -2190,7 +2257,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_v1.GetProductResponse'
+            $ref: '#/definitions/ProductGetProductResponse'
       security:
       - Bearer: []
       summary: 通过 ID 获取产品
@@ -2213,7 +2280,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_v1.RestoreProductResponse'
+            $ref: '#/definitions/ProductRestoreProductResponse'
       security:
       - Bearer: []
       summary: 恢复已删除的产品
@@ -2236,7 +2303,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse'
+            $ref: '#/definitions/ProductTslSuccessResponse'
       security:
       - Bearer: []
       summary: 删除产品物模型（TSL）
@@ -2258,7 +2325,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_tsl_v1.GetProductTSLResponse'
+            $ref: '#/definitions/ProductTslGetProductTSLResponse'
       security:
       - Bearer: []
       summary: 获取产品物模型（TSL）
@@ -2279,14 +2346,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_product_tsl_v1.UpsertProductTSLRequest'
+          $ref: '#/definitions/ProductTslUpsertProductTSLRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse'
+            $ref: '#/definitions/ProductTslSuccessResponse'
       security:
       - Bearer: []
       summary: 上传/更新产品物模型（TSL）
@@ -2307,14 +2374,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_product_tsl_v1.UpsertProductTSLRequest'
+          $ref: '#/definitions/ProductTslUpsertProductTSLRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse'
+            $ref: '#/definitions/ProductTslSuccessResponse'
       security:
       - Bearer: []
       summary: 上传/更新产品物模型（TSL）
@@ -2337,7 +2404,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_v1.GetProductByKeyResponse'
+            $ref: '#/definitions/ProductGetProductByKeyResponse'
       security:
       - Bearer: []
       summary: 通过 productKey 获取产品
@@ -2358,14 +2425,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_product_v1.UpdateProductRequest'
+          $ref: '#/definitions/ProductUpdateProductRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_product_v1.UpdateProductResponse'
+            $ref: '#/definitions/ProductUpdateProductResponse'
       security:
       - Bearer: []
       summary: 更新产品
@@ -2382,14 +2449,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_v1.RegisterRequest'
+          $ref: '#/definitions/ApiRegisterRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_v1.Response'
+            $ref: '#/definitions/ApiResponse'
       summary: 用户注册
       tags:
       - 用户模块
@@ -2425,7 +2492,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_rule_v1.ListRulesResponse'
+            $ref: '#/definitions/RuleListRulesResponse'
       security:
       - Bearer: []
       summary: 获取规则列表
@@ -2441,14 +2508,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_rule_v1.RuleRequest'
+          $ref: '#/definitions/RuleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_rule_v1.CreateRuleResponse'
+            $ref: '#/definitions/RuleCreateRuleResponse'
       security:
       - Bearer: []
       summary: 创建规则
@@ -2471,7 +2538,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_rule_v1.SuccessResponse'
+            $ref: '#/definitions/RuleSuccessResponse'
       security:
       - Bearer: []
       summary: 删除规则
@@ -2493,7 +2560,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_rule_v1.GetRuleResponse'
+            $ref: '#/definitions/RuleGetRuleResponse'
       security:
       - Bearer: []
       summary: 获取规则详情
@@ -2516,7 +2583,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_rule_v1.SetRuleStatusResponse'
+            $ref: '#/definitions/RuleSetRuleStatusResponse'
       security:
       - Bearer: []
       summary: 规则操作（启用/禁用/评估）
@@ -2537,14 +2604,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_rule_v1.RuleRequest'
+          $ref: '#/definitions/RuleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_rule_v1.UpdateRuleResponse'
+            $ref: '#/definitions/RuleUpdateRuleResponse'
       security:
       - Bearer: []
       summary: 更新规则
@@ -2575,7 +2642,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_rule_v1.ListRuleExecutionsResponse'
+            $ref: '#/definitions/RuleListRuleExecutionsResponse'
       security:
       - Bearer: []
       summary: 获取规则执行记录
@@ -2592,7 +2659,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_rule_v1.ListAvailableFieldsResponse'
+            $ref: '#/definitions/RuleListAvailableFieldsResponse'
       security:
       - Bearer: []
       summary: 获取规则可用字段
@@ -2608,7 +2675,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_v1.GetProfileResponse'
+            $ref: '#/definitions/ApiGetProfileResponse'
       security:
       - Bearer: []
       summary: 获取用户信息
@@ -2623,14 +2690,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/0things-backend_api_v1.UpdateProfileRequest'
+          $ref: '#/definitions/ApiUpdateProfileRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/0things-backend_api_v1.Response'
+            $ref: '#/definitions/ApiResponse'
       security:
       - Bearer: []
       summary: 修改用户信息

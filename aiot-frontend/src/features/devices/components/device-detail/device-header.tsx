@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Copy, Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import type { DeviceV1Device } from '@/api/generated/device-service'
+import type { Device as DeviceV1Device } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 
 interface DeviceHeaderProps {

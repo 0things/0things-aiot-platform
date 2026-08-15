@@ -10,7 +10,7 @@ type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
-}
+}//@name ApiResponse
 
 func HandleSuccess(ctx *gin.Context, data interface{}) {
 	if data == nil {
@@ -37,7 +37,7 @@ func HandleError(ctx *gin.Context, httpCode int, err error, data interface{}) {
 type Error struct {
 	Code    int
 	Message string
-}
+}//@name ApiError
 
 var errorCodeMap = map[error]int{}
 

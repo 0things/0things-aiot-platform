@@ -16,7 +16,7 @@ type CreateProductRequest struct {
 	NodeType           string          `json:"nodeType"`
 	ConnectivityMethod string          `json:"connectivityMethod"`
 	AccessProtocol     string          `json:"accessProtocol"`
-}
+}//@name ProductCreateProductRequest
 type UpdateProductRequest struct {
 	Name               string          `json:"name"`
 	Description        string          `json:"description"`
@@ -26,7 +26,7 @@ type UpdateProductRequest struct {
 	NodeType           string          `json:"nodeType"`
 	ConnectivityMethod string          `json:"connectivityMethod"`
 	AccessProtocol     string          `json:"accessProtocol"`
-}
+}//@name ProductUpdateProductRequest
 type Product struct {
 	ID                 int64      `json:"id"`
 	ProductKey         string     `json:"productKey"`
@@ -43,29 +43,29 @@ type Product struct {
 	CreatedAt          time.Time  `json:"createdAt"`
 	UpdatedAt          time.Time  `json:"updatedAt"`
 	DeletedAt          *time.Time `json:"deletedAt,omitempty"`
-}
+}//@name Product
 type CreateProductResponse struct {
 	Product Product `json:"product"`
-}
+}//@name ProductCreateProductResponse
 type GetProductResponse struct {
 	Product Product `json:"product"`
-}
+}//@name ProductGetProductResponse
 type GetProductByKeyResponse struct {
 	Product Product `json:"product"`
-}
+}//@name ProductGetProductByKeyResponse
 type UpdateProductResponse struct {
 	Product Product `json:"product"`
-}
+}//@name ProductUpdateProductResponse
 type RestoreProductResponse struct {
 	Product Product `json:"product"`
-}
+}//@name ProductRestoreProductResponse
 type ListProductsResponse struct {
 	Products []Product `json:"products"`
 	Total    int64     `json:"total"`
 	Page     int       `json:"page"`
 	PageSize int       `json:"pageSize"`
-}
+}//@name ProductListProductsResponse
 
 type SuccessResponse struct {
 	Success bool `json:"success"`
-}
+}//@name ProductSuccessResponse

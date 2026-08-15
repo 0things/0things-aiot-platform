@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import type {
-  ProductV1CreateProductRequest,
-  ProductV1UpdateProductRequest,
-} from '@/api/generated/device-service'
+  ProductCreateProductRequest as ProductV1CreateProductRequest,
+  ProductUpdateProductRequest as ProductV1UpdateProductRequest,
+} from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,

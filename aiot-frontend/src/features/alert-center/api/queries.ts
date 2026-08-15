@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { axiosInstance } from '@/api/clients'
-import { DEVICE_SERVICE_BASE_URL } from '@/api/config'
+import {
+  getAlerts,
+  postAlertsIdAck,
+  postAlertsIdResolve,
+} from '@/api/generated'
 
 export type AlertSeverity = 'info' | 'warning' | 'critical'
 export type AlertStatus = 'open' | 'acknowledged' | 'resolved' | 'snoozed'
@@ -42,10 +45,13 @@ export function useAlerts(filters: {
   return useQuery({
     queryKey: alertKeys.list(filters),
     queryFn: async () => {
-      const { data } = await axiosInstance.get(`${DEVICE_SERVICE_BASE_URL}/v1/alerts`, {
-        params: filters,
-      })
-      return data as { alerts: Alert[]; total: number }
+      return getAlerts({
+        severity: filters.severity,
+        status: filters.status,
+        device_key: filters.deviceKey,
+        page: filters.page,
+        pageSize: filters.pageSize,
+      }) as unknown as Promise<{ alerts: Alert[]; total: number }>
     },
   })
 }
@@ -54,9 +60,7 @@ export function useOpenAlertCount() {
   return useQuery({
     queryKey: alertKeys.openCount(),
     queryFn: async () => {
-      const { data } = await axiosInstance.get(`${DEVICE_SERVICE_BASE_URL}/v1/alerts`, {
-        params: { status: 'open', pageSize: 0 },
-      })
+      const data = await getAlerts({ status: 'open', pageSize: 0 })
       return (data as { total: number }).total
     },
     refetchInterval: 15_000,
@@ -67,11 +71,7 @@ export function useAckAlert() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await axiosInstance.post(
-        `${DEVICE_SERVICE_BASE_URL}/v1/alerts/${id}/ack`,
-        {}
-      )
-      return data
+      return postAlertsIdAck(Number(id))
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: alertKeys.all }),
   })
@@ -81,11 +81,7 @@ export function useResolveAlert() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await axiosInstance.post(
-        `${DEVICE_SERVICE_BASE_URL}/v1/alerts/${id}/resolve`,
-        {}
-      )
-      return data
+      return postAlertsIdResolve(Number(id))
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: alertKeys.all }),
   })

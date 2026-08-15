@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { deviceServiceApi } from '@/api/clients'
+import { getDevices } from '@/api/generated'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -34,13 +34,13 @@ export function DeployPackageDialog() {
   const allDevicesQuery = useQuery({
     queryKey: ['ota-deploy-all-devices', productId],
     queryFn: async () => {
-      const response = await deviceServiceApi.deviceServiceListDevices({
-        productId,
+      const response = await getDevices({
+        productId: Number(productId),
         page: 1,
         pageSize: 1,
         enabled: true,
       })
-      return response.data.total || 0
+      return response.total || 0
     },
     enabled: !!productId && openDialog === 'deploy',
   })
@@ -48,13 +48,13 @@ export function DeployPackageDialog() {
   const specificDevicesQuery = useQuery({
     queryKey: ['ota-deploy-specific-devices', productId],
     queryFn: async () => {
-      const response = await deviceServiceApi.deviceServiceListDevices({
-        productId,
+      const response = await getDevices({
+        productId: Number(productId),
         page: 1,
         pageSize: 200,
         enabled: true,
       })
-      return response.data.devices || []
+      return response.devices || []
     },
     enabled: !!productId && openDialog === 'deploy' && targetDevices === 'specific',
   })

@@ -9,11 +9,11 @@ type DeviceEvent struct {
 	EventType   string    `json:"eventType"`
 	EventAt     time.Time `json:"eventAt"`
 	Data        string    `json:"data"`
-}
+}//@name DeviceEvent
 
 type ListDeviceEventsResponse struct {
 	Events   []DeviceEvent `json:"events"`
 	Total    int64         `json:"total"`
 	Page     int           `json:"page"`
 	PageSize int           `json:"pageSize"`
-}
+}//@name DeviceEventListDeviceEventsResponse

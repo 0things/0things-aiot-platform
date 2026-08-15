@@ -28,7 +28,7 @@ export function useSimulatePush() {
           payload: params.payload,
         },
       })
-      return response.data
+      return response
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -60,7 +60,7 @@ export function usePushRecords(
         operationType: options?.operationType,
         status: options?.status,
       })
-      return response.data
+      return response
     },
     enabled: !!deviceKey,
   })
@@ -69,14 +69,14 @@ export function usePushRecords(
 /**
  * Hook for getting a specific push record
  */
-export function usePushRecord(recordId: string) {
+export function usePushRecord(deviceKey: string, recordId: string) {
   return useQuery({
     queryKey: pushRecordKeys.detail(recordId),
     queryFn: async () => {
-      const response = await apiClient.getPushRecord(recordId)
-      return response.data
+      const response = await apiClient.getPushRecord(deviceKey, recordId)
+      return response
     },
-    enabled: !!recordId,
+    enabled: !!deviceKey && !!recordId,
   })
 }
 
@@ -95,7 +95,7 @@ export function useClearPushRecords() {
         deviceKey: params.deviceKey,
         beforeTimestamp: params.beforeTimestamp,
       })
-      return response.data
+      return response
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -113,7 +113,7 @@ export function useProductTSL(productKey: string) {
     queryKey: ['product-tsl', productKey],
     queryFn: async () => {
       const response = await apiClient.getProductTSL(productKey)
-      return response.data
+      return response
     },
     enabled: !!productKey,
   })

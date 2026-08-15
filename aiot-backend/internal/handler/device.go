@@ -267,7 +267,7 @@ func (h *DeviceHandler) Activate(c *gin.Context) {
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.SetDeviceEnabledRequest true "params"
 // @Success 200 {object} deviceV1.SetDeviceEnabledResponse
-// @Router /devices/{id}/enabled [put]
+// @Router /devices/{id}/enabled [post]
 func (h *DeviceHandler) Enabled(c *gin.Context) {
 	i, e := id(c)
 	var req deviceV1.SetDeviceEnabledRequest
@@ -294,7 +294,7 @@ func (h *DeviceHandler) Enabled(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Success 200 {object} deviceV1.DeviceStatisticsResponse
-// @Router /devices/stats [get]
+// @Router /device-statistics [get]
 func (h *DeviceHandler) Stats(c *gin.Context) {
 	x, e := h.svc.Stats(c)
 	if e != nil {
@@ -335,7 +335,7 @@ func (h *DeviceHandler) Telemetry(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Success 200 {object} deviceV1.MQTTParametersResponse
-// @Router /devices/{id}/mqtt [get]
+// @Router /devices/{id}/mqtt-parameters [get]
 func (h *DeviceHandler) MQTT(c *gin.Context) {
 	x, e := h.svc.MQTT(c, c.Param("id"))
 	if e != nil {
@@ -656,10 +656,9 @@ func (h *DeviceHandler) PushRecords(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "设备 ID"
 // @Param pushRecordId path int true "推送记录 ID"
 // @Success 200 {object} deviceV1.GetPushRecordResponse
-// @Router /devices/{id}/push-records/{pushRecordId} [get]
+// @Router /devices/push-records/{pushRecordId} [get]
 func (h *DeviceHandler) PushRecord(c *gin.Context) {
 	pushRecordID, err := strconv.ParseInt(c.Param("pushRecordId"), 10, 64)
 	if err != nil {
@@ -709,7 +708,7 @@ func (h *DeviceHandler) ClearPushRecords(c *gin.Context) {
 // @Produce octet-stream
 // @Security Bearer
 // @Success 200 {file} file
-// @Router /devices/batch-template [get]
+// @Router /devices/batch/template [get]
 func (h *DeviceHandler) BatchTemplate(c *gin.Context) {
 	b, e := h.svc.BatchTemplate()
 	if e != nil {
@@ -729,7 +728,7 @@ func (h *DeviceHandler) BatchTemplate(c *gin.Context) {
 // @Security Bearer
 // @Param file formData file true "Excel 模板文件"
 // @Success 200 {object} deviceV1.BatchUploadDevicesResponse
-// @Router /devices/batch-upload [post]
+// @Router /devices/batch/upload [post]
 func (h *DeviceHandler) BatchUpload(c *gin.Context) {
 	f, _, e := c.Request.FormFile("file")
 	if e != nil {

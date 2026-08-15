@@ -11,15 +11,7 @@ import axios, { type AxiosInstance } from 'axios'
 // Import notification-service APIs when generated
 // import { Configuration as NotificationConfiguration, NotificationsApi } from './generated/notification-service';
 
-import { DEVICE_SERVICE_BASE_URL, API_TIMEOUT } from './config'
-import {
-  Configuration,
-  DeviceServiceApi,
-  GreeterApi,
-  ProductServiceApi,
-  OTAPackageServiceApi,
-  ProductTSLServiceApi,
-} from './generated/device-service'
+import { API_TIMEOUT } from './config'
 
 // Import other service URLs when needed
 // import { AUTH_SERVICE_BASE_URL, NOTIFICATION_SERVICE_BASE_URL } from './config';
@@ -149,77 +141,6 @@ const axiosInstance = createAxiosInstance()
 export { axiosInstance }
 
 // ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Helper function to create API configuration
- */
-const createApiConfig = (basePath: string) => {
-  return new Configuration({
-    basePath,
-  })
-}
-
-// ============================================================================
-// Device Service APIs
-// ============================================================================
-
-const deviceServiceConfig = createApiConfig(DEVICE_SERVICE_BASE_URL)
-
-export const deviceServiceApi = new DeviceServiceApi(
-  deviceServiceConfig,
-  DEVICE_SERVICE_BASE_URL,
-  axiosInstance
-)
-
-export const greeterApi = new GreeterApi(
-  deviceServiceConfig,
-  DEVICE_SERVICE_BASE_URL,
-  axiosInstance
-)
-
-export const productServiceApi = new ProductServiceApi(
-  deviceServiceConfig,
-  DEVICE_SERVICE_BASE_URL,
-  axiosInstance
-)
-
-export const otaPackageServiceApi = new OTAPackageServiceApi(
-  deviceServiceConfig,
-  DEVICE_SERVICE_BASE_URL,
-  axiosInstance
-)
-
-export const productTSLServiceApi = new ProductTSLServiceApi(
-  deviceServiceConfig,
-  DEVICE_SERVICE_BASE_URL,
-  axiosInstance
-)
-
-// ============================================================================
-// Auth Service APIs (uncomment when generated)
-// ============================================================================
-
-// const authServiceConfig = createApiConfig(AUTH_SERVICE_BASE_URL);
-// export const usersApi = new UsersApi(
-//   authServiceConfig,
-//   AUTH_SERVICE_BASE_URL,
-//   axiosInstance
-// );
-
-// ============================================================================
-// Notification Service APIs (uncomment when generated)
-// ============================================================================
-
-// const notificationServiceConfig = createApiConfig(NOTIFICATION_SERVICE_BASE_URL);
-// export const notificationsApi = new NotificationsApi(
-//   notificationServiceConfig,
-//   NOTIFICATION_SERVICE_BASE_URL,
-//   axiosInstance
-// );
-
-// ============================================================================
 // Token Management
 // ============================================================================
 
@@ -245,25 +166,4 @@ export const clearAuthToken = () => {
  */
 export const getAuthToken = (): string | null => {
   return localStorage.getItem('authToken')
-}
-
-/**
- * @deprecated Use setAuthToken instead. This function is kept for backward compatibility.
- *
- * Update auth token for all API clients
- * Since we're using a shared axios instance with interceptors,
- * you only need to call setAuthToken(token) instead.
- */
-export const updateAuthToken = (token: string) => {
-  setAuthToken(token)
-
-  // Return the existing API instances (they will use the updated token automatically)
-  return {
-    deviceServiceApi,
-    greeterApi,
-    productServiceApi,
-    otaPackageServiceApi,
-    // usersApi,
-    // notificationsApi,
-  }
 }

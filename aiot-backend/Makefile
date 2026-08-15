@@ -35,4 +35,4 @@ docker:
 
 .PHONY: swag
 swag:
-	swag init  -g cmd/server/main.go -o ./docs
+	swag init -g cmd/server/main.go -o ./docs --parseDependencyLevel 1 --parseInternal

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import type { ProductV1Product } from '@/api/generated/device-service'
+import type { Product as ProductV1Product } from '@/api/generated/model'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

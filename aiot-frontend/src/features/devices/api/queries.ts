@@ -1,13 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { deviceServiceApi, axiosInstance } from '@/api/clients'
-import { DEVICE_SERVICE_BASE_URL } from '@/api/config'
 import type {
-  DeviceV1CreateDeviceRequest,
-  DeviceV1UpdateDeviceRequest,
-  DeviceV1ActivateDeviceRequest,
-  DeviceV1SetDeviceEnabledRequest,
-  DeviceV1BatchUploadDevicesResponse,
-} from '@/api/generated/device-service'
+  DeviceBatchUploadDevicesResponse as DeviceV1BatchUploadDevicesResponse,
+  DeviceCreateDeviceRequest as DeviceV1CreateDeviceRequest,
+  DeviceGetDeviceResponse as DeviceV1GetDeviceResponse,
+  DeviceMQTTParametersResponse as DeviceV1GetMqttParametersResponse,
+  DeviceListDevicesResponse as DeviceV1ListDevicesResponse,
+  DeviceSetDeviceEnabledRequest as DeviceV1SetDeviceEnabledRequest,
+  DeviceTelemetryResponse as DeviceV1GetDeviceTelemetryResponse,
+  DeviceUpdateDeviceRequest as DeviceV1UpdateDeviceRequest,
+} from '@/api/generated/model'
+import {
+  deleteDevicesId,
+  getDevices,
+  getDevicesIdMqttParameters,
+  getDevicesIdTelemetry,
+  getDevicesKeyDeviceKey,
+  getDeviceStatistics,
+  postDevices,
+  postDevicesBatchUpload,
+  postDevicesIdActivate,
+  putDevicesId,
+  postDevicesIdEnabled,
+} from '@/api/generated'
 
 // ============================================================================
 // Query Keys
@@ -47,23 +61,10 @@ export function useDevices(params: {
   return useQuery({
     queryKey: deviceKeys.list(params),
     queryFn: async () => {
-      // Axios will serialize array to repeated query params: ?states=online&states=offline
-      const response = await deviceServiceApi.deviceServiceListDevices(
-        {
-          page: params.page,
-          pageSize: params.pageSize,
-          productId: params.productId,
-          states: params.states,
-          enabled: params.enabled,
-        },
-        {
-          // Pass searchText as additional query parameter via axios options
-          params: {
-            ...(params.searchText && { searchText: params.searchText }),
-          },
-        }
-      )
-      return response.data
+      return getDevices({
+        ...params,
+        productId: params.productId ? Number(params.productId) : undefined,
+      }) as unknown as DeviceV1ListDevicesResponse
     },
   })
 }
@@ -75,10 +76,7 @@ export function useDeviceByKey(deviceKey: string) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'key', deviceKey],
     queryFn: async () => {
-      const response = await deviceServiceApi.deviceServiceGetDeviceByKey({
-        deviceKey,
-      })
-      return response.data
+      return getDevicesKeyDeviceKey(deviceKey) as unknown as DeviceV1GetDeviceResponse
     },
     enabled: !!deviceKey,
   })
@@ -91,10 +89,7 @@ export function useDeviceTelemetry(deviceKey: string) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'telemetry', deviceKey],
     queryFn: async () => {
-      const response = await deviceServiceApi.deviceServiceGetDeviceTelemetry({
-        deviceKey,
-      })
-      return response.data
+      return getDevicesIdTelemetry(Number(deviceKey)) as unknown as DeviceV1GetDeviceTelemetryResponse
     },
     enabled: !!deviceKey,
   })
@@ -107,8 +102,7 @@ export function useDeviceStatistics() {
   return useQuery({
     queryKey: deviceKeys.statistics(),
     queryFn: async () => {
-      const response = await deviceServiceApi.deviceServiceGetDeviceStatistics()
-      return response.data
+      return getDeviceStatistics() as never
     },
   })
 }
@@ -120,10 +114,7 @@ export function useDeviceMqttParameters(deviceKey: string, enabled = false) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'mqtt-parameters', deviceKey],
     queryFn: async () => {
-      const response = await deviceServiceApi.deviceServiceGetMqttParameters({
-        deviceKey,
-      })
-      return response.data
+      return getDevicesIdMqttParameters(Number(deviceKey)) as unknown as DeviceV1GetMqttParametersResponse
     },
     enabled: enabled && !!deviceKey,
   })
@@ -140,12 +131,7 @@ export function useCreateDevice() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: DeviceV1CreateDeviceRequest) => {
-      const response = await deviceServiceApi.deviceServiceCreateDevice({
-        deviceV1CreateDeviceRequest: data,
-      })
-      return response.data
-    },
+    mutationFn: (data: DeviceV1CreateDeviceRequest) => postDevices(data as never),
     onSuccess: () => {
       // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
@@ -167,11 +153,7 @@ export function useUpdateDevice() {
       id: string
       data: DeviceV1UpdateDeviceRequest
     }) => {
-      const response = await deviceServiceApi.deviceServiceUpdateDevice({
-        id,
-        deviceV1UpdateDeviceRequest: data,
-      })
-      return response.data
+      return putDevicesId(Number(id), data as never) as never
     },
     onSuccess: (_, variables) => {
       // Invalidate the specific device detail
@@ -191,10 +173,7 @@ export function useDeleteDevice() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await deviceServiceApi.deviceServiceDeleteDevice({ id })
-      return response.data
-    },
+    mutationFn: (id: string) => deleteDevicesId(Number(id)),
     onSuccess: () => {
       // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
@@ -211,16 +190,12 @@ export function useActivateDevice() {
   return useMutation({
     mutationFn: async ({
       id,
-      data,
+      data: _data,
     }: {
       id: string
-      data: DeviceV1ActivateDeviceRequest
+      data: Record<string, never>
     }) => {
-      const response = await deviceServiceApi.deviceServiceActivateDevice({
-        id,
-        deviceV1ActivateDeviceRequest: data,
-      })
-      return response.data
+      return postDevicesIdActivate(Number(id)) as unknown as DeviceV1GetDeviceResponse
     },
     onSuccess: (_, variables) => {
       // Invalidate the specific device detail
@@ -247,11 +222,7 @@ export function useSetDeviceEnabled() {
       id: string
       data: DeviceV1SetDeviceEnabledRequest
     }) => {
-      const response = await deviceServiceApi.deviceServiceSetDeviceEnabled({
-        id,
-        deviceV1SetDeviceEnabledRequest: data,
-      })
-      return response.data
+      return postDevicesIdEnabled(Number(id), data as never) as never
     },
     onSuccess: (_, variables) => {
       // Invalidate the specific device detail
@@ -272,19 +243,7 @@ export function useBatchUploadDevices() {
 
   return useMutation({
     mutationFn: async (file: File) => {
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await axiosInstance.post<DeviceV1BatchUploadDevicesResponse>(
-        `${DEVICE_SERVICE_BASE_URL}/v1/devices/batch/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      )
-      return response.data
+      return postDevicesBatchUpload({ file }) as unknown as DeviceV1BatchUploadDevicesResponse
     },
     onSuccess: (response) => {
       // Only invalidate if some devices were created successfully

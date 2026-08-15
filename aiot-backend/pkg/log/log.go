@@ -8,6 +8,8 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -15,6 +17,71 @@ const ctxLoggerKey = "zapLogger"
 
 type Logger struct {
 	*zap.Logger
+}
+
+// DateWriteSyncer handles daily log rotation by appending date to filename.
+type DateWriteSyncer struct {
+	basePath string // e.g. "./storage/logs/server.log"
+	mu       sync.Mutex
+	hook     *lumberjack.Logger
+	date     string // current date "2006-01-02"
+	level    zapcore.Level
+	maxSize  int
+	maxBackups int
+	maxAge    int
+	compress  bool
+}
+
+func newDateWriteSyncer(basePath string, maxSize, maxBackups, maxAge int, compress bool) *DateWriteSyncer {
+	return &DateWriteSyncer{
+		basePath:   basePath,
+		date:       time.Now().Format("2006-01-02"),
+		maxSize:    maxSize,
+		maxBackups: maxBackups,
+		maxAge:     maxAge,
+		compress:   compress,
+	}
+}
+
+func (d *DateWriteSyncer) Write(p []byte) (n int, err error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	today := time.Now().Format("2006-01-02")
+	if today != d.date || d.hook == nil {
+		d.rotate(today)
+	}
+	return d.hook.Write(p)
+}
+
+func (d *DateWriteSyncer) rotate(today string) {
+	if d.hook != nil {
+		d.hook.Close()
+	}
+	// Insert date before extension: server.log -> server-2025-01-15.log
+	path := d.basePath
+	if idx := strings.LastIndex(path, "."); idx != -1 {
+		path = path[:idx] + "-" + today + path[idx:]
+	} else {
+		path = path + "-" + today
+	}
+	d.hook = &lumberjack.Logger{
+		Filename:   path,
+		MaxSize:    d.maxSize,
+		MaxBackups: d.maxBackups,
+		MaxAge:     d.maxAge,
+		Compress:   d.compress,
+	}
+	d.date = today
+}
+
+func (d *DateWriteSyncer) Sync() error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if d.hook != nil {
+		return d.hook.Close()
+	}
+	return nil
 }
 
 func NewLog(conf *viper.Viper) *Logger {
@@ -35,12 +102,13 @@ func NewLog(conf *viper.Viper) *Logger {
 	default:
 		level = zap.InfoLevel
 	}
-	hook := lumberjack.Logger{
-		Filename:   lp,                             // Log file path
-		MaxSize:    conf.GetInt("log.max_size"),    // Maximum size unit for each log file: M
-		MaxBackups: conf.GetInt("log.max_backups"), // The maximum number of backups that can be saved for log files
-		MaxAge:     conf.GetInt("log.max_age"),     // Maximum number of days the file can be saved
-		Compress:   conf.GetBool("log.compress"),   // Compression or not
+	hook := &DateWriteSyncer{
+		basePath:   lp,
+		date:       time.Now().Format("2006-01-02"),
+		maxSize:    conf.GetInt("log.max_size"),
+		maxBackups: conf.GetInt("log.max_backups"),
+		maxAge:     conf.GetInt("log.max_age"),
+		compress:   conf.GetBool("log.compress"),
 	}
 
 	var encoder zapcore.Encoder
@@ -77,7 +145,7 @@ func NewLog(conf *viper.Viper) *Logger {
 	// default(both) log to console and file
 	core := zapcore.NewCore(
 		encoder,
-		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)), // Print to console and file
+		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(hook)), // Print to console and file
 		level,
 	)
 	mode := conf.GetString("log.mode")
@@ -91,7 +159,7 @@ func NewLog(conf *viper.Viper) *Logger {
 	case "file":
 		core = zapcore.NewCore(
 			encoder,
-			zapcore.AddSync(&hook),
+			zapcore.AddSync(hook),
 			level,
 		)
 	}

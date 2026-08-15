@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import type { ProductV1Product } from '@/api/generated/device-service'
+import type { Product as ProductV1Product } from '@/api/generated/model'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import {

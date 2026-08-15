@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { otaPackageServiceApi } from '@/api/clients'
-import type { OtaV1OTAPackage } from '@/api/generated/device-service'
+import type { OtaOTAPackage } from '@/api/generated/model'
+import {
+  getOtaPackagesId,
+  getOtaPackagesIdBatches,
+  getOtaPackagesIdDeviceDeployments,
+  getOtaPackagesIdUpgradeStatistics,
+} from '@/api/generated'
 
 /**
  * Hook to fetch OTA package details by ID
@@ -11,8 +16,8 @@ export function useOTAPackageDetail(id: string) {
     queryKey: ['ota-package-detail', id],
     queryFn: async () => {
       try {
-        const response = await otaPackageServiceApi.oTAPackageServiceGetOTAPackage({ id })
-        const data = response.data.otaPackage as OtaV1OTAPackage | undefined
+        const response = await getOtaPackagesId(Number(id))
+        const data = response.otaPackage as OtaOTAPackage | undefined
         return {
           id: data?.id?.toString() || id,
           packageName: data?.packageName || id,
@@ -50,10 +55,7 @@ export function useUpgradeStatistics(packageName: string) {
     queryKey: ['upgrade-statistics', packageName],
     queryFn: async () => {
       try {
-        const response = await otaPackageServiceApi.oTAPackageServiceGetUpgradeStatistics({
-          packageName,
-        })
-        const data = response.data
+        const data = (await getOtaPackagesIdUpgradeStatistics(Number(packageName))) as any
         return {
           packageId: data.packageId || packageName,
           totalTargetDevices: data.totalTargetDevices || 0,
@@ -88,14 +90,11 @@ export function useDeviceDeployments(
     queryKey: ['device-deployments', packageName, page, pageSize, status],
     queryFn: async () => {
       try {
-        const response = await otaPackageServiceApi.oTAPackageServiceListDeviceDeployments({
-          packageName,
+        const data = await getOtaPackagesIdDeviceDeployments(Number(packageName), {
           page,
           pageSize,
           status,
         })
-
-        const data = response.data
         return {
           deployments: (data.deployments || []).map((d: any) => ({
             deviceId: d.deviceId,
@@ -132,11 +131,7 @@ export function useUpgradeBatches(packageName: string) {
     queryKey: ['upgrade-batches', packageName],
     queryFn: async () => {
       try {
-        const response = await otaPackageServiceApi.oTAPackageServiceListUpgradeBatches({
-          packageName,
-        })
-
-        const data = response.data
+        const data = await getOtaPackagesIdBatches(Number(packageName))
         return (data.batches || []).map((b: any) => ({
           batchId: b.batchId,
           batchName: b.batchName,

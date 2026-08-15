@@ -19,7 +19,7 @@ type OTAPackageRequest struct {
 	Description  string          `json:"description"`
 	ReleaseNotes string          `json:"releaseNotes"`
 	Metadata     json.RawMessage `json:"metadata"`
-}
+}//@name OtaOTAPackageRequest
 
 type CreateOTAPackageRequest struct {
 	PackageName  string          `json:"packageName" binding:"required"`
@@ -34,11 +34,11 @@ type CreateOTAPackageRequest struct {
 	Description  string          `json:"description"`
 	ReleaseNotes string          `json:"releaseNotes"`
 	Metadata     json.RawMessage `json:"metadata"`
-}
+}//@name OtaCreateOTAPackageRequest
 
 type SuccessResponse struct {
 	Success bool `json:"success"`
-}
+}//@name OtaSuccessResponse
 
 type OTAPackage struct {
 	ID           int64      `json:"id"`
@@ -59,7 +59,7 @@ type OTAPackage struct {
 	CreatedAt    time.Time  `json:"createdAt"`
 	UpdatedAt    time.Time  `json:"updatedAt"`
 	ReleasedAt   *time.Time `json:"releasedAt,omitempty"`
-}
+}//@name OtaOTAPackage
 
 type UpgradeStatistics struct {
 	PackageID          string `json:"packageId"`
@@ -69,7 +69,7 @@ type UpgradeStatistics struct {
 	CancelledUpgrades  int64  `json:"cancelledUpgrades"`
 	PendingUpgrades    int64  `json:"pendingUpgrades"`
 	InProgressUpgrades int64  `json:"inProgressUpgrades"`
-}
+}//@name OtaUpgradeStatistics
 
 type UpgradeBatch struct {
 	BatchID           string    `json:"batchId"`
@@ -79,7 +79,7 @@ type UpgradeBatch struct {
 	Status            string    `json:"status"`
 	TargetDeviceCount int32     `json:"targetDeviceCount"`
 	CreatedAt         time.Time `json:"createdAt"`
-}
+}//@name OtaUpgradeBatch
 
 type DeviceDeployment struct {
 	DeviceID             int64     `json:"deviceId"`
@@ -92,34 +92,34 @@ type DeviceDeployment struct {
 	Status               string    `json:"status"`
 	LastStatusChangeTime int64     `json:"lastStatusChangeTime"`
 	CreatedAt            time.Time `json:"createdAt"`
-}
+}//@name OtaDeviceDeployment
 
 type ListOTAPackagesResponse struct {
 	OTAPackages []OTAPackage `json:"otaPackages"`
 	Total       int64        `json:"total"`
 	Page        int          `json:"page"`
 	PageSize    int          `json:"pageSize"`
-}
+}//@name OtaListOTAPackagesResponse
 
 type GetOTAPackageResponse struct {
 	OTAPackage OTAPackage `json:"otaPackage"`
-}
+}//@name OtaGetOTAPackageResponse
 type CreateOTAPackageResponse struct {
 	OTAPackage OTAPackage `json:"otaPackage"`
-}
+}//@name OtaCreateOTAPackageResponse
 type UpdateOTAPackageResponse struct {
 	OTAPackage OTAPackage `json:"otaPackage"`
-}
+}//@name OtaUpdateOTAPackageResponse
 type GetUpgradeStatisticsResponse struct {
 	Statistics UpgradeStatistics `json:"statistics"`
-}
+}//@name OtaGetUpgradeStatisticsResponse
 type ListUpgradeBatchesResponse struct {
 	Batches []UpgradeBatch `json:"batches"`
-}
+}//@name OtaListUpgradeBatchesResponse
 
 type ListDeviceDeploymentsResponse struct {
 	Deployments []DeviceDeployment `json:"deployments"`
 	Total       int64              `json:"total"`
 	Page        int                `json:"page"`
 	PageSize    int                `json:"pageSize"`
-}
+}//@name OtaListDeviceDeploymentsResponse

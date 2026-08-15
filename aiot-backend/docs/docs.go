@@ -78,7 +78,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_alert_v1.ListAlertsResponse"
+                            "$ref": "#/definitions/AlertListAlertsResponse"
                         }
                     }
                 }
@@ -115,7 +115,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_alert_v1.GetAlertResponse"
+                            "$ref": "#/definitions/AlertGetAlertResponse"
                         }
                     }
                 }
@@ -152,7 +152,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_alert_v1.GetAlertResponse"
+                            "$ref": "#/definitions/AlertGetAlertResponse"
                         }
                     }
                 }
@@ -189,7 +189,104 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_alert_v1.GetAlertResponse"
+                            "$ref": "#/definitions/AlertGetAlertResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/device-events": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "事件管理"
+                ],
+                "summary": "获取设备事件列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "关键词",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "device_key",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "事件类型",
+                        "name": "event_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "开始时间 RFC3339",
+                        "name": "start_at",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束时间 RFC3339",
+                        "name": "end_at",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DeviceEventListDeviceEventsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/device-statistics": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取设备统计信息（总数、已激活、在线、离线、未激活）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "设备统计",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DeviceStatisticsResponse"
                         }
                     }
                 }
@@ -259,7 +356,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDevicesResponse"
+                            "$ref": "#/definitions/DeviceListDevicesResponse"
                         }
                     }
                 }
@@ -288,7 +385,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.CreateDeviceRequest"
+                            "$ref": "#/definitions/DeviceCreateDeviceRequest"
                         }
                     }
                 ],
@@ -296,13 +393,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.CreateDeviceResponse"
+                            "$ref": "#/definitions/DeviceCreateDeviceResponse"
                         }
                     }
                 }
             }
         },
-        "/devices/batch-template": {
+        "/devices/batch/template": {
             "get": {
                 "security": [
                     {
@@ -327,7 +424,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/batch-upload": {
+        "/devices/batch/upload": {
             "post": {
                 "security": [
                     {
@@ -358,7 +455,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.BatchUploadDevicesResponse"
+                            "$ref": "#/definitions/DeviceBatchUploadDevicesResponse"
                         }
                     }
                 }
@@ -395,7 +492,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.GetDeviceResponse"
+                            "$ref": "#/definitions/DeviceGetDeviceResponse"
                         }
                     }
                 }
@@ -426,7 +523,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.MockKafkaRequest"
+                            "$ref": "#/definitions/DeviceMockKafkaRequest"
                         }
                     }
                 ],
@@ -434,20 +531,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.MockKafkaResponse"
+                            "$ref": "#/definitions/DeviceMockKafkaResponse"
                         }
                     }
                 }
             }
         },
-        "/devices/stats": {
+        "/devices/push-records/{pushRecordId}": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "获取设备统计信息（总数、已激活、在线、离线、未激活）",
+                "description": "通过推送记录 ID 获取单个下行推送记录",
                 "consumes": [
                     "application/json"
                 ],
@@ -457,12 +554,21 @@ const docTemplate = `{
                 "tags": [
                     "设备模块"
                 ],
-                "summary": "设备统计",
+                "summary": "获取设备下行推送记录",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "推送记录 ID",
+                        "name": "pushRecordId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.DeviceStatisticsResponse"
+                            "$ref": "#/definitions/DeviceGetPushRecordResponse"
                         }
                     }
                 }
@@ -499,7 +605,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.GetDeviceResponse"
+                            "$ref": "#/definitions/DeviceGetDeviceResponse"
                         }
                     }
                 }
@@ -535,7 +641,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.UpdateDeviceRequest"
+                            "$ref": "#/definitions/DeviceUpdateDeviceRequest"
                         }
                     }
                 ],
@@ -543,7 +649,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.UpdateDeviceResponse"
+                            "$ref": "#/definitions/DeviceUpdateDeviceResponse"
                         }
                     }
                 }
@@ -578,7 +684,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.SuccessResponse"
+                            "$ref": "#/definitions/DeviceSuccessResponse"
                         }
                     }
                 }
@@ -615,14 +721,14 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ActivateDeviceResponse"
+                            "$ref": "#/definitions/DeviceActivateDeviceResponse"
                         }
                     }
                 }
             }
         },
         "/devices/{id}/enabled": {
-            "put": {
+            "post": {
                 "security": [
                     {
                         "Bearer": []
@@ -653,7 +759,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.SetDeviceEnabledRequest"
+                            "$ref": "#/definitions/DeviceSetDeviceEnabledRequest"
                         }
                     }
                 ],
@@ -661,13 +767,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.SetDeviceEnabledResponse"
+                            "$ref": "#/definitions/DeviceSetDeviceEnabledResponse"
                         }
                     }
                 }
             }
         },
-        "/devices/{id}/mqtt": {
+        "/devices/{id}/mqtt-parameters": {
             "get": {
                 "security": [
                     {
@@ -698,7 +804,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.MQTTParametersResponse"
+                            "$ref": "#/definitions/DeviceMQTTParametersResponse"
                         }
                     }
                 }
@@ -759,7 +865,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ListPushRecordsResponse"
+                            "$ref": "#/definitions/DeviceListPushRecordsResponse"
                         }
                     }
                 }
@@ -800,51 +906,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ClearPushRecordsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/devices/{id}/push-records/{pushRecordId}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过推送记录 ID 获取单个下行推送记录",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备模块"
-                ],
-                "summary": "获取设备下行推送记录",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "推送记录 ID",
-                        "name": "pushRecordId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.GetPushRecordResponse"
+                            "$ref": "#/definitions/DeviceClearPushRecordsResponse"
                         }
                     }
                 }
@@ -881,7 +943,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.RestoreDeviceResponse"
+                            "$ref": "#/definitions/DeviceRestoreDeviceResponse"
                         }
                     }
                 }
@@ -918,7 +980,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.Shadow"
+                            "$ref": "#/definitions/DeviceShadow"
                         }
                     }
                 }
@@ -956,7 +1018,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.UpdateDesiredShadowRequest"
+                            "$ref": "#/definitions/DeviceUpdateDesiredShadowRequest"
                         }
                     }
                 ],
@@ -964,7 +1026,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.Shadow"
+                            "$ref": "#/definitions/DeviceShadow"
                         }
                     }
                 }
@@ -1000,7 +1062,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ClearDesiredShadowRequest"
+                            "$ref": "#/definitions/DeviceClearDesiredShadowRequest"
                         }
                     }
                 ],
@@ -1008,7 +1070,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.Shadow"
+                            "$ref": "#/definitions/DeviceShadow"
                         }
                     }
                 }
@@ -1045,7 +1107,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDeviceShadowHistoryResponse"
+                            "$ref": "#/definitions/DeviceListDeviceShadowHistoryResponse"
                         }
                     }
                 }
@@ -1083,7 +1145,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.UpdateReportedShadowRequest"
+                            "$ref": "#/definitions/DeviceUpdateReportedShadowRequest"
                         }
                     }
                 ],
@@ -1091,7 +1153,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.Shadow"
+                            "$ref": "#/definitions/DeviceShadow"
                         }
                     }
                 }
@@ -1129,7 +1191,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.SimulatePushRequest"
+                            "$ref": "#/definitions/DeviceSimulatePushRequest"
                         }
                     }
                 ],
@@ -1137,7 +1199,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.SimulatePushResponse"
+                            "$ref": "#/definitions/DeviceSimulatePushResponse"
                         }
                     }
                 }
@@ -1174,7 +1236,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse"
+                            "$ref": "#/definitions/DeviceListDeviceTagsResponse"
                         }
                     }
                 }
@@ -1210,7 +1272,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.SetDeviceTagsRequest"
+                            "$ref": "#/definitions/DeviceSetDeviceTagsRequest"
                         }
                     }
                 ],
@@ -1218,7 +1280,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse"
+                            "$ref": "#/definitions/DeviceListDeviceTagsResponse"
                         }
                     }
                 }
@@ -1254,7 +1316,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.SetDeviceTagsRequest"
+                            "$ref": "#/definitions/DeviceSetDeviceTagsRequest"
                         }
                     }
                 ],
@@ -1262,7 +1324,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.ListDeviceTagsResponse"
+                            "$ref": "#/definitions/DeviceListDeviceTagsResponse"
                         }
                     }
                 }
@@ -1298,7 +1360,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.DeleteDeviceTagsRequest"
+                            "$ref": "#/definitions/DeviceDeleteDeviceTagsRequest"
                         }
                     }
                 ],
@@ -1306,7 +1368,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.SuccessResponse"
+                            "$ref": "#/definitions/DeviceSuccessResponse"
                         }
                     }
                 }
@@ -1343,7 +1405,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_device_v1.TelemetryResponse"
+                            "$ref": "#/definitions/DeviceTelemetryResponse"
                         }
                     }
                 }
@@ -1368,7 +1430,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_v1.LoginRequest"
+                            "$ref": "#/definitions/ApiLoginRequest"
                         }
                     }
                 ],
@@ -1376,13 +1438,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_v1.LoginResponse"
+                            "$ref": "#/definitions/ApiLoginResponse"
                         }
                     }
                 }
             }
         },
-        "/ota/packages": {
+        "/ota-packages": {
             "get": {
                 "security": [
                     {
@@ -1418,7 +1480,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.ListOTAPackagesResponse"
+                            "$ref": "#/definitions/OtaListOTAPackagesResponse"
                         }
                     }
                 }
@@ -1447,7 +1509,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.CreateOTAPackageRequest"
+                            "$ref": "#/definitions/OtaCreateOTAPackageRequest"
                         }
                     }
                 ],
@@ -1455,13 +1517,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.CreateOTAPackageResponse"
+                            "$ref": "#/definitions/OtaCreateOTAPackageResponse"
                         }
                     }
                 }
             }
         },
-        "/ota/packages/{id}": {
+        "/ota-packages/{id}": {
             "get": {
                 "security": [
                     {
@@ -1492,7 +1554,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.GetOTAPackageResponse"
+                            "$ref": "#/definitions/OtaGetOTAPackageResponse"
                         }
                     }
                 }
@@ -1528,7 +1590,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackageRequest"
+                            "$ref": "#/definitions/OtaOTAPackageRequest"
                         }
                     }
                 ],
@@ -1536,7 +1598,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.UpdateOTAPackageResponse"
+                            "$ref": "#/definitions/OtaUpdateOTAPackageResponse"
                         }
                     }
                 }
@@ -1571,13 +1633,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.SuccessResponse"
+                            "$ref": "#/definitions/OtaSuccessResponse"
                         }
                     }
                 }
             }
         },
-        "/ota/packages/{id}/batches": {
+        "/ota-packages/{id}/batches": {
             "get": {
                 "security": [
                     {
@@ -1608,13 +1670,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.ListUpgradeBatchesResponse"
+                            "$ref": "#/definitions/OtaListUpgradeBatchesResponse"
                         }
                     }
                 }
             }
         },
-        "/ota/packages/{id}/deployments": {
+        "/ota-packages/{id}/device-deployments": {
             "get": {
                 "security": [
                     {
@@ -1663,13 +1725,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.ListDeviceDeploymentsResponse"
+                            "$ref": "#/definitions/OtaListDeviceDeploymentsResponse"
                         }
                     }
                 }
             }
         },
-        "/ota/packages/{id}/stats": {
+        "/ota-packages/{id}/upgrade-statistics": {
             "get": {
                 "security": [
                     {
@@ -1700,7 +1762,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_ota_v1.GetUpgradeStatisticsResponse"
+                            "$ref": "#/definitions/OtaGetUpgradeStatisticsResponse"
                         }
                     }
                 }
@@ -1760,7 +1822,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.ListProductsResponse"
+                            "$ref": "#/definitions/ProductListProductsResponse"
                         }
                     }
                 }
@@ -1789,7 +1851,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.CreateProductRequest"
+                            "$ref": "#/definitions/ProductCreateProductRequest"
                         }
                     }
                 ],
@@ -1797,7 +1859,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.CreateProductResponse"
+                            "$ref": "#/definitions/ProductCreateProductResponse"
                         }
                     }
                 }
@@ -1834,7 +1896,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.GetProductByKeyResponse"
+                            "$ref": "#/definitions/ProductGetProductByKeyResponse"
                         }
                     }
                 }
@@ -1870,7 +1932,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.UpdateProductRequest"
+                            "$ref": "#/definitions/ProductUpdateProductRequest"
                         }
                     }
                 ],
@@ -1878,7 +1940,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.UpdateProductResponse"
+                            "$ref": "#/definitions/ProductUpdateProductResponse"
                         }
                     }
                 }
@@ -1915,7 +1977,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.GetProductResponse"
+                            "$ref": "#/definitions/ProductGetProductResponse"
                         }
                     }
                 }
@@ -1950,7 +2012,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.SuccessResponse"
+                            "$ref": "#/definitions/ProductSuccessResponse"
                         }
                     }
                 }
@@ -1987,7 +2049,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_v1.RestoreProductResponse"
+                            "$ref": "#/definitions/ProductRestoreProductResponse"
                         }
                     }
                 }
@@ -2024,7 +2086,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.GetProductTSLResponse"
+                            "$ref": "#/definitions/ProductTslGetProductTSLResponse"
                         }
                     }
                 }
@@ -2060,7 +2122,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.UpsertProductTSLRequest"
+                            "$ref": "#/definitions/ProductTslUpsertProductTSLRequest"
                         }
                     }
                 ],
@@ -2068,7 +2130,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse"
+                            "$ref": "#/definitions/ProductTslSuccessResponse"
                         }
                     }
                 }
@@ -2104,7 +2166,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.UpsertProductTSLRequest"
+                            "$ref": "#/definitions/ProductTslUpsertProductTSLRequest"
                         }
                     }
                 ],
@@ -2112,7 +2174,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse"
+                            "$ref": "#/definitions/ProductTslSuccessResponse"
                         }
                     }
                 }
@@ -2147,7 +2209,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_product_tsl_v1.SuccessResponse"
+                            "$ref": "#/definitions/ProductTslSuccessResponse"
                         }
                     }
                 }
@@ -2173,7 +2235,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_v1.RegisterRequest"
+                            "$ref": "#/definitions/ApiRegisterRequest"
                         }
                     }
                 ],
@@ -2181,7 +2243,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_v1.Response"
+                            "$ref": "#/definitions/ApiResponse"
                         }
                     }
                 }
@@ -2241,7 +2303,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.ListRulesResponse"
+                            "$ref": "#/definitions/RuleListRulesResponse"
                         }
                     }
                 }
@@ -2270,7 +2332,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.RuleRequest"
+                            "$ref": "#/definitions/RuleRequest"
                         }
                     }
                 ],
@@ -2278,7 +2340,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.CreateRuleResponse"
+                            "$ref": "#/definitions/RuleCreateRuleResponse"
                         }
                     }
                 }
@@ -2306,7 +2368,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.ListAvailableFieldsResponse"
+                            "$ref": "#/definitions/RuleListAvailableFieldsResponse"
                         }
                     }
                 }
@@ -2343,7 +2405,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.GetRuleResponse"
+                            "$ref": "#/definitions/RuleGetRuleResponse"
                         }
                     }
                 }
@@ -2379,7 +2441,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.RuleRequest"
+                            "$ref": "#/definitions/RuleRequest"
                         }
                     }
                 ],
@@ -2387,7 +2449,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.UpdateRuleResponse"
+                            "$ref": "#/definitions/RuleUpdateRuleResponse"
                         }
                     }
                 }
@@ -2422,7 +2484,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.SetRuleStatusResponse"
+                            "$ref": "#/definitions/RuleSetRuleStatusResponse"
                         }
                     }
                 }
@@ -2457,7 +2519,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.SuccessResponse"
+                            "$ref": "#/definitions/RuleSuccessResponse"
                         }
                     }
                 }
@@ -2506,7 +2568,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_rule_v1.ListRuleExecutionsResponse"
+                            "$ref": "#/definitions/RuleListRuleExecutionsResponse"
                         }
                     }
                 }
@@ -2533,7 +2595,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_v1.GetProfileResponse"
+                            "$ref": "#/definitions/ApiGetProfileResponse"
                         }
                     }
                 }
@@ -2561,7 +2623,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_v1.UpdateProfileRequest"
+                            "$ref": "#/definitions/ApiUpdateProfileRequest"
                         }
                     }
                 ],
@@ -2569,7 +2631,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/0things-backend_api_v1.Response"
+                            "$ref": "#/definitions/ApiResponse"
                         }
                     }
                 }
@@ -2577,7 +2639,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "0things-backend_api_alert_v1.Alert": {
+        "Alert": {
             "type": "object",
             "properties": {
                 "ackAt": {
@@ -2633,21 +2695,21 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_alert_v1.GetAlertResponse": {
+        "AlertGetAlertResponse": {
             "type": "object",
             "properties": {
                 "alert": {
-                    "$ref": "#/definitions/0things-backend_api_alert_v1.Alert"
+                    "$ref": "#/definitions/Alert"
                 }
             }
         },
-        "0things-backend_api_alert_v1.ListAlertsResponse": {
+        "AlertListAlertsResponse": {
             "type": "object",
             "properties": {
                 "alerts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/0things-backend_api_alert_v1.Alert"
+                        "$ref": "#/definitions/Alert"
                     }
                 },
                 "page": {
@@ -2661,114 +2723,117 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.ActivateDeviceResponse": {
+        "ApiGetProfileResponse": {
             "type": "object",
             "properties": {
-                "device": {
-                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
-                }
-            }
-        },
-        "0things-backend_api_device_v1.BatchUploadDevicesResponse": {
-            "type": "object",
-            "properties": {
-                "errors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/0things-backend_api_device_v1.BatchUploadError"
-                    }
-                },
-                "failureCount": {
+                "code": {
                     "type": "integer"
                 },
-                "successCount": {
-                    "type": "integer"
-                }
-            }
-        },
-        "0things-backend_api_device_v1.BatchUploadError": {
-            "type": "object",
-            "properties": {
-                "deviceName": {
+                "data": {
+                    "$ref": "#/definitions/ApiGetProfileResponseData"
+                },
+                "message": {
                     "type": "string"
-                },
-                "error": {
-                    "type": "string"
-                },
-                "productKey": {
-                    "type": "string"
-                },
-                "row": {
-                    "type": "integer"
                 }
             }
         },
-        "0things-backend_api_device_v1.ClearDesiredShadowRequest": {
+        "ApiGetProfileResponseData": {
             "type": "object",
             "properties": {
-                "version": {
-                    "type": "integer"
-                }
-            }
-        },
-        "0things-backend_api_device_v1.ClearPushRecordsResponse": {
-            "type": "object",
-            "properties": {
-                "deletedCount": {
-                    "type": "integer"
+                "nickname": {
+                    "type": "string",
+                    "example": "alan"
                 },
-                "success": {
-                    "type": "boolean"
+                "userId": {
+                    "type": "string"
                 }
             }
         },
-        "0things-backend_api_device_v1.CreateDeviceRequest": {
+        "ApiLoginRequest": {
             "type": "object",
             "required": [
-                "name",
-                "productId"
+                "email",
+                "password"
             ],
             "properties": {
-                "enabled": {
-                    "type": "boolean"
+                "email": {
+                    "type": "string",
+                    "example": "1234@gmail.com"
                 },
-                "metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                },
-                "productId": {
-                    "type": "integer"
+                "password": {
+                    "type": "string",
+                    "example": "123456"
                 }
             }
         },
-        "0things-backend_api_device_v1.CreateDeviceResponse": {
+        "ApiLoginResponse": {
             "type": "object",
             "properties": {
-                "device": {
-                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ApiLoginResponseData"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         },
-        "0things-backend_api_device_v1.DeleteDeviceTagsRequest": {
+        "ApiLoginResponseData": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiRegisterRequest": {
             "type": "object",
             "required": [
-                "keys"
+                "email",
+                "password"
             ],
             "properties": {
-                "keys": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "email": {
+                    "type": "string",
+                    "example": "1234@gmail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123456"
                 }
             }
         },
-        "0things-backend_api_device_v1.Device": {
+        "ApiResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiUpdateProfileRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "1234@gmail.com"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "alan"
+                }
+            }
+        },
+        "Device": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -2815,122 +2880,143 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.DeviceShadowHistory": {
+        "DeviceActivateDeviceResponse": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
+                "device": {
+                    "$ref": "#/definitions/Device"
+                }
+            }
+        },
+        "DeviceBatchUploadDevicesResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DeviceBatchUploadError"
+                    }
                 },
-                "desired": {},
-                "deviceId": {
+                "failureCount": {
                     "type": "integer"
                 },
-                "id": {
+                "successCount": {
                     "type": "integer"
-                },
-                "reported": {},
-                "source": {
+                }
+            }
+        },
+        "DeviceBatchUploadError": {
+            "type": "object",
+            "properties": {
+                "deviceName": {
                     "type": "string"
                 },
+                "error": {
+                    "type": "string"
+                },
+                "productKey": {
+                    "type": "string"
+                },
+                "row": {
+                    "type": "integer"
+                }
+            }
+        },
+        "DeviceClearDesiredShadowRequest": {
+            "type": "object",
+            "properties": {
                 "version": {
                     "type": "integer"
                 }
             }
         },
-        "0things-backend_api_device_v1.DeviceStatisticsResponse": {
+        "DeviceClearPushRecordsResponse": {
             "type": "object",
             "properties": {
-                "activatedDevices": {
+                "deletedCount": {
                     "type": "integer"
                 },
-                "inactiveDevices": {
-                    "type": "integer"
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "DeviceCreateDeviceRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "productId"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
                 },
-                "offlineDevices": {
-                    "type": "integer"
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "onlineDevices": {
-                    "type": "integer"
+                "name": {
+                    "type": "string"
                 },
-                "totalDevices": {
+                "productId": {
                     "type": "integer"
                 }
             }
         },
-        "0things-backend_api_device_v1.DeviceTag": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
-                },
-                "deviceId": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "source": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_device_v1.GetDeviceResponse": {
+        "DeviceCreateDeviceResponse": {
             "type": "object",
             "properties": {
                 "device": {
-                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                    "$ref": "#/definitions/Device"
                 }
             }
         },
-        "0things-backend_api_device_v1.GetPushRecordResponse": {
+        "DeviceDeleteDeviceTagsRequest": {
             "type": "object",
+            "required": [
+                "keys"
+            ],
             "properties": {
-                "record": {
-                    "$ref": "#/definitions/0things-backend_api_device_v1.PushRecord"
-                }
-            }
-        },
-        "0things-backend_api_device_v1.ListDeviceShadowHistoryResponse": {
-            "type": "object",
-            "properties": {
-                "history": {
+                "keys": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/0things-backend_api_device_v1.DeviceShadowHistory"
+                        "type": "string"
                     }
                 }
             }
         },
-        "0things-backend_api_device_v1.ListDeviceTagsResponse": {
+        "DeviceEvent": {
             "type": "object",
             "properties": {
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/0things-backend_api_device_v1.DeviceTag"
-                    }
+                "data": {
+                    "type": "string"
+                },
+                "deviceKey": {
+                    "type": "string"
+                },
+                "deviceName": {
+                    "type": "string"
+                },
+                "eventAt": {
+                    "type": "string"
+                },
+                "eventType": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 }
             }
         },
-        "0things-backend_api_device_v1.ListDevicesResponse": {
+        "DeviceEventListDeviceEventsResponse": {
             "type": "object",
             "properties": {
-                "devices": {
+                "events": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                        "$ref": "#/definitions/DeviceEvent"
                     }
                 },
                 "page": {
@@ -2944,7 +3030,65 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.ListPushRecordsResponse": {
+        "DeviceGetDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/Device"
+                }
+            }
+        },
+        "DeviceGetPushRecordResponse": {
+            "type": "object",
+            "properties": {
+                "record": {
+                    "$ref": "#/definitions/DevicePushRecord"
+                }
+            }
+        },
+        "DeviceListDeviceShadowHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DeviceShadowHistory"
+                    }
+                }
+            }
+        },
+        "DeviceListDeviceTagsResponse": {
+            "type": "object",
+            "properties": {
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DeviceTag"
+                    }
+                }
+            }
+        },
+        "DeviceListDevicesResponse": {
+            "type": "object",
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Device"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "DeviceListPushRecordsResponse": {
             "type": "object",
             "properties": {
                 "page": {
@@ -2956,7 +3100,7 @@ const docTemplate = `{
                 "records": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/0things-backend_api_device_v1.PushRecord"
+                        "$ref": "#/definitions/DevicePushRecord"
                     }
                 },
                 "total": {
@@ -2964,7 +3108,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.MQTTParametersResponse": {
+        "DeviceMQTTParametersResponse": {
             "type": "object",
             "properties": {
                 "clientId": {
@@ -2984,7 +3128,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.MockKafkaRequest": {
+        "DeviceMockKafkaRequest": {
             "type": "object",
             "required": [
                 "topic"
@@ -2998,7 +3142,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.MockKafkaResponse": {
+        "DeviceMockKafkaResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -3009,7 +3153,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.PushRecord": {
+        "DevicePushRecord": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -3044,15 +3188,15 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.RestoreDeviceResponse": {
+        "DeviceRestoreDeviceResponse": {
             "type": "object",
             "properties": {
                 "device": {
-                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                    "$ref": "#/definitions/Device"
                 }
             }
         },
-        "0things-backend_api_device_v1.SetDeviceEnabledRequest": {
+        "DeviceSetDeviceEnabledRequest": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -3060,15 +3204,15 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.SetDeviceEnabledResponse": {
+        "DeviceSetDeviceEnabledResponse": {
             "type": "object",
             "properties": {
                 "device": {
-                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                    "$ref": "#/definitions/Device"
                 }
             }
         },
-        "0things-backend_api_device_v1.SetDeviceTagsRequest": {
+        "DeviceSetDeviceTagsRequest": {
             "type": "object",
             "required": [
                 "tags"
@@ -3082,7 +3226,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.Shadow": {
+        "DeviceShadow": {
             "type": "object",
             "properties": {
                 "delta": {
@@ -3100,7 +3244,29 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.SimulatePushRequest": {
+        "DeviceShadowHistory": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "desired": {},
+                "deviceId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "reported": {},
+                "source": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "DeviceSimulatePushRequest": {
             "type": "object",
             "properties": {
                 "payload": {
@@ -3108,7 +3274,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.SimulatePushResponse": {
+        "DeviceSimulatePushResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -3125,7 +3291,27 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.SuccessResponse": {
+        "DeviceStatisticsResponse": {
+            "type": "object",
+            "properties": {
+                "activatedDevices": {
+                    "type": "integer"
+                },
+                "inactiveDevices": {
+                    "type": "integer"
+                },
+                "offlineDevices": {
+                    "type": "integer"
+                },
+                "onlineDevices": {
+                    "type": "integer"
+                },
+                "totalDevices": {
+                    "type": "integer"
+                }
+            }
+        },
+        "DeviceSuccessResponse": {
             "type": "object",
             "properties": {
                 "success": {
@@ -3133,7 +3319,36 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.TelemetryResponse": {
+        "DeviceTag": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "deviceId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "DeviceTelemetryResponse": {
             "type": "object",
             "properties": {
                 "telemetry": {
@@ -3141,7 +3356,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.UpdateDesiredShadowRequest": {
+        "DeviceUpdateDesiredShadowRequest": {
             "type": "object",
             "required": [
                 "desired"
@@ -3156,7 +3371,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.UpdateDeviceRequest": {
+        "DeviceUpdateDeviceRequest": {
             "type": "object",
             "properties": {
                 "metadata": {
@@ -3173,15 +3388,15 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_device_v1.UpdateDeviceResponse": {
+        "DeviceUpdateDeviceResponse": {
             "type": "object",
             "properties": {
                 "device": {
-                    "$ref": "#/definitions/0things-backend_api_device_v1.Device"
+                    "$ref": "#/definitions/Device"
                 }
             }
         },
-        "0things-backend_api_device_v1.UpdateReportedShadowRequest": {
+        "DeviceUpdateReportedShadowRequest": {
             "type": "object",
             "required": [
                 "reported"
@@ -3196,7 +3411,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.CreateOTAPackageRequest": {
+        "OtaCreateOTAPackageRequest": {
             "type": "object",
             "required": [
                 "packageName",
@@ -3244,15 +3459,15 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.CreateOTAPackageResponse": {
+        "OtaCreateOTAPackageResponse": {
             "type": "object",
             "properties": {
                 "otaPackage": {
-                    "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackage"
+                    "$ref": "#/definitions/OtaOTAPackage"
                 }
             }
         },
-        "0things-backend_api_ota_v1.DeviceDeployment": {
+        "OtaDeviceDeployment": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -3287,29 +3502,29 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.GetOTAPackageResponse": {
+        "OtaGetOTAPackageResponse": {
             "type": "object",
             "properties": {
                 "otaPackage": {
-                    "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackage"
+                    "$ref": "#/definitions/OtaOTAPackage"
                 }
             }
         },
-        "0things-backend_api_ota_v1.GetUpgradeStatisticsResponse": {
+        "OtaGetUpgradeStatisticsResponse": {
             "type": "object",
             "properties": {
                 "statistics": {
-                    "$ref": "#/definitions/0things-backend_api_ota_v1.UpgradeStatistics"
+                    "$ref": "#/definitions/OtaUpgradeStatistics"
                 }
             }
         },
-        "0things-backend_api_ota_v1.ListDeviceDeploymentsResponse": {
+        "OtaListDeviceDeploymentsResponse": {
             "type": "object",
             "properties": {
                 "deployments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/0things-backend_api_ota_v1.DeviceDeployment"
+                        "$ref": "#/definitions/OtaDeviceDeployment"
                     }
                 },
                 "page": {
@@ -3323,13 +3538,13 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.ListOTAPackagesResponse": {
+        "OtaListOTAPackagesResponse": {
             "type": "object",
             "properties": {
                 "otaPackages": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackage"
+                        "$ref": "#/definitions/OtaOTAPackage"
                     }
                 },
                 "page": {
@@ -3343,18 +3558,18 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.ListUpgradeBatchesResponse": {
+        "OtaListUpgradeBatchesResponse": {
             "type": "object",
             "properties": {
                 "batches": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/0things-backend_api_ota_v1.UpgradeBatch"
+                        "$ref": "#/definitions/OtaUpgradeBatch"
                     }
                 }
             }
         },
-        "0things-backend_api_ota_v1.OTAPackage": {
+        "OtaOTAPackage": {
             "type": "object",
             "properties": {
                 "checksum": {
@@ -3413,7 +3628,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.OTAPackageRequest": {
+        "OtaOTAPackageRequest": {
             "type": "object",
             "required": [
                 "packageName"
@@ -3460,7 +3675,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.SuccessResponse": {
+        "OtaSuccessResponse": {
             "type": "object",
             "properties": {
                 "success": {
@@ -3468,15 +3683,15 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.UpdateOTAPackageResponse": {
+        "OtaUpdateOTAPackageResponse": {
             "type": "object",
             "properties": {
                 "otaPackage": {
-                    "$ref": "#/definitions/0things-backend_api_ota_v1.OTAPackage"
+                    "$ref": "#/definitions/OtaOTAPackage"
                 }
             }
         },
-        "0things-backend_api_ota_v1.UpgradeBatch": {
+        "OtaUpgradeBatch": {
             "type": "object",
             "properties": {
                 "batchId": {
@@ -3502,7 +3717,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_ota_v1.UpgradeStatistics": {
+        "OtaUpgradeStatistics": {
             "type": "object",
             "properties": {
                 "cancelledUpgrades": {
@@ -3528,130 +3743,7 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_product_tsl_v1.GetProductTSLResponse": {
-            "type": "object",
-            "properties": {
-                "productTsl": {
-                    "$ref": "#/definitions/0things-backend_api_product_tsl_v1.ProductTSL"
-                }
-            }
-        },
-        "0things-backend_api_product_tsl_v1.ProductTSL": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "productId": {
-                    "type": "integer"
-                },
-                "tsl": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_product_tsl_v1.SuccessResponse": {
-            "type": "object",
-            "properties": {
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "0things-backend_api_product_tsl_v1.UpsertProductTSLRequest": {
-            "type": "object",
-            "properties": {
-                "tsl": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_product_v1.CreateProductRequest": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "accessProtocol": {
-                    "type": "string"
-                },
-                "category": {
-                    "type": "string"
-                },
-                "connectivityMethod": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nodeType": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_product_v1.CreateProductResponse": {
-            "type": "object",
-            "properties": {
-                "product": {
-                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
-                }
-            }
-        },
-        "0things-backend_api_product_v1.GetProductByKeyResponse": {
-            "type": "object",
-            "properties": {
-                "product": {
-                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
-                }
-            }
-        },
-        "0things-backend_api_product_v1.GetProductResponse": {
-            "type": "object",
-            "properties": {
-                "product": {
-                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
-                }
-            }
-        },
-        "0things-backend_api_product_v1.ListProductsResponse": {
-            "type": "object",
-            "properties": {
-                "page": {
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/0things-backend_api_product_v1.Product"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "0things-backend_api_product_v1.Product": {
+        "Product": {
             "type": "object",
             "properties": {
                 "accessProtocol": {
@@ -3701,15 +3793,94 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_product_v1.RestoreProductResponse": {
+        "ProductCreateProductRequest": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
-                "product": {
-                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
+                "accessProtocol": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "connectivityMethod": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeType": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
-        "0things-backend_api_product_v1.SuccessResponse": {
+        "ProductCreateProductResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/Product"
+                }
+            }
+        },
+        "ProductGetProductByKeyResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/Product"
+                }
+            }
+        },
+        "ProductGetProductResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/Product"
+                }
+            }
+        },
+        "ProductListProductsResponse": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Product"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ProductRestoreProductResponse": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/Product"
+                }
+            }
+        },
+        "ProductSuccessResponse": {
             "type": "object",
             "properties": {
                 "success": {
@@ -3717,7 +3888,51 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_product_v1.UpdateProductRequest": {
+        "ProductTslGetProductTSLResponse": {
+            "type": "object",
+            "properties": {
+                "productTsl": {
+                    "$ref": "#/definitions/ProductTslProductTSL"
+                }
+            }
+        },
+        "ProductTslProductTSL": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "tsl": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "ProductTslSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "ProductTslUpsertProductTSLRequest": {
+            "type": "object",
+            "properties": {
+                "tsl": {
+                    "type": "string"
+                }
+            }
+        },
+        "ProductUpdateProductRequest": {
             "type": "object",
             "properties": {
                 "accessProtocol": {
@@ -3749,107 +3964,15 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_product_v1.UpdateProductResponse": {
+        "ProductUpdateProductResponse": {
             "type": "object",
             "properties": {
                 "product": {
-                    "$ref": "#/definitions/0things-backend_api_product_v1.Product"
+                    "$ref": "#/definitions/Product"
                 }
             }
         },
-        "0things-backend_api_rule_v1.AvailableField": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "field": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_rule_v1.CreateRuleResponse": {
-            "type": "object",
-            "properties": {
-                "rule": {
-                    "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
-                }
-            }
-        },
-        "0things-backend_api_rule_v1.EvaluateRuleResponse": {
-            "type": "object",
-            "properties": {
-                "execution": {
-                    "$ref": "#/definitions/0things-backend_api_rule_v1.RuleExecution"
-                }
-            }
-        },
-        "0things-backend_api_rule_v1.GetRuleResponse": {
-            "type": "object",
-            "properties": {
-                "rule": {
-                    "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
-                }
-            }
-        },
-        "0things-backend_api_rule_v1.ListAvailableFieldsResponse": {
-            "type": "object",
-            "properties": {
-                "fields": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/0things-backend_api_rule_v1.AvailableField"
-                    }
-                }
-            }
-        },
-        "0things-backend_api_rule_v1.ListRuleExecutionsResponse": {
-            "type": "object",
-            "properties": {
-                "executions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/0things-backend_api_rule_v1.RuleExecution"
-                    }
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "0things-backend_api_rule_v1.ListRulesResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
-                    }
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "0things-backend_api_rule_v1.Rule": {
+        "Rule": {
             "type": "object",
             "properties": {
                 "actionConfig": {
@@ -3917,7 +4040,40 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_rule_v1.RuleExecution": {
+        "RuleAvailableField": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "field": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "RuleCreateRuleResponse": {
+            "type": "object",
+            "properties": {
+                "rule": {
+                    "$ref": "#/definitions/Rule"
+                }
+            }
+        },
+        "RuleEvaluateRuleResponse": {
+            "type": "object",
+            "properties": {
+                "execution": {
+                    "$ref": "#/definitions/RuleExecution"
+                }
+            }
+        },
+        "RuleExecution": {
             "type": "object",
             "properties": {
                 "conditionResult": {
@@ -3952,7 +4108,66 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_rule_v1.RuleRequest": {
+        "RuleGetRuleResponse": {
+            "type": "object",
+            "properties": {
+                "rule": {
+                    "$ref": "#/definitions/Rule"
+                }
+            }
+        },
+        "RuleListAvailableFieldsResponse": {
+            "type": "object",
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RuleAvailableField"
+                    }
+                }
+            }
+        },
+        "RuleListRuleExecutionsResponse": {
+            "type": "object",
+            "properties": {
+                "executions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RuleExecution"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "RuleListRulesResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Rule"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "RuleRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -4008,15 +4223,15 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_rule_v1.SetRuleStatusResponse": {
+        "RuleSetRuleStatusResponse": {
             "type": "object",
             "properties": {
                 "rule": {
-                    "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
+                    "$ref": "#/definitions/Rule"
                 }
             }
         },
-        "0things-backend_api_rule_v1.SuccessResponse": {
+        "RuleSuccessResponse": {
             "type": "object",
             "properties": {
                 "success": {
@@ -4024,121 +4239,11 @@ const docTemplate = `{
                 }
             }
         },
-        "0things-backend_api_rule_v1.UpdateRuleResponse": {
+        "RuleUpdateRuleResponse": {
             "type": "object",
             "properties": {
                 "rule": {
-                    "$ref": "#/definitions/0things-backend_api_rule_v1.Rule"
-                }
-            }
-        },
-        "0things-backend_api_v1.GetProfileResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/0things-backend_api_v1.GetProfileResponseData"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_v1.GetProfileResponseData": {
-            "type": "object",
-            "properties": {
-                "nickname": {
-                    "type": "string",
-                    "example": "alan"
-                },
-                "userId": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_v1.LoginRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "123456"
-                }
-            }
-        },
-        "0things-backend_api_v1.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/0things-backend_api_v1.LoginResponseData"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_v1.LoginResponseData": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_v1.RegisterRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "123456"
-                }
-            }
-        },
-        "0things-backend_api_v1.Response": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {},
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "0things-backend_api_v1.UpdateProfileRequest": {
-            "type": "object",
-            "required": [
-                "email"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
-                },
-                "nickname": {
-                    "type": "string",
-                    "example": "alan"
+                    "$ref": "#/definitions/Rule"
                 }
             }
         }

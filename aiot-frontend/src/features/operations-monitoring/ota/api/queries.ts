@@ -1,14 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { axiosInstance, otaPackageServiceApi } from '@/api/clients'
 import type {
-  OtaV1CreateOTAPackageRequest,
-  OtaV1UpdateOTAPackageRequest,
-} from '@/api/generated/device-service'
+  OtaCreateOTAPackageRequest,
+} from '@/api/generated/model'
+import type { OtaOTAPackageRequest as OtaV1UpdateOTAPackageRequest } from '@/api/generated/model'
+import {
+  deleteOtaPackagesId,
+  getOtaPackages,
+  getOtaPackagesId,
+  postOtaPackages,
+  putOtaPackagesId,
+} from '@/api/generated'
 import type { OTAPackage } from '../data/schema'
 
 type CreateOTAPackagePayload = Omit<
-  OtaV1CreateOTAPackageRequest,
+  OtaCreateOTAPackageRequest,
   'productId'
 > & {
   product_key: string
@@ -46,27 +52,26 @@ export function useOTAPackages(filters?: {
   return useQuery<OTAPackage[]>({
     queryKey: otaPackageKeys.list(filters),
     queryFn: async () => {
-      const response =
-        await otaPackageServiceApi.oTAPackageServiceListOTAPackages({
-          page: filters?.page,
-          pageSize: filters?.pageSize,
-          productId: filters?.productId,
-          status: filters?.status,
-          packageType: filters?.packageType,
-          uploadType: filters?.uploadType,
-        })
+      const response = await getOtaPackages({
+        page: filters?.page,
+        pageSize: filters?.pageSize,
+        productId: filters?.productId ? Number(filters.productId) : undefined,
+        status: filters?.status,
+        packageType: filters?.packageType,
+        uploadType: filters?.uploadType,
+      } as never)
 
       // Transform API response to match UI schema
-      const packages: OTAPackage[] = (response.data.otaPackages || []).map(
+      const packages: OTAPackage[] = (response.otaPackages || []).map(
         (pkg) => ({
-          id: pkg.id || '',
+          id: String(pkg.id || ''),
           packageName: pkg.packageName || '',
           version: pkg.version || '',
           packageType: (pkg.packageType as any) || 'upgrade',
-          productId: pkg.productId,
+          productId: pkg.productId?.toString(),
           productName: pkg.productName || '',
           description: pkg.description,
-          fileSize: parseInt(pkg.fileSize || '0', 10),
+          fileSize: parseInt(String(pkg.fileSize || '0'), 10),
           fileUrl: pkg.fileUrl || '',
           checksum: pkg.checksum || '',
           status: (pkg.status as any) || 'draft',
@@ -95,9 +100,8 @@ export function useOTAPackage(id: string) {
   return useQuery({
     queryKey: otaPackageKeys.detail(id),
     queryFn: async () => {
-      const response =
-        await otaPackageServiceApi.oTAPackageServiceGetOTAPackage({ id })
-      return response.data.otaPackage
+      const response = await getOtaPackagesId(Number(id))
+      return response.otaPackage
     },
     enabled: !!id,
   })
@@ -111,8 +115,7 @@ export function useCreateOTAPackage() {
 
   return useMutation({
     mutationFn: async (data: CreateOTAPackagePayload) => {
-      const response = await axiosInstance.post('/v1/ota-packages', data)
-      return response.data
+      return postOtaPackages(data)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
@@ -140,12 +143,7 @@ export function useUpdateOTAPackage() {
       id: string
       data: OtaV1UpdateOTAPackageRequest
     }) => {
-      const response =
-        await otaPackageServiceApi.oTAPackageServiceUpdateOTAPackage({
-          id,
-          otaV1UpdateOTAPackageRequest: data,
-        })
-      return response.data
+      return putOtaPackagesId(Number(id), data as never)
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
@@ -169,11 +167,7 @@ export function useDeleteOTAPackage() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const response =
-        await otaPackageServiceApi.oTAPackageServiceDeleteOTAPackage({ id })
-      return response.data
-    },
+    mutationFn: (id: string) => deleteOtaPackagesId(Number(id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
       toast.success('OTA package deleted successfully')
@@ -195,9 +189,7 @@ export function useDeleteOTAPackages() {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       // Delete packages in parallel
-      const deletePromises = ids.map((id) =>
-        otaPackageServiceApi.oTAPackageServiceDeleteOTAPackage({ id })
-      )
+      const deletePromises = ids.map((id) => deleteOtaPackagesId(Number(id)))
       await Promise.all(deletePromises)
       return { deletedCount: ids.length }
     },
