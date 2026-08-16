@@ -39,11 +39,20 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 	}
 	if err := m.deviceDB.AutoMigrate(
 		&model.Product{},
+		&model.ProductTSL{},
 		&model.Device{},
+		&model.DeviceState{},
 		&model.DeviceShadow{},
 		&model.DeviceTag{},
 		&model.DeviceShadowHistory{},
 		&model.DeviceEvent{},
+		&model.DevicePushRecord{},
+		&model.OTAPackage{},
+		&model.UpgradeBatch{},
+		&model.DeviceUpgradeStatus{},
+		&model.Rule{},
+		&model.RuleExecution{},
+		&model.Alert{},
 	); err != nil {
 		return err
 	}
