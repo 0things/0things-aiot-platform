@@ -27,8 +27,7 @@ func (r *OTARepository) DB(ctx context.Context) *gorm.DB { return r.db.WithConte
 func (r *OTARepository) selectWithProduct(ctx context.Context, query *gorm.DB) *gorm.DB {
 	return query.
 		Select("ota_packages.*, p.product_key AS product_key, p.name AS product_name").
-		Joins("JOIN products p ON p.id = ota_packages.product_id").
-		Where("p.tenant_id = ?", tenant.GetTenantID(ctx))
+		Joins("JOIN products p ON p.id = ota_packages.product_id AND p.tenant_id = ?", tenant.GetTenantID(ctx))
 }
 
 func (r *OTARepository) Find(ctx context.Context, id int64) (*model.OTAPackage, error) {

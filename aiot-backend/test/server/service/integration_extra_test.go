@@ -370,7 +370,7 @@ func TestIntegrationOTAService_Batches_Empty(t *testing.T) {
 	svc := testutil.NewTestOTATotalService(db)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "firmware-1", ProductKey: "P001", Version: "1.0.0"}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", TenantID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -385,7 +385,7 @@ func TestIntegrationOTAService_Deployments_Empty(t *testing.T) {
 	svc := testutil.NewTestOTATotalService(db)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "firmware-1", ProductKey: "P001", Version: "1.0.0"}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", TenantID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -680,7 +680,7 @@ func TestIntegrationOTAService_Get(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestOTATotalService(db)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductKey: "P001"}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", TenantID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -787,7 +787,7 @@ func TestIntegrationOTAService_FindByName(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestOTATotalService(db)
 
-	pkg := &model.OTAPackage{PackageName: "fw-unique", Version: "1.0", ProductKey: "P001"}
+	pkg := &model.OTAPackage{PackageName: "fw-unique", Version: "1.0", TenantID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -1413,7 +1413,7 @@ func TestIntegrationOTAService_Create(t *testing.T) {
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	svc := service.NewOTAService(otaRepo, productRepo)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductKey: "P001"}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", TenantID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 }
@@ -1425,7 +1425,7 @@ func TestIntegrationOTAService_Create_ProductNotFound(t *testing.T) {
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	svc := service.NewOTAService(otaRepo, productRepo)
 
-	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0", ProductKey: "NONEXIST"}
+	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0", TenantID: 1}
 	err := svc.Create(ctx2(), pkg, "NONEXIST")
 	assert.Error(t, err)
 }
@@ -1438,7 +1438,7 @@ func TestIntegrationOTAService_Batches(t *testing.T) {
 	svc := service.NewOTAService(otaRepo, productRepo)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "fw-batches", Version: "1.0", ProductKey: "P001"}
+	pkg := &model.OTAPackage{PackageName: "fw-batches", Version: "1.0", TenantID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -1455,7 +1455,7 @@ func TestIntegrationOTAService_Deployments(t *testing.T) {
 	svc := service.NewOTAService(otaRepo, productRepo)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", ProductKey: "P001"}
+	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", TenantID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 

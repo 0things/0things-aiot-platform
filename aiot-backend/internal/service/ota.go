@@ -52,6 +52,8 @@ func (s *OTAService) Create(ctx context.Context, pkg *model.OTAPackage, productK
 		return err
 	}
 	pkg.ProductID = product.ID
+	pkg.ProductKey = product.ProductKey
+	pkg.ProductName = product.Name
 	return s.repo.Create(ctx, pkg)
 }
 

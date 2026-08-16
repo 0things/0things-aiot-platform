@@ -186,7 +186,7 @@ func TestOTARepository_Create(t *testing.T) {
 	mock.ExpectExec("INSERT INTO `ota_packages`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
-	pkg := &model.OTAPackage{PackageName: "firmware-1", ProductKey: "P001", Version: "1.0.0"}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", TenantID: 1}
 	err := otaRepo.Create(ctx, pkg)
 	assert.NoError(t, err)
 }

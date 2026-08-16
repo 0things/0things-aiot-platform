@@ -30,6 +30,16 @@ export const statuses: {
     label: 'Cancelled',
     variant: 'outline',
   },
+  {
+    value: 'released',
+    label: 'Released',
+    variant: 'default',
+  },
+  {
+    value: 'archived',
+    label: 'Archived',
+    variant: 'outline',
+  },
 ]
 
 export const packageTypes: {
@@ -47,5 +57,17 @@ export const packageTypes: {
   {
     value: 'patch',
     label: 'Patch',
+  },
+  {
+    value: 'firmware',
+    label: 'Firmware',
+  },
+  {
+    value: 'config',
+    label: 'Config',
+  },
+  {
+    value: 'full',
+    label: 'Full',
   },
 ]

@@ -22,7 +22,7 @@ func otaPackageJSON(pkg model.OTAPackage) otaV1.OTAPackage {
 		ProductID: pkg.ProductID, ProductKey: pkg.ProductKey, ProductName: pkg.ProductName,
 		PackageType: pkg.PackageType, Status: pkg.Status, UploadType: pkg.UploadType, FileURL: pkg.FileURL,
 		FileSize: pkg.FileSize, Checksum: pkg.Checksum, Description: pkg.Description, ReleaseNotes: pkg.ReleaseNotes,
-		Metadata: string(pkg.Metadata), CreatedAt: pkg.CreatedAt, UpdatedAt: pkg.UpdatedAt, ReleasedAt: pkg.ReleasedAt,
+		CreatedAt: pkg.CreatedAt, UpdatedAt: pkg.UpdatedAt, ReleasedAt: pkg.ReleasedAt,
 	}
 }
 
@@ -110,7 +110,7 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	pkg := &model.OTAPackage{PackageName: req.PackageName, Version: req.Version, PackageType: req.PackageType, Status: req.Status, UploadType: req.UploadType, FileURL: req.FileURL, FileSize: req.FileSize, Checksum: req.Checksum, Description: req.Description, ReleaseNotes: req.ReleaseNotes, Metadata: req.Metadata}
+	pkg := &model.OTAPackage{PackageName: req.PackageName, Version: req.Version, PackageType: req.PackageType, Status: req.Status, UploadType: req.UploadType, FileURL: req.FileURL, FileSize: req.FileSize, Checksum: req.Checksum, Description: req.Description, ReleaseNotes: req.ReleaseNotes}
 	if pkg.Status == "" {
 		pkg.Status = "draft"
 	}
@@ -150,7 +150,7 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 		return
 	}
 	pkg.PackageName, pkg.Version, pkg.ProductID, pkg.PackageType, pkg.Status, pkg.UploadType = req.PackageName, req.Version, req.ProductID, req.PackageType, req.Status, req.UploadType
-	pkg.FileURL, pkg.FileSize, pkg.Checksum, pkg.Description, pkg.ReleaseNotes, pkg.Metadata = req.FileURL, req.FileSize, req.Checksum, req.Description, req.ReleaseNotes, req.Metadata
+	pkg.FileURL, pkg.FileSize, pkg.Checksum, pkg.Description, pkg.ReleaseNotes = req.FileURL, req.FileSize, req.Checksum, req.Description, req.ReleaseNotes
 	if err := h.svc.Update(c, pkg); err != nil {
 		deviceError(c, err)
 		return

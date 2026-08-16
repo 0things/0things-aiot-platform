@@ -31,8 +31,7 @@ func newOTAPackage(db *gorm.DB, opts ...gen.DOOption) oTAPackage {
 	_oTAPackage.PackageName = field.NewString(tableName, "package_name")
 	_oTAPackage.Version = field.NewString(tableName, "version")
 	_oTAPackage.ProductID = field.NewInt64(tableName, "product_id")
-	_oTAPackage.ProductKey = field.NewString(tableName, "product_key")
-	_oTAPackage.ProductName = field.NewString(tableName, "product_name")
+	_oTAPackage.TenantID = field.NewInt64(tableName, "tenant_id")
 	_oTAPackage.PackageType = field.NewString(tableName, "package_type")
 	_oTAPackage.Status = field.NewString(tableName, "status")
 	_oTAPackage.UploadType = field.NewString(tableName, "upload_type")
@@ -41,7 +40,6 @@ func newOTAPackage(db *gorm.DB, opts ...gen.DOOption) oTAPackage {
 	_oTAPackage.Checksum = field.NewString(tableName, "checksum")
 	_oTAPackage.Description = field.NewString(tableName, "description")
 	_oTAPackage.ReleaseNotes = field.NewString(tableName, "release_notes")
-	_oTAPackage.Metadata = field.NewBytes(tableName, "metadata")
 	_oTAPackage.DeletedAt = field.NewField(tableName, "deleted_at")
 	_oTAPackage.CreatedAt = field.NewTime(tableName, "created_at")
 	_oTAPackage.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -60,8 +58,7 @@ type oTAPackage struct {
 	PackageName  field.String
 	Version      field.String
 	ProductID    field.Int64
-	ProductKey   field.String
-	ProductName  field.String
+	TenantID     field.Int64
 	PackageType  field.String
 	Status       field.String
 	UploadType   field.String
@@ -70,7 +67,6 @@ type oTAPackage struct {
 	Checksum     field.String
 	Description  field.String
 	ReleaseNotes field.String
-	Metadata     field.Bytes
 	DeletedAt    field.Field
 	CreatedAt    field.Time
 	UpdatedAt    field.Time
@@ -95,8 +91,7 @@ func (o *oTAPackage) updateTableName(table string) *oTAPackage {
 	o.PackageName = field.NewString(table, "package_name")
 	o.Version = field.NewString(table, "version")
 	o.ProductID = field.NewInt64(table, "product_id")
-	o.ProductKey = field.NewString(table, "product_key")
-	o.ProductName = field.NewString(table, "product_name")
+	o.TenantID = field.NewInt64(table, "tenant_id")
 	o.PackageType = field.NewString(table, "package_type")
 	o.Status = field.NewString(table, "status")
 	o.UploadType = field.NewString(table, "upload_type")
@@ -105,7 +100,6 @@ func (o *oTAPackage) updateTableName(table string) *oTAPackage {
 	o.Checksum = field.NewString(table, "checksum")
 	o.Description = field.NewString(table, "description")
 	o.ReleaseNotes = field.NewString(table, "release_notes")
-	o.Metadata = field.NewBytes(table, "metadata")
 	o.DeletedAt = field.NewField(table, "deleted_at")
 	o.CreatedAt = field.NewTime(table, "created_at")
 	o.UpdatedAt = field.NewTime(table, "updated_at")
@@ -136,13 +130,12 @@ func (o *oTAPackage) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *oTAPackage) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 19)
+	o.fieldMap = make(map[string]field.Expr, 18)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["package_name"] = o.PackageName
 	o.fieldMap["version"] = o.Version
 	o.fieldMap["product_id"] = o.ProductID
-	o.fieldMap["product_key"] = o.ProductKey
-	o.fieldMap["product_name"] = o.ProductName
+	o.fieldMap["tenant_id"] = o.TenantID
 	o.fieldMap["package_type"] = o.PackageType
 	o.fieldMap["status"] = o.Status
 	o.fieldMap["upload_type"] = o.UploadType
@@ -151,7 +144,6 @@ func (o *oTAPackage) fillFieldMap() {
 	o.fieldMap["checksum"] = o.Checksum
 	o.fieldMap["description"] = o.Description
 	o.fieldMap["release_notes"] = o.ReleaseNotes
-	o.fieldMap["metadata"] = o.Metadata
 	o.fieldMap["deleted_at"] = o.DeletedAt
 	o.fieldMap["created_at"] = o.CreatedAt
 	o.fieldMap["updated_at"] = o.UpdatedAt

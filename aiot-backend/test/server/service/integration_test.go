@@ -420,7 +420,7 @@ func TestIntegrationOTAService_CRUD(t *testing.T) {
 	assert.Error(t, err)
 
 	// Create
-	pkg := &model.OTAPackage{PackageName: "firmware-1", ProductKey: "P001", Version: "1.0.0"}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", TenantID: 1}
 	err = svc.Create(ctx(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -450,7 +450,7 @@ func TestIntegrationOTAService_BatchesAndDeployments(t *testing.T) {
 	svc := testutil.NewTestOTATotalService(db)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "firmware-1", ProductKey: "P001", Version: "1.0.0"}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", TenantID: 1}
 	err := svc.Create(ctx(), pkg, "P001")
 	require.NoError(t, err)
 

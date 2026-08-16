@@ -2,38 +2,35 @@
 package otav1
 
 import (
-	"encoding/json"
 	"time"
 )
 
 type OTAPackageRequest struct {
-	PackageName  string          `json:"packageName" binding:"required"`
-	Version      string          `json:"version"`
-	ProductID    int64           `json:"productId"`
-	PackageType  string          `json:"packageType"`
-	Status       string          `json:"status"`
-	UploadType   string          `json:"uploadType"`
-	FileURL      string          `json:"fileUrl"`
-	FileSize     int64           `json:"fileSize"`
-	Checksum     string          `json:"checksum"`
-	Description  string          `json:"description"`
-	ReleaseNotes string          `json:"releaseNotes"`
-	Metadata     json.RawMessage `json:"metadata"`
+	PackageName  string `json:"packageName" binding:"required"`
+	Version      string `json:"version"`
+	ProductID    int64  `json:"productId"`
+	PackageType  string `json:"packageType"`
+	Status       string `json:"status"`
+	UploadType   string `json:"uploadType"`
+	FileURL      string `json:"fileUrl"`
+	FileSize     int64  `json:"fileSize"`
+	Checksum     string `json:"checksum"`
+	Description  string `json:"description"`
+	ReleaseNotes string `json:"releaseNotes"`
 }//@name OtaOTAPackageRequest
 
 type CreateOTAPackageRequest struct {
-	PackageName  string          `json:"packageName" binding:"required"`
-	Version      string          `json:"version"`
-	ProductKey   string          `json:"product_key" binding:"required"`
-	PackageType  string          `json:"packageType"`
-	Status       string          `json:"status"`
-	UploadType   string          `json:"uploadType"`
-	FileURL      string          `json:"fileUrl"`
-	FileSize     int64           `json:"fileSize"`
-	Checksum     string          `json:"checksum"`
-	Description  string          `json:"description"`
-	ReleaseNotes string          `json:"releaseNotes"`
-	Metadata     json.RawMessage `json:"metadata"`
+	PackageName  string `json:"packageName" binding:"required"`
+	Version      string `json:"version"`
+	ProductKey   string `json:"product_key" binding:"required"`
+	PackageType  string `json:"packageType"`
+	Status       string `json:"status"`
+	UploadType   string `json:"uploadType"`
+	FileURL      string `json:"fileUrl"`
+	FileSize     int64  `json:"fileSize"`
+	Checksum     string `json:"checksum"`
+	Description  string `json:"description"`
+	ReleaseNotes string `json:"releaseNotes"`
 }//@name OtaCreateOTAPackageRequest
 
 type SuccessResponse struct {
@@ -55,7 +52,6 @@ type OTAPackage struct {
 	Checksum     string     `json:"checksum"`
 	Description  string     `json:"description"`
 	ReleaseNotes string     `json:"releaseNotes"`
-	Metadata     string     `json:"metadata"`
 	CreatedAt    time.Time  `json:"createdAt"`
 	UpdatedAt    time.Time  `json:"updatedAt"`
 	ReleasedAt   *time.Time `json:"releasedAt,omitempty"`

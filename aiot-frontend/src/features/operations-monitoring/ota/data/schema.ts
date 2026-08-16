@@ -6,9 +6,18 @@ export const otaPackageStatusEnum = z.enum([
   'completed',
   'failed',
   'cancelled',
+  'released',
+  'archived',
 ])
 
-export const otaPackageTypeEnum = z.enum(['upgrade', 'security', 'patch'])
+export const otaPackageTypeEnum = z.enum([
+  'upgrade',
+  'security',
+  'patch',
+  'firmware',
+  'config',
+  'full',
+])
 
 export const otaPackageSchema = z.object({
   id: z.string(),

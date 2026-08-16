@@ -948,7 +948,7 @@ func TestOTARepository_Statistics(t *testing.T) {
 	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
 	productRepo.Create(ctx, product)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductKey: "P001", ProductID: product.ID}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, TenantID: 1}
 	otaRepo.Create(ctx, pkg)
 
 	stats, err := otaRepo.Statistics(ctx, pkg.ID)
@@ -963,7 +963,7 @@ func TestOTARepository_Batches(t *testing.T) {
 	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
 	productRepo.Create(ctx, product)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductKey: "P001", ProductID: product.ID}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, TenantID: 1}
 	otaRepo.Create(ctx, pkg)
 
 	batches, err := otaRepo.Batches(ctx, pkg.ID)
@@ -978,7 +978,7 @@ func TestOTARepository_Deployments(t *testing.T) {
 	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
 	productRepo.Create(ctx, product)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductKey: "P001", ProductID: product.ID}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, TenantID: 1}
 	otaRepo.Create(ctx, pkg)
 
 	deployments, total, err := otaRepo.Deployments(ctx, pkg.ID, 1, 10, "")

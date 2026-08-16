@@ -30,14 +30,19 @@
       "packageTypes": {
         "upgrade": "整包",
         "security": "安全升级",
-        "patch": "差分"
+        "patch": "差分",
+        "firmware": "固件",
+        "config": "配置",
+        "full": "全量"
       },
       "statuses": {
         "draft": "草稿",
         "deploying": "验证中",
         "completed": "已完成",
         "failed": "失败",
-        "cancelled": "已取消"
+        "cancelled": "已取消",
+        "released": "已发布",
+        "archived": "已归档"
       },
       "actions": {
         "create": "创建包",

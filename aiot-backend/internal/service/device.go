@@ -13,6 +13,7 @@ import (
 	"0things-backend/internal/model"
 	"0things-backend/internal/repository"
 	"0things-backend/internal/tenant"
+
 	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/xuri/excelize/v2"
 )
@@ -256,7 +257,7 @@ func (s *DeviceService) MQTT(ctx context.Context, key string) (MQTTParameters, e
 		return MQTTParameters{}, err
 	}
 	return MQTTParameters{
-		ClientID: d.Product.ProductKey, Username: d.DeviceKey, MQTTHostURL: "x39c51fe.ala.cn-hangzhou.emqxsl.cn", Password: d.DeviceKey, Port: 8883,
+		ClientID: d.Product.ProductKey, Username: d.DeviceKey, MQTTHostURL: "mqtt.0things.com", Password: d.DeviceKey, Port: 8883,
 	}, nil
 }
 func (s *DeviceService) DeleteDevice(ctx context.Context, id int64) error {

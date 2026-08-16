@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"time"
 
 	"gorm.io/gorm"
@@ -12,8 +11,9 @@ type OTAPackage struct {
 	PackageName  string `gorm:"column:package_name"`
 	Version      string
 	ProductID    int64  `gorm:"column:product_id"`
-	ProductKey   string `gorm:"<-:false;column:product_key"`
-	ProductName  string `gorm:"<-:false;column:product_name"`
+	TenantID     int64  `gorm:"column:tenant_id;not null;default:1"`
+	ProductKey   string `gorm:"column:product_key;->" json:"productKey,omitempty"`
+	ProductName  string `gorm:"column:product_name;->" json:"productName,omitempty"`
 	PackageType  string `gorm:"column:package_type"`
 	Status       string
 	UploadType   string `gorm:"column:upload_type"`
@@ -21,9 +21,8 @@ type OTAPackage struct {
 	FileSize     int64  `gorm:"column:file_size"`
 	Checksum     string
 	Description  string
-	ReleaseNotes string          `gorm:"column:release_notes"`
-	Metadata     json.RawMessage `gorm:"type:json"`
-	DeletedAt    gorm.DeletedAt  `gorm:"column:deleted_at"`
+	ReleaseNotes string         `gorm:"column:release_notes"`
+	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	ReleasedAt   *time.Time `gorm:"column:released_at"`

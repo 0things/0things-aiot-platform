@@ -37,6 +37,8 @@ func main() {
 	deviceDB.Exec("DELETE FROM devices")
 	deviceDB.Exec("DELETE FROM products")
 	deviceDB.Exec("DELETE FROM product_ts_ls")
+	deviceDB.Exec("DELETE FROM ota_packages")
+	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('users','device_events','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','product_ts_ls','ota_packages')")
 
 	// --- users (50) ---
 	fmt.Println("Seeding users...")
@@ -96,7 +98,7 @@ func main() {
 		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO devices (device_key, name, product_id, tenant_id, enabled, metadata, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 			fmt.Sprintf("dk_device_%03d", i),
 			fmt.Sprintf("设备%d", i),
-			int64(rand.Intn(50) + 1),
+			int64(i),
 			int64(rand.Intn(3) + 1),
 			rand.Intn(2) == 1,
 			string(metadata),
@@ -236,6 +238,33 @@ func main() {
 		)
 		if err != nil {
 			log.Printf("product_tsl insert error: %v", err)
+		}
+	}
+
+	// --- ota_packages (11) ---
+	fmt.Println("Seeding ota_packages...")
+	otaStatuses := []string{"draft", "released", "archived"}
+	otaTypes := []string{"firmware", "config", "full"}
+	uploadTypes := []string{"binary", "oss"}
+	for i := 1; i <= 11; i++ {
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO ota_packages (package_name, version, product_id, tenant_id, package_type, status, upload_type, file_url, file_size, checksum, description, release_notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			fmt.Sprintf("ota-pkg-%03d", i),
+			fmt.Sprintf("%d.%d.%d", rand.Intn(3)+1, rand.Intn(10), rand.Intn(20)),
+			int64(i),
+			int64(1),
+			otaTypes[rand.Intn(len(otaTypes))],
+			otaStatuses[rand.Intn(len(otaStatuses))],
+			uploadTypes[rand.Intn(len(uploadTypes))],
+			fmt.Sprintf("https://ota.0things.com/firmware/%s.bin", fmt.Sprintf("ota-pkg-%03d", i)),
+			int64(rand.Intn(5000000) + 100000),
+			fmt.Sprintf("%x", rand.Int63()),
+			fmt.Sprintf("OTA升级包%d描述", i),
+			fmt.Sprintf("OTA升级包%d发布说明", i),
+			time.Now().Add(-time.Duration(rand.Intn(90)) * 24 * time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("ota_package insert error: %v", err)
 		}
 	}
 
