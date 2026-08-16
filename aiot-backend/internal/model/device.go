@@ -18,14 +18,14 @@ type Device struct {
 	CreatedAt time.Time       `gorm:"column:created_at" json:"createdAt"`
 	UpdatedAt time.Time       `gorm:"column:updated_at" json:"updatedAt"`
 	Product   Product         `gorm:"foreignKey:ProductID" json:"-"`
-	State     DeviceState     `gorm:"foreignKey:DeviceID" json:"-"`
+	State     DeviceState     `gorm:"foreignKey:DeviceKey;references:DeviceKey" json:"-"`
 }
 
 func (Device) TableName() string { return "devices" }
 
 type DeviceState struct {
 	ID              int64  `gorm:"column:id;primaryKey"`
-	DeviceID        int64  `gorm:"column:device_id"`
+	DeviceKey       string `gorm:"column:device_key"`
 	State           string `gorm:"column:state"`
 	LastOnlineTime  *int64 `gorm:"column:last_online_time"`
 	LastOfflineTime *int64 `gorm:"column:last_offline_time"`

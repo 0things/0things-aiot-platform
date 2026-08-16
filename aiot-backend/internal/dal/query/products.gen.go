@@ -33,7 +33,7 @@ func newProduct(db *gorm.DB, opts ...gen.DOOption) product {
 	_product.Description = field.NewString(tableName, "description")
 	_product.Category = field.NewString(tableName, "category")
 	_product.Status = field.NewString(tableName, "status")
-	_product.Metadata = field.NewBytes(tableName, "metadata")
+	_product.Metadata = field.NewString(tableName, "metadata")
 	_product.NodeType = field.NewString(tableName, "node_type")
 	_product.ConnectivityMethod = field.NewString(tableName, "connectivity_method")
 	_product.AccessProtocol = field.NewString(tableName, "access_protocol")
@@ -57,7 +57,7 @@ type product struct {
 	Description        field.String
 	Category           field.String
 	Status             field.String
-	Metadata           field.Bytes
+	Metadata           field.String
 	NodeType           field.String
 	ConnectivityMethod field.String
 	AccessProtocol     field.String
@@ -87,7 +87,7 @@ func (p *product) updateTableName(table string) *product {
 	p.Description = field.NewString(table, "description")
 	p.Category = field.NewString(table, "category")
 	p.Status = field.NewString(table, "status")
-	p.Metadata = field.NewBytes(table, "metadata")
+	p.Metadata = field.NewString(table, "metadata")
 	p.NodeType = field.NewString(table, "node_type")
 	p.ConnectivityMethod = field.NewString(table, "connectivity_method")
 	p.AccessProtocol = field.NewString(table, "access_protocol")

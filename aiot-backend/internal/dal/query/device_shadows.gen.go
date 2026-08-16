@@ -29,9 +29,9 @@ func newDeviceShadow(db *gorm.DB, opts ...gen.DOOption) deviceShadow {
 	_deviceShadow.ALL = field.NewAsterisk(tableName)
 	_deviceShadow.ID = field.NewInt64(tableName, "id")
 	_deviceShadow.DeviceID = field.NewInt64(tableName, "device_id")
-	_deviceShadow.Desired = field.NewBytes(tableName, "desired")
-	_deviceShadow.Reported = field.NewBytes(tableName, "reported")
-	_deviceShadow.Metadata = field.NewBytes(tableName, "metadata")
+	_deviceShadow.Desired = field.NewString(tableName, "desired")
+	_deviceShadow.Reported = field.NewString(tableName, "reported")
+	_deviceShadow.Metadata = field.NewString(tableName, "metadata")
 	_deviceShadow.Version = field.NewInt64(tableName, "version")
 	_deviceShadow.CreatedAt = field.NewTime(tableName, "created_at")
 	_deviceShadow.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -47,9 +47,9 @@ type deviceShadow struct {
 	ALL       field.Asterisk
 	ID        field.Int64
 	DeviceID  field.Int64
-	Desired   field.Bytes
-	Reported  field.Bytes
-	Metadata  field.Bytes
+	Desired   field.String
+	Reported  field.String
+	Metadata  field.String
 	Version   field.Int64
 	CreatedAt field.Time
 	UpdatedAt field.Time
@@ -71,9 +71,9 @@ func (d *deviceShadow) updateTableName(table string) *deviceShadow {
 	d.ALL = field.NewAsterisk(table)
 	d.ID = field.NewInt64(table, "id")
 	d.DeviceID = field.NewInt64(table, "device_id")
-	d.Desired = field.NewBytes(table, "desired")
-	d.Reported = field.NewBytes(table, "reported")
-	d.Metadata = field.NewBytes(table, "metadata")
+	d.Desired = field.NewString(table, "desired")
+	d.Reported = field.NewString(table, "reported")
+	d.Metadata = field.NewString(table, "metadata")
 	d.Version = field.NewInt64(table, "version")
 	d.CreatedAt = field.NewTime(table, "created_at")
 	d.UpdatedAt = field.NewTime(table, "updated_at")

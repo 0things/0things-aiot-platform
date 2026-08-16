@@ -56,8 +56,8 @@ func TestDeviceRepositoryListScopesSearchToTenant(t *testing.T) {
 	device2 := &model.Device{DeviceKey: "D002", Name: "Tenant two", ProductID: product2.ID, TenantID: 2}
 	require.NoError(t, store.Create(device1).Error)
 	require.NoError(t, store.Create(device2).Error)
-	require.NoError(t, store.Create(&model.DeviceState{DeviceID: device1.ID, State: "online"}).Error)
-	require.NoError(t, store.Create(&model.DeviceState{DeviceID: device2.ID, State: "online"}).Error)
+	require.NoError(t, store.Create(&model.DeviceState{DeviceKey: device1.DeviceKey, State: "online"}).Error)
+	require.NoError(t, store.Create(&model.DeviceState{DeviceKey: device2.DeviceKey, State: "online"}).Error)
 
 	items, total, err := repo.List(ctx, 1, 20, 0, nil, nil, "Tenant")
 	require.NoError(t, err)

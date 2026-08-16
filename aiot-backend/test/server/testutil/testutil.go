@@ -48,7 +48,7 @@ func SeedTestData(t *testing.T, db *gorm.DB) {
 	device := &model.Device{ID: 1, DeviceKey: "D001", Name: "Test Device", ProductID: 1, TenantID: 1, Enabled: true}
 	db.Create(device)
 
-	db.Create(&model.DeviceState{ID: 1, DeviceID: 1, State: "online"})
+	db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"})
 }
 
 func NewTestRepositories(db *gorm.DB) (*repository.DeviceRepository, *repository.ProductRepository, *repository.DeviceTagRepository, *repository.DeviceShadowRepository, *repository.PushRecordRepository) {

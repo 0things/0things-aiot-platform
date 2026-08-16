@@ -31,8 +31,8 @@ func newDeviceShadowHistory(db *gorm.DB, opts ...gen.DOOption) deviceShadowHisto
 	_deviceShadowHistory.DeviceID = field.NewInt64(tableName, "device_id")
 	_deviceShadowHistory.Version = field.NewInt64(tableName, "version")
 	_deviceShadowHistory.Source = field.NewString(tableName, "source")
-	_deviceShadowHistory.Desired = field.NewBytes(tableName, "desired")
-	_deviceShadowHistory.Reported = field.NewBytes(tableName, "reported")
+	_deviceShadowHistory.Desired = field.NewString(tableName, "desired")
+	_deviceShadowHistory.Reported = field.NewString(tableName, "reported")
 	_deviceShadowHistory.CreatedAt = field.NewTime(tableName, "created_at")
 
 	_deviceShadowHistory.fillFieldMap()
@@ -48,8 +48,8 @@ type deviceShadowHistory struct {
 	DeviceID  field.Int64
 	Version   field.Int64
 	Source    field.String
-	Desired   field.Bytes
-	Reported  field.Bytes
+	Desired   field.String
+	Reported  field.String
 	CreatedAt field.Time
 
 	fieldMap map[string]field.Expr
@@ -71,8 +71,8 @@ func (d *deviceShadowHistory) updateTableName(table string) *deviceShadowHistory
 	d.DeviceID = field.NewInt64(table, "device_id")
 	d.Version = field.NewInt64(table, "version")
 	d.Source = field.NewString(table, "source")
-	d.Desired = field.NewBytes(table, "desired")
-	d.Reported = field.NewBytes(table, "reported")
+	d.Desired = field.NewString(table, "desired")
+	d.Reported = field.NewString(table, "reported")
 	d.CreatedAt = field.NewTime(table, "created_at")
 
 	d.fillFieldMap()

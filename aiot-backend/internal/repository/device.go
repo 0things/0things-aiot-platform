@@ -82,13 +82,13 @@ func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) err
 		if err := tx.Device.WithContext(ctx).Create(device); err != nil {
 			return err
 		}
-		return tx.DeviceState.WithContext(ctx).Create(&model.DeviceState{DeviceID: device.ID, State: "inactive"})
+		return tx.DeviceState.WithContext(ctx).Create(&model.DeviceState{DeviceKey: device.DeviceKey, State: "inactive"})
 	})
 }
 
 func (r *DeviceRepository) List(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) {
 	q := useQuery(r.db)
-	devices := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceID.EqCol(q.Device.ID)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)))
+	devices := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)))
 	if productID > 0 {
 		devices = devices.Where(q.Device.ProductID.Eq(productID))
 	}
@@ -133,7 +133,7 @@ func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, er
 		return DeviceStatistics{}, err
 	}
 	for state, target := range map[string]*int64{"online": &online, "offline": &offline, "inactive": &inactive} {
-		count, err := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceID.EqCol(q.Device.ID)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)), q.DeviceState.State.Eq(state)).Count()
+		count, err := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)), q.DeviceState.State.Eq(state)).Count()
 		*target = count
 		if err != nil {
 			return DeviceStatistics{}, err

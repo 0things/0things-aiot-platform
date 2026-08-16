@@ -28,7 +28,7 @@ func newDeviceState(db *gorm.DB, opts ...gen.DOOption) deviceState {
 	tableName := _deviceState.deviceStateDo.TableName()
 	_deviceState.ALL = field.NewAsterisk(tableName)
 	_deviceState.ID = field.NewInt64(tableName, "id")
-	_deviceState.DeviceID = field.NewInt64(tableName, "device_id")
+	_deviceState.DeviceKey = field.NewString(tableName, "device_key")
 	_deviceState.State = field.NewString(tableName, "state")
 	_deviceState.LastOnlineTime = field.NewInt64(tableName, "last_online_time")
 	_deviceState.LastOfflineTime = field.NewInt64(tableName, "last_offline_time")
@@ -45,7 +45,7 @@ type deviceState struct {
 
 	ALL             field.Asterisk
 	ID              field.Int64
-	DeviceID        field.Int64
+	DeviceKey       field.String
 	State           field.String
 	LastOnlineTime  field.Int64
 	LastOfflineTime field.Int64
@@ -68,7 +68,7 @@ func (d deviceState) As(alias string) *deviceState {
 func (d *deviceState) updateTableName(table string) *deviceState {
 	d.ALL = field.NewAsterisk(table)
 	d.ID = field.NewInt64(table, "id")
-	d.DeviceID = field.NewInt64(table, "device_id")
+	d.DeviceKey = field.NewString(table, "device_key")
 	d.State = field.NewString(table, "state")
 	d.LastOnlineTime = field.NewInt64(table, "last_online_time")
 	d.LastOfflineTime = field.NewInt64(table, "last_offline_time")
@@ -102,7 +102,7 @@ func (d *deviceState) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (d *deviceState) fillFieldMap() {
 	d.fieldMap = make(map[string]field.Expr, 7)
 	d.fieldMap["id"] = d.ID
-	d.fieldMap["device_id"] = d.DeviceID
+	d.fieldMap["device_key"] = d.DeviceKey
 	d.fieldMap["state"] = d.State
 	d.fieldMap["last_online_time"] = d.LastOnlineTime
 	d.fieldMap["last_offline_time"] = d.LastOfflineTime

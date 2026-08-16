@@ -31,7 +31,7 @@ func newDeviceEvent(db *gorm.DB, opts ...gen.DOOption) deviceEvent {
 	_deviceEvent.DeviceID = field.NewInt64(tableName, "device_id")
 	_deviceEvent.EventType = field.NewString(tableName, "event_type")
 	_deviceEvent.EventAt = field.NewTime(tableName, "event_at")
-	_deviceEvent.Data = field.NewBytes(tableName, "data")
+	_deviceEvent.Data = field.NewString(tableName, "data")
 	_deviceEvent.CreatedAt = field.NewTime(tableName, "created_at")
 	_deviceEvent.DeviceKey = field.NewString(tableName, "device_key")
 	_deviceEvent.DeviceName = field.NewString(tableName, "device_name")
@@ -49,7 +49,7 @@ type deviceEvent struct {
 	DeviceID   field.Int64
 	EventType  field.String
 	EventAt    field.Time
-	Data       field.Bytes
+	Data       field.String
 	CreatedAt  field.Time
 	DeviceKey  field.String
 	DeviceName field.String
@@ -73,7 +73,7 @@ func (d *deviceEvent) updateTableName(table string) *deviceEvent {
 	d.DeviceID = field.NewInt64(table, "device_id")
 	d.EventType = field.NewString(table, "event_type")
 	d.EventAt = field.NewTime(table, "event_at")
-	d.Data = field.NewBytes(table, "data")
+	d.Data = field.NewString(table, "data")
 	d.CreatedAt = field.NewTime(table, "created_at")
 	d.DeviceKey = field.NewString(table, "device_key")
 	d.DeviceName = field.NewString(table, "device_name")

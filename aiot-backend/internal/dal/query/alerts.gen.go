@@ -34,7 +34,7 @@ func newAlert(db *gorm.DB, opts ...gen.DOOption) alert {
 	_alert.Severity = field.NewString(tableName, "severity")
 	_alert.Status = field.NewString(tableName, "status")
 	_alert.Summary = field.NewString(tableName, "summary")
-	_alert.Payload = field.NewBytes(tableName, "payload")
+	_alert.Payload = field.NewString(tableName, "payload")
 	_alert.Fingerprint = field.NewString(tableName, "fingerprint")
 	_alert.Count = field.NewInt(tableName, "count")
 	_alert.RaisedAt = field.NewTime(tableName, "raised_at")
@@ -62,7 +62,7 @@ type alert struct {
 	Severity     field.String
 	Status       field.String
 	Summary      field.String
-	Payload      field.Bytes
+	Payload      field.String
 	Fingerprint  field.String
 	Count        field.Int
 	RaisedAt     field.Time
@@ -96,7 +96,7 @@ func (a *alert) updateTableName(table string) *alert {
 	a.Severity = field.NewString(table, "severity")
 	a.Status = field.NewString(table, "status")
 	a.Summary = field.NewString(table, "summary")
-	a.Payload = field.NewBytes(table, "payload")
+	a.Payload = field.NewString(table, "payload")
 	a.Fingerprint = field.NewString(table, "fingerprint")
 	a.Count = field.NewInt(table, "count")
 	a.RaisedAt = field.NewTime(table, "raised_at")
