@@ -3,7 +3,6 @@ package service_test
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"testing"
 	"time"
 
@@ -26,7 +25,7 @@ func TestIntegrationDeviceService_CreateDevice_InvalidMetadata(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Bad Meta", ProductID: 1, TenantID: 1, Metadata: json.RawMessage(`"not-valid-json`)}
+	device := &model.Device{Name: "Bad Meta", ProductID: 1, TenantID: 1, Metadata: `"not-valid-json`}
 	_, err := svc.CreateDevice(ctx2(), device)
 	assert.Error(t, err)
 }
@@ -36,7 +35,7 @@ func TestIntegrationDeviceService_CreateDevice_WithValidMetadata(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Good Meta", ProductID: 1, TenantID: 1, Metadata: json.RawMessage(`{"key":"value"}`)}
+	device := &model.Device{Name: "Good Meta", ProductID: 1, TenantID: 1, Metadata: `{"key":"value"}`}
 	result, err := svc.CreateDevice(ctx2(), device)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -47,7 +46,7 @@ func TestIntegrationDeviceService_CreateDevice_WithStringMetadata(t *testing.T) 
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "String Meta", ProductID: 1, TenantID: 1, Metadata: json.RawMessage(`"{\"key\":\"value\"}"`)}
+	device := &model.Device{Name: "String Meta", ProductID: 1, TenantID: 1, Metadata: `"{\"key\":\"value\"}"`}
 	result, err := svc.CreateDevice(ctx2(), device)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -96,7 +95,7 @@ func TestIntegrationDeviceService_UpdateDevice_InvalidTransition(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	// Device is "online", trying to go to "inactive" should fail
-	_, err := svc.UpdateDevice(ctx2(), 1, "", "inactive", nil)
+	_, err := svc.UpdateDevice(ctx2(), 1, "", "inactive", "")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid status transition")
 }
@@ -107,7 +106,7 @@ func TestIntegrationDeviceService_UpdateDevice_ValidTransition(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	// Device is "online", can go to "offline"
-	device, err := svc.UpdateDevice(ctx2(), 1, "", "offline", nil)
+	device, err := svc.UpdateDevice(ctx2(), 1, "", "offline", "")
 	require.NoError(t, err)
 	assert.Equal(t, "offline", device.State.State)
 }
@@ -117,7 +116,7 @@ func TestExtraDeviceService_UpdateDevice_WithMetadata(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	meta := json.RawMessage(`{"updated": true}`)
+	meta := `{"updated": true}`
 	device, err := svc.UpdateDevice(ctx2(), 1, "", "", meta)
 	require.NoError(t, err)
 	assert.NotNil(t, device.Metadata)
@@ -305,42 +304,6 @@ func TestIntegrationProductService_Restore_NotFound(t *testing.T) {
 
 	_, err := svc.Restore(ctx2(), 999)
 	assert.Error(t, err)
-}
-
-func TestIntegrationRuleService_List_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestRuleService(db)
-
-	rules, total, err := svc.List(ctx2(), 1, 10, "type1", "active", "search")
-	require.NoError(t, err)
-	assert.Equal(t, int64(0), total)
-	assert.Empty(t, rules)
-}
-
-func TestIntegrationRuleService_Get_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestRuleService(db)
-
-	_, err := svc.Get(ctx2(), 999)
-	assert.Error(t, err)
-}
-
-func TestIntegrationRuleService_Delete_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestRuleService(db)
-
-	err := svc.Delete(ctx2(), 999)
-	assert.Error(t, err)
-}
-
-func TestIntegrationRuleService_ListExecutions_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestRuleService(db)
-
-	executions, total, err := svc.ListExecutions(ctx2(), 999, 1, 10)
-	require.NoError(t, err)
-	assert.Equal(t, int64(0), total)
-	assert.Empty(t, executions)
 }
 
 func TestIntegrationAlertService_List_WithFilters(t *testing.T) {
@@ -551,7 +514,7 @@ func TestIntegrationDeviceService_UpdateDevice_SameState(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	// Device is "online", updating to "online" (same state) should be a no-op
-	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", nil)
+	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", "")
 	require.NoError(t, err)
 	assert.Equal(t, "online", device.State.State)
 }
@@ -565,7 +528,7 @@ func TestIntegrationDeviceService_UpdateDevice_OfflineToOnline(t *testing.T) {
 	db.Model(&model.DeviceState{}).Where("device_id = ?", 1).Update("state", "offline")
 
 	// Then transition to online
-	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", nil)
+	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", "")
 	require.NoError(t, err)
 	assert.Equal(t, "online", device.State.State)
 }
@@ -579,7 +542,7 @@ func TestIntegrationDeviceService_UpdateDevice_InactiveToOnline(t *testing.T) {
 	db.Model(&model.DeviceState{}).Where("device_id = ?", 1).Update("state", "inactive")
 
 	// Try to go directly to online (invalid: must go through offline)
-	_, err := svc.UpdateDevice(ctx2(), 1, "", "online", nil)
+	_, err := svc.UpdateDevice(ctx2(), 1, "", "online", "")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid status transition")
 }
@@ -634,40 +597,13 @@ func TestIntegrationProductTSLService_Get_ProductNotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestIntegrationRuleService_Update_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestRuleService(db)
-
-	err := svc.Update(ctx2(), &model.Rule{ID: 999, Name: "Ghost"})
-	assert.Error(t, err)
-}
-
-func TestIntegrationRuleService_CreateExecution(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestRuleService(db)
-
-	rule := &model.Rule{Name: "Test Rule", ProductID: 1, Type: "threshold", Status: "active"}
-	err := svc.Create(ctx2(), rule)
-	require.NoError(t, err)
-
-	execution, err := svc.Evaluate(ctx2(), rule.ID)
-	require.NoError(t, err)
-	assert.NotNil(t, execution)
-	assert.Equal(t, "success", execution.Status)
-}
-
 func TestIntegrationAlertService_Get(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestAlertService(db)
 
-	rule := &model.Rule{Name: "Test Rule", ProductID: 1, Type: "threshold", Status: "active"}
-	err := db.Create(rule).Error
-	require.NoError(t, err)
-
-	alert := &model.Alert{RuleID: rule.ID, RuleName: rule.Name, Status: "active", Severity: "critical"}
-	err = db.Create(alert).Error
+	alert := &model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "active", Severity: "critical"}
+	err := db.Create(alert).Error
 	require.NoError(t, err)
 
 	result, err := svc.Get(ctx2(), alert.ID)
@@ -796,69 +732,13 @@ func TestIntegrationOTAService_FindByName(t *testing.T) {
 	assert.Equal(t, "fw-unique", result.PackageName)
 }
 
-func TestIntegrationRuleService_FindByName(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestRuleService(db)
-
-	rule := &model.Rule{Name: "Unique Rule", ProductID: 1, Type: "threshold", Status: "active"}
-	err := svc.Create(ctx2(), rule)
-	require.NoError(t, err)
-
-	result, err := svc.Get(ctx2(), rule.ID)
-	require.NoError(t, err)
-	assert.Equal(t, "Unique Rule", result.Name)
-}
-
-func TestIntegrationRuleService_Evaluate(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	ruleRepo := repository.NewRuleRepository(&repository.IoTDB{DB: db})
-	svc := service.NewRuleService(ruleRepo)
-
-	// Create a rule first
-	rule := &model.Rule{Name: "Test Rule", ProductID: 1, Type: "threshold", Status: "active"}
-	err := svc.Create(ctx2(), rule)
-	require.NoError(t, err)
-
-	execution, err := svc.Evaluate(ctx2(), rule.ID)
-	require.NoError(t, err)
-	assert.NotNil(t, execution)
-	assert.Equal(t, "success", execution.Status)
-	assert.Equal(t, rule.ID, execution.RuleID)
-
-	// Verify execution was saved
-	executions, total, err := svc.ListExecutions(ctx2(), rule.ID, 1, 10)
-	require.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-	assert.Len(t, executions, 1)
-
-	// Verify rule stats updated
-	updatedRule, err := svc.Get(ctx2(), rule.ID)
-	require.NoError(t, err)
-	assert.Equal(t, int64(1), updatedRule.ExecutionCount)
-	assert.Equal(t, int64(1), updatedRule.SuccessCount)
-}
-
-func TestIntegrationRuleService_Evaluate_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestRuleService(db)
-
-	_, err := svc.Evaluate(ctx2(), 999)
-	assert.Error(t, err)
-}
-
 func TestIntegrationAlertService_SetStatus_Acknowledged(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestAlertService(db)
 
-	rule := &model.Rule{Name: "Test Rule", ProductID: 1, Type: "threshold", Status: "active"}
-	err := db.Create(rule).Error
-	require.NoError(t, err)
-
-	alert := &model.Alert{RuleID: rule.ID, RuleName: rule.Name, Status: "active", Severity: "critical"}
-	err = db.Create(alert).Error
+	alert := &model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "active", Severity: "critical"}
+	err := db.Create(alert).Error
 	require.NoError(t, err)
 
 	result, err := svc.SetStatus(ctx2(), alert.ID, "acknowledged")
@@ -873,12 +753,8 @@ func TestIntegrationAlertService_SetStatus_Resolved(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestAlertService(db)
 
-	rule := &model.Rule{Name: "Test Rule", ProductID: 1, Type: "threshold", Status: "active"}
-	err := db.Create(rule).Error
-	require.NoError(t, err)
-
-	alert := &model.Alert{RuleID: rule.ID, RuleName: rule.Name, Status: "active", Severity: "critical"}
-	err = db.Create(alert).Error
+	alert := &model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "active", Severity: "critical"}
+	err := db.Create(alert).Error
 	require.NoError(t, err)
 
 	result, err := svc.SetStatus(ctx2(), alert.ID, "resolved")
@@ -944,7 +820,7 @@ func TestIntegrationProductService_Create_InvalidMetadata(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestProductService(db)
 
-	p := &model.Product{Name: "Bad Meta", Metadata: json.RawMessage(`"invalid-string-not-json"`)}
+	p := &model.Product{Name: "Bad Meta", Metadata: `"invalid-string-not-json"`}
 	_, err := svc.Create(ctx2(), p)
 	assert.Error(t, err)
 }
@@ -976,7 +852,7 @@ func TestIntegrationProductService_Save_InvalidMetadata(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestProductService(db)
 
-	p := &model.Product{ID: 1, Name: "Updated", ProductKey: "P001", Metadata: json.RawMessage(`"bad"`)}
+	p := &model.Product{ID: 1, Name: "Updated", ProductKey: "P001", Metadata: `"bad"`}
 	err := svc.Save(ctx2(), p)
 	assert.Error(t, err)
 }
@@ -1138,7 +1014,7 @@ func TestIntegrationProductTSLService_Delete(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestIntegrationProductTSLService_Delete_ProductNotFound(t *testing.T) {
+func TestIntegrationProductTSLService_Delete_ProductNotFound_Dup(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestProductTSLService(db)
 
@@ -1146,7 +1022,7 @@ func TestIntegrationProductTSLService_Delete_ProductNotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestIntegrationProductTSLService_Upsert_ProductNotFound(t *testing.T) {
+func TestIntegrationProductTSLService_Upsert_ProductNotFound_Dup(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestProductTSLService(db)
 
@@ -1256,21 +1132,6 @@ func TestIntegrationDeviceService_RestoreDevice(t *testing.T) {
 	assert.NotNil(t, device)
 }
 
-func TestIntegrationRuleService_SetStatus_NewStatus(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	ruleRepo := repository.NewRuleRepository(&repository.IoTDB{DB: db})
-	svc := service.NewRuleService(ruleRepo)
-
-	rule := &model.Rule{Name: "Test Rule", Type: "threshold", Status: "draft", ProductID: 1}
-	err := ruleRepo.Create(ctx2(), rule)
-	require.NoError(t, err)
-
-	rule2, err := svc.SetStatus(ctx2(), rule.ID, "active")
-	require.NoError(t, err)
-	assert.Equal(t, "active", rule2.Status)
-}
-
 func TestIntegrationProductService_Delete_Success(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
@@ -1306,7 +1167,7 @@ func TestIntegrationDeviceService_CreateDevice_InvalidLegacyMetadata(t *testing.
 	svc := testutil.NewTestDeviceService(db)
 
 	// valid JSON string wrapping invalid JSON content
-	device := &model.Device{Name: "Legacy Bad", ProductID: 1, TenantID: 1, Metadata: json.RawMessage(`"{\"bad\")"`)}
+	device := &model.Device{Name: "Legacy Bad", ProductID: 1, TenantID: 1, Metadata: `"{\"bad\")"`}
 	_, err := svc.CreateDevice(ctx2(), device)
 	assert.Error(t, err)
 }
@@ -1316,7 +1177,7 @@ func TestIntegrationDeviceService_CreateDevice_InvalidRawMetadata(t *testing.T) 
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Raw Bad", ProductID: 1, TenantID: 1, Metadata: json.RawMessage(`{bad json}`)}
+	device := &model.Device{Name: "Raw Bad", ProductID: 1, TenantID: 1, Metadata: `{bad json}`}
 	_, err := svc.CreateDevice(ctx2(), device)
 	assert.Error(t, err)
 }
@@ -1326,7 +1187,7 @@ func TestIntegrationDeviceService_CreateDevice_EmptyMetadata(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "No Meta", ProductID: 1, TenantID: 1, Metadata: nil}
+	device := &model.Device{Name: "No Meta", ProductID: 1, TenantID: 1, Metadata: ""}
 	result, err := svc.CreateDevice(ctx2(), device)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -1337,7 +1198,7 @@ func TestIntegrationProductService_Create_InvalidLegacyMetadata(t *testing.T) {
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	svc := service.NewProductService(productRepo)
 
-	product := &model.Product{Name: "Bad Legacy", ProductKey: "P999", Metadata: json.RawMessage(`"{\"bad\")"`), TenantID: 1}
+	product := &model.Product{Name: "Bad Legacy", ProductKey: "P999", Metadata: `"{\"bad\")"`, TenantID: 1}
 	_, err := svc.Create(ctx2(), product)
 	assert.Error(t, err)
 }
@@ -1347,7 +1208,7 @@ func TestIntegrationProductService_Create_InvalidRawMetadata(t *testing.T) {
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	svc := service.NewProductService(productRepo)
 
-	product := &model.Product{Name: "Bad Raw", ProductKey: "P999", Metadata: json.RawMessage(`{bad}`), TenantID: 1}
+	product := &model.Product{Name: "Bad Raw", ProductKey: "P999", Metadata: `{bad}`, TenantID: 1}
 	_, err := svc.Create(ctx2(), product)
 	assert.Error(t, err)
 }
@@ -1357,7 +1218,7 @@ func TestIntegrationProductService_Create_EmptyMetadata(t *testing.T) {
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	svc := service.NewProductService(productRepo)
 
-	product := &model.Product{Name: "No Meta", ProductKey: "P999", Metadata: nil, TenantID: 1}
+	product := &model.Product{Name: "No Meta", ProductKey: "P999", Metadata: "", TenantID: 1}
 	result, err := svc.Create(ctx2(), product)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -1369,17 +1230,8 @@ func TestIntegrationProductService_Save_InvalidLegacyMetadata(t *testing.T) {
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	svc := service.NewProductService(productRepo)
 
-	product := &model.Product{ID: 1, Name: "Updated", ProductKey: "P001", Metadata: json.RawMessage(`"{\"bad\")"`), TenantID: 1}
+	product := &model.Product{ID: 1, Name: "Updated", ProductKey: "P001", Metadata: `"{\"bad\")"`, TenantID: 1}
 	err := svc.Save(ctx2(), product)
-	assert.Error(t, err)
-}
-
-func TestIntegrationRuleService_SetStatus_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	ruleRepo := repository.NewRuleRepository(&repository.IoTDB{DB: db})
-	svc := service.NewRuleService(ruleRepo)
-
-	_, err := svc.SetStatus(ctx2(), 999, "active")
 	assert.Error(t, err)
 }
 

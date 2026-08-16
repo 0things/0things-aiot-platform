@@ -1,0 +1,13 @@
+{
+  "eyebrow": "自动化编排",
+  "title": "场景联动",
+  "description": "当设备事件满足条件时，自动执行一组场景动作。",
+  "saveDraft": "保存草稿",
+  "savedLocally": "场景草稿已保存到本地",
+  "futureNote": "场景动作以插件类型保存，后续可接入可视化画布或 AI 生成的联动方案。",
+  "list": { "description": "管理设备事件触发后的自动化场景。", "create": "新建场景", "searchPlaceholder": "按名称筛选场景...", "enabled": "已启用", "disabled": "已停用", "trigger": "触发条件", "actionCount": "场景动作", "actionCountValue": "{{count}} 个动作", "examples": { "highTemperature": { "name": "高温自动降温", "description": "温度异常时自动开启降温设备并发送通知。", "trigger": "温度 > 30°C" }, "offlineAlert": { "name": "设备离线提醒", "description": "设备离线后通知值班人员。", "trigger": "设备状态离线" }, "nightMode": { "name": "夜间节能模式", "description": "每天夜间切换设备至低功耗状态。", "trigger": "每日 23:00" } } },
+  "fields": { "deviceKey": "设备标识", "deviceKeyPlaceholder": "选择设备", "propertyKey": "属性标识", "propertyKeyPlaceholder": "例如 switch", "value": "设置值", "valuePlaceholder": "例如 true", "serviceKey": "服务标识", "serviceKeyPlaceholder": "例如 reboot", "message": "通知内容", "messagePlaceholder": "设备温度异常，请及时处理。", "url": "请求地址", "urlPlaceholder": "https://example.com/hooks/event", "method": "请求方式", "methodPlaceholder": "POST", "targetScene": "目标场景", "targetScenePlaceholder": "选择要触发的场景" },
+  "basic": { "title": "场景信息", "description": "给这条自动化一个易识别的名称。", "name": "场景名称", "defaultName": "高温自动降温", "note": "场景说明", "notePlaceholder": "说明此场景何时运行", "enabled": "已启用", "disabled": "已停用" },
+  "trigger": { "title": "触发条件", "description": "定义什么事件会启动这个场景。", "eventType": "事件类型", "property": "属性", "condition": "条件", "propertyReport": "物模型属性上报", "deviceStatus": "设备状态变化", "deviceEvent": "设备事件", "changed": "值发生变化" },
+  "actions": { "title": "场景动作", "description": "触发条件满足后，按顺序执行以下动作。", "action": "场景动作 {{index}}", "add": "新增场景动作", "remove": "删除动作", "setProperty": "设置物模型属性", "setPropertyDescription": "向设备下发属性值", "invokeService": "调用物模型服务", "invokeServiceDescription": "调用设备定义的服务", "notification": "发送通知消息", "notificationDescription": "向指定渠道发送通知", "webhook": "调用 Web 服务", "webhookDescription": "向外部 HTTP 地址发送请求", "triggerScene": "触发其他场景", "triggerSceneDescription": "继续执行另一个场景" }
+}

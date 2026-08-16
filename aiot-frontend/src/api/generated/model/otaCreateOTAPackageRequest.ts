@@ -11,7 +11,6 @@ export interface OtaCreateOTAPackageRequest {
   description?: string;
   fileSize?: number;
   fileUrl?: string;
-  metadata?: number[];
   packageName: string;
   packageType?: string;
   product_key: string;

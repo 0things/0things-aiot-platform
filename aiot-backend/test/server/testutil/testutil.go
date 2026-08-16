@@ -31,8 +31,8 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		&model.OTAPackage{},
 		&model.UpgradeBatch{},
 		&model.DeviceUpgradeStatus{},
-		&model.Rule{},
-		&model.RuleExecution{},
+		&model.SceneLinkage{},
+		&model.SceneLinkageDetail{},
 		&model.Alert{},
 	)
 	require.NoError(t, err)
@@ -85,9 +85,9 @@ func NewTestOTATotalService(db *gorm.DB) *service.OTAService {
 	return service.NewOTAService(otaRepo, productRepo)
 }
 
-func NewTestRuleService(db *gorm.DB) *service.RuleService {
-	ruleRepo := repository.NewRuleRepository(&repository.IoTDB{DB: db})
-	return service.NewRuleService(ruleRepo)
+func NewTestSceneLinkageService(db *gorm.DB) *service.SceneLinkageService {
+	sceneRepo := repository.NewSceneLinkageRepository(&repository.IoTDB{DB: db})
+	return service.NewSceneLinkageService(sceneRepo)
 }
 
 func NewTestDeviceEventService(db *gorm.DB) *service.DeviceEventService {

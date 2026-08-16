@@ -5,10 +5,10 @@
 package mock_repository
 
 import (
+	model "0things-backend/internal/model"
 	context "context"
 	reflect "reflect"
 
-	model "0things-backend/internal/model"
 	gomock "github.com/golang/mock/gomock"
 )
 

@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import RuleEnginePage from '@/features/rule-engine'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/rule-engine/')({
-  component: RuleEnginePage,
+  beforeLoad: () => {
+    throw redirect({ to: '/rule-engine/scene-linkage' })
+  },
 })

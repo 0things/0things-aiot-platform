@@ -8,7 +8,6 @@ import (
 	model "0things-backend/internal/model"
 	service "0things-backend/internal/service"
 	context "context"
-	json "encoding/json"
 	reflect "reflect"
 	time "time"
 
@@ -399,7 +398,7 @@ func (mr *MockDeviceServiceInterfaceMockRecorder) Telemetry(ctx, key interface{}
 }
 
 // UpdateDevice mocks base method.
-func (m *MockDeviceServiceInterface) UpdateDevice(ctx context.Context, id int64, name, state string, metadata json.RawMessage) (*model.Device, error) {
+func (m *MockDeviceServiceInterface) UpdateDevice(ctx context.Context, id int64, name, state, metadata string) (*model.Device, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateDevice", ctx, id, name, state, metadata)
 	ret0, _ := ret[0].(*model.Device)

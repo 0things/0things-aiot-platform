@@ -33,6 +33,8 @@ import type {
   ApiRegisterRequest,
   ApiResponse,
   ApiUpdateProfileRequest,
+  CreateSceneLinkageDetailResponse,
+  CreateSceneLinkageResponse,
   DeleteDevicesIdPushRecordsParams,
   DeviceActivateDeviceResponse,
   DeviceBatchUploadDevicesResponse,
@@ -72,8 +74,10 @@ import type {
   GetOtaPackagesIdDeviceDeploymentsParams,
   GetOtaPackagesParams,
   GetProductsParams,
-  GetRulesIdExecutionsParams,
-  GetRulesParams,
+  GetSceneLinkageDetailResponse,
+  GetSceneLinkageResponse,
+  GetSceneLinkagesParams,
+  ListSceneLinkagesResponse,
   OtaCreateOTAPackageRequest,
   OtaCreateOTAPackageResponse,
   OtaGetOTAPackageResponse,
@@ -97,15 +101,11 @@ import type {
   ProductTslUpsertProductTSLRequest,
   ProductUpdateProductRequest,
   ProductUpdateProductResponse,
-  RuleCreateRuleResponse,
-  RuleGetRuleResponse,
-  RuleListAvailableFieldsResponse,
-  RuleListRuleExecutionsResponse,
-  RuleListRulesResponse,
-  RuleRequest,
-  RuleSetRuleStatusResponse,
-  RuleSuccessResponse,
-  RuleUpdateRuleResponse
+  SceneLinkageDetailRequest,
+  SceneLinkageRequest,
+  SceneLinkageSuccessResponse,
+  UpdateSceneLinkageDetailResponse,
+  UpdateSceneLinkageResponse
 } from './model';
 
 import { orvalAxios } from '../orval-mutator';
@@ -1212,6 +1212,100 @@ export function useGetDevicesPushRecordsPushRecordId<TData = Awaited<ReturnType<
 
 
 /**
+ * 获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port
+ * @summary 获取 MQTT 连接参数
+ */
+export const getDevicesDeviceKeyMqttParameters = (
+    deviceKey: string,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<DeviceMQTTParametersResponse>(
+      {url: `/devices/${deviceKey}/mqtt-parameters`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getGetDevicesDeviceKeyMqttParametersQueryKey = (deviceKey: string,) => {
+    return [
+    `/devices/${deviceKey}/mqtt-parameters`
+    ] as const;
+    }
+
+
+export const getGetDevicesDeviceKeyMqttParametersQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyMqttParametersQueryKey(deviceKey);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>> = ({ signal }) => getDevicesDeviceKeyMqttParameters(deviceKey, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyMqttParametersQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>>
+export type GetDevicesDeviceKeyMqttParametersQueryError = ErrorType<unknown>
+
+
+export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
+ deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>,
+          TError,
+          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
+ deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>,
+          TError,
+          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
+ deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 获取 MQTT 连接参数
+ */
+
+export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
+ deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDevicesDeviceKeyMqttParametersQueryOptions(deviceKey,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+/**
  * 通过设备 ID 获取设备详情
  * @summary 通过 ID 获取设备
  */
@@ -1566,100 +1660,6 @@ export const usePostDevicesIdEnabled = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getPostDevicesIdEnabledMutationOptions(options), queryClient);
     }
-
-/**
- * 获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port
- * @summary 获取 MQTT 连接参数
- */
-export const getDevicesDeviceKeyMqttParameters = (
-    deviceKey: string,
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<DeviceMQTTParametersResponse>(
-      {url: `/devices/${deviceKey}/mqtt-parameters`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesDeviceKeyMqttParametersQueryKey = (deviceKey: string,) => {
-    return [
-    `/devices/${deviceKey}/mqtt-parameters`
-    ] as const;
-    }
-
-
-export const getGetDevicesDeviceKeyMqttParametersQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyMqttParametersQueryKey(deviceKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>> = ({ signal }) => getDevicesDeviceKeyMqttParameters(deviceKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetDevicesDeviceKeyMqttParametersQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>>
-export type GetDevicesDeviceKeyMqttParametersQueryError = ErrorType<unknown>
-
-
-export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
- deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>,
-          TError,
-          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>,
-          TError,
-          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary 获取 MQTT 连接参数
- */
-
-export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetDevicesDeviceKeyMqttParametersQueryOptions(deviceKey,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
 
 /**
  * 分页获取设备的下行推送记录
@@ -4382,17 +4382,17 @@ export const usePostRegister = <TError = ErrorType<unknown>,
     }
 
 /**
- * 分页获取规则列表，支持按 type、status、search 过滤
- * @summary 获取规则列表
+ * 分页获取场景联动列表，支持按 search、enable 过滤
+ * @summary 获取场景联动列表
  */
-export const getRules = (
-    params?: GetRulesParams,
+export const getSceneLinkages = (
+    params?: GetSceneLinkagesParams,
  signal?: AbortSignal
 ) => {
 
 
-      return orvalAxios<RuleListRulesResponse>(
-      {url: `/rules`, method: 'GET',
+      return orvalAxios<ListSceneLinkagesResponse>(
+      {url: `/scene-linkages`, method: 'GET',
         params, signal
     },
       );
@@ -4401,69 +4401,69 @@ export const getRules = (
 
 
 
-export const getGetRulesQueryKey = (params?: GetRulesParams,) => {
+export const getGetSceneLinkagesQueryKey = (params?: GetSceneLinkagesParams,) => {
     return [
-    `/rules`, ...(params ? [params] : [])
+    `/scene-linkages`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetRulesQueryOptions = <TData = Awaited<ReturnType<typeof getRules>>, TError = ErrorType<unknown>>(params?: GetRulesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRules>>, TError, TData>>, }
+export const getGetSceneLinkagesQueryOptions = <TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(params?: GetSceneLinkagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetRulesQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetSceneLinkagesQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRules>>> = ({ signal }) => getRules(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSceneLinkages>>> = ({ signal }) => getSceneLinkages(params, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRules>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetRulesQueryResult = NonNullable<Awaited<ReturnType<typeof getRules>>>
-export type GetRulesQueryError = ErrorType<unknown>
+export type GetSceneLinkagesQueryResult = NonNullable<Awaited<ReturnType<typeof getSceneLinkages>>>
+export type GetSceneLinkagesQueryError = ErrorType<unknown>
 
 
-export function useGetRules<TData = Awaited<ReturnType<typeof getRules>>, TError = ErrorType<unknown>>(
- params: undefined |  GetRulesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRules>>, TError, TData>> & Pick<
+export function useGetSceneLinkages<TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(
+ params: undefined |  GetSceneLinkagesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getRules>>,
+          Awaited<ReturnType<typeof getSceneLinkages>>,
           TError,
-          Awaited<ReturnType<typeof getRules>>
+          Awaited<ReturnType<typeof getSceneLinkages>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetRules<TData = Awaited<ReturnType<typeof getRules>>, TError = ErrorType<unknown>>(
- params?: GetRulesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRules>>, TError, TData>> & Pick<
+export function useGetSceneLinkages<TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(
+ params?: GetSceneLinkagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getRules>>,
+          Awaited<ReturnType<typeof getSceneLinkages>>,
           TError,
-          Awaited<ReturnType<typeof getRules>>
+          Awaited<ReturnType<typeof getSceneLinkages>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetRules<TData = Awaited<ReturnType<typeof getRules>>, TError = ErrorType<unknown>>(
- params?: GetRulesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRules>>, TError, TData>>, }
+export function useGetSceneLinkages<TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(
+ params?: GetSceneLinkagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 获取规则列表
+ * @summary 获取场景联动列表
  */
 
-export function useGetRules<TData = Awaited<ReturnType<typeof getRules>>, TError = ErrorType<unknown>>(
- params?: GetRulesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRules>>, TError, TData>>, }
+export function useGetSceneLinkages<TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(
+ params?: GetSceneLinkagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetRulesQueryOptions(params,options)
+  const queryOptions = getGetSceneLinkagesQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -4477,19 +4477,19 @@ export function useGetRules<TData = Awaited<ReturnType<typeof getRules>>, TError
 
 
 /**
- * 创建一条新的规则
- * @summary 创建规则
+ * 创建一条新的场景联动
+ * @summary 创建场景联动
  */
-export const postRules = (
-    ruleRequest: BodyType<RuleRequest>,
+export const postSceneLinkages = (
+    sceneLinkageRequest: BodyType<SceneLinkageRequest>,
  signal?: AbortSignal
 ) => {
 
 
-      return orvalAxios<RuleCreateRuleResponse>(
-      {url: `/rules`, method: 'POST',
+      return orvalAxios<CreateSceneLinkageResponse>(
+      {url: `/scene-linkages`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: ruleRequest, signal
+      data: sceneLinkageRequest, signal
     },
       );
     }
@@ -4497,11 +4497,11 @@ export const postRules = (
 
 
 
-export const getPostRulesMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postRules>>, TError,{data: BodyType<RuleRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postRules>>, TError,{data: BodyType<RuleRequest>}, TContext> => {
+export const getPostSceneLinkagesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkages>>, TError,{data: BodyType<SceneLinkageRequest>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkages>>, TError,{data: BodyType<SceneLinkageRequest>}, TContext> => {
 
-const mutationKey = ['postRules'];
+const mutationKey = ['postSceneLinkages'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -4511,10 +4511,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postRules>>, {data: BodyType<RuleRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postSceneLinkages>>, {data: BodyType<SceneLinkageRequest>}> = (props) => {
           const {data} = props ?? {};
 
-          return  postRules(data,)
+          return  postSceneLinkages(data,)
         }
 
 
@@ -4524,36 +4524,36 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type PostRulesMutationResult = NonNullable<Awaited<ReturnType<typeof postRules>>>
-    export type PostRulesMutationBody = BodyType<RuleRequest>
-    export type PostRulesMutationError = ErrorType<unknown>
+    export type PostSceneLinkagesMutationResult = NonNullable<Awaited<ReturnType<typeof postSceneLinkages>>>
+    export type PostSceneLinkagesMutationBody = BodyType<SceneLinkageRequest>
+    export type PostSceneLinkagesMutationError = ErrorType<unknown>
 
     /**
- * @summary 创建规则
+ * @summary 创建场景联动
  */
-export const usePostRules = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postRules>>, TError,{data: BodyType<RuleRequest>}, TContext>, }
+export const usePostSceneLinkages = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkages>>, TError,{data: BodyType<SceneLinkageRequest>}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postRules>>,
+        Awaited<ReturnType<typeof postSceneLinkages>>,
         TError,
-        {data: BodyType<RuleRequest>},
+        {data: BodyType<SceneLinkageRequest>},
         TContext
       > => {
-      return useMutation(getPostRulesMutationOptions(options), queryClient);
+      return useMutation(getPostSceneLinkagesMutationOptions(options), queryClient);
     }
 
 /**
- * 获取规则引擎支持的可用字段列表
- * @summary 获取规则可用字段
+ * 通过 ID 获取场景联动
+ * @summary 获取场景联动详情
  */
-export const getRulesAvailableFields = (
-
+export const getSceneLinkagesId = (
+    id: number,
  signal?: AbortSignal
 ) => {
 
 
-      return orvalAxios<RuleListAvailableFieldsResponse>(
-      {url: `/rules/available-fields`, method: 'GET', signal
+      return orvalAxios<GetSceneLinkageResponse>(
+      {url: `/scene-linkages/${id}`, method: 'GET', signal
     },
       );
     }
@@ -4561,69 +4561,69 @@ export const getRulesAvailableFields = (
 
 
 
-export const getGetRulesAvailableFieldsQueryKey = () => {
+export const getGetSceneLinkagesIdQueryKey = (id: number,) => {
     return [
-    `/rules/available-fields`
+    `/scene-linkages/${id}`
     ] as const;
     }
 
 
-export const getGetRulesAvailableFieldsQueryOptions = <TData = Awaited<ReturnType<typeof getRulesAvailableFields>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesAvailableFields>>, TError, TData>>, }
+export const getGetSceneLinkagesIdQueryOptions = <TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetRulesAvailableFieldsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetSceneLinkagesIdQueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRulesAvailableFields>>> = ({ signal }) => getRulesAvailableFields(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSceneLinkagesId>>> = ({ signal }) => getSceneLinkagesId(id, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRulesAvailableFields>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetRulesAvailableFieldsQueryResult = NonNullable<Awaited<ReturnType<typeof getRulesAvailableFields>>>
-export type GetRulesAvailableFieldsQueryError = ErrorType<unknown>
+export type GetSceneLinkagesIdQueryResult = NonNullable<Awaited<ReturnType<typeof getSceneLinkagesId>>>
+export type GetSceneLinkagesIdQueryError = ErrorType<unknown>
 
 
-export function useGetRulesAvailableFields<TData = Awaited<ReturnType<typeof getRulesAvailableFields>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesAvailableFields>>, TError, TData>> & Pick<
+export function useGetSceneLinkagesId<TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getRulesAvailableFields>>,
+          Awaited<ReturnType<typeof getSceneLinkagesId>>,
           TError,
-          Awaited<ReturnType<typeof getRulesAvailableFields>>
+          Awaited<ReturnType<typeof getSceneLinkagesId>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetRulesAvailableFields<TData = Awaited<ReturnType<typeof getRulesAvailableFields>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesAvailableFields>>, TError, TData>> & Pick<
+export function useGetSceneLinkagesId<TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getRulesAvailableFields>>,
+          Awaited<ReturnType<typeof getSceneLinkagesId>>,
           TError,
-          Awaited<ReturnType<typeof getRulesAvailableFields>>
+          Awaited<ReturnType<typeof getSceneLinkagesId>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetRulesAvailableFields<TData = Awaited<ReturnType<typeof getRulesAvailableFields>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesAvailableFields>>, TError, TData>>, }
+export function useGetSceneLinkagesId<TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 获取规则可用字段
+ * @summary 获取场景联动详情
  */
 
-export function useGetRulesAvailableFields<TData = Awaited<ReturnType<typeof getRulesAvailableFields>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesAvailableFields>>, TError, TData>>, }
+export function useGetSceneLinkagesId<TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetRulesAvailableFieldsQueryOptions(options)
+  const queryOptions = getGetSceneLinkagesIdQueryOptions(id,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -4637,114 +4637,20 @@ export function useGetRulesAvailableFields<TData = Awaited<ReturnType<typeof get
 
 
 /**
- * 通过规则 ID 获取规则详情
- * @summary 获取规则详情
+ * 通过 ID 更新场景联动
+ * @summary 更新场景联动
  */
-export const getRulesId = (
+export const putSceneLinkagesId = (
     id: number,
+    sceneLinkageRequest: BodyType<SceneLinkageRequest>,
  signal?: AbortSignal
 ) => {
 
 
-      return orvalAxios<RuleGetRuleResponse>(
-      {url: `/rules/${id}`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetRulesIdQueryKey = (id: number,) => {
-    return [
-    `/rules/${id}`
-    ] as const;
-    }
-
-
-export const getGetRulesIdQueryOptions = <TData = Awaited<ReturnType<typeof getRulesId>>, TError = ErrorType<unknown>>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesId>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetRulesIdQueryKey(id);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRulesId>>> = ({ signal }) => getRulesId(id, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRulesId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetRulesIdQueryResult = NonNullable<Awaited<ReturnType<typeof getRulesId>>>
-export type GetRulesIdQueryError = ErrorType<unknown>
-
-
-export function useGetRulesId<TData = Awaited<ReturnType<typeof getRulesId>>, TError = ErrorType<unknown>>(
- id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesId>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getRulesId>>,
-          TError,
-          Awaited<ReturnType<typeof getRulesId>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetRulesId<TData = Awaited<ReturnType<typeof getRulesId>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesId>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getRulesId>>,
-          TError,
-          Awaited<ReturnType<typeof getRulesId>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetRulesId<TData = Awaited<ReturnType<typeof getRulesId>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesId>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary 获取规则详情
- */
-
-export function useGetRulesId<TData = Awaited<ReturnType<typeof getRulesId>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesId>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetRulesIdQueryOptions(id,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-
-/**
- * 通过规则 ID 更新规则
- * @summary 更新规则
- */
-export const putRulesId = (
-    id: number,
-    ruleRequest: BodyType<RuleRequest>,
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<RuleUpdateRuleResponse>(
-      {url: `/rules/${id}`, method: 'PUT',
+      return orvalAxios<UpdateSceneLinkageResponse>(
+      {url: `/scene-linkages/${id}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
-      data: ruleRequest, signal
+      data: sceneLinkageRequest, signal
     },
       );
     }
@@ -4752,11 +4658,11 @@ export const putRulesId = (
 
 
 
-export const getPutRulesIdMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putRulesId>>, TError,{id: number;data: BodyType<RuleRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putRulesId>>, TError,{id: number;data: BodyType<RuleRequest>}, TContext> => {
+export const getPutSceneLinkagesIdMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesId>>, TError,{id: number;data: BodyType<SceneLinkageRequest>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesId>>, TError,{id: number;data: BodyType<SceneLinkageRequest>}, TContext> => {
 
-const mutationKey = ['putRulesId'];
+const mutationKey = ['putSceneLinkagesId'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -4766,10 +4672,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putRulesId>>, {id: number;data: BodyType<RuleRequest>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putSceneLinkagesId>>, {id: number;data: BodyType<SceneLinkageRequest>}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  putRulesId(id,data,)
+          return  putSceneLinkagesId(id,data,)
         }
 
 
@@ -4779,100 +4685,36 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type PutRulesIdMutationResult = NonNullable<Awaited<ReturnType<typeof putRulesId>>>
-    export type PutRulesIdMutationBody = BodyType<RuleRequest>
-    export type PutRulesIdMutationError = ErrorType<unknown>
+    export type PutSceneLinkagesIdMutationResult = NonNullable<Awaited<ReturnType<typeof putSceneLinkagesId>>>
+    export type PutSceneLinkagesIdMutationBody = BodyType<SceneLinkageRequest>
+    export type PutSceneLinkagesIdMutationError = ErrorType<unknown>
 
     /**
- * @summary 更新规则
+ * @summary 更新场景联动
  */
-export const usePutRulesId = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putRulesId>>, TError,{id: number;data: BodyType<RuleRequest>}, TContext>, }
+export const usePutSceneLinkagesId = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesId>>, TError,{id: number;data: BodyType<SceneLinkageRequest>}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putRulesId>>,
+        Awaited<ReturnType<typeof putSceneLinkagesId>>,
         TError,
-        {id: number;data: BodyType<RuleRequest>},
+        {id: number;data: BodyType<SceneLinkageRequest>},
         TContext
       > => {
-      return useMutation(getPutRulesIdMutationOptions(options), queryClient);
+      return useMutation(getPutSceneLinkagesIdMutationOptions(options), queryClient);
     }
 
 /**
- * 通过路径参数 id 的后缀执行不同操作：`{id}:enable` 启用、`{id}:disable` 禁用、`{id}:evaluate` 立即评估
- * @summary 规则操作（启用/禁用/评估）
+ * 通过 ID 删除场景联动
+ * @summary 删除场景联动
  */
-export const postRulesId = (
-    id: string,
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<RuleSetRuleStatusResponse>(
-      {url: `/rules/${id}`, method: 'POST', signal
-    },
-      );
-    }
-
-
-
-
-export const getPostRulesIdMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postRulesId>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postRulesId>>, TError,{id: string}, TContext> => {
-
-const mutationKey = ['postRulesId'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postRulesId>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
-
-          return  postRulesId(id,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostRulesIdMutationResult = NonNullable<Awaited<ReturnType<typeof postRulesId>>>
-
-    export type PostRulesIdMutationError = ErrorType<unknown>
-
-    /**
- * @summary 规则操作（启用/禁用/评估）
- */
-export const usePostRulesId = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postRulesId>>, TError,{id: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postRulesId>>,
-        TError,
-        {id: string},
-        TContext
-      > => {
-      return useMutation(getPostRulesIdMutationOptions(options), queryClient);
-    }
-
-/**
- * 通过规则 ID 删除规则
- * @summary 删除规则
- */
-export const deleteRulesId = (
+export const deleteSceneLinkagesId = (
     id: number,
  signal?: AbortSignal
 ) => {
 
 
-      return orvalAxios<RuleSuccessResponse>(
-      {url: `/rules/${id}`, method: 'DELETE', signal
+      return orvalAxios<SceneLinkageSuccessResponse>(
+      {url: `/scene-linkages/${id}`, method: 'DELETE', signal
     },
       );
     }
@@ -4880,11 +4722,11 @@ export const deleteRulesId = (
 
 
 
-export const getDeleteRulesIdMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRulesId>>, TError,{id: number}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteRulesId>>, TError,{id: number}, TContext> => {
+export const getDeleteSceneLinkagesIdMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSceneLinkagesId>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSceneLinkagesId>>, TError,{id: number}, TContext> => {
 
-const mutationKey = ['deleteRulesId'];
+const mutationKey = ['deleteSceneLinkagesId'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -4894,10 +4736,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRulesId>>, {id: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSceneLinkagesId>>, {id: number}> = (props) => {
           const {id} = props ?? {};
 
-          return  deleteRulesId(id,)
+          return  deleteSceneLinkagesId(id,)
         }
 
 
@@ -4907,38 +4749,36 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type DeleteRulesIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRulesId>>>
+    export type DeleteSceneLinkagesIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSceneLinkagesId>>>
 
-    export type DeleteRulesIdMutationError = ErrorType<unknown>
+    export type DeleteSceneLinkagesIdMutationError = ErrorType<unknown>
 
     /**
- * @summary 删除规则
+ * @summary 删除场景联动
  */
-export const useDeleteRulesId = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRulesId>>, TError,{id: number}, TContext>, }
+export const useDeleteSceneLinkagesId = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSceneLinkagesId>>, TError,{id: number}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteRulesId>>,
+        Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
         TError,
         {id: number},
         TContext
       > => {
-      return useMutation(getDeleteRulesIdMutationOptions(options), queryClient);
+      return useMutation(getDeleteSceneLinkagesIdMutationOptions(options), queryClient);
     }
 
 /**
- * 分页获取指定规则的执行记录
- * @summary 获取规则执行记录
+ * 通过场景联动 ID 获取触发器与动作配置
+ * @summary 获取场景联动详情配置
  */
-export const getRulesIdExecutions = (
+export const getSceneLinkagesIdDetail = (
     id: number,
-    params?: GetRulesIdExecutionsParams,
  signal?: AbortSignal
 ) => {
 
 
-      return orvalAxios<RuleListRuleExecutionsResponse>(
-      {url: `/rules/${id}/executions`, method: 'GET',
-        params, signal
+      return orvalAxios<GetSceneLinkageDetailResponse>(
+      {url: `/scene-linkages/${id}/detail`, method: 'GET', signal
     },
       );
     }
@@ -4946,75 +4786,69 @@ export const getRulesIdExecutions = (
 
 
 
-export const getGetRulesIdExecutionsQueryKey = (id: number,
-    params?: GetRulesIdExecutionsParams,) => {
+export const getGetSceneLinkagesIdDetailQueryKey = (id: number,) => {
     return [
-    `/rules/${id}/executions`, ...(params ? [params] : [])
+    `/scene-linkages/${id}/detail`
     ] as const;
     }
 
 
-export const getGetRulesIdExecutionsQueryOptions = <TData = Awaited<ReturnType<typeof getRulesIdExecutions>>, TError = ErrorType<unknown>>(id: number,
-    params?: GetRulesIdExecutionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesIdExecutions>>, TError, TData>>, }
+export const getGetSceneLinkagesIdDetailQueryOptions = <TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetRulesIdExecutionsQueryKey(id,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetSceneLinkagesIdDetailQueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRulesIdExecutions>>> = ({ signal }) => getRulesIdExecutions(id,params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>> = ({ signal }) => getSceneLinkagesIdDetail(id, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRulesIdExecutions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetRulesIdExecutionsQueryResult = NonNullable<Awaited<ReturnType<typeof getRulesIdExecutions>>>
-export type GetRulesIdExecutionsQueryError = ErrorType<unknown>
+export type GetSceneLinkagesIdDetailQueryResult = NonNullable<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>>
+export type GetSceneLinkagesIdDetailQueryError = ErrorType<unknown>
 
 
-export function useGetRulesIdExecutions<TData = Awaited<ReturnType<typeof getRulesIdExecutions>>, TError = ErrorType<unknown>>(
- id: number,
-    params: undefined |  GetRulesIdExecutionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesIdExecutions>>, TError, TData>> & Pick<
+export function useGetSceneLinkagesIdDetail<TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getRulesIdExecutions>>,
+          Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
           TError,
-          Awaited<ReturnType<typeof getRulesIdExecutions>>
+          Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetRulesIdExecutions<TData = Awaited<ReturnType<typeof getRulesIdExecutions>>, TError = ErrorType<unknown>>(
- id: number,
-    params?: GetRulesIdExecutionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesIdExecutions>>, TError, TData>> & Pick<
+export function useGetSceneLinkagesIdDetail<TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getRulesIdExecutions>>,
+          Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
           TError,
-          Awaited<ReturnType<typeof getRulesIdExecutions>>
+          Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetRulesIdExecutions<TData = Awaited<ReturnType<typeof getRulesIdExecutions>>, TError = ErrorType<unknown>>(
- id: number,
-    params?: GetRulesIdExecutionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesIdExecutions>>, TError, TData>>, }
+export function useGetSceneLinkagesIdDetail<TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 获取规则执行记录
+ * @summary 获取场景联动详情配置
  */
 
-export function useGetRulesIdExecutions<TData = Awaited<ReturnType<typeof getRulesIdExecutions>>, TError = ErrorType<unknown>>(
- id: number,
-    params?: GetRulesIdExecutionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRulesIdExecutions>>, TError, TData>>, }
+export function useGetSceneLinkagesIdDetail<TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetRulesIdExecutionsQueryOptions(id,params,options)
+  const queryOptions = getGetSceneLinkagesIdDetailQueryOptions(id,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -5026,6 +4860,140 @@ export function useGetRulesIdExecutions<TData = Awaited<ReturnType<typeof getRul
 
 
 
+
+/**
+ * 通过场景联动 ID 更新触发器与动作配置
+ * @summary 更新场景联动详情配置
+ */
+export const putSceneLinkagesIdDetail = (
+    id: number,
+    sceneLinkageDetailRequest: BodyType<SceneLinkageDetailRequest>,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<UpdateSceneLinkageDetailResponse>(
+      {url: `/scene-linkages/${id}/detail`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: sceneLinkageDetailRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getPutSceneLinkagesIdDetailMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext> => {
+
+const mutationKey = ['putSceneLinkagesIdDetail'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>, {id: number;data: BodyType<SceneLinkageDetailRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  putSceneLinkagesIdDetail(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutSceneLinkagesIdDetailMutationResult = NonNullable<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>>
+    export type PutSceneLinkagesIdDetailMutationBody = BodyType<SceneLinkageDetailRequest>
+    export type PutSceneLinkagesIdDetailMutationError = ErrorType<unknown>
+
+    /**
+ * @summary 更新场景联动详情配置
+ */
+export const usePutSceneLinkagesIdDetail = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
+        TError,
+        {id: number;data: BodyType<SceneLinkageDetailRequest>},
+        TContext
+      > => {
+      return useMutation(getPutSceneLinkagesIdDetailMutationOptions(options), queryClient);
+    }
+
+/**
+ * 为指定场景联动创建触发器与动作配置
+ * @summary 创建场景联动详情配置
+ */
+export const postSceneLinkagesIdDetail = (
+    id: number,
+    sceneLinkageDetailRequest: BodyType<SceneLinkageDetailRequest>,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<CreateSceneLinkageDetailResponse>(
+      {url: `/scene-linkages/${id}/detail`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: sceneLinkageDetailRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getPostSceneLinkagesIdDetailMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext> => {
+
+const mutationKey = ['postSceneLinkagesIdDetail'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>, {id: number;data: BodyType<SceneLinkageDetailRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  postSceneLinkagesIdDetail(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostSceneLinkagesIdDetailMutationResult = NonNullable<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>>
+    export type PostSceneLinkagesIdDetailMutationBody = BodyType<SceneLinkageDetailRequest>
+    export type PostSceneLinkagesIdDetailMutationError = ErrorType<unknown>
+
+    /**
+ * @summary 创建场景联动详情配置
+ */
+export const usePostSceneLinkagesIdDetail = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
+        TError,
+        {id: number;data: BodyType<SceneLinkageDetailRequest>},
+        TContext
+      > => {
+      return useMutation(getPostSceneLinkagesIdDetailMutationOptions(options), queryClient);
+    }
 
 /**
  * @summary 获取用户信息

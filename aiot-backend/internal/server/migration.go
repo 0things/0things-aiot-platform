@@ -50,8 +50,8 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 		&model.OTAPackage{},
 		&model.UpgradeBatch{},
 		&model.DeviceUpgradeStatus{},
-		&model.Rule{},
-		&model.RuleExecution{},
+		&model.SceneLinkage{},
+		&model.SceneLinkageDetail{},
 		&model.Alert{},
 	); err != nil {
 		return err

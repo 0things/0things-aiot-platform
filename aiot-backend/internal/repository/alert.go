@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"0things-backend/internal/model"
-	"0things-backend/internal/tenant"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +16,7 @@ type AlertRepository struct {
 func NewAlertRepository(db *IoTDB) *AlertRepository { return &AlertRepository{db: db} }
 func (r *AlertRepository) Find(ctx context.Context, id int64) (*model.Alert, error) {
 	q := useIoTQuery(r.db)
-	alert, err := q.Alert.WithContext(ctx).Join(q.Rule, q.Rule.ID.EqCol(q.Alert.RuleID)).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.Alert.ID.Eq(id), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+	alert, err := q.Alert.WithContext(ctx).Where(q.Alert.ID.Eq(id)).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -29,7 +28,7 @@ func (r *AlertRepository) Find(ctx context.Context, id int64) (*model.Alert, err
 
 func (r *AlertRepository) List(ctx context.Context, page, size int, status, severity, deviceKey string) ([]model.Alert, int64, error) {
 	q := useIoTQuery(r.db)
-	alerts := q.Alert.WithContext(ctx).Join(q.Rule, q.Rule.ID.EqCol(q.Alert.RuleID)).Join(q.Product, q.Product.ID.EqCol(q.Rule.ProductID)).Where(q.Product.TenantID.Eq(tenant.GetTenantID(ctx)))
+	alerts := q.Alert.WithContext(ctx)
 	if status != "" {
 		alerts = alerts.Where(q.Alert.Status.Eq(status))
 	}

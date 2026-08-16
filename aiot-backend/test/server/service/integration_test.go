@@ -104,7 +104,7 @@ func TestIntegrationDeviceService_UpdateDevice(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device, err := svc.UpdateDevice(ctx(), 1, "Updated Device", "", nil)
+	device, err := svc.UpdateDevice(ctx(), 1, "Updated Device", "", "")
 	require.NoError(t, err)
 	assert.Equal(t, "Updated Device", device.Name)
 }
@@ -115,7 +115,7 @@ func TestIntegrationDeviceService_UpdateDevice_WithMetadata(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	metadata := []byte(`{"key":"value"}`)
-	device, err := svc.UpdateDevice(ctx(), 1, "Updated", "", metadata)
+	device, err := svc.UpdateDevice(ctx(), 1, "Updated", "", string(metadata))
 	require.NoError(t, err)
 	assert.NotNil(t, device)
 }
@@ -464,65 +464,6 @@ func TestIntegrationOTAService_BatchesAndDeployments(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	assert.NotNil(t, deployments)
-}
-
-func TestIntegrationRuleService_CRUD(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestRuleService(db)
-
-	// List empty
-	rules, total, err := svc.List(ctx(), 1, 10, "", "", "")
-	require.NoError(t, err)
-	assert.Equal(t, int64(0), total)
-	assert.NotNil(t, rules)
-
-	// Get not found
-	_, err = svc.Get(ctx(), 999)
-	assert.Error(t, err)
-
-	// Create
-	rule := &model.Rule{Name: "Temperature Alert", Description: "Alert", ProductID: 1}
-	err = svc.Create(ctx(), rule)
-	require.NoError(t, err)
-
-	// List again
-	rules, total, err = svc.List(ctx(), 1, 10, "", "", "")
-	require.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-
-	// Get
-	rule2, err := svc.Get(ctx(), rule.ID)
-	require.NoError(t, err)
-	assert.Equal(t, "Temperature Alert", rule2.Name)
-
-	// Update
-	rule.Name = "Updated Alert"
-	err = svc.Update(ctx(), rule)
-	require.NoError(t, err)
-
-	// ListExecutions
-	executions, execTotal, err := svc.ListExecutions(ctx(), rule.ID, 1, 10)
-	require.NoError(t, err)
-	assert.Equal(t, int64(0), execTotal)
-	assert.NotNil(t, executions)
-
-	// Delete
-	err = svc.Delete(ctx(), rule.ID)
-	require.NoError(t, err)
-}
-
-func TestIntegrationRuleService_SetStatus(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestRuleService(db)
-
-	rule := &model.Rule{Name: "Test", Description: "Test", ProductID: 1}
-	err := svc.Create(ctx(), rule)
-	require.NoError(t, err)
-
-	_, err = svc.SetStatus(ctx(), rule.ID, "active")
-	require.NoError(t, err)
 }
 
 func TestIntegrationDeviceEventService_List(t *testing.T) {

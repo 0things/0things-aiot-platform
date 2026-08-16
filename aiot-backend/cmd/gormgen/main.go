@@ -28,8 +28,8 @@ func main() {
 		model.DeviceUpgradeStatus{},
 		model.ProductTSL{},
 		model.DevicePushRecord{},
-		model.Rule{},
-		model.RuleExecution{},
+		model.SceneLinkage{},
+		model.SceneLinkageDetail{},
 		model.Alert{},
 	)
 

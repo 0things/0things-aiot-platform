@@ -356,52 +356,6 @@ func TestOTARepository_FindByName_NotFound(t *testing.T) {
 	assert.Nil(t, pkg)
 }
 
-// --- Rule Repository Additional Tests ---
-
-func setupExtendedRuleRepository(t *testing.T) (*repository.RuleRepository, sqlmock.Sqlmock) {
-	t.Helper()
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
-
-	db, err := gorm.Open(mysql.New(mysql.Config{
-		Conn:                      mockDB,
-		SkipInitializeWithVersion: true,
-	}), &gorm.Config{})
-	require.NoError(t, err)
-
-	ruleRepo := repository.NewRuleRepository(&repository.IoTDB{DB: db})
-	return ruleRepo, mock
-}
-
-func TestRuleRepository_Create(t *testing.T) {
-	ruleRepo, mock := setupExtendedRuleRepository(t)
-	ctx := context.Background()
-
-	mock.ExpectQuery("SELECT .+ FROM `products`").WillReturnRows(
-		sqlmock.NewRows([]string{"id"}).AddRow(1),
-	)
-	mock.ExpectBegin()
-	mock.ExpectExec("INSERT INTO `rules`").WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectCommit()
-
-	rule := &model.Rule{Name: "New Rule", Type: "threshold", Status: "draft", ProductID: 1}
-	err := ruleRepo.Create(ctx, rule)
-	assert.NoError(t, err)
-}
-
-func TestRuleRepository_UpdateStatus(t *testing.T) {
-	ruleRepo, mock := setupExtendedRuleRepository(t)
-	ctx := context.Background()
-
-	mock.ExpectBegin()
-	mock.ExpectExec("UPDATE `rules`").WillReturnResult(sqlmock.NewResult(0, 1))
-	mock.ExpectCommit()
-
-	rule := &model.Rule{ID: 1, Status: "active"}
-	err := ruleRepo.UpdateStatus(ctx, rule, "enabled")
-	assert.NoError(t, err)
-}
-
 // --- Device Event Repository Tests ---
 
 func setupDeviceEventRepository(t *testing.T) (*repository.DeviceEventRepository, sqlmock.Sqlmock) {
@@ -769,148 +723,29 @@ func TestProductRepository_DB(t *testing.T) {
 	assert.NotNil(t, db)
 }
 
-// --- Rule Repository Extended Tests (SQLite) ---
-
-func setupSQLiteRuleRepo(t *testing.T) (*repository.RuleRepository, *repository.ProductRepository) {
-	t.Helper()
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	iotDB := &repository.IoTDB{DB: db}
-	ruleRepo := repository.NewRuleRepository(iotDB)
-	productRepo := repository.NewProductRepository(iotDB)
-	return ruleRepo, productRepo
-}
-
-func TestRuleRepository_List_WithFilters(t *testing.T) {
-	ruleRepo, productRepo := setupSQLiteRuleRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
-
-	// Create a product first (required for rule creation)
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
-	productRepo.Create(ctx, product)
-
-	// Create rules
-	ruleRepo.Create(ctx, &model.Rule{Name: "Temp Alert", Type: "threshold", Status: "active", ProductID: product.ID})
-	ruleRepo.Create(ctx, &model.Rule{Name: "Humidity Alert", Type: "event", Status: "draft", ProductID: product.ID})
-
-	// List with type filter
-	rules, total, err := ruleRepo.List(ctx, 1, 10, "threshold", "", "")
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-	assert.Len(t, rules, 1)
-
-	// List with status filter
-	rules, total, err = ruleRepo.List(ctx, 1, 10, "", "active", "")
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-
-	// List with search
-	rules, total, err = ruleRepo.List(ctx, 1, 10, "", "", "Humidity")
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-}
-
-func TestRuleRepository_Save(t *testing.T) {
-	ruleRepo, productRepo := setupSQLiteRuleRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
-
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
-	productRepo.Create(ctx, product)
-
-	rule := &model.Rule{Name: "Test Rule", Type: "threshold", Status: "draft", ProductID: product.ID}
-	ruleRepo.Create(ctx, rule)
-
-	rule.Name = "Updated Rule"
-	err := ruleRepo.Save(ctx, rule)
-	assert.NoError(t, err)
-
-	saved, err := ruleRepo.Find(ctx, rule.ID)
-	assert.NoError(t, err)
-	assert.Equal(t, "Updated Rule", saved.Name)
-}
-
-func TestRuleRepository_Save_NotFound(t *testing.T) {
-	ruleRepo, _ := setupSQLiteRuleRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
-
-	rule := &model.Rule{ID: 999, Name: "Ghost", Type: "threshold", Status: "draft", ProductID: 1}
-	err := ruleRepo.Save(ctx, rule)
-	assert.Error(t, err)
-}
-
-func TestRuleRepository_ListExecutions(t *testing.T) {
-	ruleRepo, productRepo := setupSQLiteRuleRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
-
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
-	productRepo.Create(ctx, product)
-
-	rule := &model.Rule{Name: "Test Rule", Type: "threshold", Status: "active", ProductID: product.ID}
-	ruleRepo.Create(ctx, rule)
-
-	// Create executions
-	ruleRepo.CreateExecution(ctx, &model.RuleExecution{RuleID: rule.ID, RuleName: rule.Name, Status: "success"})
-	ruleRepo.CreateExecution(ctx, &model.RuleExecution{RuleID: rule.ID, RuleName: rule.Name, Status: "failed"})
-
-	executions, total, err := ruleRepo.ListExecutions(ctx, rule.ID, 1, 10)
-	assert.NoError(t, err)
-	assert.Equal(t, int64(2), total)
-	assert.Len(t, executions, 2)
-}
-
-func TestRuleRepository_UpdateExecutionStats(t *testing.T) {
-	ruleRepo, productRepo := setupSQLiteRuleRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
-
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
-	productRepo.Create(ctx, product)
-
-	rule := &model.Rule{Name: "Test Rule", Type: "threshold", Status: "active", ProductID: product.ID, ExecutionCount: 0, SuccessCount: 0}
-	ruleRepo.Create(ctx, rule)
-
-	err := ruleRepo.UpdateExecutionStats(ctx, rule, time.Now())
-	assert.NoError(t, err)
-
-	updated, err := ruleRepo.Find(ctx, rule.ID)
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), updated.ExecutionCount)
-	assert.Equal(t, int64(1), updated.SuccessCount)
-}
-
-func TestRuleRepository_DB(t *testing.T) {
-	ruleRepo, _ := setupSQLiteRuleRepo(t)
-	ctx := context.Background()
-	db := ruleRepo.DB(ctx)
-	assert.NotNil(t, db)
-}
-
 // --- Alert Repository Extended Tests (SQLite) ---
 
-func setupSQLiteAlertRepo(t *testing.T) (*repository.AlertRepository, *repository.RuleRepository, *repository.ProductRepository) {
+func setupSQLiteAlertRepo(t *testing.T) (*repository.AlertRepository, *repository.ProductRepository) {
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	iotDB := &repository.IoTDB{DB: db}
 	alertRepo := repository.NewAlertRepository(iotDB)
-	ruleRepo := repository.NewRuleRepository(iotDB)
 	productRepo := repository.NewProductRepository(iotDB)
-	return alertRepo, ruleRepo, productRepo
+	return alertRepo, productRepo
 }
 
 func TestAlertRepository_List_WithFilters(t *testing.T) {
-	alertRepo, ruleRepo, productRepo := setupSQLiteAlertRepo(t)
+	alertRepo, productRepo := setupSQLiteAlertRepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
 	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
 	productRepo.Create(ctx, product)
 
-	rule := &model.Rule{Name: "Test Rule", Type: "threshold", Status: "active", ProductID: product.ID}
-	ruleRepo.Create(ctx, rule)
-
-	// Create alerts via GORM directly (alert repo uses gen queries which need full setup)
+	// Create alerts via GORM directly (alert no longer joins rule)
 	db := productRepo.DB(ctx)
-	db.Create(&model.Alert{RuleID: rule.ID, RuleName: rule.Name, Status: "active", Severity: "critical", DeviceKey: "D001"})
-	db.Create(&model.Alert{RuleID: rule.ID, RuleName: rule.Name, Status: "resolved", Severity: "low", DeviceKey: "D002"})
+	db.Create(&model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "active", Severity: "critical", DeviceKey: "D001"})
+	db.Create(&model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "resolved", Severity: "low", DeviceKey: "D002"})
 
 	// List with status filter
 	alerts, total, err := alertRepo.List(ctx, 1, 10, "active", "", "")
@@ -987,7 +822,7 @@ func TestOTARepository_Deployments(t *testing.T) {
 	assert.Empty(t, deployments)
 }
 
-func TestOTARepository_FindByName_NotFound(t *testing.T) {
+func TestOTARepository_FindByName_NotFound_SQLite(t *testing.T) {
 	otaRepo, _ := setupSQLiteOTARepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
@@ -1089,7 +924,7 @@ func TestDeviceRepository_Statistics_WithData(t *testing.T) {
 	assert.Equal(t, int64(1), stats.InactiveDevices)
 }
 
-func TestDeviceRepository_Restore(t *testing.T) {
+func TestDeviceRepository_Restore_SQLite(t *testing.T) {
 	deviceRepo, productRepo := setupSQLiteDeviceRepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
@@ -1107,7 +942,7 @@ func TestDeviceRepository_Restore(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestDeviceRepository_DB(t *testing.T) {
+func TestDeviceRepository_DB_SQLite(t *testing.T) {
 	deviceRepo, _ := setupSQLiteDeviceRepo(t)
 	ctx := context.Background()
 	db := deviceRepo.DB(ctx)
@@ -1189,7 +1024,7 @@ func setupSQLiteShadowRepo(t *testing.T) *repository.DeviceShadowRepository {
 	return repository.NewDeviceShadowRepository(iotDB)
 }
 
-func TestDeviceShadowRepository_MutateShadow_CreateNew(t *testing.T) {
+func TestDeviceShadowRepository_MutateShadow_CreateNew_SQLite(t *testing.T) {
 	shadowRepo := setupSQLiteShadowRepo(t)
 	ctx := context.Background()
 
@@ -1261,7 +1096,7 @@ func TestDeviceShadowRepository_MutateShadow_NewWithNonZeroVersion(t *testing.T)
 	assert.Error(t, err)
 }
 
-func TestDeviceShadowRepository_GetShadow_NotFound(t *testing.T) {
+func TestDeviceShadowRepository_GetShadow_NotFound_SQLite(t *testing.T) {
 	shadowRepo := setupSQLiteShadowRepo(t)
 	ctx := context.Background()
 
@@ -1269,7 +1104,7 @@ func TestDeviceShadowRepository_GetShadow_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestDeviceShadowRepository_ListShadowHistory(t *testing.T) {
+func TestDeviceShadowRepository_ListShadowHistory_SQLite(t *testing.T) {
 	shadowRepo := setupSQLiteShadowRepo(t)
 	ctx := context.Background()
 
@@ -1323,7 +1158,7 @@ func TestDeviceTagRepository_CRUD(t *testing.T) {
 	assert.Len(t, tags, 1)
 }
 
-func TestDeviceTagRepository_SetTags_Replace(t *testing.T) {
+func TestDeviceTagRepository_SetTags_Replace_SQLite(t *testing.T) {
 	tagRepo := setupSQLiteTagRepo(t)
 	ctx := context.Background()
 
@@ -1362,7 +1197,7 @@ func TestUserRepository_CRUD(t *testing.T) {
 	ctx := context.Background()
 
 	// Create
-	user := &model.User{UserID: "u1", Email: "test@test.com", Nickname: "Test User"}
+	user := &model.User{UserId: "u1", Email: "test@test.com", Nickname: "Test User"}
 	err := userRepo.Create(ctx, user)
 	require.NoError(t, err)
 
@@ -1406,20 +1241,18 @@ func TestUserRepository_GetByEmail_NotFound(t *testing.T) {
 
 // --- Device Event Repository Tests (SQLite) ---
 
-func setupSQLiteEventRepo(t *testing.T) *repository.DeviceEventRepository {
+func setupSQLiteEventRepo(t *testing.T) (*repository.DeviceEventRepository, *gorm.DB) {
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	iotDB := &repository.IoTDB{DB: db}
-	return repository.NewDeviceEventRepository(iotDB)
+	return repository.NewDeviceEventRepository(iotDB), db
 }
 
 func TestDeviceEventRepository_CreateAndList(t *testing.T) {
-	eventRepo := setupSQLiteEventRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
+	_, db := setupSQLiteEventRepo(t)
 
 	// Create events via raw GORM (since List uses gen queries with JOINs)
-	db := eventRepo.DB(ctx)
 	db.Create(&model.DeviceEvent{DeviceID: 1, EventType: "temperature", EventAt: time.Now()})
 
 	// Note: List uses gen queries which need full GORM Gen setup, so we test Create directly

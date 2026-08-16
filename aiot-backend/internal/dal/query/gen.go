@@ -30,8 +30,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		OTAPackage:          newOTAPackage(db, opts...),
 		Product:             newProduct(db, opts...),
 		ProductTSL:          newProductTSL(db, opts...),
-		Rule:                newRule(db, opts...),
-		RuleExecution:       newRuleExecution(db, opts...),
+		SceneLinkage:        newSceneLinkage(db, opts...),
+		SceneLinkageDetail:  newSceneLinkageDetail(db, opts...),
 		UpgradeBatch:        newUpgradeBatch(db, opts...),
 	}
 }
@@ -51,8 +51,8 @@ type Query struct {
 	OTAPackage          oTAPackage
 	Product             product
 	ProductTSL          productTSL
-	Rule                rule
-	RuleExecution       ruleExecution
+	SceneLinkage        sceneLinkage
+	SceneLinkageDetail  sceneLinkageDetail
 	UpgradeBatch        upgradeBatch
 }
 
@@ -75,8 +75,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		OTAPackage:          q.OTAPackage.clone(db),
 		Product:             q.Product.clone(db),
 		ProductTSL:          q.ProductTSL.clone(db),
-		Rule:                q.Rule.clone(db),
-		RuleExecution:       q.RuleExecution.clone(db),
+		SceneLinkage:        q.SceneLinkage.clone(db),
+		SceneLinkageDetail:  q.SceneLinkageDetail.clone(db),
 		UpgradeBatch:        q.UpgradeBatch.clone(db),
 	}
 }
@@ -104,8 +104,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		OTAPackage:          q.OTAPackage.replaceDB(db),
 		Product:             q.Product.replaceDB(db),
 		ProductTSL:          q.ProductTSL.replaceDB(db),
-		Rule:                q.Rule.replaceDB(db),
-		RuleExecution:       q.RuleExecution.replaceDB(db),
+		SceneLinkage:        q.SceneLinkage.replaceDB(db),
+		SceneLinkageDetail:  q.SceneLinkageDetail.replaceDB(db),
 		UpgradeBatch:        q.UpgradeBatch.replaceDB(db),
 	}
 }
@@ -123,8 +123,8 @@ type queryCtx struct {
 	OTAPackage          *oTAPackageDo
 	Product             *productDo
 	ProductTSL          *productTSLDo
-	Rule                *ruleDo
-	RuleExecution       *ruleExecutionDo
+	SceneLinkage        *sceneLinkageDo
+	SceneLinkageDetail  *sceneLinkageDetailDo
 	UpgradeBatch        *upgradeBatchDo
 }
 
@@ -142,8 +142,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		OTAPackage:          q.OTAPackage.WithContext(ctx),
 		Product:             q.Product.WithContext(ctx),
 		ProductTSL:          q.ProductTSL.WithContext(ctx),
-		Rule:                q.Rule.WithContext(ctx),
-		RuleExecution:       q.RuleExecution.WithContext(ctx),
+		SceneLinkage:        q.SceneLinkage.WithContext(ctx),
+		SceneLinkageDetail:  q.SceneLinkageDetail.WithContext(ctx),
 		UpgradeBatch:        q.UpgradeBatch.WithContext(ctx),
 	}
 }

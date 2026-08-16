@@ -5,10 +5,10 @@
 package mock_service
 
 import (
+	v1 "0things-backend/api/v1"
 	context "context"
 	reflect "reflect"
 
-	v1 "0things-backend/api/v1"
 	gomock "github.com/golang/mock/gomock"
 )
 

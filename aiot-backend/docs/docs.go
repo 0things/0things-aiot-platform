@@ -574,6 +574,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/devices/{device_key}/mqtt-parameters": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备模块"
+                ],
+                "summary": "获取 MQTT 连接参数",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备 DeviceKey",
+                        "name": "device_key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DeviceMQTTParametersResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/devices/{id}": {
             "get": {
                 "security": [
@@ -768,43 +805,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/DeviceSetDeviceEnabledResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/devices/{device_key}/mqtt-parameters": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备模块"
-                ],
-                "summary": "获取 MQTT 连接参数",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "设备 DeviceKey",
-                        "name": "device_key",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/DeviceMQTTParametersResponse"
                         }
                     }
                 }
@@ -2249,14 +2249,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/rules": {
+        "/scene-linkages": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取规则列表，支持按 type、status、search 过滤",
+                "description": "分页获取场景联动列表，支持按 search、enable 过滤",
                 "consumes": [
                     "application/json"
                 ],
@@ -2264,9 +2264,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "规则模块"
+                    "场景联动模块"
                 ],
-                "summary": "获取规则列表",
+                "summary": "获取场景联动列表",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2282,20 +2282,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "规则类型",
-                        "name": "type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "状态",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "description": "搜索关键字",
                         "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "启用状态：1 启用，0 停用",
+                        "name": "enable",
                         "in": "query"
                     }
                 ],
@@ -2303,7 +2297,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/RuleListRulesResponse"
+                            "$ref": "#/definitions/ListSceneLinkagesResponse"
                         }
                     }
                 }
@@ -2314,7 +2308,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "创建一条新的规则",
+                "description": "创建一条新的场景联动",
                 "consumes": [
                     "application/json"
                 ],
@@ -2322,9 +2316,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "规则模块"
+                    "场景联动模块"
                 ],
-                "summary": "创建规则",
+                "summary": "创建场景联动",
                 "parameters": [
                     {
                         "description": "params",
@@ -2332,7 +2326,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/RuleRequest"
+                            "$ref": "#/definitions/SceneLinkageRequest"
                         }
                     }
                 ],
@@ -2340,20 +2334,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/RuleCreateRuleResponse"
+                            "$ref": "#/definitions/CreateSceneLinkageResponse"
                         }
                     }
                 }
             }
         },
-        "/rules/available-fields": {
+        "/scene-linkages/{id}": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "获取规则引擎支持的可用字段列表",
+                "description": "通过 ID 获取场景联动",
                 "consumes": [
                     "application/json"
                 ],
@@ -2361,41 +2355,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "规则模块"
+                    "场景联动模块"
                 ],
-                "summary": "获取规则可用字段",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/RuleListAvailableFieldsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/rules/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过规则 ID 获取规则详情",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "规则模块"
-                ],
-                "summary": "获取规则详情",
+                "summary": "获取场景联动详情",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "规则 ID",
+                        "description": "场景联动 ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2405,7 +2371,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/RuleGetRuleResponse"
+                            "$ref": "#/definitions/GetSceneLinkageResponse"
                         }
                     }
                 }
@@ -2416,7 +2382,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过规则 ID 更新规则",
+                "description": "通过 ID 更新场景联动",
                 "consumes": [
                     "application/json"
                 ],
@@ -2424,13 +2390,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "规则模块"
+                    "场景联动模块"
                 ],
-                "summary": "更新规则",
+                "summary": "更新场景联动",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "规则 ID",
+                        "description": "场景联动 ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2441,7 +2407,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/RuleRequest"
+                            "$ref": "#/definitions/SceneLinkageRequest"
                         }
                     }
                 ],
@@ -2449,42 +2415,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/RuleUpdateRuleResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过路径参数 id 的后缀执行不同操作：` + "`" + `{id}:enable` + "`" + ` 启用、` + "`" + `{id}:disable` + "`" + ` 禁用、` + "`" + `{id}:evaluate` + "`" + ` 立即评估",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "规则模块"
-                ],
-                "summary": "规则操作（启用/禁用/评估）",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "规则 ID 与动作后缀，例如 1:enable",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/RuleSetRuleStatusResponse"
+                            "$ref": "#/definitions/UpdateSceneLinkageResponse"
                         }
                     }
                 }
@@ -2495,7 +2426,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过规则 ID 删除规则",
+                "description": "通过 ID 删除场景联动",
                 "consumes": [
                     "application/json"
                 ],
@@ -2503,13 +2434,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "规则模块"
+                    "场景联动模块"
                 ],
-                "summary": "删除规则",
+                "summary": "删除场景联动",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "规则 ID",
+                        "description": "场景联动 ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2519,20 +2450,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/RuleSuccessResponse"
+                            "$ref": "#/definitions/SceneLinkageSuccessResponse"
                         }
                     }
                 }
             }
         },
-        "/rules/{id}/executions": {
+        "/scene-linkages/{id}/detail": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取指定规则的执行记录",
+                "description": "通过场景联动 ID 获取触发器与动作配置",
                 "consumes": [
                     "application/json"
                 ],
@@ -2540,35 +2471,111 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "规则模块"
+                    "场景联动模块"
                 ],
-                "summary": "获取规则执行记录",
+                "summary": "获取场景联动详情配置",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "规则 ID",
+                        "description": "场景联动 ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "pageSize",
-                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/RuleListRuleExecutionsResponse"
+                            "$ref": "#/definitions/GetSceneLinkageDetailResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过场景联动 ID 更新触发器与动作配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "场景联动模块"
+                ],
+                "summary": "更新场景联动详情配置",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "场景联动 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SceneLinkageDetailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateSceneLinkageDetailResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "为指定场景联动创建触发器与动作配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "场景联动模块"
+                ],
+                "summary": "创建场景联动详情配置",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "场景联动 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SceneLinkageDetailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CreateSceneLinkageDetailResponse"
                         }
                     }
                 }
@@ -2830,6 +2837,22 @@ const docTemplate = `{
                 "nickname": {
                     "type": "string",
                     "example": "alan"
+                }
+            }
+        },
+        "CreateSceneLinkageDetailResponse": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "$ref": "#/definitions/SceneLinkageDetail"
+                }
+            }
+        },
+        "CreateSceneLinkageResponse": {
+            "type": "object",
+            "properties": {
+                "sceneLinkage": {
+                    "$ref": "#/definitions/SceneLinkage"
                 }
             }
         },
@@ -3411,6 +3434,42 @@ const docTemplate = `{
                 }
             }
         },
+        "GetSceneLinkageDetailResponse": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "$ref": "#/definitions/SceneLinkageDetail"
+                }
+            }
+        },
+        "GetSceneLinkageResponse": {
+            "type": "object",
+            "properties": {
+                "sceneLinkage": {
+                    "$ref": "#/definitions/SceneLinkage"
+                }
+            }
+        },
+        "ListSceneLinkagesResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SceneLinkage"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "OtaCreateOTAPackageRequest": {
             "type": "object",
             "required": [
@@ -3429,12 +3488,6 @@ const docTemplate = `{
                 },
                 "fileUrl": {
                     "type": "string"
-                },
-                "metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 },
                 "packageName": {
                     "type": "string"
@@ -3590,9 +3643,6 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "metadata": {
-                    "type": "string"
-                },
                 "packageName": {
                     "type": "string"
                 },
@@ -3645,12 +3695,6 @@ const docTemplate = `{
                 },
                 "fileUrl": {
                     "type": "string"
-                },
-                "metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 },
                 "packageName": {
                     "type": "string"
@@ -3972,206 +4016,34 @@ const docTemplate = `{
                 }
             }
         },
-        "Rule": {
+        "SceneLinkage": {
             "type": "object",
             "properties": {
-                "actionConfig": {
-                    "type": "string"
-                },
-                "conditionConfig": {
-                    "type": "string"
-                },
                 "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
                 },
-                "executionCount": {
-                    "type": "integer"
-                },
-                "failureCount": {
+                "enable": {
                     "type": "integer"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "lastExecutedAt": {
-                    "type": "string"
-                },
-                "lastExecutionStatus": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
-                "priority": {
+                "tenantId": {
                     "type": "integer"
-                },
-                "productId": {
-                    "type": "integer"
-                },
-                "sqlConfig": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "successCount": {
-                    "type": "integer"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "triggerConfig": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
                 }
             }
         },
-        "RuleAvailableField": {
+        "SceneLinkageDetail": {
             "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "field": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "RuleCreateRuleResponse": {
-            "type": "object",
-            "properties": {
-                "rule": {
-                    "$ref": "#/definitions/Rule"
-                }
-            }
-        },
-        "RuleEvaluateRuleResponse": {
-            "type": "object",
-            "properties": {
-                "execution": {
-                    "$ref": "#/definitions/RuleExecution"
-                }
-            }
-        },
-        "RuleExecution": {
-            "type": "object",
-            "properties": {
-                "conditionResult": {
-                    "type": "boolean"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "duration": {
-                    "type": "integer"
-                },
-                "error": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "ruleId": {
-                    "type": "integer"
-                },
-                "ruleName": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "triggerData": {
-                    "type": "string"
-                },
-                "triggeredAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "RuleGetRuleResponse": {
-            "type": "object",
-            "properties": {
-                "rule": {
-                    "$ref": "#/definitions/Rule"
-                }
-            }
-        },
-        "RuleListAvailableFieldsResponse": {
-            "type": "object",
-            "properties": {
-                "fields": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/RuleAvailableField"
-                    }
-                }
-            }
-        },
-        "RuleListRuleExecutionsResponse": {
-            "type": "object",
-            "properties": {
-                "executions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/RuleExecution"
-                    }
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "RuleListRulesResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Rule"
-                    }
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "RuleRequest": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
                 "actionConfig": {
                     "type": "array",
@@ -4179,34 +4051,21 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
-                "conditionConfig": {
+                "sceneId": {
+                    "type": "integer"
+                },
+                "triggerConfig": {
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
-                },
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "priority": {
-                    "type": "integer"
-                },
-                "productId": {
-                    "type": "integer"
-                },
-                "sqlConfig": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "status": {
-                    "type": "string"
-                },
-                "tags": {
+                }
+            }
+        },
+        "SceneLinkageDetailRequest": {
+            "type": "object",
+            "properties": {
+                "actionConfig": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -4217,21 +4076,27 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "SceneLinkageRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
                 },
-                "type": {
+                "enable": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }
         },
-        "RuleSetRuleStatusResponse": {
-            "type": "object",
-            "properties": {
-                "rule": {
-                    "$ref": "#/definitions/Rule"
-                }
-            }
-        },
-        "RuleSuccessResponse": {
+        "SceneLinkageSuccessResponse": {
             "type": "object",
             "properties": {
                 "success": {
@@ -4239,11 +4104,19 @@ const docTemplate = `{
                 }
             }
         },
-        "RuleUpdateRuleResponse": {
+        "UpdateSceneLinkageDetailResponse": {
             "type": "object",
             "properties": {
-                "rule": {
-                    "$ref": "#/definitions/Rule"
+                "detail": {
+                    "$ref": "#/definitions/SceneLinkageDetail"
+                }
+            }
+        },
+        "UpdateSceneLinkageResponse": {
+            "type": "object",
+            "properties": {
+                "sceneLinkage": {
+                    "$ref": "#/definitions/SceneLinkage"
                 }
             }
         }

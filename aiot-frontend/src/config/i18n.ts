@@ -36,6 +36,7 @@ i18n
       'deviceManagement',
       'operationsMonitoring',
       'iotDashboard',
+      'sceneLinkage',
     ],
     defaultNS: 'common',
 

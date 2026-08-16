@@ -14,9 +14,10 @@ type RouterDeps struct {
 	UserHandler       *handler.UserHandler
 	ProductHandler    *handler.ProductHandler
 	ProductTSLHandler *handler.ProductTSLHandler
-	DeviceHandler     *handler.DeviceHandler
-	RuleHandler       *handler.RuleHandler
-	AlertHandler      *handler.AlertHandler
+	DeviceHandler           *handler.DeviceHandler
+	SceneLinkageHandler      *handler.SceneLinkageHandler
+	SceneLinkageDetailHandler *handler.SceneLinkageDetailHandler
+	AlertHandler             *handler.AlertHandler
 	OTAHandler        *handler.OTAHandler
 	DeviceEventHandler *handler.DeviceEventHandler
 }

@@ -28,6 +28,7 @@ import {
   List,
   Zap,
   Cpu,
+  Workflow,
 } from 'lucide-react'
 import { ClerkLogo } from '@/assets/clerk-logo'
 import { type SidebarData } from '../types'
@@ -123,9 +124,15 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
           ],
         },
         {
-          title: '规则引擎',
-          url: '/rule-engine',
+          title: t('navigation:sidebar.ruleEngine'),
           icon: Zap,
+          items: [
+            {
+              title: t('navigation:sidebar.sceneLinkage'),
+              url: '/rule-engine/scene-linkage',
+              icon: Workflow,
+            },
+          ],
         },
         {
           title: 'Secured by Clerk',
