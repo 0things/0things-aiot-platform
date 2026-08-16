@@ -8,13 +8,13 @@ import {
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
-  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -28,28 +28,77 @@ import {
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { statuses, packageTypes } from '../data/data'
-import { useOTAPackages } from '../hooks/use-ota-packages'
+import { otaPackageKeys, useOTAPackages } from '../api/queries'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { useOTAPackagesColumns } from './ota-packages-columns'
 
 export function OTAPackagesTable() {
   const { t } = useTranslation('operationsMonitoring')
-  const { data: packages, isLoading, isError, refetch } = useOTAPackages()
-  const columns = useOTAPackagesColumns()
+  const queryClient = useQueryClient()
 
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [appliedFilters, setAppliedFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 20,
   })
 
-  const data = useMemo(() => packages || [], [packages])
+  // Extract filter values from appliedFilters (not columnFilters)
+  const status = appliedFilters.find((f) => f.id === 'status')?.value as
+    | string
+    | undefined
+  const packageType = appliedFilters.find((f) => f.id === 'packageType')?.value as
+    | string
+    | undefined
+  const searchText = appliedFilters.find((f) => f.id === 'packageName')
+    ?.value as string | undefined
 
+  // Handler to apply filters and trigger the API call
+  const handleSearch = () => {
+    setAppliedFilters(columnFilters)
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+  }
+
+  // Handler to reset filters and refresh data
+  const handleRefresh = () => {
+    setColumnFilters([])
+    setAppliedFilters([])
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+    queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
+  }
+
+  const { data, isLoading, isError, refetch } = useOTAPackages({
+    page: pagination.pageIndex + 1, // API pages are 1-indexed
+    pageSize: pagination.pageSize,
+    status,
+    packageType,
+    searchText,
+  })
+  const columns = useOTAPackagesColumns()
+
+  // Filter the fetched data by appliedFilters (search button) so typing does
+  // not affect the displayed rows until the search action is triggered.
+  const tableData = useMemo(() => {
+    const packages = data?.packages ?? []
+    let result = packages
+    if (status) result = result.filter((p) => p.status === status)
+    if (packageType)
+      result = result.filter((p) => p.packageType === packageType)
+    if (searchText) {
+      const q = searchText.toLowerCase()
+      result = result.filter((p) =>
+        (p.packageName || '').toLowerCase().includes(q)
+      )
+    }
+    return result
+  }, [data, status, packageType, searchText])
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data,
+    data: tableData,
     columns,
     state: {
       sorting,
@@ -59,15 +108,15 @@ export function OTAPackagesTable() {
       columnVisibility,
     },
     enableRowSelection: true,
+    manualFiltering: true, // Filtering is applied via appliedFilters on search
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getSortedRowModel: getSortedRowModel(), // Client-side sorting for current page
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
@@ -83,6 +132,8 @@ export function OTAPackagesTable() {
         table={table}
         searchPlaceholder={t('ota.packageList.filters.searchPlaceholder')}
         searchKey='packageName'
+        onSearch={handleSearch}
+        onRefresh={handleRefresh}
         filters={[
           {
             columnId: 'packageType',

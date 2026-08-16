@@ -48,8 +48,9 @@ export function useOTAPackages(filters?: {
   status?: string
   packageType?: string
   uploadType?: string
+  searchText?: string
 }) {
-  return useQuery<OTAPackage[]>({
+  return useQuery<{ packages: OTAPackage[]; total: number }>({
     queryKey: otaPackageKeys.list(filters),
     queryFn: async () => {
       const response = await getOtaPackages({
@@ -59,6 +60,7 @@ export function useOTAPackages(filters?: {
         status: filters?.status,
         packageType: filters?.packageType,
         uploadType: filters?.uploadType,
+        searchText: filters?.searchText,
       } as never)
 
       // Transform API response to match UI schema
@@ -87,7 +89,7 @@ export function useOTAPackages(filters?: {
         })
       )
 
-      return packages
+      return { packages, total: response.total || 0 }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
