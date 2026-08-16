@@ -773,7 +773,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/mqtt-parameters": {
+        "/devices/{device_key}/mqtt-parameters": {
             "get": {
                 "security": [
                     {
@@ -793,9 +793,9 @@ const docTemplate = `{
                 "summary": "获取 MQTT 连接参数",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 DeviceKey",
+                        "name": "device_key",
                         "in": "path",
                         "required": true
                     }

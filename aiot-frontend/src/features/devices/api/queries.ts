@@ -12,7 +12,7 @@ import type {
 import {
   deleteDevicesId,
   getDevices,
-  getDevicesIdMqttParameters,
+  getDevicesDeviceKeyMqttParameters,
   getDevicesIdTelemetry,
   getDevicesKeyDeviceKey,
   getDeviceStatistics,
@@ -114,7 +114,7 @@ export function useDeviceMqttParameters(deviceKey: string, enabled = false) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'mqtt-parameters', deviceKey],
     queryFn: async () => {
-      return getDevicesIdMqttParameters(Number(deviceKey)) as unknown as DeviceV1GetMqttParametersResponse
+      return getDevicesDeviceKeyMqttParameters(deviceKey) as unknown as DeviceV1GetMqttParametersResponse
     },
     enabled: enabled && !!deviceKey,
   })

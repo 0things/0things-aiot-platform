@@ -1571,14 +1571,14 @@ export const usePostDevicesIdEnabled = <TError = ErrorType<unknown>,
  * 获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port
  * @summary 获取 MQTT 连接参数
  */
-export const getDevicesIdMqttParameters = (
-    id: number,
+export const getDevicesDeviceKeyMqttParameters = (
+    deviceKey: string,
  signal?: AbortSignal
 ) => {
 
 
       return orvalAxios<DeviceMQTTParametersResponse>(
-      {url: `/devices/${id}/mqtt-parameters`, method: 'GET', signal
+      {url: `/devices/${deviceKey}/mqtt-parameters`, method: 'GET', signal
     },
       );
     }
@@ -1586,69 +1586,69 @@ export const getDevicesIdMqttParameters = (
 
 
 
-export const getGetDevicesIdMqttParametersQueryKey = (id: number,) => {
+export const getGetDevicesDeviceKeyMqttParametersQueryKey = (deviceKey: string,) => {
     return [
-    `/devices/${id}/mqtt-parameters`
+    `/devices/${deviceKey}/mqtt-parameters`
     ] as const;
     }
 
 
-export const getGetDevicesIdMqttParametersQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError = ErrorType<unknown>>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError, TData>>, }
+export const getGetDevicesDeviceKeyMqttParametersQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesIdMqttParametersQueryKey(id);
+  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyMqttParametersQueryKey(deviceKey);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesIdMqttParameters>>> = ({ signal }) => getDevicesIdMqttParameters(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>> = ({ signal }) => getDevicesDeviceKeyMqttParameters(deviceKey, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetDevicesIdMqttParametersQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesIdMqttParameters>>>
-export type GetDevicesIdMqttParametersQueryError = ErrorType<unknown>
+export type GetDevicesDeviceKeyMqttParametersQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>>
+export type GetDevicesDeviceKeyMqttParametersQueryError = ErrorType<unknown>
 
 
-export function useGetDevicesIdMqttParameters<TData = Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError = ErrorType<unknown>>(
- id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
+ deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getDevicesIdMqttParameters>>,
+          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>,
           TError,
-          Awaited<ReturnType<typeof getDevicesIdMqttParameters>>
+          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesIdMqttParameters<TData = Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
+ deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getDevicesIdMqttParameters>>,
+          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>,
           TError,
-          Awaited<ReturnType<typeof getDevicesIdMqttParameters>>
+          Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesIdMqttParameters<TData = Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError, TData>>, }
+export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
+ deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary 获取 MQTT 连接参数
  */
 
-export function useGetDevicesIdMqttParameters<TData = Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesIdMqttParameters>>, TError, TData>>, }
+export function useGetDevicesDeviceKeyMqttParameters<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError = ErrorType<unknown>>(
+ deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyMqttParameters>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetDevicesIdMqttParametersQueryOptions(id,options)
+  const queryOptions = getGetDevicesDeviceKeyMqttParametersQueryOptions(deviceKey,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

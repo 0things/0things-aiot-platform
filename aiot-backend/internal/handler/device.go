@@ -333,9 +333,9 @@ func (h *DeviceHandler) Telemetry(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "设备 ID"
+// @Param device_key path string true "设备 DeviceKey"
 // @Success 200 {object} deviceV1.MQTTParametersResponse
-// @Router /devices/{id}/mqtt-parameters [get]
+// @Router /devices/{device_key}/mqtt-parameters [get]
 func (h *DeviceHandler) MQTT(c *gin.Context) {
 	x, e := h.svc.MQTT(c, c.Param("id"))
 	if e != nil {

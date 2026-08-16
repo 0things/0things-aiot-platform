@@ -1423,17 +1423,17 @@ paths:
       summary: 设置设备启用/禁用
       tags:
       - 设备模块
-  /devices/{id}/mqtt-parameters:
+  /devices/{device_key}/mqtt-parameters:
     get:
       consumes:
       - application/json
       description: 获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port
       parameters:
-      - description: 设备 ID
+      - description: 设备 DeviceKey
         in: path
-        name: id
+        name: device_key
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:

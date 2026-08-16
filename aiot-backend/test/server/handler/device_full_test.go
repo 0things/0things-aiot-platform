@@ -34,7 +34,7 @@ func setupDeviceRouterFull(mockService *mock_service.MockDeviceServiceInterface)
 	router.PUT("/devices/:id/enabled", deviceHandler.Enabled)
 	router.GET("/devices/stats", deviceHandler.Stats)
 	router.GET("/devices/:id/telemetry", deviceHandler.Telemetry)
-	router.GET("/devices/:id/mqtt", deviceHandler.MQTT)
+	router.GET("/devices/:id/mqtt-parameters", deviceHandler.MQTT)
 	router.POST("/devices/:id/restore", deviceHandler.Restore)
 	router.GET("/devices/:id/tags", deviceHandler.GetTags)
 	router.PUT("/devices/:id/tags", deviceHandler.PutTags)
@@ -162,7 +162,7 @@ func TestDeviceHandler_MQTT(t *testing.T) {
 	}
 	mockService.EXPECT().MQTT(gomock.Any(), "D001").Return(mqttParams, nil)
 
-	req, _ := http.NewRequest("GET", "/devices/D001/mqtt", nil)
+	req, _ := http.NewRequest("GET", "/devices/D001/mqtt-parameters", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
