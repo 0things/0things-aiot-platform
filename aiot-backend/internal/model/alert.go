@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -13,7 +12,7 @@ type Alert struct {
 	Severity     string
 	Status       string
 	Summary      string
-	Payload      json.RawMessage `gorm:"type:json"`
+	Payload      string `gorm:"type:text"`
 	Fingerprint  string
 	Count        int
 	RaisedAt     time.Time  `gorm:"column:raised_at"`

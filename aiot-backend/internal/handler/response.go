@@ -47,16 +47,16 @@ func page(c *gin.Context, defaultSize int) (int, int) {
 	return pageNumber, pageSize
 }
 
-func raw(value json.RawMessage) any {
+func raw(value string) any {
 	if len(value) == 0 {
 		return ""
 	}
 
 	var legacyString string
-	if json.Unmarshal(value, &legacyString) == nil {
+	if json.Unmarshal([]byte(value), &legacyString) == nil {
 		return legacyString
 	}
-	return string(value)
+	return value
 }
 
 func deletedAt(value gorm.DeletedAt) *time.Time {

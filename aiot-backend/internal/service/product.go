@@ -37,20 +37,20 @@ func productKey() string {
 	return "P" + strings.ToUpper(hex.EncodeToString(bytes))
 }
 
-func normalizeProductMetadata(value json.RawMessage) (json.RawMessage, error) {
+func normalizeProductMetadata(value string) (string, error) {
 	if len(value) == 0 {
 		return value, nil
 	}
 
 	var legacyString string
-	if json.Unmarshal(value, &legacyString) == nil {
+	if json.Unmarshal([]byte(value), &legacyString) == nil {
 		if !json.Valid([]byte(legacyString)) {
-			return nil, errors.New("invalid metadata")
+			return "", errors.New("invalid metadata")
 		}
-		return json.RawMessage(legacyString), nil
+		return legacyString, nil
 	}
-	if !json.Valid(value) {
-		return nil, errors.New("invalid metadata")
+	if !json.Valid([]byte(value)) {
+		return "", errors.New("invalid metadata")
 	}
 	return value, nil
 }

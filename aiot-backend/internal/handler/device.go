@@ -62,8 +62,8 @@ func deviceTagsJSON(tags []model.DeviceTag) []deviceV1.DeviceTag {
 
 func shadowHistoryJSON(history model.DeviceShadowHistory) deviceV1.DeviceShadowHistory {
 	var desired, reported any
-	_ = json.Unmarshal(history.Desired, &desired)
-	_ = json.Unmarshal(history.Reported, &reported)
+	_ = json.Unmarshal([]byte(history.Desired), &desired)
+	_ = json.Unmarshal([]byte(history.Reported), &reported)
 	return deviceV1.DeviceShadowHistory{
 		ID: history.ID, DeviceID: history.DeviceID, Version: history.Version, Source: history.Source,
 		Desired: desired, Reported: reported, CreatedAt: history.CreatedAt,
@@ -95,7 +95,7 @@ func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	d, e := h.svc.CreateDevice(c, &model.Device{Name: req.Name, ProductID: req.ProductID, Enabled: req.Enabled, Metadata: req.Metadata})
+	d, e := h.svc.CreateDevice(c, &model.Device{Name: req.Name, ProductID: req.ProductID, Enabled: req.Enabled, Metadata: string(req.Metadata)})
 	if e != nil {
 		deviceError(c, e)
 		return
@@ -203,7 +203,7 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	d, e := h.svc.UpdateDevice(c, i, req.Name, req.State, req.Metadata)
+	d, e := h.svc.UpdateDevice(c, i, req.Name, req.State, string(req.Metadata))
 	if e != nil {
 		deviceError(c, e)
 		return
@@ -466,9 +466,9 @@ func (h *DeviceHandler) DeleteTags(c *gin.Context) {
 }
 func shadowJSON(x *model.DeviceShadow) deviceV1.Shadow {
 	var d, r, m any
-	_ = json.Unmarshal(x.Desired, &d)
-	_ = json.Unmarshal(x.Reported, &r)
-	_ = json.Unmarshal(x.Metadata, &m)
+	_ = json.Unmarshal([]byte(x.Desired), &d)
+	_ = json.Unmarshal([]byte(x.Reported), &r)
+	_ = json.Unmarshal([]byte(x.Metadata), &m)
 	dm := map[string]any{}
 	if ds, ok := d.(map[string]any); ok {
 		rs, _ := r.(map[string]any)

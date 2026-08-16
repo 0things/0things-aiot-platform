@@ -1,20 +1,19 @@
 package model
 
 import (
-	"encoding/json"
 	"time"
 
 	"gorm.io/gorm"
 )
 
 type Product struct {
-	ID                 int64           `gorm:"column:id;primaryKey" json:"id"`
-	ProductKey         string          `gorm:"column:product_key" json:"productKey"`
-	Name               string          `json:"name"`
-	Description        string          `json:"description"`
-	Category           string          `json:"category"`
-	Status             string          `json:"status"`
-	Metadata           json.RawMessage `gorm:"type:json" json:"metadata"`
+	ID                 int64          `gorm:"column:id;primaryKey" json:"id"`
+	ProductKey         string         `gorm:"column:product_key" json:"productKey"`
+	Name               string         `json:"name"`
+	Description        string         `json:"description"`
+	Category           string         `json:"category"`
+	Status             string         `json:"status"`
+	Metadata           string         `gorm:"type:text" json:"metadata"`
 	NodeType           string          `gorm:"column:node_type" json:"nodeType"`
 	ConnectivityMethod string          `gorm:"column:connectivity_method" json:"connectivityMethod"`
 	AccessProtocol     string          `gorm:"column:access_protocol" json:"accessProtocol"`

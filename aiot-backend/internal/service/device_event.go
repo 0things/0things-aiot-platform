@@ -46,7 +46,7 @@ func (s *DeviceEventService) Record(ctx context.Context, productKey, deviceKey, 
 	if timestamp > 0 {
 		eventAt = time.UnixMilli(timestamp)
 	}
-	return s.repo.Create(ctx, &model.DeviceEvent{DeviceID: device.ID, EventType: eventType, EventAt: eventAt, Data: payload})
+	return s.repo.Create(ctx, &model.DeviceEvent{DeviceID: device.ID, EventType: eventType, EventAt: eventAt, Data: string(payload)})
 }
 
 func (s *DeviceEventService) List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error) {

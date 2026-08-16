@@ -44,7 +44,7 @@ func (r *DeviceShadowRepository) MutateShadow(ctx context.Context, deviceID, exp
 			if expected != 0 {
 				return ErrVersionConflict
 			}
-			current = model.DeviceShadow{DeviceID: deviceID, Desired: json.RawMessage(`{}`), Reported: json.RawMessage(`{}`), Metadata: json.RawMessage(`{}`), Version: 0}
+			current = model.DeviceShadow{DeviceID: deviceID, Desired: "{}", Reported: "{}", Metadata: "{}", Version: 0}
 			if err := tx.Create(&current).Error; err != nil {
 				return err
 			}
@@ -56,14 +56,14 @@ func (r *DeviceShadowRepository) MutateShadow(ctx context.Context, deviceID, exp
 		}
 		if desired != nil {
 			b, _ := json.Marshal(*desired)
-			current.Desired = b
+			current.Desired = string(b)
 		}
 		if reported != nil {
 			b, _ := json.Marshal(*reported)
-			current.Reported = b
+			current.Reported = string(b)
 		}
 		if clearDesired {
-			current.Desired = json.RawMessage(`{}`)
+			current.Desired = "{}"
 		}
 		current.Version++
 		if err := tx.Model(&model.DeviceShadow{}).Where("id = ? AND version = ?", current.ID, expected).Updates(map[string]any{

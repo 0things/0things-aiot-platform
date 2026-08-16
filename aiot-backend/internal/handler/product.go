@@ -55,7 +55,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	product, err := h.svc.Create(c, &model.Product{Name: req.Name, Description: req.Description, Category: req.Category, Status: req.Status, Metadata: req.Metadata, NodeType: req.NodeType, ConnectivityMethod: req.ConnectivityMethod, AccessProtocol: req.AccessProtocol})
+	product, err := h.svc.Create(c, &model.Product{Name: req.Name, Description: req.Description, Category: req.Category, Status: req.Status, Metadata: string(req.Metadata), NodeType: req.NodeType, ConnectivityMethod: req.ConnectivityMethod, AccessProtocol: req.AccessProtocol})
 	if err != nil {
 		deviceError(c, err)
 		return
@@ -173,7 +173,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		product.Status = req.Status
 	}
 	if len(req.Metadata) > 0 {
-		product.Metadata = req.Metadata
+		product.Metadata = string(req.Metadata)
 	}
 	if req.NodeType != "" {
 		product.NodeType = req.NodeType

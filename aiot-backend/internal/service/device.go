@@ -22,7 +22,7 @@ type DeviceServiceInterface interface {
 	Device(ctx context.Context, id int64) (*model.Device, error)
 	DeviceByKey(ctx context.Context, key string) (*model.Device, error)
 	ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error)
-	UpdateDevice(ctx context.Context, id int64, name, state string, metadata json.RawMessage) (*model.Device, error)
+	UpdateDevice(ctx context.Context, id int64, name, state string, metadata string) (*model.Device, error)
 	Activate(ctx context.Context, id int64) (*model.Device, error)
 	SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error)
 	DeleteDevice(ctx context.Context, id int64) error
@@ -86,20 +86,20 @@ func NewDeviceService(
 	return &DeviceService{repo: repo, products: products, tags: tags, shadows: shadows, pushRecords: pushRecords}
 }
 
-func normalizeDeviceMetadata(value json.RawMessage) (json.RawMessage, error) {
+func normalizeDeviceMetadata(value string) (string, error) {
 	if len(value) == 0 {
 		return value, nil
 	}
 
 	var legacyString string
-	if json.Unmarshal(value, &legacyString) == nil {
+	if json.Unmarshal([]byte(value), &legacyString) == nil {
 		if !json.Valid([]byte(legacyString)) {
-			return nil, errors.New("invalid metadata")
+			return "", errors.New("invalid metadata")
 		}
-		return json.RawMessage(legacyString), nil
+		return legacyString, nil
 	}
-	if !json.Valid(value) {
-		return nil, errors.New("invalid metadata")
+	if !json.Valid([]byte(value)) {
+		return "", errors.New("invalid metadata")
 	}
 	return value, nil
 }
@@ -136,7 +136,7 @@ func (s *DeviceService) DeviceByKey(ctx context.Context, key string) (*model.Dev
 func (s *DeviceService) ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) {
 	return s.repo.List(ctx, page, size, productID, states, enabled, search)
 }
-func (s *DeviceService) UpdateDevice(ctx context.Context, id int64, name, state string, metadata json.RawMessage) (*model.Device, error) {
+func (s *DeviceService) UpdateDevice(ctx context.Context, id int64, name, state string, metadata string) (*model.Device, error) {
 	d, err := s.Device(ctx, id)
 	if err != nil {
 		return nil, err
@@ -174,7 +174,7 @@ func (s *DeviceService) Activate(ctx context.Context, id int64) (*model.Device, 
 	if d.State.State != "inactive" {
 		return nil, errors.New("device already activated")
 	}
-	return s.UpdateDevice(ctx, id, "", "offline", nil)
+	return s.UpdateDevice(ctx, id, "", "offline", "")
 }
 func (s *DeviceService) SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error) {
 	d, err := s.Device(ctx, id)
