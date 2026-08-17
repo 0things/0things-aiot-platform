@@ -2,6 +2,7 @@ package handler
 
 import (
 	productTSLV1 "0things-backend/api/product_tsl/v1"
+	v1 "0things-backend/api/v1"
 	"0things-backend/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -24,7 +25,7 @@ func NewProductTSLHandler(h *Handler, svc service.ProductTSLServiceInterface) *P
 // @Produce json
 // @Security Bearer
 // @Param id path int true "产品 ID"
-// @Success 200 {object} productTSLV1.GetProductTSLResponse
+// @Success 200 {object} v1.ApiResponse[productTSLV1.GetProductTSLResponse]
 // @Router /products/{id}/tsl [get]
 func (h *ProductTSLHandler) Get(c *gin.Context) {
 	tsl, err := h.svc.Get(c, c.Param("id"))
@@ -36,7 +37,7 @@ func (h *ProductTSLHandler) Get(c *gin.Context) {
 	if tsl.ProductID != nil {
 		productID = *tsl.ProductID
 	}
-	c.JSON(200, productTSLV1.GetProductTSLResponse{ProductTSL: productTSLV1.ProductTSL{ID: tsl.ID, ProductID: productID, TSL: tsl.TSL, CreatedAt: tsl.CreatedAt, UpdatedAt: tsl.UpdatedAt}})
+	v1.HandleSuccess(c, productTSLV1.GetProductTSLResponse{ProductTSL: productTSLV1.ProductTSL{ID: tsl.ID, ProductID: productID, TSL: tsl.TSL, CreatedAt: tsl.CreatedAt, UpdatedAt: tsl.UpdatedAt}})
 }
 
 // Put godoc
@@ -49,7 +50,7 @@ func (h *ProductTSLHandler) Get(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "产品 ID"
 // @Param request body productTSLV1.UpsertProductTSLRequest true "params"
-// @Success 200 {object} productTSLV1.SuccessResponse
+// @Success 200 {object} v1.ApiResponse[productTSLV1.SuccessResponse]
 // @Router /products/{id}/tsl [post]
 // @Router /products/{id}/tsl [put]
 func (h *ProductTSLHandler) Put(c *gin.Context) {
@@ -62,7 +63,7 @@ func (h *ProductTSLHandler) Put(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, productTSLV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, productTSLV1.SuccessResponse{Success: true})
 }
 
 // Delete godoc
@@ -74,12 +75,12 @@ func (h *ProductTSLHandler) Put(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "产品 ID"
-// @Success 200 {object} productTSLV1.SuccessResponse
+// @Success 200 {object} v1.ApiResponse[productTSLV1.SuccessResponse]
 // @Router /products/{id}/tsl [delete]
 func (h *ProductTSLHandler) Delete(c *gin.Context) {
 	if err := h.svc.Delete(c, c.Param("id")); err != nil {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, productTSLV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, productTSLV1.SuccessResponse{Success: true})
 }

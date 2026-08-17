@@ -78,7 +78,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/AlertListAlertsResponse"
+                            "$ref": "#/definitions/ApiResponse-AlertListAlertsResponse"
                         }
                     }
                 }
@@ -115,7 +115,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/AlertGetAlertResponse"
+                            "$ref": "#/definitions/ApiResponse-AlertGetAlertResponse"
                         }
                     }
                 }
@@ -152,7 +152,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/AlertGetAlertResponse"
+                            "$ref": "#/definitions/ApiResponse-AlertGetAlertResponse"
                         }
                     }
                 }
@@ -189,7 +189,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/AlertGetAlertResponse"
+                            "$ref": "#/definitions/ApiResponse-AlertGetAlertResponse"
                         }
                     }
                 }
@@ -258,7 +258,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceEventListDeviceEventsResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceEventListDeviceEventsResponse"
                         }
                     }
                 }
@@ -286,7 +286,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceStatisticsResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceStatisticsResponse"
                         }
                     }
                 }
@@ -356,7 +356,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceListDevicesResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceListDevicesResponse"
                         }
                     }
                 }
@@ -393,7 +393,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceCreateDeviceResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceCreateDeviceResponse"
                         }
                     }
                 }
@@ -455,7 +455,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceBatchUploadDevicesResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceBatchUploadDevicesResponse"
                         }
                     }
                 }
@@ -492,7 +492,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceGetDeviceResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceGetDeviceResponse"
                         }
                     }
                 }
@@ -531,7 +531,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceMockKafkaResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceMockKafkaResponse"
                         }
                     }
                 }
@@ -568,7 +568,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceGetPushRecordResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceGetPushRecordResponse"
                         }
                     }
                 }
@@ -605,7 +605,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceMQTTParametersResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceMQTTParametersResponse"
                         }
                     }
                 }
@@ -642,7 +642,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceGetDeviceResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceGetDeviceResponse"
                         }
                     }
                 }
@@ -686,7 +686,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceUpdateDeviceResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceUpdateDeviceResponse"
                         }
                     }
                 }
@@ -721,7 +721,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceSuccessResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceSuccessResponse"
                         }
                     }
                 }
@@ -758,7 +758,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceActivateDeviceResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceActivateDeviceResponse"
                         }
                     }
                 }
@@ -804,7 +804,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceSetDeviceEnabledResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceSetDeviceEnabledResponse"
                         }
                     }
                 }
@@ -865,7 +865,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceListPushRecordsResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceListPushRecordsResponse"
                         }
                     }
                 }
@@ -906,7 +906,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceClearPushRecordsResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceClearPushRecordsResponse"
                         }
                     }
                 }
@@ -943,7 +943,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceRestoreDeviceResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceRestoreDeviceResponse"
                         }
                     }
                 }
@@ -980,7 +980,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceShadow"
+                            "$ref": "#/definitions/ApiResponse-DeviceShadow"
                         }
                     }
                 }
@@ -1026,7 +1026,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceShadow"
+                            "$ref": "#/definitions/ApiResponse-DeviceShadow"
                         }
                     }
                 }
@@ -1070,7 +1070,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceShadow"
+                            "$ref": "#/definitions/ApiResponse-DeviceShadow"
                         }
                     }
                 }
@@ -1107,7 +1107,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceListDeviceShadowHistoryResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceListDeviceShadowHistoryResponse"
                         }
                     }
                 }
@@ -1153,7 +1153,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceShadow"
+                            "$ref": "#/definitions/ApiResponse-DeviceShadow"
                         }
                     }
                 }
@@ -1199,7 +1199,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceSimulatePushResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceSimulatePushResponse"
                         }
                     }
                 }
@@ -1236,7 +1236,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceListDeviceTagsResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceListDeviceTagsResponse"
                         }
                     }
                 }
@@ -1280,7 +1280,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceListDeviceTagsResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceListDeviceTagsResponse"
                         }
                     }
                 }
@@ -1324,7 +1324,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceListDeviceTagsResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceListDeviceTagsResponse"
                         }
                     }
                 }
@@ -1368,7 +1368,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceSuccessResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceSuccessResponse"
                         }
                     }
                 }
@@ -1405,7 +1405,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DeviceTelemetryResponse"
+                            "$ref": "#/definitions/ApiResponse-DeviceTelemetryResponse"
                         }
                     }
                 }
@@ -1480,7 +1480,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/OtaListOTAPackagesResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaListOTAPackagesResponse"
                         }
                     }
                 }
@@ -1517,7 +1517,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/OtaCreateOTAPackageResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaCreateOTAPackageResponse"
                         }
                     }
                 }
@@ -1554,7 +1554,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/OtaGetOTAPackageResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaGetOTAPackageResponse"
                         }
                     }
                 }
@@ -1598,7 +1598,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/OtaUpdateOTAPackageResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaUpdateOTAPackageResponse"
                         }
                     }
                 }
@@ -1633,7 +1633,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/OtaSuccessResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
                         }
                     }
                 }
@@ -1670,7 +1670,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/OtaListUpgradeBatchesResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaListUpgradeBatchesResponse"
                         }
                     }
                 }
@@ -1725,7 +1725,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/OtaListDeviceDeploymentsResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse"
                         }
                     }
                 }
@@ -1762,7 +1762,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/OtaGetUpgradeStatisticsResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaGetUpgradeStatisticsResponse"
                         }
                     }
                 }
@@ -1822,7 +1822,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductListProductsResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductListProductsResponse"
                         }
                     }
                 }
@@ -1859,7 +1859,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductCreateProductResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductCreateProductResponse"
                         }
                     }
                 }
@@ -1896,7 +1896,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductGetProductByKeyResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductGetProductByKeyResponse"
                         }
                     }
                 }
@@ -1940,7 +1940,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductUpdateProductResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductUpdateProductResponse"
                         }
                     }
                 }
@@ -1977,7 +1977,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductGetProductResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductGetProductResponse"
                         }
                     }
                 }
@@ -2012,7 +2012,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductSuccessResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductSuccessResponse"
                         }
                     }
                 }
@@ -2049,7 +2049,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductRestoreProductResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductRestoreProductResponse"
                         }
                     }
                 }
@@ -2086,7 +2086,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductTslGetProductTSLResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductTslGetProductTSLResponse"
                         }
                     }
                 }
@@ -2130,7 +2130,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductTslSuccessResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductTslSuccessResponse"
                         }
                     }
                 }
@@ -2174,7 +2174,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductTslSuccessResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductTslSuccessResponse"
                         }
                     }
                 }
@@ -2209,7 +2209,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ProductTslSuccessResponse"
+                            "$ref": "#/definitions/ApiResponse-ProductTslSuccessResponse"
                         }
                     }
                 }
@@ -2784,6 +2784,34 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-AlertGetAlertResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/AlertGetAlertResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-AlertListAlertsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/AlertListAlertsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-ApiGetProfileResponseData": {
             "type": "object",
             "properties": {
@@ -2840,6 +2868,300 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-DeviceActivateDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceActivateDeviceResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceBatchUploadDevicesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceBatchUploadDevicesResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceClearPushRecordsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceClearPushRecordsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceCreateDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceCreateDeviceResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceEventListDeviceEventsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceEventListDeviceEventsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceGetDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceGetDeviceResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceGetPushRecordResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceGetPushRecordResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceListDeviceShadowHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceListDeviceShadowHistoryResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceListDeviceTagsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceListDeviceTagsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceListDevicesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceListDevicesResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceListPushRecordsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceListPushRecordsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceMQTTParametersResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceMQTTParametersResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceMockKafkaResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceMockKafkaResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceRestoreDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceRestoreDeviceResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceSetDeviceEnabledResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceSetDeviceEnabledResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceShadow": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceShadow"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceSimulatePushResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceSimulatePushResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceStatisticsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceStatisticsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceSuccessResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceTelemetryResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceTelemetryResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-DeviceUpdateDeviceResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceUpdateDeviceResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-GetSceneLinkageDetailResponse": {
             "type": "object",
             "properties": {
@@ -2876,6 +3198,244 @@ const docTemplate = `{
                 },
                 "data": {
                     "$ref": "#/definitions/ListSceneLinkagesResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-OtaCreateOTAPackageResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaCreateOTAPackageResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-OtaGetOTAPackageResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaGetOTAPackageResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-OtaGetUpgradeStatisticsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaGetUpgradeStatisticsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-OtaListDeviceDeploymentsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaListDeviceDeploymentsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-OtaListOTAPackagesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaListOTAPackagesResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-OtaListUpgradeBatchesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaListUpgradeBatchesResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-OtaSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaSuccessResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-OtaUpdateOTAPackageResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaUpdateOTAPackageResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductCreateProductResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductCreateProductResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductGetProductByKeyResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductGetProductByKeyResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductGetProductResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductGetProductResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductListProductsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductListProductsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductRestoreProductResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductRestoreProductResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductSuccessResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductTslGetProductTSLResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductTslGetProductTSLResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductTslSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductTslSuccessResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ProductUpdateProductResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ProductUpdateProductResponse"
                 },
                 "message": {
                     "type": "string"

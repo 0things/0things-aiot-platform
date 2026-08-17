@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	productV1 "0things-backend/api/product/v1"
+	v1 "0things-backend/api/v1"
 	"0things-backend/internal/model"
 	"0things-backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -47,7 +48,7 @@ func NewProductHandler(h *Handler, svc service.ProductServiceInterface) *Product
 // @Produce json
 // @Security Bearer
 // @Param request body productV1.CreateProductRequest true "params"
-// @Success 200 {object} productV1.CreateProductResponse
+// @Success 200 {object} v1.ApiResponse[productV1.CreateProductResponse]
 // @Router /products [post]
 func (h *ProductHandler) Create(c *gin.Context) {
 	var req productV1.CreateProductRequest
@@ -60,7 +61,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, productV1.CreateProductResponse{Product: productJSON(*product, 0)})
+	v1.HandleSuccess(c, productV1.CreateProductResponse{Product: productJSON(*product, 0)})
 }
 
 // Get godoc
@@ -72,7 +73,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "产品 ID"
-// @Success 200 {object} productV1.GetProductResponse
+// @Success 200 {object} v1.ApiResponse[productV1.GetProductResponse]
 // @Router /products/{id} [get]
 func (h *ProductHandler) Get(c *gin.Context) {
 	productID, err := id(c)
@@ -85,7 +86,7 @@ func (h *ProductHandler) Get(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, productV1.GetProductResponse{Product: productJSON(*product, 0)})
+	v1.HandleSuccess(c, productV1.GetProductResponse{Product: productJSON(*product, 0)})
 }
 
 // GetByKey godoc
@@ -97,7 +98,7 @@ func (h *ProductHandler) Get(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param productKey path string true "产品 Key"
-// @Success 200 {object} productV1.GetProductByKeyResponse
+// @Success 200 {object} v1.ApiResponse[productV1.GetProductByKeyResponse]
 // @Router /products/key/{productKey} [get]
 func (h *ProductHandler) GetByKey(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
@@ -105,7 +106,7 @@ func (h *ProductHandler) GetByKey(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, productV1.GetProductByKeyResponse{Product: productJSON(*product, 0)})
+	v1.HandleSuccess(c, productV1.GetProductByKeyResponse{Product: productJSON(*product, 0)})
 }
 
 // List godoc
@@ -121,7 +122,7 @@ func (h *ProductHandler) GetByKey(c *gin.Context) {
 // @Param category query string false "产品分类"
 // @Param status query string false "产品状态"
 // @Param searchText query string false "搜索关键字"
-// @Success 200 {object} productV1.ListProductsResponse
+// @Success 200 {object} v1.ApiResponse[productV1.ListProductsResponse]
 // @Router /products [get]
 func (h *ProductHandler) List(c *gin.Context) {
 	pageNumber, pageSize := page(c, 10)
@@ -134,7 +135,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 	for _, product := range products {
 		items = append(items, productJSON(product, 0))
 	}
-	c.JSON(200, productV1.ListProductsResponse{Products: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, productV1.ListProductsResponse{Products: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
 // Update godoc
@@ -147,7 +148,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 // @Security Bearer
 // @Param productKey path string true "产品 Key"
 // @Param request body productV1.UpdateProductRequest true "params"
-// @Success 200 {object} productV1.UpdateProductResponse
+// @Success 200 {object} v1.ApiResponse[productV1.UpdateProductResponse]
 // @Router /products/key/{productKey} [put]
 func (h *ProductHandler) Update(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
@@ -188,7 +189,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, productV1.UpdateProductResponse{Product: productJSON(*product, 0)})
+	v1.HandleSuccess(c, productV1.UpdateProductResponse{Product: productJSON(*product, 0)})
 }
 
 // Delete godoc
@@ -200,7 +201,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "产品 ID"
-// @Success 200 {object} productV1.SuccessResponse
+// @Success 200 {object} v1.ApiResponse[productV1.SuccessResponse]
 // @Router /products/{id} [delete]
 func (h *ProductHandler) Delete(c *gin.Context) {
 	productID, err := id(c)
@@ -211,7 +212,7 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, productV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, productV1.SuccessResponse{Success: true})
 }
 
 // Restore godoc
@@ -223,7 +224,7 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "产品 ID"
-// @Success 200 {object} productV1.RestoreProductResponse
+// @Success 200 {object} v1.ApiResponse[productV1.RestoreProductResponse]
 // @Router /products/{id}/restore [post]
 func (h *ProductHandler) Restore(c *gin.Context) {
 	productID, err := id(c)
@@ -231,7 +232,7 @@ func (h *ProductHandler) Restore(c *gin.Context) {
 		var product *model.Product
 		product, err = h.svc.Restore(c, productID)
 		if err == nil {
-			c.JSON(200, productV1.RestoreProductResponse{Product: productJSON(*product, 0)})
+			v1.HandleSuccess(c, productV1.RestoreProductResponse{Product: productJSON(*product, 0)})
 			return
 		}
 	}

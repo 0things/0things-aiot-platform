@@ -8,6 +8,7 @@ import (
 	"time"
 
 	deviceV1 "0things-backend/api/device/v1"
+	v1 "0things-backend/api/v1"
 	"0things-backend/internal/model"
 	"0things-backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -87,7 +88,7 @@ func pushRecordJSON(record model.DevicePushRecord) deviceV1.PushRecord {
 // @Produce json
 // @Security Bearer
 // @Param request body deviceV1.CreateDeviceRequest true "params"
-// @Success 200 {object} deviceV1.CreateDeviceResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.CreateDeviceResponse]
 // @Router /devices [post]
 func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 	var req deviceV1.CreateDeviceRequest
@@ -100,7 +101,7 @@ func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.CreateDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, deviceV1.CreateDeviceResponse{Device: deviceJSON(*d)})
 }
 // GetDevice godoc
 // @Summary 通过 ID 获取设备
@@ -111,7 +112,7 @@ func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "设备 ID"
-// @Success 200 {object} deviceV1.GetDeviceResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.GetDeviceResponse]
 // @Router /devices/{id} [get]
 func (h *DeviceHandler) GetDevice(c *gin.Context) {
 	i, e := id(c)
@@ -124,7 +125,7 @@ func (h *DeviceHandler) GetDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.GetDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, deviceV1.GetDeviceResponse{Device: deviceJSON(*d)})
 }
 // GetDeviceByKey godoc
 // @Summary 通过 deviceKey 获取设备
@@ -135,7 +136,7 @@ func (h *DeviceHandler) GetDevice(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "设备 Key"
-// @Success 200 {object} deviceV1.GetDeviceResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.GetDeviceResponse]
 // @Router /devices/key/{deviceKey} [get]
 func (h *DeviceHandler) GetDeviceByKey(c *gin.Context) {
 	d, e := h.svc.DeviceByKey(c, c.Param("deviceKey"))
@@ -143,7 +144,7 @@ func (h *DeviceHandler) GetDeviceByKey(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.GetDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, deviceV1.GetDeviceResponse{Device: deviceJSON(*d)})
 }
 // ListDevices godoc
 // @Summary 获取设备列表
@@ -159,7 +160,7 @@ func (h *DeviceHandler) GetDeviceByKey(c *gin.Context) {
 // @Param states query []string false "设备状态"
 // @Param enabled query bool false "是否启用"
 // @Param searchText query string false "搜索关键字"
-// @Success 200 {object} deviceV1.ListDevicesResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.ListDevicesResponse]
 // @Router /devices [get]
 func (h *DeviceHandler) ListDevices(c *gin.Context) {
 	p, s := page(c, 10)
@@ -178,7 +179,7 @@ func (h *DeviceHandler) ListDevices(c *gin.Context) {
 	for _, v := range d {
 		out = append(out, deviceJSON(v))
 	}
-	c.JSON(200, deviceV1.ListDevicesResponse{Devices: out, Total: n, Page: p, PageSize: s})
+	v1.HandleSuccess(c, deviceV1.ListDevicesResponse{Devices: out, Total: n, Page: p, PageSize: s})
 }
 // UpdateDevice godoc
 // @Summary 更新设备
@@ -190,7 +191,7 @@ func (h *DeviceHandler) ListDevices(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.UpdateDeviceRequest true "params"
-// @Success 200 {object} deviceV1.UpdateDeviceResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.UpdateDeviceResponse]
 // @Router /devices/{id} [put]
 func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 	i, e := id(c)
@@ -208,7 +209,7 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.UpdateDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, deviceV1.UpdateDeviceResponse{Device: deviceJSON(*d)})
 }
 // DeleteDevice godoc
 // @Summary 删除设备
@@ -219,7 +220,7 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "设备 ID"
-// @Success 200 {object} deviceV1.SuccessResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.SuccessResponse]
 // @Router /devices/{id} [delete]
 func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 	i, e := id(c)
@@ -230,7 +231,7 @@ func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, deviceV1.SuccessResponse{Success: true})
 }
 // Activate godoc
 // @Summary 激活设备
@@ -241,7 +242,7 @@ func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "设备 ID"
-// @Success 200 {object} deviceV1.ActivateDeviceResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.ActivateDeviceResponse]
 // @Router /devices/{id}/activate [post]
 func (h *DeviceHandler) Activate(c *gin.Context) {
 	i, e := id(c)
@@ -254,7 +255,7 @@ func (h *DeviceHandler) Activate(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.ActivateDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, deviceV1.ActivateDeviceResponse{Device: deviceJSON(*d)})
 }
 // Enabled godoc
 // @Summary 设置设备启用/禁用
@@ -266,7 +267,7 @@ func (h *DeviceHandler) Activate(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.SetDeviceEnabledRequest true "params"
-// @Success 200 {object} deviceV1.SetDeviceEnabledResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.SetDeviceEnabledResponse]
 // @Router /devices/{id}/enabled [post]
 func (h *DeviceHandler) Enabled(c *gin.Context) {
 	i, e := id(c)
@@ -283,7 +284,7 @@ func (h *DeviceHandler) Enabled(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.SetDeviceEnabledResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, deviceV1.SetDeviceEnabledResponse{Device: deviceJSON(*d)})
 }
 // Stats godoc
 // @Summary 设备统计
@@ -293,7 +294,7 @@ func (h *DeviceHandler) Enabled(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} deviceV1.DeviceStatisticsResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.DeviceStatisticsResponse]
 // @Router /device-statistics [get]
 func (h *DeviceHandler) Stats(c *gin.Context) {
 	x, e := h.svc.Stats(c)
@@ -301,7 +302,7 @@ func (h *DeviceHandler) Stats(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.DeviceStatisticsResponse{
+	v1.HandleSuccess(c, deviceV1.DeviceStatisticsResponse{
 		TotalDevices: x.TotalDevices, ActivatedDevices: x.ActivatedDevices, OnlineDevices: x.OnlineDevices,
 		OfflineDevices: x.OfflineDevices, InactiveDevices: x.InactiveDevices,
 	})
@@ -315,7 +316,7 @@ func (h *DeviceHandler) Stats(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "设备 ID"
-// @Success 200 {object} deviceV1.TelemetryResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.TelemetryResponse]
 // @Router /devices/{id}/telemetry [get]
 func (h *DeviceHandler) Telemetry(c *gin.Context) {
 	x, e := h.svc.Telemetry(c, c.Param("id"))
@@ -323,7 +324,7 @@ func (h *DeviceHandler) Telemetry(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.TelemetryResponse{Telemetry: x})
+	v1.HandleSuccess(c, deviceV1.TelemetryResponse{Telemetry: x})
 }
 // MQTT godoc
 // @Summary 获取 MQTT 连接参数
@@ -334,7 +335,7 @@ func (h *DeviceHandler) Telemetry(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param device_key path string true "设备 DeviceKey"
-// @Success 200 {object} deviceV1.MQTTParametersResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.MQTTParametersResponse]
 // @Router /devices/{device_key}/mqtt-parameters [get]
 func (h *DeviceHandler) MQTT(c *gin.Context) {
 	x, e := h.svc.MQTT(c, c.Param("id"))
@@ -342,7 +343,7 @@ func (h *DeviceHandler) MQTT(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.MQTTParametersResponse{
+	v1.HandleSuccess(c, deviceV1.MQTTParametersResponse{
 		ClientID: x.ClientID, Username: x.Username, MQTTHostURL: x.MQTTHostURL, Password: x.Password, Port: x.Port,
 	})
 }
@@ -355,7 +356,7 @@ func (h *DeviceHandler) MQTT(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "设备 ID"
-// @Success 200 {object} deviceV1.RestoreDeviceResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.RestoreDeviceResponse]
 // @Router /devices/{id}/restore [post]
 func (h *DeviceHandler) Restore(c *gin.Context) {
 	i, e := id(c)
@@ -368,7 +369,7 @@ func (h *DeviceHandler) Restore(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.RestoreDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, deviceV1.RestoreDeviceResponse{Device: deviceJSON(*d)})
 }
 
 // GetTags godoc
@@ -380,7 +381,7 @@ func (h *DeviceHandler) Restore(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "设备 ID"
-// @Success 200 {object} deviceV1.ListDeviceTagsResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.ListDeviceTagsResponse]
 // @Router /devices/{id}/tags [get]
 func (h *DeviceHandler) GetTags(c *gin.Context) {
 	x, e := h.svc.Tags(c, c.Param("id"))
@@ -388,7 +389,7 @@ func (h *DeviceHandler) GetTags(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
+	v1.HandleSuccess(c, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
 }
 // PutTags godoc
 // @Summary 全量覆盖设置设备标签
@@ -400,7 +401,7 @@ func (h *DeviceHandler) GetTags(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.SetDeviceTagsRequest true "params"
-// @Success 200 {object} deviceV1.ListDeviceTagsResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.ListDeviceTagsResponse]
 // @Router /devices/{id}/tags [put]
 func (h *DeviceHandler) PutTags(c *gin.Context) {
 	var req deviceV1.SetDeviceTagsRequest
@@ -413,7 +414,7 @@ func (h *DeviceHandler) PutTags(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
+	v1.HandleSuccess(c, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
 }
 // PostTags godoc
 // @Summary 增量添加设备标签
@@ -425,7 +426,7 @@ func (h *DeviceHandler) PutTags(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.SetDeviceTagsRequest true "params"
-// @Success 200 {object} deviceV1.ListDeviceTagsResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.ListDeviceTagsResponse]
 // @Router /devices/{id}/tags [post]
 func (h *DeviceHandler) PostTags(c *gin.Context) {
 	var req deviceV1.SetDeviceTagsRequest
@@ -438,7 +439,7 @@ func (h *DeviceHandler) PostTags(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
+	v1.HandleSuccess(c, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
 }
 // DeleteTags godoc
 // @Summary 删除设备标签
@@ -450,7 +451,7 @@ func (h *DeviceHandler) PostTags(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.DeleteDeviceTagsRequest true "params"
-// @Success 200 {object} deviceV1.SuccessResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.SuccessResponse]
 // @Router /devices/{id}/tags [delete]
 func (h *DeviceHandler) DeleteTags(c *gin.Context) {
 	var req deviceV1.DeleteDeviceTagsRequest
@@ -462,7 +463,7 @@ func (h *DeviceHandler) DeleteTags(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, deviceV1.SuccessResponse{Success: true})
 }
 func shadowJSON(x *model.DeviceShadow) deviceV1.Shadow {
 	var d, r, m any
@@ -489,7 +490,7 @@ func shadowJSON(x *model.DeviceShadow) deviceV1.Shadow {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "设备 ID"
-// @Success 200 {object} deviceV1.Shadow
+// @Success 200 {object} v1.ApiResponse[deviceV1.Shadow]
 // @Router /devices/{id}/shadow [get]
 func (h *DeviceHandler) GetShadow(c *gin.Context) {
 	x, e := h.svc.Shadow(c, c.Param("id"))
@@ -497,7 +498,7 @@ func (h *DeviceHandler) GetShadow(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, shadowJSON(x))
+	v1.HandleSuccess(c, shadowJSON(x))
 }
 // Desired godoc
 // @Summary 更新设备影子期望值
@@ -509,7 +510,7 @@ func (h *DeviceHandler) GetShadow(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.UpdateDesiredShadowRequest true "params"
-// @Success 200 {object} deviceV1.Shadow
+// @Success 200 {object} v1.ApiResponse[deviceV1.Shadow]
 // @Router /devices/{id}/shadow/desired [put]
 func (h *DeviceHandler) Desired(c *gin.Context) {
 	var req deviceV1.UpdateDesiredShadowRequest
@@ -522,7 +523,7 @@ func (h *DeviceHandler) Desired(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, shadowJSON(x))
+	v1.HandleSuccess(c, shadowJSON(x))
 }
 // Reported godoc
 // @Summary 更新设备影子上报值
@@ -534,7 +535,7 @@ func (h *DeviceHandler) Desired(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.UpdateReportedShadowRequest true "params"
-// @Success 200 {object} deviceV1.Shadow
+// @Success 200 {object} v1.ApiResponse[deviceV1.Shadow]
 // @Router /devices/{id}/shadow/reported [put]
 func (h *DeviceHandler) Reported(c *gin.Context) {
 	var req deviceV1.UpdateReportedShadowRequest
@@ -547,7 +548,7 @@ func (h *DeviceHandler) Reported(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, shadowJSON(x))
+	v1.HandleSuccess(c, shadowJSON(x))
 }
 // ClearDesired godoc
 // @Summary 清空设备影子期望值
@@ -559,7 +560,7 @@ func (h *DeviceHandler) Reported(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.ClearDesiredShadowRequest true "params"
-// @Success 200 {object} deviceV1.Shadow
+// @Success 200 {object} v1.ApiResponse[deviceV1.Shadow]
 // @Router /devices/{id}/shadow/desired [delete]
 func (h *DeviceHandler) ClearDesired(c *gin.Context) {
 	var req deviceV1.ClearDesiredShadowRequest
@@ -569,7 +570,7 @@ func (h *DeviceHandler) ClearDesired(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, shadowJSON(x))
+	v1.HandleSuccess(c, shadowJSON(x))
 }
 // History godoc
 // @Summary 获取设备影子历史
@@ -580,7 +581,7 @@ func (h *DeviceHandler) ClearDesired(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "设备 ID"
-// @Success 200 {object} deviceV1.ListDeviceShadowHistoryResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.ListDeviceShadowHistoryResponse]
 // @Router /devices/{id}/shadow/history [get]
 func (h *DeviceHandler) History(c *gin.Context) {
 	x, e := h.svc.ShadowHistory(c, c.Param("id"))
@@ -592,7 +593,7 @@ func (h *DeviceHandler) History(c *gin.Context) {
 	for i, history := range x {
 		items[i] = shadowHistoryJSON(history)
 	}
-	c.JSON(200, deviceV1.ListDeviceShadowHistoryResponse{History: items})
+	v1.HandleSuccess(c, deviceV1.ListDeviceShadowHistoryResponse{History: items})
 }
 
 // SimulatePush godoc
@@ -605,7 +606,7 @@ func (h *DeviceHandler) History(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param request body deviceV1.SimulatePushRequest true "params"
-// @Success 200 {object} deviceV1.SimulatePushResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.SimulatePushResponse]
 // @Router /devices/{id}/simulate-push [post]
 func (h *DeviceHandler) SimulatePush(c *gin.Context) {
 	var req deviceV1.SimulatePushRequest
@@ -618,7 +619,7 @@ func (h *DeviceHandler) SimulatePush(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, deviceV1.SimulatePushResponse{PushRecordID: strconv.FormatInt(record.ID, 10), Timestamp: record.CreatedAt.UnixMilli(), Status: record.Status, Message: "success"})
+	v1.HandleSuccess(c, deviceV1.SimulatePushResponse{PushRecordID: strconv.FormatInt(record.ID, 10), Timestamp: record.CreatedAt.UnixMilli(), Status: record.Status, Message: "success"})
 }
 // PushRecords godoc
 // @Summary 获取设备下行推送记录列表
@@ -633,7 +634,7 @@ func (h *DeviceHandler) SimulatePush(c *gin.Context) {
 // @Param pageSize query int false "每页数量"
 // @Param operationType query string false "操作类型"
 // @Param status query string false "状态"
-// @Success 200 {object} deviceV1.ListPushRecordsResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.ListPushRecordsResponse]
 // @Router /devices/{id}/push-records [get]
 func (h *DeviceHandler) PushRecords(c *gin.Context) {
 	p, s := page(c, 20)
@@ -646,7 +647,7 @@ func (h *DeviceHandler) PushRecords(c *gin.Context) {
 	for i, record := range records {
 		items[i] = pushRecordJSON(record)
 	}
-	c.JSON(200, deviceV1.ListPushRecordsResponse{Records: items, Total: total, Page: p, PageSize: s})
+	v1.HandleSuccess(c, deviceV1.ListPushRecordsResponse{Records: items, Total: total, Page: p, PageSize: s})
 }
 // PushRecord godoc
 // @Summary 获取设备下行推送记录
@@ -657,7 +658,7 @@ func (h *DeviceHandler) PushRecords(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param pushRecordId path int true "推送记录 ID"
-// @Success 200 {object} deviceV1.GetPushRecordResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.GetPushRecordResponse]
 // @Router /devices/push-records/{pushRecordId} [get]
 func (h *DeviceHandler) PushRecord(c *gin.Context) {
 	pushRecordID, err := strconv.ParseInt(c.Param("pushRecordId"), 10, 64)
@@ -670,7 +671,7 @@ func (h *DeviceHandler) PushRecord(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, deviceV1.GetPushRecordResponse{Record: pushRecordJSON(*record)})
+	v1.HandleSuccess(c, deviceV1.GetPushRecordResponse{Record: pushRecordJSON(*record)})
 }
 // ClearPushRecords godoc
 // @Summary 清理设备下行推送记录
@@ -682,7 +683,7 @@ func (h *DeviceHandler) PushRecord(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "设备 ID"
 // @Param beforeTimestamp query int false "清理此时间戳之前的记录（毫秒）"
-// @Success 200 {object} deviceV1.ClearPushRecordsResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.ClearPushRecordsResponse]
 // @Router /devices/{id}/push-records [delete]
 func (h *DeviceHandler) ClearPushRecords(c *gin.Context) {
 	var before *time.Time
@@ -697,7 +698,7 @@ func (h *DeviceHandler) ClearPushRecords(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, deviceV1.ClearPushRecordsResponse{DeletedCount: deletedCount, Success: true})
+	v1.HandleSuccess(c, deviceV1.ClearPushRecordsResponse{DeletedCount: deletedCount, Success: true})
 }
 
 // BatchTemplate godoc
@@ -727,7 +728,7 @@ func (h *DeviceHandler) BatchTemplate(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param file formData file true "Excel 模板文件"
-// @Success 200 {object} deviceV1.BatchUploadDevicesResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.BatchUploadDevicesResponse]
 // @Router /devices/batch/upload [post]
 func (h *DeviceHandler) BatchUpload(c *gin.Context) {
 	f, _, e := c.Request.FormFile("file")
@@ -750,7 +751,7 @@ func (h *DeviceHandler) BatchUpload(c *gin.Context) {
 	for i, item := range errs {
 		items[i] = deviceV1.BatchUploadError{Row: item.Row, ProductKey: item.ProductKey, DeviceName: item.DeviceName, Error: item.Error}
 	}
-	c.JSON(200, deviceV1.BatchUploadDevicesResponse{SuccessCount: n, FailureCount: len(items), Errors: items})
+	v1.HandleSuccess(c, deviceV1.BatchUploadDevicesResponse{SuccessCount: n, FailureCount: len(items), Errors: items})
 }
 // MockKafka godoc
 // @Summary 模拟向 Kafka 发送消息
@@ -761,7 +762,7 @@ func (h *DeviceHandler) BatchUpload(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param request body deviceV1.MockKafkaRequest true "params"
-// @Success 200 {object} deviceV1.MockKafkaResponse
+// @Success 200 {object} v1.ApiResponse[deviceV1.MockKafkaResponse]
 // @Router /devices/mock-kafka [post]
 func (h *DeviceHandler) MockKafka(c *gin.Context) {
 	var req deviceV1.MockKafkaRequest
@@ -773,5 +774,5 @@ func (h *DeviceHandler) MockKafka(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	c.JSON(200, deviceV1.MockKafkaResponse{Success: true, Message: "Message sent successfully to topic: " + req.Topic})
+	v1.HandleSuccess(c, deviceV1.MockKafkaResponse{Success: true, Message: "Message sent successfully to topic: " + req.Topic})
 }

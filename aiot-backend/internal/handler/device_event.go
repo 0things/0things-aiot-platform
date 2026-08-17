@@ -5,6 +5,7 @@ import (
 	"time"
 
 	eventV1 "0things-backend/api/event/v1"
+	v1 "0things-backend/api/v1"
 	"0things-backend/internal/model"
 	"0things-backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -31,7 +32,7 @@ func deviceEventResponse(event model.DeviceEvent) eventV1.DeviceEvent {
 // @Param event_type query string false "事件类型"
 // @Param start_at query string false "开始时间 RFC3339"
 // @Param end_at query string false "结束时间 RFC3339"
-// @Success 200 {object} eventV1.ListDeviceEventsResponse
+// @Success 200 {object} v1.ApiResponse[eventV1.ListDeviceEventsResponse]
 // @Router /device-events [get]
 func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) {
 	pageNumber, pageSize := page(c, 20)
@@ -49,7 +50,7 @@ func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) {
 	if err != nil { deviceError(c, err); return }
 	out := make([]eventV1.DeviceEvent, 0, len(events))
 	for _, event := range events { out = append(out, deviceEventResponse(event)) }
-	c.JSON(200, eventV1.ListDeviceEventsResponse{Events: out, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, eventV1.ListDeviceEventsResponse{Events: out, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
 func eventTime(value string) (*time.Time, error) {

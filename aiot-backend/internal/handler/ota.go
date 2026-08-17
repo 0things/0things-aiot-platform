@@ -2,6 +2,7 @@ package handler
 
 import (
 	otaV1 "0things-backend/api/ota/v1"
+	v1 "0things-backend/api/v1"
 	"0things-backend/internal/model"
 	"0things-backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -52,7 +53,7 @@ func otaDeploymentJSON(deployment model.DeviceDeployment) otaV1.DeviceDeployment
 // @Security Bearer
 // @Param page query int false "页码"
 // @Param pageSize query int false "每页数量"
-// @Success 200 {object} otaV1.ListOTAPackagesResponse
+// @Success 200 {object} v1.ApiResponse[otaV1.ListOTAPackagesResponse]
 // @Router /ota-packages [get]
 func (h *OTAHandler) ListOTA(c *gin.Context) {
 	pageNumber, pageSize := page(c, 20)
@@ -65,7 +66,7 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 	for i, pkg := range packages {
 		items[i] = otaPackageJSON(pkg)
 	}
-	c.JSON(200, otaV1.ListOTAPackagesResponse{OTAPackages: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, otaV1.ListOTAPackagesResponse{OTAPackages: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
 // GetOTA godoc
@@ -77,7 +78,7 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "升级包 ID"
-// @Success 200 {object} otaV1.GetOTAPackageResponse
+// @Success 200 {object} v1.ApiResponse[otaV1.GetOTAPackageResponse]
 // @Router /ota-packages/{id} [get]
 func (h *OTAHandler) GetOTA(c *gin.Context) {
 	packageID, err := id(c)
@@ -90,7 +91,7 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, otaV1.GetOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
+	v1.HandleSuccess(c, otaV1.GetOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
 }
 
 // CreateOTA godoc
@@ -102,7 +103,7 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param request body otaV1.CreateOTAPackageRequest true "params"
-// @Success 200 {object} otaV1.CreateOTAPackageResponse
+// @Success 200 {object} v1.ApiResponse[otaV1.CreateOTAPackageResponse]
 // @Router /ota-packages [post]
 func (h *OTAHandler) CreateOTA(c *gin.Context) {
 	var req otaV1.CreateOTAPackageRequest
@@ -118,7 +119,7 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, otaV1.CreateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
+	v1.HandleSuccess(c, otaV1.CreateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
 }
 
 // UpdateOTA godoc
@@ -131,7 +132,7 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "升级包 ID"
 // @Param request body otaV1.OTAPackageRequest true "params"
-// @Success 200 {object} otaV1.UpdateOTAPackageResponse
+// @Success 200 {object} v1.ApiResponse[otaV1.UpdateOTAPackageResponse]
 // @Router /ota-packages/{id} [put]
 func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 	packageID, err := id(c)
@@ -155,7 +156,7 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, otaV1.UpdateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
+	v1.HandleSuccess(c, otaV1.UpdateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
 }
 
 // DeleteOTA godoc
@@ -167,7 +168,7 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "升级包 ID"
-// @Success 200 {object} otaV1.SuccessResponse
+// @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
 // @Router /ota-packages/{id} [delete]
 func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 	packageID, err := id(c)
@@ -178,7 +179,7 @@ func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, otaV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
 }
 
 // OTAStats godoc
@@ -190,7 +191,7 @@ func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "升级包 ID"
-// @Success 200 {object} otaV1.GetUpgradeStatisticsResponse
+// @Success 200 {object} v1.ApiResponse[otaV1.GetUpgradeStatisticsResponse]
 // @Router /ota-packages/{id}/upgrade-statistics [get]
 func (h *OTAHandler) OTAStats(c *gin.Context) {
 	stats, err := h.svc.Statistics(c, c.Param("id"))
@@ -198,7 +199,7 @@ func (h *OTAHandler) OTAStats(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, otaV1.GetUpgradeStatisticsResponse{Statistics: otaV1.UpgradeStatistics{
+	v1.HandleSuccess(c, otaV1.GetUpgradeStatisticsResponse{Statistics: otaV1.UpgradeStatistics{
 		PackageID: stats.PackageID, TotalTargetDevices: stats.TotalTargetDevices,
 		SuccessfulUpgrades: stats.SuccessfulUpgrades, FailedUpgrades: stats.FailedUpgrades,
 		CancelledUpgrades: stats.CancelledUpgrades, PendingUpgrades: stats.PendingUpgrades,
@@ -215,7 +216,7 @@ func (h *OTAHandler) OTAStats(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "升级包 ID"
-// @Success 200 {object} otaV1.ListUpgradeBatchesResponse
+// @Success 200 {object} v1.ApiResponse[otaV1.ListUpgradeBatchesResponse]
 // @Router /ota-packages/{id}/batches [get]
 func (h *OTAHandler) OTABatches(c *gin.Context) {
 	batches, err := h.svc.Batches(c, c.Param("id"))
@@ -227,7 +228,7 @@ func (h *OTAHandler) OTABatches(c *gin.Context) {
 	for i, batch := range batches {
 		items[i] = otaBatchJSON(batch)
 	}
-	c.JSON(200, otaV1.ListUpgradeBatchesResponse{Batches: items})
+	v1.HandleSuccess(c, otaV1.ListUpgradeBatchesResponse{Batches: items})
 }
 
 // OTADeployments godoc
@@ -242,7 +243,7 @@ func (h *OTAHandler) OTABatches(c *gin.Context) {
 // @Param page query int false "页码"
 // @Param pageSize query int false "每页数量"
 // @Param status query string false "部署状态"
-// @Success 200 {object} otaV1.ListDeviceDeploymentsResponse
+// @Success 200 {object} v1.ApiResponse[otaV1.ListDeviceDeploymentsResponse]
 // @Router /ota-packages/{id}/device-deployments [get]
 func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	pageNumber, pageSize := page(c, 100)
@@ -255,5 +256,5 @@ func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	for i, deployment := range deployments {
 		items[i] = otaDeploymentJSON(deployment)
 	}
-	c.JSON(200, otaV1.ListDeviceDeploymentsResponse{Deployments: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, otaV1.ListDeviceDeploymentsResponse{Deployments: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }

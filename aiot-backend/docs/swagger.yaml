@@ -91,6 +91,24 @@ definitions:
     - email
     - password
     type: object
+  ApiResponse-AlertGetAlertResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/AlertGetAlertResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-AlertListAlertsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/AlertListAlertsResponse'
+      message:
+        type: string
+    type: object
   ApiResponse-ApiGetProfileResponseData:
     properties:
       code:
@@ -127,6 +145,195 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-DeviceActivateDeviceResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceActivateDeviceResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceBatchUploadDevicesResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceBatchUploadDevicesResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceClearPushRecordsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceClearPushRecordsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceCreateDeviceResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceCreateDeviceResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceEventListDeviceEventsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceEventListDeviceEventsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceGetDeviceResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceGetDeviceResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceGetPushRecordResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceGetPushRecordResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceListDeviceShadowHistoryResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceListDeviceShadowHistoryResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceListDeviceTagsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceListDeviceTagsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceListDevicesResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceListDevicesResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceListPushRecordsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceListPushRecordsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceMQTTParametersResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceMQTTParametersResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceMockKafkaResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceMockKafkaResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceRestoreDeviceResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceRestoreDeviceResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceSetDeviceEnabledResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceSetDeviceEnabledResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceShadow:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceShadow'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceSimulatePushResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceSimulatePushResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceStatisticsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceStatisticsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceSuccessResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceSuccessResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceTelemetryResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceTelemetryResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-DeviceUpdateDeviceResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceUpdateDeviceResponse'
+      message:
+        type: string
+    type: object
   ApiResponse-GetSceneLinkageDetailResponse:
     properties:
       code:
@@ -151,6 +358,159 @@ definitions:
         type: integer
       data:
         $ref: '#/definitions/ListSceneLinkagesResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-OtaCreateOTAPackageResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaCreateOTAPackageResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-OtaGetOTAPackageResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaGetOTAPackageResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-OtaGetUpgradeStatisticsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaGetUpgradeStatisticsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-OtaListDeviceDeploymentsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaListDeviceDeploymentsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-OtaListOTAPackagesResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaListOTAPackagesResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-OtaListUpgradeBatchesResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaListUpgradeBatchesResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-OtaSuccessResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaSuccessResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-OtaUpdateOTAPackageResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaUpdateOTAPackageResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductCreateProductResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductCreateProductResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductGetProductByKeyResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductGetProductByKeyResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductGetProductResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductGetProductResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductListProductsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductListProductsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductRestoreProductResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductRestoreProductResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductSuccessResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductSuccessResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductTslGetProductTSLResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductTslGetProductTSLResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductTslSuccessResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductTslSuccessResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ProductUpdateProductResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ProductUpdateProductResponse'
       message:
         type: string
     type: object
@@ -1078,7 +1438,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AlertListAlertsResponse'
+            $ref: '#/definitions/ApiResponse-AlertListAlertsResponse'
       security:
       - Bearer: []
       summary: 获取告警列表
@@ -1101,7 +1461,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AlertGetAlertResponse'
+            $ref: '#/definitions/ApiResponse-AlertGetAlertResponse'
       security:
       - Bearer: []
       summary: 获取告警详情
@@ -1124,7 +1484,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AlertGetAlertResponse'
+            $ref: '#/definitions/ApiResponse-AlertGetAlertResponse'
       security:
       - Bearer: []
       summary: 确认告警
@@ -1147,7 +1507,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/AlertGetAlertResponse'
+            $ref: '#/definitions/ApiResponse-AlertGetAlertResponse'
       security:
       - Bearer: []
       summary: 处理告警
@@ -1191,7 +1551,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceEventListDeviceEventsResponse'
+            $ref: '#/definitions/ApiResponse-DeviceEventListDeviceEventsResponse'
       security:
       - Bearer: []
       summary: 获取设备事件列表
@@ -1208,7 +1568,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceStatisticsResponse'
+            $ref: '#/definitions/ApiResponse-DeviceStatisticsResponse'
       security:
       - Bearer: []
       summary: 设备统计
@@ -1253,7 +1613,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceListDevicesResponse'
+            $ref: '#/definitions/ApiResponse-DeviceListDevicesResponse'
       security:
       - Bearer: []
       summary: 获取设备列表
@@ -1276,7 +1636,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceCreateDeviceResponse'
+            $ref: '#/definitions/ApiResponse-DeviceCreateDeviceResponse'
       security:
       - Bearer: []
       summary: 创建设备
@@ -1299,7 +1659,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceMQTTParametersResponse'
+            $ref: '#/definitions/ApiResponse-DeviceMQTTParametersResponse'
       security:
       - Bearer: []
       summary: 获取 MQTT 连接参数
@@ -1322,7 +1682,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceSuccessResponse'
+            $ref: '#/definitions/ApiResponse-DeviceSuccessResponse'
       security:
       - Bearer: []
       summary: 删除设备
@@ -1344,7 +1704,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceGetDeviceResponse'
+            $ref: '#/definitions/ApiResponse-DeviceGetDeviceResponse'
       security:
       - Bearer: []
       summary: 通过 ID 获取设备
@@ -1372,7 +1732,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceUpdateDeviceResponse'
+            $ref: '#/definitions/ApiResponse-DeviceUpdateDeviceResponse'
       security:
       - Bearer: []
       summary: 更新设备
@@ -1395,7 +1755,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceActivateDeviceResponse'
+            $ref: '#/definitions/ApiResponse-DeviceActivateDeviceResponse'
       security:
       - Bearer: []
       summary: 激活设备
@@ -1424,7 +1784,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceSetDeviceEnabledResponse'
+            $ref: '#/definitions/ApiResponse-DeviceSetDeviceEnabledResponse'
       security:
       - Bearer: []
       summary: 设置设备启用/禁用
@@ -1451,7 +1811,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceClearPushRecordsResponse'
+            $ref: '#/definitions/ApiResponse-DeviceClearPushRecordsResponse'
       security:
       - Bearer: []
       summary: 清理设备下行推送记录
@@ -1489,7 +1849,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceListPushRecordsResponse'
+            $ref: '#/definitions/ApiResponse-DeviceListPushRecordsResponse'
       security:
       - Bearer: []
       summary: 获取设备下行推送记录列表
@@ -1512,7 +1872,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceRestoreDeviceResponse'
+            $ref: '#/definitions/ApiResponse-DeviceRestoreDeviceResponse'
       security:
       - Bearer: []
       summary: 恢复已删除的设备
@@ -1535,7 +1895,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceShadow'
+            $ref: '#/definitions/ApiResponse-DeviceShadow'
       security:
       - Bearer: []
       summary: 获取设备影子
@@ -1564,7 +1924,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceShadow'
+            $ref: '#/definitions/ApiResponse-DeviceShadow'
       security:
       - Bearer: []
       summary: 清空设备影子期望值
@@ -1592,7 +1952,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceShadow'
+            $ref: '#/definitions/ApiResponse-DeviceShadow'
       security:
       - Bearer: []
       summary: 更新设备影子期望值
@@ -1615,7 +1975,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceListDeviceShadowHistoryResponse'
+            $ref: '#/definitions/ApiResponse-DeviceListDeviceShadowHistoryResponse'
       security:
       - Bearer: []
       summary: 获取设备影子历史
@@ -1644,7 +2004,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceShadow'
+            $ref: '#/definitions/ApiResponse-DeviceShadow'
       security:
       - Bearer: []
       summary: 更新设备影子上报值
@@ -1673,7 +2033,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceSimulatePushResponse'
+            $ref: '#/definitions/ApiResponse-DeviceSimulatePushResponse'
       security:
       - Bearer: []
       summary: 模拟下行推送
@@ -1702,7 +2062,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceSuccessResponse'
+            $ref: '#/definitions/ApiResponse-DeviceSuccessResponse'
       security:
       - Bearer: []
       summary: 删除设备标签
@@ -1724,7 +2084,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceListDeviceTagsResponse'
+            $ref: '#/definitions/ApiResponse-DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
       summary: 获取设备标签
@@ -1752,7 +2112,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceListDeviceTagsResponse'
+            $ref: '#/definitions/ApiResponse-DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
       summary: 增量添加设备标签
@@ -1780,7 +2140,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceListDeviceTagsResponse'
+            $ref: '#/definitions/ApiResponse-DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
       summary: 全量覆盖设置设备标签
@@ -1803,7 +2163,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceTelemetryResponse'
+            $ref: '#/definitions/ApiResponse-DeviceTelemetryResponse'
       security:
       - Bearer: []
       summary: 获取设备遥测数据
@@ -1841,7 +2201,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceBatchUploadDevicesResponse'
+            $ref: '#/definitions/ApiResponse-DeviceBatchUploadDevicesResponse'
       security:
       - Bearer: []
       summary: 批量上传设备
@@ -1864,7 +2224,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceGetDeviceResponse'
+            $ref: '#/definitions/ApiResponse-DeviceGetDeviceResponse'
       security:
       - Bearer: []
       summary: 通过 deviceKey 获取设备
@@ -1888,7 +2248,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceMockKafkaResponse'
+            $ref: '#/definitions/ApiResponse-DeviceMockKafkaResponse'
       security:
       - Bearer: []
       summary: 模拟向 Kafka 发送消息
@@ -1911,7 +2271,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/DeviceGetPushRecordResponse'
+            $ref: '#/definitions/ApiResponse-DeviceGetPushRecordResponse'
       security:
       - Bearer: []
       summary: 获取设备下行推送记录
@@ -1958,7 +2318,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/OtaListOTAPackagesResponse'
+            $ref: '#/definitions/ApiResponse-OtaListOTAPackagesResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 升级包列表
@@ -1981,7 +2341,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/OtaCreateOTAPackageResponse'
+            $ref: '#/definitions/ApiResponse-OtaCreateOTAPackageResponse'
       security:
       - Bearer: []
       summary: 创建 OTA 升级包
@@ -2004,7 +2364,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/OtaSuccessResponse'
+            $ref: '#/definitions/ApiResponse-OtaSuccessResponse'
       security:
       - Bearer: []
       summary: 删除 OTA 升级包
@@ -2026,7 +2386,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/OtaGetOTAPackageResponse'
+            $ref: '#/definitions/ApiResponse-OtaGetOTAPackageResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 升级包详情
@@ -2054,7 +2414,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/OtaUpdateOTAPackageResponse'
+            $ref: '#/definitions/ApiResponse-OtaUpdateOTAPackageResponse'
       security:
       - Bearer: []
       summary: 更新 OTA 升级包
@@ -2077,7 +2437,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/OtaListUpgradeBatchesResponse'
+            $ref: '#/definitions/ApiResponse-OtaListUpgradeBatchesResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 升级批次列表
@@ -2112,7 +2472,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/OtaListDeviceDeploymentsResponse'
+            $ref: '#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 设备部署列表
@@ -2135,7 +2495,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/OtaGetUpgradeStatisticsResponse'
+            $ref: '#/definitions/ApiResponse-OtaGetUpgradeStatisticsResponse'
       security:
       - Bearer: []
       summary: 获取 OTA 升级统计
@@ -2173,7 +2533,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductListProductsResponse'
+            $ref: '#/definitions/ApiResponse-ProductListProductsResponse'
       security:
       - Bearer: []
       summary: 获取产品列表
@@ -2196,7 +2556,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductCreateProductResponse'
+            $ref: '#/definitions/ApiResponse-ProductCreateProductResponse'
       security:
       - Bearer: []
       summary: 创建产品
@@ -2219,7 +2579,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductSuccessResponse'
+            $ref: '#/definitions/ApiResponse-ProductSuccessResponse'
       security:
       - Bearer: []
       summary: 删除产品
@@ -2241,7 +2601,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductGetProductResponse'
+            $ref: '#/definitions/ApiResponse-ProductGetProductResponse'
       security:
       - Bearer: []
       summary: 通过 ID 获取产品
@@ -2264,7 +2624,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductRestoreProductResponse'
+            $ref: '#/definitions/ApiResponse-ProductRestoreProductResponse'
       security:
       - Bearer: []
       summary: 恢复已删除的产品
@@ -2287,7 +2647,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductTslSuccessResponse'
+            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
       security:
       - Bearer: []
       summary: 删除产品物模型（TSL）
@@ -2309,7 +2669,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductTslGetProductTSLResponse'
+            $ref: '#/definitions/ApiResponse-ProductTslGetProductTSLResponse'
       security:
       - Bearer: []
       summary: 获取产品物模型（TSL）
@@ -2337,7 +2697,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductTslSuccessResponse'
+            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
       security:
       - Bearer: []
       summary: 上传/更新产品物模型（TSL）
@@ -2365,7 +2725,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductTslSuccessResponse'
+            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
       security:
       - Bearer: []
       summary: 上传/更新产品物模型（TSL）
@@ -2388,7 +2748,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductGetProductByKeyResponse'
+            $ref: '#/definitions/ApiResponse-ProductGetProductByKeyResponse'
       security:
       - Bearer: []
       summary: 通过 productKey 获取产品
@@ -2416,7 +2776,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ProductUpdateProductResponse'
+            $ref: '#/definitions/ApiResponse-ProductUpdateProductResponse'
       security:
       - Bearer: []
       summary: 更新产品

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	alertV1 "0things-backend/api/alert/v1"
+	v1 "0things-backend/api/v1"
 	"0things-backend/internal/model"
 	"0things-backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -34,7 +35,7 @@ func alertResponse(alert model.Alert) alertV1.Alert {
 // @Param status query string false "状态"
 // @Param severity query string false "严重程度"
 // @Param device_key query string false "设备 Key"
-// @Success 200 {object} alertV1.ListAlertsResponse
+// @Success 200 {object} v1.ApiResponse[alertV1.ListAlertsResponse]
 // @Router /alerts [get]
 func (h *AlertHandler) ListAlerts(c *gin.Context) {
 	pageNumber, pageSize := page(c, 20)
@@ -47,7 +48,7 @@ func (h *AlertHandler) ListAlerts(c *gin.Context) {
 	for _, alert := range alerts {
 		out = append(out, alertResponse(alert))
 	}
-	c.JSON(200, alertV1.ListAlertsResponse{Alerts: out, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, alertV1.ListAlertsResponse{Alerts: out, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
 // GetAlert godoc
@@ -59,7 +60,7 @@ func (h *AlertHandler) ListAlerts(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "告警 ID"
-// @Success 200 {object} alertV1.GetAlertResponse
+// @Success 200 {object} v1.ApiResponse[alertV1.GetAlertResponse]
 // @Router /alerts/{id} [get]
 func (h *AlertHandler) GetAlert(c *gin.Context) {
 	alertID, err := id(c)
@@ -72,7 +73,7 @@ func (h *AlertHandler) GetAlert(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, alertV1.GetAlertResponse{Alert: alertResponse(*alert)})
+	v1.HandleSuccess(c, alertV1.GetAlertResponse{Alert: alertResponse(*alert)})
 }
 
 // AckAlert godoc
@@ -84,7 +85,7 @@ func (h *AlertHandler) GetAlert(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "告警 ID"
-// @Success 200 {object} alertV1.GetAlertResponse
+// @Success 200 {object} v1.ApiResponse[alertV1.GetAlertResponse]
 // @Router /alerts/{id}/ack [post]
 func (h *AlertHandler) AckAlert(c *gin.Context) {
 	h.AlertStatus(c, "acknowledged")
@@ -99,7 +100,7 @@ func (h *AlertHandler) AckAlert(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "告警 ID"
-// @Success 200 {object} alertV1.GetAlertResponse
+// @Success 200 {object} v1.ApiResponse[alertV1.GetAlertResponse]
 // @Router /alerts/{id}/resolve [post]
 func (h *AlertHandler) ResolveAlert(c *gin.Context) {
 	h.AlertStatus(c, "resolved")
@@ -116,5 +117,5 @@ func (h *AlertHandler) AlertStatus(c *gin.Context, status string) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, alertV1.GetAlertResponse{Alert: alertResponse(*alert)})
+	v1.HandleSuccess(c, alertV1.GetAlertResponse{Alert: alertResponse(*alert)})
 }
