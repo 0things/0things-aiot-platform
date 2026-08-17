@@ -8,10 +8,7 @@ export function SceneLinkagePrimaryButtons() {
   return (
     <div className='flex gap-2'>
       <Button asChild className='space-x-1'>
-        <Link
-          to='/rule-engine/scene-linkage/$sceneId'
-          params={{ sceneId: 'new' }}
-        >
+        <Link to='/rule-engine/scene-linkage/new'>
           <span>{t('list.create')}</span> <Plus size={18} />
         </Link>
       </Button>

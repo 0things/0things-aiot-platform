@@ -1438,7 +1438,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiLoginResponse"
+                            "$ref": "#/definitions/ApiResponse-ApiLoginResponseData"
                         }
                     }
                 }
@@ -2243,7 +2243,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse"
+                            "$ref": "#/definitions/ApiSuccessResponse"
                         }
                     }
                 }
@@ -2297,7 +2297,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ListSceneLinkagesResponse"
+                            "$ref": "#/definitions/ApiResponse-ListSceneLinkagesResponse"
                         }
                     }
                 }
@@ -2334,7 +2334,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/CreateSceneLinkageResponse"
+                            "$ref": "#/definitions/ApiResponse-CreateSceneLinkageResponse"
                         }
                     }
                 }
@@ -2371,7 +2371,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/GetSceneLinkageResponse"
+                            "$ref": "#/definitions/ApiResponse-GetSceneLinkageResponse"
                         }
                     }
                 }
@@ -2415,7 +2415,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/UpdateSceneLinkageResponse"
+                            "$ref": "#/definitions/ApiResponse-UpdateSceneLinkageResponse"
                         }
                     }
                 }
@@ -2450,7 +2450,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/SceneLinkageSuccessResponse"
+                            "$ref": "#/definitions/ApiResponse-SceneLinkageSuccessResponse"
                         }
                     }
                 }
@@ -2487,7 +2487,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/GetSceneLinkageDetailResponse"
+                            "$ref": "#/definitions/ApiResponse-GetSceneLinkageDetailResponse"
                         }
                     }
                 }
@@ -2531,7 +2531,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/UpdateSceneLinkageDetailResponse"
+                            "$ref": "#/definitions/ApiResponse-UpdateSceneLinkageDetailResponse"
                         }
                     }
                 }
@@ -2575,7 +2575,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/CreateSceneLinkageDetailResponse"
+                            "$ref": "#/definitions/ApiResponse-CreateSceneLinkageDetailResponse"
                         }
                     }
                 }
@@ -2602,7 +2602,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiGetProfileResponse"
+                            "$ref": "#/definitions/ApiResponse-ApiGetProfileResponseData"
                         }
                     }
                 }
@@ -2638,7 +2638,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse"
+                            "$ref": "#/definitions/ApiSuccessResponse"
                         }
                     }
                 }
@@ -2730,20 +2730,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiGetProfileResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/ApiGetProfileResponseData"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "ApiGetProfileResponseData": {
             "type": "object",
             "properties": {
@@ -2773,20 +2759,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiLoginResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/ApiLoginResponseData"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "ApiLoginResponseData": {
             "type": "object",
             "properties": {
@@ -2812,13 +2784,155 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse": {
+        "ApiResponse-ApiGetProfileResponseData": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
-                "data": {},
+                "data": {
+                    "$ref": "#/definitions/ApiGetProfileResponseData"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ApiLoginResponseData": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ApiLoginResponseData"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-CreateSceneLinkageDetailResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/CreateSceneLinkageDetailResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-CreateSceneLinkageResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/CreateSceneLinkageResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-GetSceneLinkageDetailResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/GetSceneLinkageDetailResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-GetSceneLinkageResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/GetSceneLinkageResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ListSceneLinkagesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ListSceneLinkagesResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-SceneLinkageSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/SceneLinkageSuccessResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-UpdateSceneLinkageDetailResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/UpdateSceneLinkageDetailResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-UpdateSceneLinkageResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/UpdateSceneLinkageResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object"
+                },
                 "message": {
                     "type": "string"
                 }

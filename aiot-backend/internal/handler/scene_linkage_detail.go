@@ -6,6 +6,7 @@ import (
 	sceneLinkageV1 "0things-backend/api/scene_linkage/v1"
 	"0things-backend/internal/model"
 	"0things-backend/internal/service"
+	v1 "0things-backend/api/v1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,7 +36,7 @@ func sceneLinkageDetailJSON(detail model.SceneLinkageDetail) sceneLinkageV1.Scen
 // @Produce json
 // @Security Bearer
 // @Param id path int true "场景联动 ID"
-// @Success 200 {object} sceneLinkageV1.GetSceneLinkageDetailResponse
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.GetSceneLinkageDetailResponse]
 // @Router /scene-linkages/{id}/detail [get]
 func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
@@ -48,7 +49,7 @@ func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, sceneLinkageV1.GetSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
+	v1.HandleSuccess(c, sceneLinkageV1.GetSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
 }
 
 // CreateSceneLinkageDetail godoc
@@ -61,7 +62,7 @@ func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "场景联动 ID"
 // @Param request body sceneLinkageV1.SceneLinkageDetailRequest true "params"
-// @Success 200 {object} sceneLinkageV1.CreateSceneLinkageDetailResponse
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.CreateSceneLinkageDetailResponse]
 // @Router /scene-linkages/{id}/detail [post]
 func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
@@ -89,7 +90,7 @@ func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, sceneLinkageV1.CreateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
+	v1.HandleSuccess(c, sceneLinkageV1.CreateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
 }
 
 // UpdateSceneLinkageDetail godoc
@@ -102,7 +103,7 @@ func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "场景联动 ID"
 // @Param request body sceneLinkageV1.SceneLinkageDetailRequest true "params"
-// @Success 200 {object} sceneLinkageV1.UpdateSceneLinkageDetailResponse
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.UpdateSceneLinkageDetailResponse]
 // @Router /scene-linkages/{id}/detail [put]
 func (h *SceneLinkageDetailHandler) UpdateSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
@@ -132,5 +133,5 @@ func (h *SceneLinkageDetailHandler) UpdateSceneLinkageDetail(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, sceneLinkageV1.UpdateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
+	v1.HandleSuccess(c, sceneLinkageV1.UpdateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
 }

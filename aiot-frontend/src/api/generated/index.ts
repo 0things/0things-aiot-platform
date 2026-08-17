@@ -31,10 +31,16 @@ import type {
   ApiLoginRequest,
   ApiLoginResponse,
   ApiRegisterRequest,
-  ApiResponse,
+  ApiResponseCreateSceneLinkageDetailResponse,
+  ApiResponseCreateSceneLinkageResponse,
+  ApiResponseGetSceneLinkageDetailResponse,
+  ApiResponseGetSceneLinkageResponse,
+  ApiResponseListSceneLinkagesResponse,
+  ApiResponseSceneLinkageSuccessResponse,
+  ApiResponseUpdateSceneLinkageDetailResponse,
+  ApiResponseUpdateSceneLinkageResponse,
+  ApiSuccessResponse,
   ApiUpdateProfileRequest,
-  CreateSceneLinkageDetailResponse,
-  CreateSceneLinkageResponse,
   DeleteDevicesIdPushRecordsParams,
   DeviceActivateDeviceResponse,
   DeviceBatchUploadDevicesResponse,
@@ -74,10 +80,7 @@ import type {
   GetOtaPackagesIdDeviceDeploymentsParams,
   GetOtaPackagesParams,
   GetProductsParams,
-  GetSceneLinkageDetailResponse,
-  GetSceneLinkageResponse,
   GetSceneLinkagesParams,
-  ListSceneLinkagesResponse,
   OtaCreateOTAPackageRequest,
   OtaCreateOTAPackageResponse,
   OtaGetOTAPackageResponse,
@@ -102,10 +105,7 @@ import type {
   ProductUpdateProductRequest,
   ProductUpdateProductResponse,
   SceneLinkageDetailRequest,
-  SceneLinkageRequest,
-  SceneLinkageSuccessResponse,
-  UpdateSceneLinkageDetailResponse,
-  UpdateSceneLinkageResponse
+  SceneLinkageRequest
 } from './model';
 
 import { orvalAxios } from '../orval-mutator';
@@ -4325,7 +4325,7 @@ export const postRegister = (
 ) => {
 
 
-      return orvalAxios<ApiResponse>(
+      return orvalAxios<ApiSuccessResponse>(
       {url: `/register`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: apiRegisterRequest, signal
@@ -4391,7 +4391,7 @@ export const getSceneLinkages = (
 ) => {
 
 
-      return orvalAxios<ListSceneLinkagesResponse>(
+      return orvalAxios<ApiResponseListSceneLinkagesResponse>(
       {url: `/scene-linkages`, method: 'GET',
         params, signal
     },
@@ -4486,7 +4486,7 @@ export const postSceneLinkages = (
 ) => {
 
 
-      return orvalAxios<CreateSceneLinkageResponse>(
+      return orvalAxios<ApiResponseCreateSceneLinkageResponse>(
       {url: `/scene-linkages`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: sceneLinkageRequest, signal
@@ -4552,7 +4552,7 @@ export const getSceneLinkagesId = (
 ) => {
 
 
-      return orvalAxios<GetSceneLinkageResponse>(
+      return orvalAxios<ApiResponseGetSceneLinkageResponse>(
       {url: `/scene-linkages/${id}`, method: 'GET', signal
     },
       );
@@ -4647,7 +4647,7 @@ export const putSceneLinkagesId = (
 ) => {
 
 
-      return orvalAxios<UpdateSceneLinkageResponse>(
+      return orvalAxios<ApiResponseUpdateSceneLinkageResponse>(
       {url: `/scene-linkages/${id}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: sceneLinkageRequest, signal
@@ -4713,7 +4713,7 @@ export const deleteSceneLinkagesId = (
 ) => {
 
 
-      return orvalAxios<SceneLinkageSuccessResponse>(
+      return orvalAxios<ApiResponseSceneLinkageSuccessResponse>(
       {url: `/scene-linkages/${id}`, method: 'DELETE', signal
     },
       );
@@ -4777,7 +4777,7 @@ export const getSceneLinkagesIdDetail = (
 ) => {
 
 
-      return orvalAxios<GetSceneLinkageDetailResponse>(
+      return orvalAxios<ApiResponseGetSceneLinkageDetailResponse>(
       {url: `/scene-linkages/${id}/detail`, method: 'GET', signal
     },
       );
@@ -4872,7 +4872,7 @@ export const putSceneLinkagesIdDetail = (
 ) => {
 
 
-      return orvalAxios<UpdateSceneLinkageDetailResponse>(
+      return orvalAxios<ApiResponseUpdateSceneLinkageDetailResponse>(
       {url: `/scene-linkages/${id}/detail`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: sceneLinkageDetailRequest, signal
@@ -4939,7 +4939,7 @@ export const postSceneLinkagesIdDetail = (
 ) => {
 
 
-      return orvalAxios<CreateSceneLinkageDetailResponse>(
+      return orvalAxios<ApiResponseCreateSceneLinkageDetailResponse>(
       {url: `/scene-linkages/${id}/detail`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: sceneLinkageDetailRequest, signal
@@ -5097,7 +5097,7 @@ export const putUser = (
 ) => {
 
 
-      return orvalAxios<ApiResponse>(
+      return orvalAxios<ApiSuccessResponse>(
       {url: `/user`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: apiUpdateProfileRequest, signal

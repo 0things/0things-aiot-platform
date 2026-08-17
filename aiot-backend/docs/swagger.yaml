@@ -54,15 +54,6 @@ definitions:
       total:
         type: integer
     type: object
-  ApiGetProfileResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/ApiGetProfileResponseData'
-      message:
-        type: string
-    type: object
   ApiGetProfileResponseData:
     properties:
       nickname:
@@ -83,15 +74,6 @@ definitions:
     - email
     - password
     type: object
-  ApiLoginResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/ApiLoginResponseData'
-      message:
-        type: string
-    type: object
   ApiLoginResponseData:
     properties:
       accessToken:
@@ -109,11 +91,102 @@ definitions:
     - email
     - password
     type: object
-  ApiResponse:
+  ApiResponse-ApiGetProfileResponseData:
     properties:
       code:
         type: integer
-      data: {}
+      data:
+        $ref: '#/definitions/ApiGetProfileResponseData'
+      message:
+        type: string
+    type: object
+  ApiResponse-ApiLoginResponseData:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ApiLoginResponseData'
+      message:
+        type: string
+    type: object
+  ApiResponse-CreateSceneLinkageDetailResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/CreateSceneLinkageDetailResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-CreateSceneLinkageResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/CreateSceneLinkageResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-GetSceneLinkageDetailResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/GetSceneLinkageDetailResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-GetSceneLinkageResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/GetSceneLinkageResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-ListSceneLinkagesResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ListSceneLinkagesResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-SceneLinkageSuccessResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/SceneLinkageSuccessResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-UpdateSceneLinkageDetailResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/UpdateSceneLinkageDetailResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-UpdateSceneLinkageResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/UpdateSceneLinkageResponse'
+      message:
+        type: string
+    type: object
+  ApiSuccessResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
       message:
         type: string
     type: object
@@ -1861,7 +1934,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiLoginResponse'
+            $ref: '#/definitions/ApiResponse-ApiLoginResponseData'
       summary: 账号登录
       tags:
       - 用户模块
@@ -2367,7 +2440,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse'
+            $ref: '#/definitions/ApiSuccessResponse'
       summary: 用户注册
       tags:
       - 用户模块
@@ -2399,7 +2472,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ListSceneLinkagesResponse'
+            $ref: '#/definitions/ApiResponse-ListSceneLinkagesResponse'
       security:
       - Bearer: []
       summary: 获取场景联动列表
@@ -2422,7 +2495,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/CreateSceneLinkageResponse'
+            $ref: '#/definitions/ApiResponse-CreateSceneLinkageResponse'
       security:
       - Bearer: []
       summary: 创建场景联动
@@ -2445,7 +2518,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/SceneLinkageSuccessResponse'
+            $ref: '#/definitions/ApiResponse-SceneLinkageSuccessResponse'
       security:
       - Bearer: []
       summary: 删除场景联动
@@ -2467,7 +2540,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/GetSceneLinkageResponse'
+            $ref: '#/definitions/ApiResponse-GetSceneLinkageResponse'
       security:
       - Bearer: []
       summary: 获取场景联动详情
@@ -2495,7 +2568,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/UpdateSceneLinkageResponse'
+            $ref: '#/definitions/ApiResponse-UpdateSceneLinkageResponse'
       security:
       - Bearer: []
       summary: 更新场景联动
@@ -2518,7 +2591,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/GetSceneLinkageDetailResponse'
+            $ref: '#/definitions/ApiResponse-GetSceneLinkageDetailResponse'
       security:
       - Bearer: []
       summary: 获取场景联动详情配置
@@ -2546,7 +2619,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/CreateSceneLinkageDetailResponse'
+            $ref: '#/definitions/ApiResponse-CreateSceneLinkageDetailResponse'
       security:
       - Bearer: []
       summary: 创建场景联动详情配置
@@ -2574,7 +2647,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/UpdateSceneLinkageDetailResponse'
+            $ref: '#/definitions/ApiResponse-UpdateSceneLinkageDetailResponse'
       security:
       - Bearer: []
       summary: 更新场景联动详情配置
@@ -2590,7 +2663,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiGetProfileResponse'
+            $ref: '#/definitions/ApiResponse-ApiGetProfileResponseData'
       security:
       - Bearer: []
       summary: 获取用户信息
@@ -2612,7 +2685,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse'
+            $ref: '#/definitions/ApiSuccessResponse'
       security:
       - Bearer: []
       summary: 修改用户信息

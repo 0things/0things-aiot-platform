@@ -2,6 +2,7 @@ package handler
 
 import (
 	sceneLinkageV1 "0things-backend/api/scene_linkage/v1"
+	v1 "0things-backend/api/v1"
 	"0things-backend/internal/model"
 	"0things-backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -51,7 +52,7 @@ func parseEnable(c *gin.Context) int {
 // @Param pageSize query int false "每页数量"
 // @Param search query string false "搜索关键字"
 // @Param enable query int false "启用状态：1 启用，0 停用"
-// @Success 200 {object} sceneLinkageV1.ListSceneLinkagesResponse
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.ListSceneLinkagesResponse]
 // @Router /scene-linkages [get]
 func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
 	pageNumber, pageSize := page(c, 20)
@@ -64,7 +65,7 @@ func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
 	for i, scene := range scenes {
 		items[i] = sceneLinkageJSON(scene)
 	}
-	c.JSON(200, sceneLinkageV1.ListSceneLinkagesResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, sceneLinkageV1.ListSceneLinkagesResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
 // GetSceneLinkage godoc
@@ -76,7 +77,7 @@ func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "场景联动 ID"
-// @Success 200 {object} sceneLinkageV1.GetSceneLinkageResponse
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.GetSceneLinkageResponse]
 // @Router /scene-linkages/{id} [get]
 func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -89,7 +90,7 @@ func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, sceneLinkageV1.GetSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
+	v1.HandleSuccess(c, sceneLinkageV1.GetSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
 }
 
 // CreateSceneLinkage godoc
@@ -101,7 +102,7 @@ func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param request body sceneLinkageV1.SceneLinkageRequest true "params"
-// @Success 200 {object} sceneLinkageV1.CreateSceneLinkageResponse
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.CreateSceneLinkageResponse]
 // @Router /scene-linkages [post]
 func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 	var req sceneLinkageV1.SceneLinkageRequest
@@ -117,7 +118,7 @@ func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, sceneLinkageV1.CreateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
+	v1.HandleSuccess(c, sceneLinkageV1.CreateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
 }
 
 // UpdateSceneLinkage godoc
@@ -130,7 +131,7 @@ func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 // @Security Bearer
 // @Param id path int true "场景联动 ID"
 // @Param request body sceneLinkageV1.SceneLinkageRequest true "params"
-// @Success 200 {object} sceneLinkageV1.UpdateSceneLinkageResponse
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.UpdateSceneLinkageResponse]
 // @Router /scene-linkages/{id} [put]
 func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -156,7 +157,7 @@ func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, sceneLinkageV1.UpdateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
+	v1.HandleSuccess(c, sceneLinkageV1.UpdateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
 }
 
 // DeleteSceneLinkage godoc
@@ -168,7 +169,7 @@ func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "场景联动 ID"
-// @Success 200 {object} sceneLinkageV1.SuccessResponse
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.SuccessResponse]
 // @Router /scene-linkages/{id} [delete]
 func (h *SceneLinkageHandler) DeleteSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -179,5 +180,5 @@ func (h *SceneLinkageHandler) DeleteSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	c.JSON(200, sceneLinkageV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, sceneLinkageV1.SuccessResponse{Success: true})
 }

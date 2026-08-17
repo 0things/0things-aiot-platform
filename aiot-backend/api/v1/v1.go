@@ -6,30 +6,40 @@ import (
 	"net/http"
 )
 
+// ApiResponse is the unified envelope used across handlers. The payload lives in
+// Data, so a single generic type replaces per-endpoint response wrappers.
+type ApiResponse[T any] struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    T      `json:"data"`
+} //@name ApiResponse
+
+// Response documents endpoints whose successful result has no payload.
+// It preserves the established empty-object response shape.
 type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-}//@name ApiResponse
+	Code    int      `json:"code"`
+	Message string   `json:"message"`
+	Data    struct{} `json:"data"`
+} //@name ApiSuccessResponse
 
 func HandleSuccess(ctx *gin.Context, data interface{}) {
 	if data == nil {
 		data = map[string]interface{}{}
 	}
-	resp := Response{Code: errorCodeMap[ErrSuccess], Message: ErrSuccess.Error(), Data: data}
-	if _, ok := errorCodeMap[ErrSuccess]; !ok {
-		resp = Response{Code: 0, Message: "", Data: data}
-	}
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, ApiResponse[any]{
+		Code:    errorCodeMap[ErrSuccess],
+		Message: ErrSuccess.Error(),
+		Data:    data,
+	})
 }
 
 func HandleError(ctx *gin.Context, httpCode int, err error, data interface{}) {
 	if data == nil {
 		data = map[string]string{}
 	}
-	resp := Response{Code: errorCodeMap[err], Message: err.Error(), Data: data}
+	resp := ApiResponse[any]{Code: errorCodeMap[err], Message: err.Error(), Data: data}
 	if _, ok := errorCodeMap[err]; !ok {
-		resp = Response{Code: 500, Message: "unknown error", Data: data}
+		resp = ApiResponse[any]{Code: 500, Message: "unknown error", Data: data}
 	}
 	ctx.JSON(httpCode, resp)
 }
@@ -37,7 +47,7 @@ func HandleError(ctx *gin.Context, httpCode int, err error, data interface{}) {
 type Error struct {
 	Code    int
 	Message string
-}//@name ApiError
+} //@name ApiError
 
 var errorCodeMap = map[error]int{}
 

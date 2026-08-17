@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Plus, Save, Trash2, Workflow } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { Loader2, Plus, Save, Trash2, Workflow } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -32,18 +33,181 @@ import {
   type SceneAction,
   type SceneActionType,
 } from './action-plugins'
+import {
+  useCreateSceneLinkage,
+  useCreateSceneLinkageDetail,
+  useSceneLinkage,
+  useSceneLinkageDetail,
+  useUpdateSceneLinkage,
+  useUpdateSceneLinkageDetail,
+} from './api/queries'
+import type { SceneLinkageDetailRequest } from '@/api/generated/model'
 
-export function SceneLinkageDetailPage() {
+type TriggerConfig = {
+  eventType: string
+  property: string
+  condition: string
+}
+
+type StoredAction = {
+  type: SceneActionType
+  config?: Record<string, string>
+}
+
+function toSceneActions(raw: unknown): SceneAction[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [createSceneAction('set_property')]
+  }
+  return (raw as StoredAction[]).map((item) => ({
+    id: crypto.randomUUID(),
+    type: item.type,
+    config: item.config ?? {},
+  }))
+}
+
+const defaultTrigger: TriggerConfig = {
+  eventType: 'property-report',
+  property: '',
+  condition: 'gt',
+}
+
+type InitialValues = {
+  name: string
+  description: string
+  enabled: boolean
+  trigger: TriggerConfig
+  actions: SceneAction[]
+}
+
+const createDefaults: InitialValues = {
+  name: '',
+  description: '',
+  enabled: true,
+  trigger: defaultTrigger,
+  actions: [createSceneAction('set_property')],
+}
+
+export function SceneLinkageForm({
+  mode,
+  sceneId,
+}: {
+  mode: 'create' | 'edit'
+  sceneId?: number
+}) {
+  const id = sceneId ?? 0
+  const sceneQuery = useSceneLinkage(mode === 'edit' ? id : 0)
+  const detailQuery = useSceneLinkageDetail(mode === 'edit' ? id : 0)
+
+  if (mode === 'edit') {
+    if (sceneQuery.isLoading || detailQuery.isLoading) {
+      return (
+        <>
+          <Header fixed>
+            <Search />
+            <div className='ms-auto flex items-center space-x-4'>
+              <ThemeSwitch />
+              <ConfigDrawer />
+              <ProfileDropdown />
+            </div>
+          </Header>
+          <Main fixed className='flex flex-1 items-center justify-center'>
+            <Loader2 className='size-6 animate-spin text-muted-foreground' />
+          </Main>
+        </>
+      )
+    }
+    const initial: InitialValues = {
+      name: sceneQuery.data?.name ?? '',
+      description: sceneQuery.data?.description ?? '',
+      enabled: sceneQuery.data?.enable === 1,
+      trigger: detailQuery.data?.triggerConfig
+        ? (detailQuery.data.triggerConfig as unknown as TriggerConfig)
+        : defaultTrigger,
+      actions: detailQuery.data?.actionConfig
+        ? toSceneActions(detailQuery.data.actionConfig)
+        : [createSceneAction('set_property')],
+    }
+    return <SceneLinkageFormInner mode='edit' id={id} initial={initial} />
+  }
+
+  return <SceneLinkageFormInner mode='create' initial={createDefaults} />
+}
+
+function SceneLinkageFormInner({
+  mode,
+  id,
+  initial,
+}: {
+  mode: 'create' | 'edit'
+  id?: number
+  initial: InitialValues
+}) {
   const { t } = useTranslation('sceneLinkage')
-  const [enabled, setEnabled] = useState(true)
-  const [actions, setActions] = useState<SceneAction[]>([
-    createSceneAction('set_property'),
-  ])
+  const navigate = useNavigate()
+  const isEdit = mode === 'edit'
+  const sceneId = id ?? 0
 
-  const updateAction = (id: string, config: Record<string, string>) => {
+  const [name, setName] = useState(initial.name)
+  const [description, setDescription] = useState(initial.description)
+  const [enabled, setEnabled] = useState(initial.enabled)
+  const [trigger, setTrigger] = useState<TriggerConfig>(initial.trigger)
+  const [actions, setActions] = useState<SceneAction[]>(initial.actions)
+  const [saving, setSaving] = useState(false)
+
+  const createBasic = useCreateSceneLinkage()
+  const updateBasic = useUpdateSceneLinkage()
+  const createDetail = useCreateSceneLinkageDetail()
+  const updateDetail = useUpdateSceneLinkageDetail()
+
+  const buildDetailPayload = (): SceneLinkageDetailRequest =>
+    ({
+      triggerConfig: trigger as unknown as number[],
+      actionConfig: actions.map((action) => ({
+        type: action.type,
+        config: action.config,
+      })),
+    }) as unknown as SceneLinkageDetailRequest
+
+  const handleSave = async () => {
+    if (!name.trim()) {
+      toast.error(t('nameRequired'))
+      return
+    }
+    setSaving(true)
+    try {
+      const basic = { name, description, enable: enabled ? 1 : 0 }
+      if (!isEdit) {
+        const created = await createBasic.mutateAsync(basic)
+        const newId = created?.id
+        if (newId == null) throw new Error('missing id')
+        await createDetail.mutateAsync({
+          id: newId,
+          data: buildDetailPayload(),
+        })
+        toast.success(t('created'))
+        navigate({
+          to: '/rule-engine/scene-linkage/$sceneId',
+          params: { sceneId: String(newId) },
+        })
+      } else {
+        await updateBasic.mutateAsync({ id: sceneId, data: basic })
+        await updateDetail.mutateAsync({
+          id: sceneId,
+          data: buildDetailPayload(),
+        })
+        toast.success(t('saved'))
+      }
+    } catch {
+      toast.error(t('saveFailed'))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const updateAction = (actionId: string, config: Record<string, string>) => {
     setActions((current) =>
       current.map((action) =>
-        action.id === id ? { ...action, config } : action
+        action.id === actionId ? { ...action, config } : action
       )
     )
   }
@@ -69,12 +233,18 @@ export function SceneLinkageDetailPage() {
               <Workflow className='size-5' />
               <span className='text-sm font-medium'>{t('eyebrow')}</span>
             </div>
-            <h1 className='text-3xl font-bold tracking-tight'>{t('title')}</h1>
+            <h1 className='text-3xl font-bold tracking-tight'>
+              {isEdit ? t('titleEdit') : t('titleCreate')}
+            </h1>
             <p className='mt-1 text-muted-foreground'>{t('description')}</p>
           </div>
-          <Button onClick={() => toast.success(t('savedLocally'))}>
-            <Save className='mr-2 size-4' />
-            {t('saveDraft')}
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? (
+              <Loader2 className='mr-2 size-4 animate-spin' />
+            ) : (
+              <Save className='mr-2 size-4' />
+            )}
+            {t('save')}
           </Button>
         </div>
 
@@ -86,11 +256,19 @@ export function SceneLinkageDetailPage() {
           <CardContent className='grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto] md:items-end'>
             <div className='space-y-1.5'>
               <Label>{t('basic.name')}</Label>
-              <Input defaultValue={t('basic.defaultName')} />
+              <Input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder={t('basic.defaultName')}
+              />
             </div>
             <div className='space-y-1.5'>
               <Label>{t('basic.note')}</Label>
-              <Input placeholder={t('basic.notePlaceholder')} />
+              <Input
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder={t('basic.notePlaceholder')}
+              />
             </div>
             <div className='flex items-center gap-3 pb-2'>
               <Switch checked={enabled} onCheckedChange={setEnabled} />
@@ -117,7 +295,15 @@ export function SceneLinkageDetailPage() {
             <CardContent className='grid gap-4 py-5 md:grid-cols-3'>
               <div className='space-y-1.5'>
                 <Label>{t('trigger.eventType')}</Label>
-                <Select defaultValue='property-report'>
+                <Select
+                  value={trigger.eventType}
+                  onValueChange={(value) =>
+                    setTrigger((current) => ({
+                      ...current,
+                      eventType: value,
+                    }))
+                  }
+                >
                   <SelectTrigger className='w-full'>
                     <SelectValue />
                   </SelectTrigger>
@@ -136,11 +322,28 @@ export function SceneLinkageDetailPage() {
               </div>
               <div className='space-y-1.5'>
                 <Label>{t('trigger.property')}</Label>
-                <Input placeholder='temperature' />
+                <Input
+                  value={trigger.property}
+                  onChange={(event) =>
+                    setTrigger((current) => ({
+                      ...current,
+                      property: event.target.value,
+                    }))
+                  }
+                  placeholder='temperature'
+                />
               </div>
               <div className='space-y-1.5'>
                 <Label>{t('trigger.condition')}</Label>
-                <Select defaultValue='gt'>
+                <Select
+                  value={trigger.condition}
+                  onValueChange={(value) =>
+                    setTrigger((current) => ({
+                      ...current,
+                      condition: value,
+                    }))
+                  }
+                >
                   <SelectTrigger className='w-full'>
                     <SelectValue />
                   </SelectTrigger>
