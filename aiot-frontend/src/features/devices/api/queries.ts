@@ -61,10 +61,11 @@ export function useDevices(params: {
   return useQuery({
     queryKey: deviceKeys.list(params),
     queryFn: async () => {
-      return getDevices({
+      const res = await getDevices({
         ...params,
         productId: params.productId ? Number(params.productId) : undefined,
-      }) as unknown as DeviceV1ListDevicesResponse
+      })
+      return (res?.data ?? res) as unknown as DeviceV1ListDevicesResponse
     },
   })
 }
@@ -76,7 +77,8 @@ export function useDeviceByKey(deviceKey: string) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'key', deviceKey],
     queryFn: async () => {
-      return getDevicesKeyDeviceKey(deviceKey) as unknown as DeviceV1GetDeviceResponse
+      const res = await getDevicesKeyDeviceKey(deviceKey)
+      return (res?.data ?? res) as unknown as DeviceV1GetDeviceResponse
     },
     enabled: !!deviceKey,
   })
@@ -89,7 +91,8 @@ export function useDeviceTelemetry(deviceKey: string) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'telemetry', deviceKey],
     queryFn: async () => {
-      return getDevicesIdTelemetry(Number(deviceKey)) as unknown as DeviceV1GetDeviceTelemetryResponse
+      const res = await getDevicesIdTelemetry(Number(deviceKey))
+      return (res?.data ?? res) as unknown as DeviceV1GetDeviceTelemetryResponse
     },
     enabled: !!deviceKey,
   })
@@ -102,7 +105,8 @@ export function useDeviceStatistics() {
   return useQuery({
     queryKey: deviceKeys.statistics(),
     queryFn: async () => {
-      return getDeviceStatistics() as never
+      const res = await getDeviceStatistics()
+      return (res?.data ?? res) as never
     },
   })
 }
@@ -114,7 +118,8 @@ export function useDeviceMqttParameters(deviceKey: string, enabled = false) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'mqtt-parameters', deviceKey],
     queryFn: async () => {
-      return getDevicesDeviceKeyMqttParameters(deviceKey) as unknown as DeviceV1GetMqttParametersResponse
+      const res = await getDevicesDeviceKeyMqttParameters(deviceKey)
+      return (res?.data ?? res) as unknown as DeviceV1GetMqttParametersResponse
     },
     enabled: enabled && !!deviceKey,
   })
@@ -243,7 +248,8 @@ export function useBatchUploadDevices() {
 
   return useMutation({
     mutationFn: async (file: File) => {
-      return postDevicesBatchUpload({ file }) as unknown as DeviceV1BatchUploadDevicesResponse
+      const res = await postDevicesBatchUpload({ file })
+      return (res?.data ?? res) as unknown as DeviceV1BatchUploadDevicesResponse
     },
     onSuccess: (response) => {
       // Only invalidate if some devices were created successfully

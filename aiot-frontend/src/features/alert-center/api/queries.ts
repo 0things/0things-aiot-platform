@@ -45,13 +45,14 @@ export function useAlerts(filters: {
   return useQuery({
     queryKey: alertKeys.list(filters),
     queryFn: async () => {
-      return getAlerts({
+      const res = await getAlerts({
         severity: filters.severity,
         status: filters.status,
         device_key: filters.deviceKey,
         page: filters.page,
         pageSize: filters.pageSize,
-      }) as unknown as Promise<{ alerts: Alert[]; total: number }>
+      })
+      return (res?.data ?? res) as unknown as Promise<{ alerts: Alert[]; total: number }>
     },
   })
 }
@@ -61,7 +62,7 @@ export function useOpenAlertCount() {
     queryKey: alertKeys.openCount(),
     queryFn: async () => {
       const data = await getAlerts({ status: 'open', pageSize: 0 })
-      return (data as { total: number }).total
+      return ((data?.data ?? data) as { total: number }).total
     },
     refetchInterval: 15_000,
   })

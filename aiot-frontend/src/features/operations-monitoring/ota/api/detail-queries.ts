@@ -17,7 +17,7 @@ export function useOTAPackageDetail(id: string) {
     queryFn: async () => {
       try {
         const response = await getOtaPackagesId(Number(id))
-        const data = response.otaPackage as OtaOTAPackage | undefined
+        const data = response.data?.otaPackage as OtaOTAPackage | undefined
         return {
           id: data?.id?.toString() || id,
           packageName: data?.packageName || id,
@@ -55,7 +55,7 @@ export function useUpgradeStatistics(packageName: string) {
     queryKey: ['upgrade-statistics', packageName],
     queryFn: async () => {
       try {
-        const data = (await getOtaPackagesIdUpgradeStatistics(Number(packageName))) as any
+        const data = ((await getOtaPackagesIdUpgradeStatistics(Number(packageName))) as any)?.data ?? {}
         return {
           packageId: data.packageId || packageName,
           totalTargetDevices: data.totalTargetDevices || 0,
@@ -90,11 +90,11 @@ export function useDeviceDeployments(
     queryKey: ['device-deployments', packageName, page, pageSize, status],
     queryFn: async () => {
       try {
-        const data = await getOtaPackagesIdDeviceDeployments(Number(packageName), {
+        const data = (await getOtaPackagesIdDeviceDeployments(Number(packageName), {
           page,
           pageSize,
           status,
-        })
+        }))?.data ?? {}
         return {
           deployments: (data.deployments || []).map((d: any) => ({
             deviceId: d.deviceId,
@@ -131,7 +131,7 @@ export function useUpgradeBatches(packageName: string) {
     queryKey: ['upgrade-batches', packageName],
     queryFn: async () => {
       try {
-        const data = await getOtaPackagesIdBatches(Number(packageName))
+        const data = (await getOtaPackagesIdBatches(Number(packageName)))?.data ?? {}
         return (data.batches || []).map((b: any) => ({
           batchId: b.batchId,
           batchName: b.batchName,

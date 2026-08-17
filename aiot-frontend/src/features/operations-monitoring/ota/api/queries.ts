@@ -53,7 +53,7 @@ export function useOTAPackages(filters?: {
   return useQuery<{ packages: OTAPackage[]; total: number }>({
     queryKey: otaPackageKeys.list(filters),
     queryFn: async () => {
-      const response = await getOtaPackages({
+      const response = (await getOtaPackages({
         page: filters?.page,
         pageSize: filters?.pageSize,
         productId: filters?.productId ? Number(filters.productId) : undefined,
@@ -61,7 +61,7 @@ export function useOTAPackages(filters?: {
         packageType: filters?.packageType,
         uploadType: filters?.uploadType,
         searchText: filters?.searchText,
-      } as never)
+      } as never))?.data ?? {}
 
       // Transform API response to match UI schema
       const packages: OTAPackage[] = (response.otaPackages || []).map(
@@ -103,7 +103,7 @@ export function useOTAPackage(id: string) {
     queryKey: otaPackageKeys.detail(id),
     queryFn: async () => {
       const response = await getOtaPackagesId(Number(id))
-      return response.otaPackage
+      return response.data?.otaPackage
     },
     enabled: !!id,
   })

@@ -40,7 +40,7 @@ export function DeployPackageDialog() {
         pageSize: 1,
         enabled: true,
       })
-      return response.total || 0
+      return response.data?.total || 0
     },
     enabled: !!productId && openDialog === 'deploy',
   })
@@ -54,7 +54,7 @@ export function DeployPackageDialog() {
         pageSize: 200,
         enabled: true,
       })
-      return response.devices || []
+      return response.data?.devices || []
     },
     enabled: !!productId && openDialog === 'deploy' && targetDevices === 'specific',
   })

@@ -26,7 +26,8 @@ export function useDeviceShadow(deviceKey: string) {
     queryKey: shadowKeys.detail(deviceKey),
     enabled: !!deviceKey,
     queryFn: async (): Promise<ShadowDoc> => {
-      return getDevicesIdShadow(await getDeviceId(deviceKey)) as Promise<ShadowDoc>
+      const res = await getDevicesIdShadow(await getDeviceId(deviceKey))
+      return (res?.data ?? res) as ShadowDoc
     },
   })
 }
@@ -35,7 +36,8 @@ export function useUpdateDesired(deviceKey: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (input: { desired: Record<string, unknown>; version: number }) => {
-      return putDevicesIdShadowDesired(await getDeviceId(deviceKey), input) as Promise<ShadowDoc>
+      const res = await putDevicesIdShadowDesired(await getDeviceId(deviceKey), input)
+      return (res?.data ?? res) as ShadowDoc
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: shadowKeys.detail(deviceKey) })
@@ -48,9 +50,14 @@ export function useShadowHistory(deviceKey: string) {
     queryKey: shadowKeys.history(deviceKey),
     enabled: !!deviceKey,
     queryFn: async () => {
-      return getDevicesIdShadowHistory(await getDeviceId(deviceKey)) as Promise<
-        Array<{ version: number; updatedAt: string; source: string; desired: unknown; reported: unknown }>
-      >
+      const res = await getDevicesIdShadowHistory(await getDeviceId(deviceKey))
+      return (res?.data ?? res) as Array<{
+        version: number
+        updatedAt: string
+        source: string
+        desired: unknown
+        reported: unknown
+      }>
     },
   })
 }

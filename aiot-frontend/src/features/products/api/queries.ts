@@ -50,7 +50,8 @@ export function useProducts(params: {
   return useQuery({
     queryKey: productKeys.list(params),
     queryFn: async () => {
-      return getProducts(params) as unknown as ProductV1ListProductsResponse
+      const res = await getProducts(params)
+      return (res?.data ?? res) as unknown as ProductV1ListProductsResponse
     },
   })
 }
@@ -62,11 +63,12 @@ export function useAllProducts() {
   return useQuery({
     queryKey: productKeys.list({ pageSize: 1000, status: 'active' }),
     queryFn: async () => {
-      return getProducts({
+      const res = await getProducts({
         page: 1,
         pageSize: 1000,
         status: 'active',
-      }) as unknown as ProductV1ListProductsResponse
+      })
+      return (res?.data ?? res) as unknown as ProductV1ListProductsResponse
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   })
@@ -79,7 +81,8 @@ export function useProduct(productKey: string) {
   return useQuery({
     queryKey: productKeys.detail(productKey),
     queryFn: async () => {
-      return getProductsKeyProductKey(productKey) as unknown as ProductV1GetProductByKeyResponse
+      const res = await getProductsKeyProductKey(productKey)
+      return (res?.data ?? res) as unknown as ProductV1GetProductByKeyResponse
     },
     enabled: !!productKey,
   })
@@ -118,7 +121,8 @@ export function useUpdateProduct() {
       productKey: string
       data: ProductV1UpdateProductRequest
     }) => {
-      return putProductsKeyProductKey(productKey, data as never) as unknown as ProductV1UpdateProductResponse
+      const res = await putProductsKeyProductKey(productKey, data as never)
+      return (res?.data ?? res) as unknown as ProductV1UpdateProductResponse
     },
     onSuccess: (response) => {
       // Invalidate the specific product detail using productKey

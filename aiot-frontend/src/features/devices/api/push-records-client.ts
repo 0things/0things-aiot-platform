@@ -66,6 +66,6 @@ export async function clearPushRecords(params: {
  */
 export async function getProductTSL(productKey: string) {
   const product = await getProductsKeyProductKey(productKey)
-  if (product.product?.id === undefined) throw new Error('Product not found')
-  return getProductsIdTsl(product.product.id)
+  if (product.data?.product?.id === undefined) throw new Error('Product not found')
+  return getProductsIdTsl(product.data.product.id)
 }

@@ -20,7 +20,7 @@ export function useDeviceTags(deviceKey: string) {
     enabled: !!deviceKey,
     queryFn: async (): Promise<DeviceTag[]> => {
       const data = await getDevicesIdTags(await getDeviceId(deviceKey))
-      return (data.tags ?? []) as DeviceTag[]
+      return (data?.data?.tags ?? []) as DeviceTag[]
     },
   })
 }

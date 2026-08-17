@@ -442,12 +442,12 @@ export function FeatureDefinitionTab({
     queryFn: async () => {
       try {
         const product = await getProductsKeyProductKey(productKey)
-        const id = product.product?.id
+        const id = product.data?.product?.id
         if (id === undefined) return null
         const response = await getProductsIdTsl(id)
         // Parse the TSL string from API into TSLModel
-        if (response.productTsl?.tsl) {
-          return JSON.parse(response.productTsl.tsl) as TSLModel
+        if (response.data?.productTsl?.tsl) {
+          return JSON.parse(response.data.productTsl.tsl) as TSLModel
         }
         return null
       } catch (error: unknown) {
@@ -466,8 +466,8 @@ export function FeatureDefinitionTab({
     mutationFn: async (tsl: TSLModel) => {
       const tslJsonString = JSON.stringify(tsl)
       const product = await getProductsKeyProductKey(productKey)
-      if (product.product?.id === undefined) throw new Error('Product not found')
-      return postProductsIdTsl(product.product.id, { tsl: tslJsonString })
+      if (product.data?.product?.id === undefined) throw new Error('Product not found')
+      return postProductsIdTsl(product.data.product.id, { tsl: tslJsonString })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product-tsl', productKey] })
@@ -482,8 +482,8 @@ export function FeatureDefinitionTab({
   const deleteTSLMutation = useMutation({
     mutationFn: async () => {
       const product = await getProductsKeyProductKey(productKey)
-      if (product.product?.id === undefined) throw new Error('Product not found')
-      return deleteProductsIdTsl(product.product.id)
+      if (product.data?.product?.id === undefined) throw new Error('Product not found')
+      return deleteProductsIdTsl(product.data.product.id)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product-tsl', productKey] })
