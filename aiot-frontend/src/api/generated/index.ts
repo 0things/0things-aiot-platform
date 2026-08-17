@@ -25,53 +25,70 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AlertGetAlertResponse,
-  AlertListAlertsResponse,
-  ApiGetProfileResponse,
   ApiLoginRequest,
-  ApiLoginResponse,
   ApiRegisterRequest,
+  ApiResponseAlertGetAlertResponse,
+  ApiResponseAlertListAlertsResponse,
+  ApiResponseApiGetProfileResponseData,
+  ApiResponseApiLoginResponseData,
   ApiResponseCreateSceneLinkageDetailResponse,
   ApiResponseCreateSceneLinkageResponse,
+  ApiResponseDeviceActivateDeviceResponse,
+  ApiResponseDeviceBatchUploadDevicesResponse,
+  ApiResponseDeviceClearPushRecordsResponse,
+  ApiResponseDeviceCreateDeviceResponse,
+  ApiResponseDeviceEventListDeviceEventsResponse,
+  ApiResponseDeviceGetDeviceResponse,
+  ApiResponseDeviceGetPushRecordResponse,
+  ApiResponseDeviceListDeviceShadowHistoryResponse,
+  ApiResponseDeviceListDeviceTagsResponse,
+  ApiResponseDeviceListDevicesResponse,
+  ApiResponseDeviceListPushRecordsResponse,
+  ApiResponseDeviceMQTTParametersResponse,
+  ApiResponseDeviceMockKafkaResponse,
+  ApiResponseDeviceRestoreDeviceResponse,
+  ApiResponseDeviceSetDeviceEnabledResponse,
+  ApiResponseDeviceShadow,
+  ApiResponseDeviceSimulatePushResponse,
+  ApiResponseDeviceStatisticsResponse,
+  ApiResponseDeviceSuccessResponse,
+  ApiResponseDeviceTelemetryResponse,
+  ApiResponseDeviceUpdateDeviceResponse,
   ApiResponseGetSceneLinkageDetailResponse,
   ApiResponseGetSceneLinkageResponse,
   ApiResponseListSceneLinkagesResponse,
+  ApiResponseOtaCreateOTAPackageResponse,
+  ApiResponseOtaGetOTAPackageResponse,
+  ApiResponseOtaGetUpgradeStatisticsResponse,
+  ApiResponseOtaListDeviceDeploymentsResponse,
+  ApiResponseOtaListOTAPackagesResponse,
+  ApiResponseOtaListUpgradeBatchesResponse,
+  ApiResponseOtaSuccessResponse,
+  ApiResponseOtaUpdateOTAPackageResponse,
+  ApiResponseProductCreateProductResponse,
+  ApiResponseProductGetProductByKeyResponse,
+  ApiResponseProductGetProductResponse,
+  ApiResponseProductListProductsResponse,
+  ApiResponseProductRestoreProductResponse,
+  ApiResponseProductSuccessResponse,
+  ApiResponseProductTslGetProductTSLResponse,
+  ApiResponseProductTslSuccessResponse,
+  ApiResponseProductUpdateProductResponse,
   ApiResponseSceneLinkageSuccessResponse,
   ApiResponseUpdateSceneLinkageDetailResponse,
   ApiResponseUpdateSceneLinkageResponse,
   ApiSuccessResponse,
   ApiUpdateProfileRequest,
   DeleteDevicesIdPushRecordsParams,
-  DeviceActivateDeviceResponse,
-  DeviceBatchUploadDevicesResponse,
   DeviceClearDesiredShadowRequest,
-  DeviceClearPushRecordsResponse,
   DeviceCreateDeviceRequest,
-  DeviceCreateDeviceResponse,
   DeviceDeleteDeviceTagsRequest,
-  DeviceEventListDeviceEventsResponse,
-  DeviceGetDeviceResponse,
-  DeviceGetPushRecordResponse,
-  DeviceListDeviceShadowHistoryResponse,
-  DeviceListDeviceTagsResponse,
-  DeviceListDevicesResponse,
-  DeviceListPushRecordsResponse,
-  DeviceMQTTParametersResponse,
   DeviceMockKafkaRequest,
-  DeviceMockKafkaResponse,
-  DeviceRestoreDeviceResponse,
   DeviceSetDeviceEnabledRequest,
-  DeviceSetDeviceEnabledResponse,
   DeviceSetDeviceTagsRequest,
-  DeviceShadow,
   DeviceSimulatePushRequest,
-  DeviceSimulatePushResponse,
-  DeviceStatisticsResponse,
-  DeviceSuccessResponse,
-  DeviceTelemetryResponse,
   DeviceUpdateDesiredShadowRequest,
   DeviceUpdateDeviceRequest,
-  DeviceUpdateDeviceResponse,
   DeviceUpdateReportedShadowRequest,
   GetAlertsParams,
   GetDeviceEventsParams,
@@ -82,28 +99,11 @@ import type {
   GetProductsParams,
   GetSceneLinkagesParams,
   OtaCreateOTAPackageRequest,
-  OtaCreateOTAPackageResponse,
-  OtaGetOTAPackageResponse,
-  OtaGetUpgradeStatisticsResponse,
-  OtaListDeviceDeploymentsResponse,
-  OtaListOTAPackagesResponse,
-  OtaListUpgradeBatchesResponse,
   OtaOTAPackageRequest,
-  OtaSuccessResponse,
-  OtaUpdateOTAPackageResponse,
   PostDevicesBatchUploadBody,
   ProductCreateProductRequest,
-  ProductCreateProductResponse,
-  ProductGetProductByKeyResponse,
-  ProductGetProductResponse,
-  ProductListProductsResponse,
-  ProductRestoreProductResponse,
-  ProductSuccessResponse,
-  ProductTslGetProductTSLResponse,
-  ProductTslSuccessResponse,
   ProductTslUpsertProductTSLRequest,
   ProductUpdateProductRequest,
-  ProductUpdateProductResponse,
   SceneLinkageDetailRequest,
   SceneLinkageRequest
 } from './model';
@@ -135,7 +135,7 @@ export const getAlerts = (
 ) => {
 
 
-      return orvalAxios<AlertListAlertsResponse>(
+      return orvalAxios<ApiResponseAlertListAlertsResponse>(
       {url: `/alerts`, method: 'GET',
         params, signal
     },
@@ -230,7 +230,7 @@ export const getAlertsId = (
 ) => {
 
 
-      return orvalAxios<AlertGetAlertResponse>(
+      return orvalAxios<ApiResponseAlertGetAlertResponse>(
       {url: `/alerts/${id}`, method: 'GET', signal
     },
       );
@@ -324,7 +324,7 @@ export const postAlertsIdAck = (
 ) => {
 
 
-      return orvalAxios<AlertGetAlertResponse>(
+      return orvalAxios<ApiResponseAlertGetAlertResponse>(
       {url: `/alerts/${id}/ack`, method: 'POST', signal
     },
       );
@@ -388,7 +388,7 @@ export const postAlertsIdResolve = (
 ) => {
 
 
-      return orvalAxios<AlertGetAlertResponse>(
+      return orvalAxios<ApiResponseAlertGetAlertResponse>(
       {url: `/alerts/${id}/resolve`, method: 'POST', signal
     },
       );
@@ -452,7 +452,7 @@ export const getDeviceEvents = (
 ) => {
 
 
-      return orvalAxios<DeviceEventListDeviceEventsResponse>(
+      return orvalAxios<ApiResponseDeviceEventListDeviceEventsResponse>(
       {url: `/device-events`, method: 'GET',
         params, signal
     },
@@ -547,7 +547,7 @@ export const getDeviceStatistics = (
 ) => {
 
 
-      return orvalAxios<DeviceStatisticsResponse>(
+      return orvalAxios<ApiResponseDeviceStatisticsResponse>(
       {url: `/device-statistics`, method: 'GET', signal
     },
       );
@@ -641,7 +641,7 @@ export const getDevices = (
 ) => {
 
 
-      return orvalAxios<DeviceListDevicesResponse>(
+      return orvalAxios<ApiResponseDeviceListDevicesResponse>(
       {url: `/devices`, method: 'GET',
         params, signal
     },
@@ -736,7 +736,7 @@ export const postDevices = (
 ) => {
 
 
-      return orvalAxios<DeviceCreateDeviceResponse>(
+      return orvalAxios<ApiResponseDeviceCreateDeviceResponse>(
       {url: `/devices`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: deviceCreateDeviceRequest, signal
@@ -901,7 +901,7 @@ if(postDevicesBatchUploadBody?.file !== undefined) {
  formData.append(`file`, postDevicesBatchUploadBody.file);
  }
 
-      return orvalAxios<DeviceBatchUploadDevicesResponse>(
+      return orvalAxios<ApiResponseDeviceBatchUploadDevicesResponse>(
       {url: `/devices/batch/upload`, method: 'POST',
       headers: {'Content-Type': 'multipart/form-data', },
        data: formData, signal
@@ -967,7 +967,7 @@ export const getDevicesKeyDeviceKey = (
 ) => {
 
 
-      return orvalAxios<DeviceGetDeviceResponse>(
+      return orvalAxios<ApiResponseDeviceGetDeviceResponse>(
       {url: `/devices/key/${deviceKey}`, method: 'GET', signal
     },
       );
@@ -1061,7 +1061,7 @@ export const postDevicesMockKafka = (
 ) => {
 
 
-      return orvalAxios<DeviceMockKafkaResponse>(
+      return orvalAxios<ApiResponseDeviceMockKafkaResponse>(
       {url: `/devices/mock-kafka`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: deviceMockKafkaRequest, signal
@@ -1127,7 +1127,7 @@ export const getDevicesPushRecordsPushRecordId = (
 ) => {
 
 
-      return orvalAxios<DeviceGetPushRecordResponse>(
+      return orvalAxios<ApiResponseDeviceGetPushRecordResponse>(
       {url: `/devices/push-records/${pushRecordId}`, method: 'GET', signal
     },
       );
@@ -1221,7 +1221,7 @@ export const getDevicesDeviceKeyMqttParameters = (
 ) => {
 
 
-      return orvalAxios<DeviceMQTTParametersResponse>(
+      return orvalAxios<ApiResponseDeviceMQTTParametersResponse>(
       {url: `/devices/${deviceKey}/mqtt-parameters`, method: 'GET', signal
     },
       );
@@ -1315,7 +1315,7 @@ export const getDevicesId = (
 ) => {
 
 
-      return orvalAxios<DeviceGetDeviceResponse>(
+      return orvalAxios<ApiResponseDeviceGetDeviceResponse>(
       {url: `/devices/${id}`, method: 'GET', signal
     },
       );
@@ -1410,7 +1410,7 @@ export const putDevicesId = (
 ) => {
 
 
-      return orvalAxios<DeviceUpdateDeviceResponse>(
+      return orvalAxios<ApiResponseDeviceUpdateDeviceResponse>(
       {url: `/devices/${id}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: deviceUpdateDeviceRequest, signal
@@ -1476,7 +1476,7 @@ export const deleteDevicesId = (
 ) => {
 
 
-      return orvalAxios<DeviceSuccessResponse>(
+      return orvalAxios<ApiResponseDeviceSuccessResponse>(
       {url: `/devices/${id}`, method: 'DELETE', signal
     },
       );
@@ -1540,7 +1540,7 @@ export const postDevicesIdActivate = (
 ) => {
 
 
-      return orvalAxios<DeviceActivateDeviceResponse>(
+      return orvalAxios<ApiResponseDeviceActivateDeviceResponse>(
       {url: `/devices/${id}/activate`, method: 'POST', signal
     },
       );
@@ -1605,7 +1605,7 @@ export const postDevicesIdEnabled = (
 ) => {
 
 
-      return orvalAxios<DeviceSetDeviceEnabledResponse>(
+      return orvalAxios<ApiResponseDeviceSetDeviceEnabledResponse>(
       {url: `/devices/${id}/enabled`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: deviceSetDeviceEnabledRequest, signal
@@ -1672,7 +1672,7 @@ export const getDevicesIdPushRecords = (
 ) => {
 
 
-      return orvalAxios<DeviceListPushRecordsResponse>(
+      return orvalAxios<ApiResponseDeviceListPushRecordsResponse>(
       {url: `/devices/${id}/push-records`, method: 'GET',
         params, signal
     },
@@ -1774,7 +1774,7 @@ export const deleteDevicesIdPushRecords = (
 ) => {
 
 
-      return orvalAxios<DeviceClearPushRecordsResponse>(
+      return orvalAxios<ApiResponseDeviceClearPushRecordsResponse>(
       {url: `/devices/${id}/push-records`, method: 'DELETE',
         params, signal
     },
@@ -1839,7 +1839,7 @@ export const postDevicesIdRestore = (
 ) => {
 
 
-      return orvalAxios<DeviceRestoreDeviceResponse>(
+      return orvalAxios<ApiResponseDeviceRestoreDeviceResponse>(
       {url: `/devices/${id}/restore`, method: 'POST', signal
     },
       );
@@ -1903,7 +1903,7 @@ export const getDevicesIdShadow = (
 ) => {
 
 
-      return orvalAxios<DeviceShadow>(
+      return orvalAxios<ApiResponseDeviceShadow>(
       {url: `/devices/${id}/shadow`, method: 'GET', signal
     },
       );
@@ -1998,7 +1998,7 @@ export const putDevicesIdShadowDesired = (
 ) => {
 
 
-      return orvalAxios<DeviceShadow>(
+      return orvalAxios<ApiResponseDeviceShadow>(
       {url: `/devices/${id}/shadow/desired`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: deviceUpdateDesiredShadowRequest, signal
@@ -2065,7 +2065,7 @@ export const deleteDevicesIdShadowDesired = (
 ) => {
 
 
-      return orvalAxios<DeviceShadow>(
+      return orvalAxios<ApiResponseDeviceShadow>(
       {url: `/devices/${id}/shadow/desired`, method: 'DELETE',
       headers: {'Content-Type': 'application/json', },
       data: deviceClearDesiredShadowRequest, signal
@@ -2131,7 +2131,7 @@ export const getDevicesIdShadowHistory = (
 ) => {
 
 
-      return orvalAxios<DeviceListDeviceShadowHistoryResponse>(
+      return orvalAxios<ApiResponseDeviceListDeviceShadowHistoryResponse>(
       {url: `/devices/${id}/shadow/history`, method: 'GET', signal
     },
       );
@@ -2226,7 +2226,7 @@ export const putDevicesIdShadowReported = (
 ) => {
 
 
-      return orvalAxios<DeviceShadow>(
+      return orvalAxios<ApiResponseDeviceShadow>(
       {url: `/devices/${id}/shadow/reported`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: deviceUpdateReportedShadowRequest, signal
@@ -2293,7 +2293,7 @@ export const postDevicesIdSimulatePush = (
 ) => {
 
 
-      return orvalAxios<DeviceSimulatePushResponse>(
+      return orvalAxios<ApiResponseDeviceSimulatePushResponse>(
       {url: `/devices/${id}/simulate-push`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: deviceSimulatePushRequest, signal
@@ -2359,7 +2359,7 @@ export const getDevicesIdTags = (
 ) => {
 
 
-      return orvalAxios<DeviceListDeviceTagsResponse>(
+      return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>(
       {url: `/devices/${id}/tags`, method: 'GET', signal
     },
       );
@@ -2454,7 +2454,7 @@ export const putDevicesIdTags = (
 ) => {
 
 
-      return orvalAxios<DeviceListDeviceTagsResponse>(
+      return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>(
       {url: `/devices/${id}/tags`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: deviceSetDeviceTagsRequest, signal
@@ -2521,7 +2521,7 @@ export const postDevicesIdTags = (
 ) => {
 
 
-      return orvalAxios<DeviceListDeviceTagsResponse>(
+      return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>(
       {url: `/devices/${id}/tags`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: deviceSetDeviceTagsRequest, signal
@@ -2588,7 +2588,7 @@ export const deleteDevicesIdTags = (
 ) => {
 
 
-      return orvalAxios<DeviceSuccessResponse>(
+      return orvalAxios<ApiResponseDeviceSuccessResponse>(
       {url: `/devices/${id}/tags`, method: 'DELETE',
       headers: {'Content-Type': 'application/json', },
       data: deviceDeleteDeviceTagsRequest, signal
@@ -2654,7 +2654,7 @@ export const getDevicesIdTelemetry = (
 ) => {
 
 
-      return orvalAxios<DeviceTelemetryResponse>(
+      return orvalAxios<ApiResponseDeviceTelemetryResponse>(
       {url: `/devices/${id}/telemetry`, method: 'GET', signal
     },
       );
@@ -2747,7 +2747,7 @@ export const postLogin = (
 ) => {
 
 
-      return orvalAxios<ApiLoginResponse>(
+      return orvalAxios<ApiResponseApiLoginResponseData>(
       {url: `/login`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: apiLoginRequest, signal
@@ -2813,7 +2813,7 @@ export const getOtaPackages = (
 ) => {
 
 
-      return orvalAxios<OtaListOTAPackagesResponse>(
+      return orvalAxios<ApiResponseOtaListOTAPackagesResponse>(
       {url: `/ota-packages`, method: 'GET',
         params, signal
     },
@@ -2908,7 +2908,7 @@ export const postOtaPackages = (
 ) => {
 
 
-      return orvalAxios<OtaCreateOTAPackageResponse>(
+      return orvalAxios<ApiResponseOtaCreateOTAPackageResponse>(
       {url: `/ota-packages`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: otaCreateOTAPackageRequest, signal
@@ -2974,7 +2974,7 @@ export const getOtaPackagesId = (
 ) => {
 
 
-      return orvalAxios<OtaGetOTAPackageResponse>(
+      return orvalAxios<ApiResponseOtaGetOTAPackageResponse>(
       {url: `/ota-packages/${id}`, method: 'GET', signal
     },
       );
@@ -3069,7 +3069,7 @@ export const putOtaPackagesId = (
 ) => {
 
 
-      return orvalAxios<OtaUpdateOTAPackageResponse>(
+      return orvalAxios<ApiResponseOtaUpdateOTAPackageResponse>(
       {url: `/ota-packages/${id}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: otaOTAPackageRequest, signal
@@ -3135,7 +3135,7 @@ export const deleteOtaPackagesId = (
 ) => {
 
 
-      return orvalAxios<OtaSuccessResponse>(
+      return orvalAxios<ApiResponseOtaSuccessResponse>(
       {url: `/ota-packages/${id}`, method: 'DELETE', signal
     },
       );
@@ -3199,7 +3199,7 @@ export const getOtaPackagesIdBatches = (
 ) => {
 
 
-      return orvalAxios<OtaListUpgradeBatchesResponse>(
+      return orvalAxios<ApiResponseOtaListUpgradeBatchesResponse>(
       {url: `/ota-packages/${id}/batches`, method: 'GET', signal
     },
       );
@@ -3294,7 +3294,7 @@ export const getOtaPackagesIdDeviceDeployments = (
 ) => {
 
 
-      return orvalAxios<OtaListDeviceDeploymentsResponse>(
+      return orvalAxios<ApiResponseOtaListDeviceDeploymentsResponse>(
       {url: `/ota-packages/${id}/device-deployments`, method: 'GET',
         params, signal
     },
@@ -3395,7 +3395,7 @@ export const getOtaPackagesIdUpgradeStatistics = (
 ) => {
 
 
-      return orvalAxios<OtaGetUpgradeStatisticsResponse>(
+      return orvalAxios<ApiResponseOtaGetUpgradeStatisticsResponse>(
       {url: `/ota-packages/${id}/upgrade-statistics`, method: 'GET', signal
     },
       );
@@ -3489,7 +3489,7 @@ export const getProducts = (
 ) => {
 
 
-      return orvalAxios<ProductListProductsResponse>(
+      return orvalAxios<ApiResponseProductListProductsResponse>(
       {url: `/products`, method: 'GET',
         params, signal
     },
@@ -3584,7 +3584,7 @@ export const postProducts = (
 ) => {
 
 
-      return orvalAxios<ProductCreateProductResponse>(
+      return orvalAxios<ApiResponseProductCreateProductResponse>(
       {url: `/products`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: productCreateProductRequest, signal
@@ -3650,7 +3650,7 @@ export const getProductsKeyProductKey = (
 ) => {
 
 
-      return orvalAxios<ProductGetProductByKeyResponse>(
+      return orvalAxios<ApiResponseProductGetProductByKeyResponse>(
       {url: `/products/key/${productKey}`, method: 'GET', signal
     },
       );
@@ -3745,7 +3745,7 @@ export const putProductsKeyProductKey = (
 ) => {
 
 
-      return orvalAxios<ProductUpdateProductResponse>(
+      return orvalAxios<ApiResponseProductUpdateProductResponse>(
       {url: `/products/key/${productKey}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: productUpdateProductRequest, signal
@@ -3811,7 +3811,7 @@ export const getProductsId = (
 ) => {
 
 
-      return orvalAxios<ProductGetProductResponse>(
+      return orvalAxios<ApiResponseProductGetProductResponse>(
       {url: `/products/${id}`, method: 'GET', signal
     },
       );
@@ -3905,7 +3905,7 @@ export const deleteProductsId = (
 ) => {
 
 
-      return orvalAxios<ProductSuccessResponse>(
+      return orvalAxios<ApiResponseProductSuccessResponse>(
       {url: `/products/${id}`, method: 'DELETE', signal
     },
       );
@@ -3969,7 +3969,7 @@ export const postProductsIdRestore = (
 ) => {
 
 
-      return orvalAxios<ProductRestoreProductResponse>(
+      return orvalAxios<ApiResponseProductRestoreProductResponse>(
       {url: `/products/${id}/restore`, method: 'POST', signal
     },
       );
@@ -4033,7 +4033,7 @@ export const getProductsIdTsl = (
 ) => {
 
 
-      return orvalAxios<ProductTslGetProductTSLResponse>(
+      return orvalAxios<ApiResponseProductTslGetProductTSLResponse>(
       {url: `/products/${id}/tsl`, method: 'GET', signal
     },
       );
@@ -4128,7 +4128,7 @@ export const putProductsIdTsl = (
 ) => {
 
 
-      return orvalAxios<ProductTslSuccessResponse>(
+      return orvalAxios<ApiResponseProductTslSuccessResponse>(
       {url: `/products/${id}/tsl`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: productTslUpsertProductTSLRequest, signal
@@ -4195,7 +4195,7 @@ export const postProductsIdTsl = (
 ) => {
 
 
-      return orvalAxios<ProductTslSuccessResponse>(
+      return orvalAxios<ApiResponseProductTslSuccessResponse>(
       {url: `/products/${id}/tsl`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: productTslUpsertProductTSLRequest, signal
@@ -4261,7 +4261,7 @@ export const deleteProductsIdTsl = (
 ) => {
 
 
-      return orvalAxios<ProductTslSuccessResponse>(
+      return orvalAxios<ApiResponseProductTslSuccessResponse>(
       {url: `/products/${id}/tsl`, method: 'DELETE', signal
     },
       );
@@ -5004,7 +5004,7 @@ export const getUser = (
 ) => {
 
 
-      return orvalAxios<ApiGetProfileResponse>(
+      return orvalAxios<ApiResponseApiGetProfileResponseData>(
       {url: `/user`, method: 'GET', signal
     },
       );
