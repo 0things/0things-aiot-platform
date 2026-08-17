@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"0things-backend/api/v1"
 	"0things-backend/internal/service"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -54,7 +54,7 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body v1.LoginRequest true "params"
-// @Success 200 {object} v1.LoginResponse
+// @Success 200 {object} v1.ApiResponse[v1.LoginResponseData]
 // @Router /login [post]
 func (h *UserHandler) Login(ctx *gin.Context) {
 	var req v1.LoginRequest
@@ -81,7 +81,7 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} v1.GetProfileResponse
+// @Success 200 {object} v1.ApiResponse[v1.GetProfileResponseData]
 // @Router /user [get]
 func (h *UserHandler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)

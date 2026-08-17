@@ -12,10 +12,6 @@ type LoginRequest struct {
 type LoginResponseData struct {
 	AccessToken string `json:"accessToken"`
 }//@name ApiLoginResponseData
-type LoginResponse struct {
-	Response
-	Data LoginResponseData
-}//@name ApiLoginResponse
 
 type UpdateProfileRequest struct {
 	Nickname string `json:"nickname" example:"alan"`
@@ -25,7 +21,3 @@ type GetProfileResponseData struct {
 	UserId   string `json:"userId"`
 	Nickname string `json:"nickname" example:"alan"`
 }//@name ApiGetProfileResponseData
-type GetProfileResponse struct {
-	Response
-	Data GetProfileResponseData
-}//@name ApiGetProfileResponse
