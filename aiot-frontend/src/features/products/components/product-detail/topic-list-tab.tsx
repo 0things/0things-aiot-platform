@@ -58,15 +58,11 @@ export function TopicListTab() {
         </TabsList>
 
         <TabsContent value='basic' className='mt-4'>
-          <div className='max-h-[500px] overflow-y-auto border'>
-            <BasicTopicsTable topics={processedBasicTopics} />
-          </div>
+          <BasicTopicsTable topics={processedBasicTopics} />
         </TabsContent>
 
         <TabsContent value='thing-model' className='mt-4'>
-          <div className='max-h-[500px] overflow-y-auto border'>
-            <ThingModelTopicsTable topics={processedThingModelTopics} />
-          </div>
+          <ThingModelTopicsTable topics={processedThingModelTopics} />
         </TabsContent>
 
         <TabsContent value='custom' className='mt-4'>
