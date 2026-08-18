@@ -526,7 +526,13 @@
     },
     "tags": {
       "title": "Tag Information",
-      "empty": "No tag information"
+      "empty": "No tags",
+      "added": "Tag added",
+      "keyPlaceholder": "key",
+      "valuePlaceholder": "value",
+      "add": "Add",
+      "loading": "Loading…",
+      "invalidKey": "Key cannot be purely numeric"
     }
   },
   "devices": {

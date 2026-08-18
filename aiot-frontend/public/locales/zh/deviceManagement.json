@@ -526,7 +526,13 @@
     },
     "tags": {
       "title": "标签信息",
-      "empty": "无标签信息"
+      "empty": "无标签",
+      "added": "标签已添加",
+      "keyPlaceholder": "键",
+      "valuePlaceholder": "值",
+      "add": "添加",
+      "loading": "加载中…",
+      "invalidKey": "键不能为纯数字"
     }
   },
   "devices": {

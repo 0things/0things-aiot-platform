@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { useDeviceMqttParameters } from '../../api/queries'
 import { MqttParametersDialog } from './mqtt-parameters-dialog'
+import { TagsEditor } from './tags-editor'
 
 interface DeviceInfoTabProps {
   device: DeviceV1Device
@@ -231,9 +232,7 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
                 <p className='text-sm text-muted-foreground'>
                   {t('deviceDetail.info.fields.lastOnlineTime')}
                 </p>
-                <p className='font-medium'>
-                  {device.lastOnlineTime ?? '-'}
-                </p>
+                <p className='font-medium'>{device.lastOnlineTime ?? '-'}</p>
               </div>
 
               <div className='space-y-1'>
@@ -287,16 +286,11 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
 
       {/* Tag Information Card */}
       <Card>
-        <CardHeader className='flex flex-row items-center justify-between'>
+        <CardHeader>
           <CardTitle>{t('deviceDetail.tags.title')}</CardTitle>
-          <Button variant='outline' size='sm'>
-            {t('deviceDetail.info.edit')}
-          </Button>
         </CardHeader>
         <CardContent>
-          <p className='text-sm text-muted-foreground'>
-            {t('deviceDetail.tags.empty')}
-          </p>
+          <TagsEditor deviceKey={device.deviceKey || ''} />
         </CardContent>
       </Card>
 

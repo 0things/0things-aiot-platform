@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -188,20 +189,23 @@ func (s *DeviceService) SetEnabled(ctx context.Context, id int64, v bool) (*mode
 }
 
 func (s *DeviceService) Tags(ctx context.Context, key string) ([]model.DeviceTag, error) {
-	d, err := s.DeviceByKey(ctx, key)
+	d, err := s.deviceByIDParam(ctx, key)
 	if err != nil {
 		return nil, err
 	}
 	return s.tags.ListTags(ctx, d.ID)
 }
 func (s *DeviceService) SetTags(ctx context.Context, key string, tags map[string]string, replace bool) ([]model.DeviceTag, error) {
-	d, err := s.DeviceByKey(ctx, key)
+	d, err := s.deviceByIDParam(ctx, key)
 	if err != nil {
 		return nil, err
 	}
 	for k := range tags {
 		if k == "" || len(k) > 128 {
 			return nil, errors.New("invalid tag key")
+		}
+		if isNumericKey(k) {
+			return nil, errors.New("tag key cannot be purely numeric")
 		}
 	}
 	err = s.tags.SetTags(ctx, d.ID, tags, replace)
@@ -211,11 +215,30 @@ func (s *DeviceService) SetTags(ctx context.Context, key string, tags map[string
 	return s.Tags(ctx, key)
 }
 func (s *DeviceService) RemoveTags(ctx context.Context, key string, keys []string) error {
-	d, err := s.DeviceByKey(ctx, key)
+	d, err := s.deviceByIDParam(ctx, key)
 	if err != nil {
 		return err
 	}
 	return s.tags.DeleteTags(ctx, d.ID, keys)
+}
+func (s *DeviceService) deviceByIDParam(ctx context.Context, key string) (*model.Device, error) {
+	id, err := strconv.ParseInt(key, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	return s.Device(ctx, id)
+}
+
+func isNumericKey(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
 }
 func (s *DeviceService) Shadow(ctx context.Context, key string) (*model.DeviceShadow, error) {
 	d, err := s.DeviceByKey(ctx, key)
