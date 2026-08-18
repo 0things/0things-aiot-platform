@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface DeviceUpdateDeviceRequest {
-  metadata?: string;
-  name?: string;
-  state?: string;
+export interface MessageParserExecuteProductMessageParserResponse {
+  jsonOutput?: string;
+  mode?: string;
+  rawData?: string;
 }

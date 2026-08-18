@@ -17,43 +17,45 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                  db,
-		Alert:               newAlert(db, opts...),
-		Device:              newDevice(db, opts...),
-		DeviceEvent:         newDeviceEvent(db, opts...),
-		DevicePushRecord:    newDevicePushRecord(db, opts...),
-		DeviceShadow:        newDeviceShadow(db, opts...),
-		DeviceShadowHistory: newDeviceShadowHistory(db, opts...),
-		DeviceState:         newDeviceState(db, opts...),
-		DeviceTag:           newDeviceTag(db, opts...),
-		DeviceUpgradeStatus: newDeviceUpgradeStatus(db, opts...),
-		OTAPackage:          newOTAPackage(db, opts...),
-		Product:             newProduct(db, opts...),
-		ProductTSL:          newProductTSL(db, opts...),
-		SceneLinkage:        newSceneLinkage(db, opts...),
-		SceneLinkageDetail:  newSceneLinkageDetail(db, opts...),
-		UpgradeBatch:        newUpgradeBatch(db, opts...),
+		db:                   db,
+		Alert:                newAlert(db, opts...),
+		Device:               newDevice(db, opts...),
+		DeviceEvent:          newDeviceEvent(db, opts...),
+		DevicePushRecord:     newDevicePushRecord(db, opts...),
+		DeviceShadow:         newDeviceShadow(db, opts...),
+		DeviceShadowHistory:  newDeviceShadowHistory(db, opts...),
+		DeviceState:          newDeviceState(db, opts...),
+		DeviceTag:            newDeviceTag(db, opts...),
+		DeviceUpgradeStatus:  newDeviceUpgradeStatus(db, opts...),
+		OTAPackage:           newOTAPackage(db, opts...),
+		Product:              newProduct(db, opts...),
+		ProductMessageParser: newProductMessageParser(db, opts...),
+		ProductTSL:           newProductTSL(db, opts...),
+		SceneLinkage:         newSceneLinkage(db, opts...),
+		SceneLinkageDetail:   newSceneLinkageDetail(db, opts...),
+		UpgradeBatch:         newUpgradeBatch(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Alert               alert
-	Device              device
-	DeviceEvent         deviceEvent
-	DevicePushRecord    devicePushRecord
-	DeviceShadow        deviceShadow
-	DeviceShadowHistory deviceShadowHistory
-	DeviceState         deviceState
-	DeviceTag           deviceTag
-	DeviceUpgradeStatus deviceUpgradeStatus
-	OTAPackage          oTAPackage
-	Product             product
-	ProductTSL          productTSL
-	SceneLinkage        sceneLinkage
-	SceneLinkageDetail  sceneLinkageDetail
-	UpgradeBatch        upgradeBatch
+	Alert                alert
+	Device               device
+	DeviceEvent          deviceEvent
+	DevicePushRecord     devicePushRecord
+	DeviceShadow         deviceShadow
+	DeviceShadowHistory  deviceShadowHistory
+	DeviceState          deviceState
+	DeviceTag            deviceTag
+	DeviceUpgradeStatus  deviceUpgradeStatus
+	OTAPackage           oTAPackage
+	Product              product
+	ProductMessageParser productMessageParser
+	ProductTSL           productTSL
+	SceneLinkage         sceneLinkage
+	SceneLinkageDetail   sceneLinkageDetail
+	UpgradeBatch         upgradeBatch
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -62,22 +64,23 @@ func (q *Query) UnderlyingDB() *gorm.DB { return q.db }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                  db,
-		Alert:               q.Alert.clone(db),
-		Device:              q.Device.clone(db),
-		DeviceEvent:         q.DeviceEvent.clone(db),
-		DevicePushRecord:    q.DevicePushRecord.clone(db),
-		DeviceShadow:        q.DeviceShadow.clone(db),
-		DeviceShadowHistory: q.DeviceShadowHistory.clone(db),
-		DeviceState:         q.DeviceState.clone(db),
-		DeviceTag:           q.DeviceTag.clone(db),
-		DeviceUpgradeStatus: q.DeviceUpgradeStatus.clone(db),
-		OTAPackage:          q.OTAPackage.clone(db),
-		Product:             q.Product.clone(db),
-		ProductTSL:          q.ProductTSL.clone(db),
-		SceneLinkage:        q.SceneLinkage.clone(db),
-		SceneLinkageDetail:  q.SceneLinkageDetail.clone(db),
-		UpgradeBatch:        q.UpgradeBatch.clone(db),
+		db:                   db,
+		Alert:                q.Alert.clone(db),
+		Device:               q.Device.clone(db),
+		DeviceEvent:          q.DeviceEvent.clone(db),
+		DevicePushRecord:     q.DevicePushRecord.clone(db),
+		DeviceShadow:         q.DeviceShadow.clone(db),
+		DeviceShadowHistory:  q.DeviceShadowHistory.clone(db),
+		DeviceState:          q.DeviceState.clone(db),
+		DeviceTag:            q.DeviceTag.clone(db),
+		DeviceUpgradeStatus:  q.DeviceUpgradeStatus.clone(db),
+		OTAPackage:           q.OTAPackage.clone(db),
+		Product:              q.Product.clone(db),
+		ProductMessageParser: q.ProductMessageParser.clone(db),
+		ProductTSL:           q.ProductTSL.clone(db),
+		SceneLinkage:         q.SceneLinkage.clone(db),
+		SceneLinkageDetail:   q.SceneLinkageDetail.clone(db),
+		UpgradeBatch:         q.UpgradeBatch.clone(db),
 	}
 }
 
@@ -91,60 +94,63 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                  db,
-		Alert:               q.Alert.replaceDB(db),
-		Device:              q.Device.replaceDB(db),
-		DeviceEvent:         q.DeviceEvent.replaceDB(db),
-		DevicePushRecord:    q.DevicePushRecord.replaceDB(db),
-		DeviceShadow:        q.DeviceShadow.replaceDB(db),
-		DeviceShadowHistory: q.DeviceShadowHistory.replaceDB(db),
-		DeviceState:         q.DeviceState.replaceDB(db),
-		DeviceTag:           q.DeviceTag.replaceDB(db),
-		DeviceUpgradeStatus: q.DeviceUpgradeStatus.replaceDB(db),
-		OTAPackage:          q.OTAPackage.replaceDB(db),
-		Product:             q.Product.replaceDB(db),
-		ProductTSL:          q.ProductTSL.replaceDB(db),
-		SceneLinkage:        q.SceneLinkage.replaceDB(db),
-		SceneLinkageDetail:  q.SceneLinkageDetail.replaceDB(db),
-		UpgradeBatch:        q.UpgradeBatch.replaceDB(db),
+		db:                   db,
+		Alert:                q.Alert.replaceDB(db),
+		Device:               q.Device.replaceDB(db),
+		DeviceEvent:          q.DeviceEvent.replaceDB(db),
+		DevicePushRecord:     q.DevicePushRecord.replaceDB(db),
+		DeviceShadow:         q.DeviceShadow.replaceDB(db),
+		DeviceShadowHistory:  q.DeviceShadowHistory.replaceDB(db),
+		DeviceState:          q.DeviceState.replaceDB(db),
+		DeviceTag:            q.DeviceTag.replaceDB(db),
+		DeviceUpgradeStatus:  q.DeviceUpgradeStatus.replaceDB(db),
+		OTAPackage:           q.OTAPackage.replaceDB(db),
+		Product:              q.Product.replaceDB(db),
+		ProductMessageParser: q.ProductMessageParser.replaceDB(db),
+		ProductTSL:           q.ProductTSL.replaceDB(db),
+		SceneLinkage:         q.SceneLinkage.replaceDB(db),
+		SceneLinkageDetail:   q.SceneLinkageDetail.replaceDB(db),
+		UpgradeBatch:         q.UpgradeBatch.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Alert               *alertDo
-	Device              *deviceDo
-	DeviceEvent         *deviceEventDo
-	DevicePushRecord    *devicePushRecordDo
-	DeviceShadow        *deviceShadowDo
-	DeviceShadowHistory *deviceShadowHistoryDo
-	DeviceState         *deviceStateDo
-	DeviceTag           *deviceTagDo
-	DeviceUpgradeStatus *deviceUpgradeStatusDo
-	OTAPackage          *oTAPackageDo
-	Product             *productDo
-	ProductTSL          *productTSLDo
-	SceneLinkage        *sceneLinkageDo
-	SceneLinkageDetail  *sceneLinkageDetailDo
-	UpgradeBatch        *upgradeBatchDo
+	Alert                *alertDo
+	Device               *deviceDo
+	DeviceEvent          *deviceEventDo
+	DevicePushRecord     *devicePushRecordDo
+	DeviceShadow         *deviceShadowDo
+	DeviceShadowHistory  *deviceShadowHistoryDo
+	DeviceState          *deviceStateDo
+	DeviceTag            *deviceTagDo
+	DeviceUpgradeStatus  *deviceUpgradeStatusDo
+	OTAPackage           *oTAPackageDo
+	Product              *productDo
+	ProductMessageParser *productMessageParserDo
+	ProductTSL           *productTSLDo
+	SceneLinkage         *sceneLinkageDo
+	SceneLinkageDetail   *sceneLinkageDetailDo
+	UpgradeBatch         *upgradeBatchDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Alert:               q.Alert.WithContext(ctx),
-		Device:              q.Device.WithContext(ctx),
-		DeviceEvent:         q.DeviceEvent.WithContext(ctx),
-		DevicePushRecord:    q.DevicePushRecord.WithContext(ctx),
-		DeviceShadow:        q.DeviceShadow.WithContext(ctx),
-		DeviceShadowHistory: q.DeviceShadowHistory.WithContext(ctx),
-		DeviceState:         q.DeviceState.WithContext(ctx),
-		DeviceTag:           q.DeviceTag.WithContext(ctx),
-		DeviceUpgradeStatus: q.DeviceUpgradeStatus.WithContext(ctx),
-		OTAPackage:          q.OTAPackage.WithContext(ctx),
-		Product:             q.Product.WithContext(ctx),
-		ProductTSL:          q.ProductTSL.WithContext(ctx),
-		SceneLinkage:        q.SceneLinkage.WithContext(ctx),
-		SceneLinkageDetail:  q.SceneLinkageDetail.WithContext(ctx),
-		UpgradeBatch:        q.UpgradeBatch.WithContext(ctx),
+		Alert:                q.Alert.WithContext(ctx),
+		Device:               q.Device.WithContext(ctx),
+		DeviceEvent:          q.DeviceEvent.WithContext(ctx),
+		DevicePushRecord:     q.DevicePushRecord.WithContext(ctx),
+		DeviceShadow:         q.DeviceShadow.WithContext(ctx),
+		DeviceShadowHistory:  q.DeviceShadowHistory.WithContext(ctx),
+		DeviceState:          q.DeviceState.WithContext(ctx),
+		DeviceTag:            q.DeviceTag.WithContext(ctx),
+		DeviceUpgradeStatus:  q.DeviceUpgradeStatus.WithContext(ctx),
+		OTAPackage:           q.OTAPackage.WithContext(ctx),
+		Product:              q.Product.WithContext(ctx),
+		ProductMessageParser: q.ProductMessageParser.WithContext(ctx),
+		ProductTSL:           q.ProductTSL.WithContext(ctx),
+		SceneLinkage:         q.SceneLinkage.WithContext(ctx),
+		SceneLinkageDetail:   q.SceneLinkageDetail.WithContext(ctx),
+		UpgradeBatch:         q.UpgradeBatch.WithContext(ctx),
 	}
 }
 

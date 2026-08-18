@@ -205,7 +205,7 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
                 </p>
                 <p className='font-medium'>
                   {device.lastOfflineTime
-                    ? formatDate(device.lastOfflineTime)
+                    ? formatDate(String(device.lastOfflineTime))
                     : '-'}
                 </p>
               </div>

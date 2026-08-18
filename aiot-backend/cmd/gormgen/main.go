@@ -27,6 +27,7 @@ func main() {
 		model.UpgradeBatch{},
 		model.DeviceUpgradeStatus{},
 		model.ProductTSL{},
+		model.ProductMessageParser{},
 		model.DevicePushRecord{},
 		model.SceneLinkage{},
 		model.SceneLinkageDetail{},

@@ -44,14 +44,8 @@ const gatewaySubProtocolSchema = z.union([
 
 // Combined access protocol schema (union of all protocols)
 const accessProtocolSchema = z.union([
-  z.literal('http'),
-  z.literal('mqtt'),
-  z.literal('other'),
-  z.literal('custom'),
-  z.literal('modbus'),
-  z.literal('opc-ua'),
-  z.literal('zigbee'),
-  z.literal('ble'),
+  directGatewayProtocolSchema,
+  gatewaySubProtocolSchema,
 ])
 export type AccessProtocol = z.infer<typeof accessProtocolSchema>
 export type DirectGatewayProtocol = z.infer<typeof directGatewayProtocolSchema>

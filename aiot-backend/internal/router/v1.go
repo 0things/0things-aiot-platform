@@ -10,6 +10,7 @@ func InitV1Routers(deps RouterDeps, r *gin.RouterGroup) {
 	// protected.Use(middleware.StrictAuth(deps.JWT, deps.Logger))
 	InitProductRouter(deps, protected)
 	InitProductTSLRouter(deps, protected)
+	InitProductMessageParserRouter(deps, protected)
 	InitDeviceRouter(deps, protected)
 	InitSceneLinkageRouter(deps, protected)
 	InitAlertRouter(deps, protected)

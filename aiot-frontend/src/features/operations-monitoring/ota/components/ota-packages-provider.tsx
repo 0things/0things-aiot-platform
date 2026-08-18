@@ -12,6 +12,7 @@ interface OTAPackagesContextType {
   setSelectedRows: (rows: Record<string, boolean>) => void
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const OTAPackagesContext = createContext<
   OTAPackagesContextType | undefined
 >(undefined)

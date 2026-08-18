@@ -1,10 +1,9 @@
-import { useParams } from '@tanstack/react-router'
+import { useParams, useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Loader2, AlertCircle, RotateCw } from 'lucide-react'
-import { useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import {
   useOTAPackageDetail,
   useUpgradeStatistics,
@@ -47,6 +46,106 @@ interface DeviceDeployment {
   createdAt: Date
 }
 
+function ErrorAlert({
+  title,
+  message,
+  onRetry,
+}: {
+  title: string
+  message: string
+  onRetry?: () => void
+}) {
+  return (
+    <div className='rounded-lg border border-red-200 bg-red-50 p-4 flex items-start gap-3'>
+      <AlertCircle className='h-5 w-5 text-red-600 flex-shrink-0 mt-0.5' />
+      <div className='flex-1'>
+        <h3 className='font-medium text-red-900'>{title}</h3>
+        <p className='text-sm text-red-700 mt-1'>{message}</p>
+      </div>
+      {onRetry && (
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={onRetry}
+          className='flex-shrink-0'
+        >
+          <RotateCw className='h-4 w-4 mr-1' />
+          Retry
+        </Button>
+      )}
+    </div>
+  )
+}
+
+function SkeletonCard() {
+  return (
+    <div className='rounded-lg border p-4 bg-card animate-pulse'>
+      <div className='h-4 bg-muted rounded w-24 mb-3' />
+      <div className='h-8 bg-muted rounded w-16' />
+    </div>
+  )
+}
+
+function BatchRow({ batch }: { batch: UpgradeBatch }) {
+  return (
+    <TableRow>
+      <TableCell className='font-mono text-sm'>{batch.batchId}</TableCell>
+      <TableCell>{batch.batchName}</TableCell>
+      <TableCell>
+        <Badge variant='outline' className='capitalize'>
+          {batch.batchType}
+        </Badge>
+      </TableCell>
+      <TableCell className='capitalize'>{batch.upgradeStrategy}</TableCell>
+      <TableCell>
+        <Badge
+          className='capitalize'
+          variant={
+            batch.status === 'completed'
+              ? 'default'
+              : batch.status === 'in_progress'
+                ? 'secondary'
+                : 'outline'
+          }
+        >
+          {batch.status}
+        </Badge>
+      </TableCell>
+      <TableCell>{batch.targetDeviceCount}</TableCell>
+    </TableRow>
+  )
+}
+
+function DeviceRow({ d }: { d: DeviceDeployment }) {
+  return (
+    <TableRow>
+      <TableCell className='font-mono text-xs sm:text-sm'>
+        {d.deviceName}
+      </TableCell>
+      <TableCell className='text-xs sm:text-sm'>{d.productKey}</TableCell>
+      <TableCell className='text-xs sm:text-sm'>{d.currentVersion}</TableCell>
+      <TableCell className='font-mono text-xs'>{d.upgradeBatchId}</TableCell>
+      <TableCell>
+        <Badge
+          className='capitalize text-xs'
+          variant={
+            d.status === 'success'
+              ? 'default'
+              : d.status === 'failed'
+                ? 'destructive'
+                : 'outline'
+          }
+        >
+          {d.status}
+        </Badge>
+      </TableCell>
+      <TableCell className='text-xs sm:text-sm text-muted-foreground'>
+        {new Date(d.lastStatusChangeTime).toLocaleString()}
+      </TableCell>
+    </TableRow>
+  )
+}
+
 /**
  * OTA Package Detail Page
  * Displays comprehensive details of an OTA package including:
@@ -70,7 +169,6 @@ export function OTAPackageDetailPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(100)
   const [statusFilter, setStatusFilter] = useState<string>()
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
 
   // Data fetching hooks
   const packageQuery = useOTAPackageDetail(params.id)
@@ -85,15 +183,19 @@ export function OTAPackageDetailPage() {
   )
   const batchesQuery = useUpgradeBatches(packageName || '')
 
-  useEffect(() => {
-    if (
-      !statisticsQuery.isLoading &&
-      !deploymentsQuery.isLoading &&
-      !batchesQuery.isLoading
-    ) {
-      setLastUpdated(new Date())
-    }
-  }, [statisticsQuery.isLoading, deploymentsQuery.isLoading, batchesQuery.isLoading])
+  const lastUpdated = useMemo(() => {
+    const times = [
+      statisticsQuery.dataUpdatedAt,
+      deploymentsQuery.dataUpdatedAt,
+      batchesQuery.dataUpdatedAt,
+    ]
+    const latest = Math.max(...times)
+    return latest > 0 ? new Date(latest) : new Date()
+  }, [
+    statisticsQuery.dataUpdatedAt,
+    deploymentsQuery.dataUpdatedAt,
+    batchesQuery.dataUpdatedAt,
+  ])
 
   const formatLastUpdated = () => {
     const now = new Date()
@@ -114,44 +216,6 @@ export function OTAPackageDetailPage() {
     })
   }
 
-  // Error component
-  const ErrorAlert = ({
-    title,
-    message,
-    onRetry
-  }: {
-    title: string
-    message: string
-    onRetry?: () => void
-  }) => (
-    <div className='rounded-lg border border-red-200 bg-red-50 p-4 flex items-start gap-3'>
-      <AlertCircle className='h-5 w-5 text-red-600 flex-shrink-0 mt-0.5' />
-      <div className='flex-1'>
-        <h3 className='font-medium text-red-900'>{title}</h3>
-        <p className='text-sm text-red-700 mt-1'>{message}</p>
-      </div>
-      {onRetry && (
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={onRetry}
-          className='flex-shrink-0'
-        >
-          <RotateCw className='h-4 w-4 mr-1' />
-          Retry
-        </Button>
-      )}
-    </div>
-  )
-
-  // Loading skeleton
-  const SkeletonCard = () => (
-    <div className='rounded-lg border p-4 bg-card animate-pulse'>
-      <div className='h-4 bg-muted rounded w-24 mb-3' />
-      <div className='h-8 bg-muted rounded w-16' />
-    </div>
-  )
-
   // Main error state
   if (packageQuery.isError) {
     return (
@@ -168,7 +232,7 @@ export function OTAPackageDetailPage() {
         <ErrorAlert
           title='Failed to load package details'
           message='The OTA package could not be loaded. Please check the package ID and try again.'
-          onRetry={() => { void (packageQuery as any).refetch?.() }}
+          onRetry={() => { void packageQuery.refetch() }}
         />
       </div>
     )
@@ -290,7 +354,7 @@ export function OTAPackageDetailPage() {
               <ErrorAlert
                 title='Failed to load batches'
                 message='Could not load upgrade batches. Please try again.'
-                onRetry={() => { void (batchesQuery as any).refetch?.() }}
+                onRetry={() => { void batchesQuery.refetch() }}
               />
             )}
             <div className='rounded-lg border bg-card'>
@@ -319,36 +383,8 @@ export function OTAPackageDetailPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    batchesQuery.data?.map((batch: UpgradeBatch) => (
-                      <TableRow key={batch.batchId}>
-                        <TableCell className='font-mono text-sm'>
-                          {batch.batchId}
-                        </TableCell>
-                        <TableCell>{batch.batchName}</TableCell>
-                        <TableCell>
-                          <Badge variant='outline' className='capitalize'>
-                            {batch.batchType}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className='capitalize'>
-                          {batch.upgradeStrategy}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className='capitalize'
-                            variant={
-                              batch.status === 'completed'
-                                ? 'default'
-                                : batch.status === 'in_progress'
-                                  ? 'secondary'
-                                  : 'outline'
-                            }
-                          >
-                            {batch.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{batch.targetDeviceCount}</TableCell>
-                      </TableRow>
+                    batchesQuery.data?.map((batch) => (
+                      <BatchRow key={batch.batchId} batch={batch} />
                     ))
                   )}
                 </TableBody>
@@ -362,7 +398,7 @@ export function OTAPackageDetailPage() {
               <ErrorAlert
                 title='Failed to load devices'
                 message='Could not load device deployment status. Please try again.'
-                onRetry={() => { void (deploymentsQuery as any).refetch?.() }}
+                onRetry={() => { void deploymentsQuery.refetch() }}
               />
             )}
             <div className='flex flex-col sm:flex-row gap-2 mb-4'>
@@ -409,34 +445,8 @@ export function OTAPackageDetailPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    deploymentsQuery.data?.deployments?.map((d: DeviceDeployment) => (
-                      <TableRow key={d.deviceId}>
-                        <TableCell className='font-mono text-xs sm:text-sm'>
-                          {d.deviceName}
-                        </TableCell>
-                        <TableCell className='text-xs sm:text-sm'>{d.productKey}</TableCell>
-                        <TableCell className='text-xs sm:text-sm'>{d.currentVersion}</TableCell>
-                        <TableCell className='font-mono text-xs'>
-                          {d.upgradeBatchId}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className='capitalize text-xs'
-                            variant={
-                              d.status === 'success'
-                                ? 'default'
-                                : d.status === 'failed'
-                                  ? 'destructive'
-                                  : 'outline'
-                            }
-                          >
-                            {d.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className='text-xs sm:text-sm text-muted-foreground'>
-                          {new Date(d.lastStatusChangeTime).toLocaleString()}
-                        </TableCell>
-                      </TableRow>
+                    deploymentsQuery.data?.deployments?.map((d) => (
+                      <DeviceRow key={d.deviceId} d={d} />
                     ))
                   )}
                 </TableBody>
@@ -477,13 +487,6 @@ export function OTAPackageDetailPage() {
 
           {/* Package Info Tab */}
           <TabsContent value='info' className='space-y-4'>
-            {packageQuery.isError && (
-              <ErrorAlert
-                title='Failed to load package information'
-                message='Could not load the package details. Please try again.'
-                onRetry={() => { void (packageQuery as any).refetch?.() }}
-              />
-            )}
             {packageQuery.isLoading ? (
               <div className='rounded-lg border p-6 bg-card space-y-4'>
                 <div className='grid grid-cols-2 gap-4'>

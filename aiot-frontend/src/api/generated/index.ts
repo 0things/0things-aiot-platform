@@ -57,6 +57,8 @@ import type {
   ApiResponseGetSceneLinkageDetailResponse,
   ApiResponseGetSceneLinkageResponse,
   ApiResponseListSceneLinkagesResponse,
+  ApiResponseMessageParserExecuteProductMessageParserResponse,
+  ApiResponseMessageParserGetProductMessageParserResponse,
   ApiResponseOtaCreateOTAPackageResponse,
   ApiResponseOtaGetOTAPackageResponse,
   ApiResponseOtaGetUpgradeStatisticsResponse,
@@ -98,6 +100,8 @@ import type {
   GetOtaPackagesParams,
   GetProductsParams,
   GetSceneLinkagesParams,
+  MessageParserExecuteProductMessageParserRequest,
+  MessageParserUpsertProductMessageParserRequest,
   OtaCreateOTAPackageRequest,
   OtaOTAPackageRequest,
   PostDevicesBatchUploadBody,
@@ -3799,6 +3803,234 @@ export const usePutProductsKeyProductKey = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getPutProductsKeyProductKeyMutationOptions(options), queryClient);
+    }
+
+/**
+ * 获取产品唯一的消息解析脚本；尚未配置时返回默认模板。
+ * @summary 获取产品消息解析器
+ */
+export const getProductsKeyProductKeyMessageParser = (
+    productKey: string,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<ApiResponseMessageParserGetProductMessageParserResponse>(
+      {url: `/products/key/${productKey}/message-parser`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getGetProductsKeyProductKeyMessageParserQueryKey = (productKey: string,) => {
+    return [
+    `/products/key/${productKey}/message-parser`
+    ] as const;
+    }
+
+
+export const getGetProductsKeyProductKeyMessageParserQueryOptions = <TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductsKeyProductKeyMessageParserQueryKey(productKey);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>> = ({ signal }) => getProductsKeyProductKeyMessageParser(productKey, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: productKey !== null && productKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductsKeyProductKeyMessageParserQueryResult = NonNullable<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>>
+export type GetProductsKeyProductKeyMessageParserQueryError = ErrorType<unknown>
+
+
+export function useGetProductsKeyProductKeyMessageParser<TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(
+ productKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+          TError,
+          Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductsKeyProductKeyMessageParser<TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(
+ productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+          TError,
+          Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductsKeyProductKeyMessageParser<TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(
+ productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 获取产品消息解析器
+ */
+
+export function useGetProductsKeyProductKeyMessageParser<TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(
+ productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductsKeyProductKeyMessageParserQueryOptions(productKey,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+/**
+ * 按产品覆盖保存 JavaScript ES5 消息解析脚本。
+ * @summary 保存产品消息解析器
+ */
+export const putProductsKeyProductKeyMessageParser = (
+    productKey: string,
+    messageParserUpsertProductMessageParserRequest: BodyType<MessageParserUpsertProductMessageParserRequest>,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<ApiResponseMessageParserGetProductMessageParserResponse>(
+      {url: `/products/key/${productKey}/message-parser`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: messageParserUpsertProductMessageParserRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getPutProductsKeyProductKeyMessageParserMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>, TError,{productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>, TError,{productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>}, TContext> => {
+
+const mutationKey = ['putProductsKeyProductKeyMessageParser'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>, {productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>}> = (props) => {
+          const {productKey,data} = props ?? {};
+
+          return  putProductsKeyProductKeyMessageParser(productKey,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutProductsKeyProductKeyMessageParserMutationResult = NonNullable<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>>
+    export type PutProductsKeyProductKeyMessageParserMutationBody = BodyType<MessageParserUpsertProductMessageParserRequest>
+    export type PutProductsKeyProductKeyMessageParserMutationError = ErrorType<unknown>
+
+    /**
+ * @summary 保存产品消息解析器
+ */
+export const usePutProductsKeyProductKeyMessageParser = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>, TError,{productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>,
+        TError,
+        {productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>},
+        TContext
+      > => {
+      return useMutation(getPutProductsKeyProductKeyMessageParserMutationOptions(options), queryClient);
+    }
+
+/**
+ * 仅在受限 JavaScript ES5 运行时中执行保存的产品脚本。
+ * @summary 模拟执行产品消息解析器
+ */
+export const postProductsKeyProductKeyMessageParserExecute = (
+    productKey: string,
+    messageParserExecuteProductMessageParserRequest: BodyType<MessageParserExecuteProductMessageParserRequest>,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<ApiResponseMessageParserExecuteProductMessageParserResponse>(
+      {url: `/products/key/${productKey}/message-parser/execute`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: messageParserExecuteProductMessageParserRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getPostProductsKeyProductKeyMessageParserExecuteMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>, TError,{productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>, TError,{productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>}, TContext> => {
+
+const mutationKey = ['postProductsKeyProductKeyMessageParserExecute'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>, {productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>}> = (props) => {
+          const {productKey,data} = props ?? {};
+
+          return  postProductsKeyProductKeyMessageParserExecute(productKey,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostProductsKeyProductKeyMessageParserExecuteMutationResult = NonNullable<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>>
+    export type PostProductsKeyProductKeyMessageParserExecuteMutationBody = BodyType<MessageParserExecuteProductMessageParserRequest>
+    export type PostProductsKeyProductKeyMessageParserExecuteMutationError = ErrorType<unknown>
+
+    /**
+ * @summary 模拟执行产品消息解析器
+ */
+export const usePostProductsKeyProductKeyMessageParserExecute = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>, TError,{productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>,
+        TError,
+        {productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>},
+        TContext
+      > => {
+      return useMutation(getPostProductsKeyProductKeyMessageParserExecuteMutationOptions(options), queryClient);
     }
 
 /**

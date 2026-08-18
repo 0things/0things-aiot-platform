@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -59,12 +59,11 @@ export function DeployPackageDialog() {
     enabled: !!productId && openDialog === 'deploy' && targetDevices === 'specific',
   })
 
-  useEffect(() => {
-    if (openDialog === 'deploy') {
-      setTargetDevices('all')
-      setSelectedDeviceIds([])
-    }
-  }, [openDialog, selectedPackage?.id])
+  const handleClose = () => {
+    setTargetDevices('all')
+    setSelectedDeviceIds([])
+    setOpenDialog(null)
+  }
 
   const estimatedDeviceCount = useMemo(() => {
     if (targetDevices === 'all') {
@@ -95,18 +94,14 @@ export function DeployPackageDialog() {
       await updatePackage.mutateAsync({
         id: selectedPackage.id,
         data: {
+          packageName: selectedPackage.packageName,
           status: 'deploying',
-          metadata: JSON.stringify({
-            deploy_target_type: targetDevices,
-            deploy_device_ids: selectedDeviceIds,
-          }),
         },
       })
 
       toast.success(t('ota.notifications.deploymentStarted'))
       setOpenDialog(null)
-    } catch (error) {
-      console.error('Failed to deploy package:', error)
+    } catch {
       toast.error(t('ota.notifications.error'))
     } finally {
       setIsDeploying(false)
@@ -116,7 +111,7 @@ export function DeployPackageDialog() {
   return (
     <Dialog
       open={openDialog === 'deploy'}
-      onOpenChange={(open) => !open && setOpenDialog(null)}
+      onOpenChange={(open) => !open && handleClose()}
     >
       <DialogContent className='sm:max-w-[560px]'>
         <DialogHeader>
@@ -248,7 +243,7 @@ export function DeployPackageDialog() {
           <Button
             type='button'
             variant='outline'
-            onClick={() => setOpenDialog(null)}
+            onClick={() => handleClose()}
             disabled={isDeploying}
           >
             {t('common:cancel')}

@@ -40,6 +40,7 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 	if err := m.deviceDB.AutoMigrate(
 		&model.Product{},
 		&model.ProductTSL{},
+		&model.ProductMessageParser{},
 		&model.Device{},
 		&model.DeviceState{},
 		&model.DeviceShadow{},

@@ -5,11 +5,9 @@ import {
   deleteDevicesIdPushRecords,
   getDevicesIdPushRecords,
   getDevicesPushRecordsPushRecordId,
-  postDevicesIdSimulatePush,
-} from '@/api/generated'
-import {
   getProductsIdTsl,
   getProductsKeyProductKey,
+  postDevicesIdSimulatePush,
 } from '@/api/generated'
 import { getDeviceId } from './device-id'
 

@@ -2,13 +2,21 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as apiClient from './push-records-client'
 
 // Query Key Factory Pattern
+export interface PushRecordFilters {
+  page?: number
+  pageSize?: number
+  operationType?: string
+  status?: string
+}
+
 export const pushRecordKeys = {
   all: ['push-records'] as const,
   lists: () => [...pushRecordKeys.all, 'list'] as const,
-  list: (deviceKey: string, filters?: any) =>
+  list: (deviceKey: string, filters?: PushRecordFilters) =>
     [...pushRecordKeys.lists(), deviceKey, filters] as const,
   details: () => [...pushRecordKeys.all, 'detail'] as const,
-  detail: (recordId: string) => [...pushRecordKeys.details(), recordId] as const,
+  detail: (recordId: string, deviceKey: string) =>
+    [...pushRecordKeys.details(), deviceKey, recordId] as const,
 }
 
 /**
@@ -71,7 +79,7 @@ export function usePushRecords(
  */
 export function usePushRecord(deviceKey: string, recordId: string) {
   return useQuery({
-    queryKey: pushRecordKeys.detail(recordId),
+    queryKey: pushRecordKeys.detail(recordId, deviceKey),
     queryFn: async () => {
       const response = await apiClient.getPushRecord(deviceKey, recordId)
       return response

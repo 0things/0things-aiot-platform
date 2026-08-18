@@ -23,6 +23,7 @@ export class OTAErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // eslint-disable-next-line no-console
     console.error('OTA Module Error:', error, errorInfo)
   }
 

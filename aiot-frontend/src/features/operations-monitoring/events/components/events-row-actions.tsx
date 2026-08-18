@@ -17,7 +17,7 @@ type EventsRowActionsProps = {
   row: Row<DeviceEvent>
 }
 
-export function EventsRowActions({ row }: EventsRowActionsProps) {
+export function EventsRowActions({ row: _row }: EventsRowActionsProps) {
   const { t } = useTranslation('operationsMonitoring')
 
   const handleDelete = () => {

@@ -2,8 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type {
   OtaCreateOTAPackageRequest,
+  OtaOTAPackageRequest as OtaV1UpdateOTAPackageRequest,
 } from '@/api/generated/model'
-import type { OtaOTAPackageRequest as OtaV1UpdateOTAPackageRequest } from '@/api/generated/model'
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string
+    }
+  }
+}
 import {
   deleteOtaPackagesId,
   getOtaPackages,
@@ -69,14 +77,14 @@ export function useOTAPackages(filters?: {
           id: String(pkg.id || ''),
           packageName: pkg.packageName || '',
           version: pkg.version || '',
-          packageType: (pkg.packageType as any) || 'upgrade',
+          packageType: (pkg.packageType || 'upgrade') as OTAPackage['packageType'],
           productId: pkg.productId?.toString(),
           productName: pkg.productName || '',
           description: pkg.description,
           fileSize: parseInt(String(pkg.fileSize || '0'), 10),
           fileUrl: pkg.fileUrl || '',
           checksum: pkg.checksum || '',
-          status: (pkg.status as any) || 'draft',
+          status: (pkg.status || 'draft') as OTAPackage['status'],
           // Default values for deployment fields not in API yet
           deploymentProgress: 0,
           targetDeviceCount: 0,
@@ -123,9 +131,10 @@ export function useCreateOTAPackage() {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
       toast.success('OTA package created successfully')
     },
-    onError: (error: any) => {
+    onError: (error) => {
       const message =
-        error.response?.data?.message || 'Failed to create OTA package'
+        (error as unknown as ApiError).response?.data?.message ||
+        'Failed to create OTA package'
       toast.error(message)
     },
   })
@@ -154,9 +163,10 @@ export function useUpdateOTAPackage() {
       })
       toast.success('OTA package updated successfully')
     },
-    onError: (error: any) => {
+    onError: (error) => {
       const message =
-        error.response?.data?.message || 'Failed to update OTA package'
+        (error as unknown as ApiError).response?.data?.message ||
+        'Failed to update OTA package'
       toast.error(message)
     },
   })
@@ -174,9 +184,10 @@ export function useDeleteOTAPackage() {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
       toast.success('OTA package deleted successfully')
     },
-    onError: (error: any) => {
+    onError: (error) => {
       const message =
-        error.response?.data?.message || 'Failed to delete OTA package'
+        (error as unknown as ApiError).response?.data?.message ||
+        'Failed to delete OTA package'
       toast.error(message)
     },
   })
@@ -199,9 +210,10 @@ export function useDeleteOTAPackages() {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
       toast.success(`${data.deletedCount} OTA packages deleted successfully`)
     },
-    onError: (error: any) => {
+    onError: (error) => {
       const message =
-        error.response?.data?.message || 'Failed to delete OTA packages'
+        (error as unknown as ApiError).response?.data?.message ||
+        'Failed to delete OTA packages'
       toast.error(message)
     },
   })

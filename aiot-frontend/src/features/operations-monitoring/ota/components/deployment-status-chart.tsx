@@ -23,7 +23,12 @@ const STATUS_TOKEN: Record<OTADeploymentStatus['status'], string> = {
   in_progress: 'var(--chart-4)',
 }
 
-function StatusTooltip({ active, payload }: TooltipProps<number, string>) {
+function StatusTooltip({
+  active,
+  payload,
+}: TooltipProps<number, string> & {
+  payload?: Array<{ payload: { name: string; value: number; percentage: number } }>
+}) {
   if (!active || !payload?.length) return null
   const item = payload[0]
   const original = item.payload as {

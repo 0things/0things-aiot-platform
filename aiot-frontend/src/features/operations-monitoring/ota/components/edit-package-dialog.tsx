@@ -68,11 +68,14 @@ export function EditPackageDialog() {
     try {
       // Prepare update data
       const updateData: {
+        packageName: string
         description?: string
         fileUrl?: string
-        fileSize?: string
+        fileSize?: number
         checksum?: string
-      } = {}
+      } = {
+        packageName: selectedPackage.packageName,
+      }
 
       // Always include description
       if (data.description !== undefined) {
@@ -85,7 +88,6 @@ export function EditPackageDialog() {
       // 2. Get the fileUrl, fileSize, and checksum
       // 3. Include them in updateData
       if (data.file) {
-        console.log('File upload not yet implemented:', data.file.name)
         // Example:
         // const uploadResult = await uploadFile(data.file)
         // updateData.fileUrl = uploadResult.url
@@ -100,9 +102,8 @@ export function EditPackageDialog() {
 
       setOpenDialog(null)
       form.reset()
-    } catch (error) {
+    } catch {
       // Error handling is done in the mutation hook
-      console.error('Failed to update package:', error)
     }
   }
 

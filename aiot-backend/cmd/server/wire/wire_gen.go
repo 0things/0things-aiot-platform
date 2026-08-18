@@ -42,6 +42,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	productTSLRepository := repository.NewProductTSLRepository(ioTDB)
 	productTSLService := service.NewProductTSLService(productRepository, productTSLRepository)
 	productTSLHandler := handler.NewProductTSLHandler(handlerHandler, productTSLService)
+	productMessageParserRepository := repository.NewProductMessageParserRepository(ioTDB)
+	productMessageParserService := service.NewProductMessageParserService(productRepository, productMessageParserRepository)
+	productMessageParserHandler := handler.NewProductMessageParserHandler(handlerHandler, productMessageParserService)
 	ioTRedis := repository.NewIoTRedis(viperViper)
 	deviceRepository := repository.NewDeviceRepository(ioTDB, ioTRedis)
 	deviceTagRepository := repository.NewDeviceTagRepository(ioTDB)
@@ -64,25 +67,28 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	deviceEventRepository := repository.NewDeviceEventRepository(ioTDB)
 	deviceEventService := service.NewDeviceEventService(deviceEventRepository, deviceRepository)
 	deviceEventHandler := handler.NewDeviceEventHandler(handlerHandler, deviceEventService)
-	deviceEventConsumer, err := job.NewDeviceEventConsumer(viperViper, deviceEventService, logger)
-	if err != nil { return nil, nil, err }
 	routerDeps := router.RouterDeps{
-		Logger:            logger,
-		Config:            viperViper,
-		JWT:               jwtJWT,
-		UserHandler:       userHandler,
-		ProductHandler:    productHandler,
-		ProductTSLHandler: productTSLHandler,
-		DeviceHandler:     deviceHandler,
-		SceneLinkageHandler:      sceneLinkageHandler,
-		SceneLinkageDetailHandler: sceneLinkageDetailHandler,
-		AlertHandler:             alertHandler,
-		OTAHandler:        otaHandler,
-		DeviceEventHandler: deviceEventHandler,
+		Logger:                      logger,
+		Config:                      viperViper,
+		JWT:                         jwtJWT,
+		UserHandler:                 userHandler,
+		ProductHandler:              productHandler,
+		ProductTSLHandler:           productTSLHandler,
+		ProductMessageParserHandler: productMessageParserHandler,
+		DeviceHandler:               deviceHandler,
+		SceneLinkageHandler:         sceneLinkageHandler,
+		SceneLinkageDetailHandler:   sceneLinkageDetailHandler,
+		AlertHandler:                alertHandler,
+		OTAHandler:                  otaHandler,
+		DeviceEventHandler:          deviceEventHandler,
 	}
 	httpServer := server.NewHTTPServer(routerDeps)
 	jobJob := job.NewJob(transaction, logger, sidSid)
 	userJob := job.NewUserJob(jobJob, userRepository)
+	deviceEventConsumer, err := job.NewDeviceEventConsumer(viperViper, deviceEventService, logger)
+	if err != nil {
+		return nil, nil, err
+	}
 	jobServer := server.NewJobServer(logger, userJob, deviceEventConsumer)
 	appApp := newApp(httpServer, jobServer)
 	return appApp, func() {
@@ -91,11 +97,11 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewIoTDB, repository.NewIoTRedis, repository.NewProductRepository, repository.NewProductTSLRepository, repository.NewDeviceRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewSceneLinkageRepository, repository.NewSceneLinkageDetailRepository, repository.NewAlertRepository, repository.NewOTARepository, repository.NewDeviceEventRepository, repository.NewTransaction, repository.NewUserRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewIoTDB, repository.NewIoTRedis, repository.NewProductRepository, repository.NewProductTSLRepository, repository.NewProductMessageParserRepository, repository.NewDeviceRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewSceneLinkageRepository, repository.NewSceneLinkageDetailRepository, repository.NewAlertRepository, repository.NewOTARepository, repository.NewDeviceEventRepository, repository.NewTransaction, repository.NewUserRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewProductTSLService, service.NewDeviceService, service.NewSceneLinkageService, service.NewSceneLinkageDetailService, service.NewAlertService, service.NewOTAService, service.NewDeviceEventService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewProductTSLService, service.NewProductMessageParserService, service.NewDeviceService, service.NewSceneLinkageService, service.NewSceneLinkageDetailService, service.NewAlertService, service.NewOTAService, service.NewDeviceEventService, wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)), wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)), wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)), wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)), wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)), wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)), wire.Bind(new(service.AlertServiceInterface), new(*service.AlertService)), wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)), wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)))
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewProductTSLHandler, handler.NewDeviceHandler, handler.NewSceneLinkageHandler, handler.NewAlertHandler, handler.NewOTAHandler, handler.NewDeviceEventHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewProductTSLHandler, handler.NewProductMessageParserHandler, handler.NewDeviceHandler, handler.NewSceneLinkageHandler, handler.NewSceneLinkageDetailHandler, handler.NewAlertHandler, handler.NewOTAHandler, handler.NewDeviceEventHandler)
 
 var jobSet = wire.NewSet(job.NewJob, job.NewUserJob, job.NewDeviceEventConsumer)
 

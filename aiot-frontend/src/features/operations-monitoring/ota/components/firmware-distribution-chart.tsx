@@ -38,7 +38,9 @@ interface FirmwareRow {
 function FirmwareTooltip({
   active,
   payload,
-}: TooltipProps<number, string>) {
+}: TooltipProps<number, string> & {
+  payload?: Array<{ payload: FirmwareRow }>
+}) {
   if (!active || !payload?.length) return null
   const row = payload[0].payload as FirmwareRow
   return (

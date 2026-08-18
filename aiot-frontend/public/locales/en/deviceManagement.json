@@ -141,6 +141,38 @@
         "description": "Support custom Topic classes, permission configuration, and broadcast functions"
       }
     },
+    "messageParsing": {
+      "title": "Message Parsing",
+      "description": "Configure the single JavaScript ES5 parser script for this product.",
+      "editor": {
+        "title": "Edit Script",
+        "description": "Use the script to convert device-specific data and platform messages."
+      },
+      "language": "Script Language",
+      "script": "Parser Script",
+      "save": "Save",
+      "saveSuccess": "Message parser script saved",
+      "saveError": "Save failed: {{error}}",
+      "loadErrorTitle": "Unable to load message parser",
+      "modes": {
+        "deviceReport": "Device Report Data",
+        "deviceReceive": "Device Receive Data",
+        "custom": "Custom"
+      },
+      "simulator": {
+        "input": "Simulation Input",
+        "result": "Run Result",
+        "mode": "Simulation Type",
+        "topic": "Topic",
+        "topicPlaceholder": "Enter the device report topic",
+        "hex": "Hexadecimal Data",
+        "hexPlaceholder": "Binary data in hexadecimal starting with 0x",
+        "alinkJson": "Alink JSON",
+        "execute": "Run",
+        "executionError": "Execution Failed",
+        "emptyResult": "The result will appear here"
+      }
+    },
     "featureDefinition": {
       "templates": {
         "label": "Quick Templates:",

@@ -361,6 +361,24 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-MessageParserExecuteProductMessageParserResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/MessageParserExecuteProductMessageParserResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-MessageParserGetProductMessageParserResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/MessageParserGetProductMessageParserResponse'
+      message:
+        type: string
+    type: object
   ApiResponse-OtaCreateOTAPackageResponse:
     properties:
       code:
@@ -969,6 +987,60 @@ definitions:
         type: integer
       total:
         type: integer
+    type: object
+  MessageParserExecuteProductMessageParserRequest:
+    properties:
+      jsonObj:
+        type: string
+      mode:
+        enum:
+        - device_report
+        - device_receive
+        - custom
+        type: string
+      rawData:
+        type: string
+      topic:
+        type: string
+    required:
+    - mode
+    type: object
+  MessageParserExecuteProductMessageParserResponse:
+    properties:
+      jsonOutput:
+        type: string
+      mode:
+        type: string
+      rawData:
+        type: string
+    type: object
+  MessageParserGetProductMessageParserResponse:
+    properties:
+      parser:
+        $ref: '#/definitions/MessageParserProductMessageParser'
+    type: object
+  MessageParserProductMessageParser:
+    properties:
+      isDefault:
+        type: boolean
+      language:
+        type: string
+      productKey:
+        type: string
+      script:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  MessageParserUpsertProductMessageParserRequest:
+    properties:
+      language:
+        type: string
+      script:
+        type: string
+    required:
+    - language
+    - script
     type: object
   OtaCreateOTAPackageRequest:
     properties:
@@ -2780,6 +2852,86 @@ paths:
       security:
       - Bearer: []
       summary: 更新产品
+      tags:
+      - 产品模块
+  /products/key/{productKey}/message-parser:
+    get:
+      consumes:
+      - application/json
+      description: 获取产品唯一的消息解析脚本；尚未配置时返回默认模板。
+      parameters:
+      - description: 产品 Key
+        in: path
+        name: productKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-MessageParserGetProductMessageParserResponse'
+      security:
+      - Bearer: []
+      summary: 获取产品消息解析器
+      tags:
+      - 产品模块
+    put:
+      consumes:
+      - application/json
+      description: 按产品覆盖保存 JavaScript ES5 消息解析脚本。
+      parameters:
+      - description: 产品 Key
+        in: path
+        name: productKey
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/MessageParserUpsertProductMessageParserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-MessageParserGetProductMessageParserResponse'
+      security:
+      - Bearer: []
+      summary: 保存产品消息解析器
+      tags:
+      - 产品模块
+  /products/key/{productKey}/message-parser/execute:
+    post:
+      consumes:
+      - application/json
+      description: 仅在受限 JavaScript ES5 运行时中执行保存的产品脚本。
+      parameters:
+      - description: 产品 Key
+        in: path
+        name: productKey
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/MessageParserExecuteProductMessageParserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-MessageParserExecuteProductMessageParserResponse'
+      security:
+      - Bearer: []
+      summary: 模拟执行产品消息解析器
       tags:
       - 产品模块
   /register:

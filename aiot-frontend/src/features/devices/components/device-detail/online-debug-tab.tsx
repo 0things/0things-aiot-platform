@@ -49,20 +49,21 @@ export function OnlineDebugTab() {
         payload: jsonPayload,
       },
       {
-        onSuccess: (data) => {
+        onSuccess: (resp) => {
+          const inner = resp.data
           setLogs((prev) => [...prev, {
             id: `log-${Date.now()}`,
             timestamp: new Date(),
             request: jsonPayload,
-            response: data.message || JSON.stringify(data, null, 2),
-            error: data.status !== 'success',
+            response: inner?.message || JSON.stringify(resp, null, 2),
+            error: inner?.status !== 'success',
             duration: Date.now() - startTime,
           }])
-          if (data.status === 'success') {
+          if (inner?.status === 'success') {
             toast.success('Push simulation succeeded')
             refetchRecords()
           } else {
-            toast.error(`Push simulation failed: ${data.message}`)
+            toast.error(`Push simulation failed: ${inner?.message}`)
           }
         },
         onError: (error) => {

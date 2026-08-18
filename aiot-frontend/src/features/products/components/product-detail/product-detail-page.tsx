@@ -118,7 +118,7 @@ export function ProductDetailPage() {
             </TabsContent>
 
             <TabsContent value='parsing' className='mt-0'>
-              <MessageParsingTab />
+              <MessageParsingTab productKey={productKey} />
             </TabsContent>
 
             <TabsContent value='subscription' className='mt-0'>
@@ -126,7 +126,9 @@ export function ProductDetailPage() {
             </TabsContent>
 
             <TabsContent value='development' className='mt-0'>
-              <DeviceDevelopmentTab productId={product.id || ''} />
+              <DeviceDevelopmentTab
+                productId={product.id != null ? String(product.id) : ''}
+              />
             </TabsContent>
 
             <TabsContent value='upload' className='mt-0'>

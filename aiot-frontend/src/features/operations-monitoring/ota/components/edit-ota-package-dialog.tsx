@@ -44,7 +44,6 @@ export function EditOTAPackageDialog({
 
     // Validation
     if (!packageName.trim()) {
-      console.error('Validation Error: Package name cannot be empty')
       alert('Package name cannot be empty')
       return
     }
@@ -56,10 +55,8 @@ export function EditOTAPackageDialog({
         description: description.trim(),
       })
 
-      console.log('Success: OTA package updated successfully')
       onOpenChange(false)
     } catch (error) {
-      console.error('Error updating package:', error)
       alert(
         error instanceof Error
           ? error.message

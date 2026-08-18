@@ -141,6 +141,38 @@
       "description": "支持用户自定义 Topic 类、权限配置和广播功能"
     }
   },
+  "messageParsing": {
+    "title": "消息解析",
+    "description": "为当前产品配置唯一的 JavaScript ES5 解析脚本。",
+    "editor": {
+      "title": "编辑脚本",
+      "description": "脚本将用于转换设备自定义数据与平台标准消息。"
+    },
+    "language": "脚本语言",
+    "script": "解析脚本",
+    "save": "保存",
+    "saveSuccess": "消息解析脚本已保存",
+    "saveError": "保存失败：{{error}}",
+    "loadErrorTitle": "无法加载消息解析器",
+    "modes": {
+      "deviceReport": "设备上报数据",
+      "deviceReceive": "设备接收数据",
+      "custom": "自定义"
+    },
+    "simulator": {
+      "input": "模拟输入",
+      "result": "运行结果",
+      "mode": "模拟类型",
+      "topic": "Topic",
+      "topicPlaceholder": "请输入设备上报消息的 Topic",
+      "hex": "十六进制数据",
+        "hexPlaceholder": "二进制数据以0x开头的十六进制输入",
+      "alinkJson": "Alink JSON",
+      "execute": "执行",
+      "executionError": "执行失败",
+      "emptyResult": "运行结果会显示在这里"
+    }
+  },
   "featureDefinition": {
     "templates": {
       "label": "快速模板：",

@@ -30,7 +30,11 @@ function TimelineTooltip({
   payload,
   label,
   t,
-}: TooltipProps<number, string> & { t: ReturnType<typeof useTranslation>['t'] }) {
+}: TooltipProps<number, string> & {
+  payload?: Array<{ payload: TimelineRow }>
+  label?: string | number
+  t: ReturnType<typeof useTranslation>['t']
+}) {
   if (!active || !payload?.length) return null
   const row = payload[0].payload as TimelineRow
   return (

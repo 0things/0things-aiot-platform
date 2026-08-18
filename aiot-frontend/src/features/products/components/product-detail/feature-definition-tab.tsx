@@ -525,20 +525,30 @@ export function FeatureDefinitionTab({
   // 删除确认对话框状态
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
-  // Sync fetched TSL data to editor state
+  // Sync fetched TSL data to editor state.
+  // The synchronous setState is deferred to a microtask so the effect body itself
+  // does not synchronously setState (which would trigger cascading renders).
   useEffect(() => {
-    if (tslData) {
-      setTslModel(tslData)
-      syncToJson(tslData)
-      setError('')
-      setSuccess('')
-      setCurrentTemplate('empty') // Reset template selection
-    } else if (!isLoadingTSL && !tslError) {
-      // No TSL data exists, use empty template
-      const emptyModel = TSL_TEMPLATES.empty.value as TSLModel
-      setTslModel(emptyModel)
-      syncToJson(emptyModel)
-      setCurrentTemplate('empty')
+    let cancelled = false
+    const id = setTimeout(() => {
+      if (cancelled) return
+      if (tslData) {
+        setTslModel(tslData)
+        setTslText(JSON.stringify(tslData, null, 2))
+        setError('')
+        setSuccess('')
+        setCurrentTemplate('empty') // Reset template selection
+      } else if (!isLoadingTSL && !tslError) {
+        // No TSL data exists, use empty template
+        const emptyModel = TSL_TEMPLATES.empty.value as TSLModel
+        setTslModel(emptyModel)
+        setTslText(JSON.stringify(emptyModel, null, 2))
+        setCurrentTemplate('empty')
+      }
+    }, 0)
+    return () => {
+      cancelled = true
+      clearTimeout(id)
     }
   }, [tslData, isLoadingTSL, tslError])
 
@@ -564,15 +574,7 @@ export function FeatureDefinitionTab({
     setTslText(formatted)
   }
 
-  // 当编辑模式切换时同步数据
-  useEffect(() => {
-    if (editMode === 'json') {
-      syncToJson(tslModel)
-    } else {
-      syncFromJson(tslText)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editMode])
+  // 编辑模式切换时的同步逻辑见下方 Tabs 的 onValueChange 处理（用户事件触发，不在 effect 中同步 setState）
 
   // 验证TSL JSON格式
   const validateTSL = (text: string): boolean => {
@@ -997,7 +999,15 @@ export function FeatureDefinitionTab({
       {/* 编辑器 */}
       <Tabs
         value={editMode}
-        onValueChange={(value) => setEditMode(value as 'visual' | 'json')}
+        onValueChange={(value) => {
+          const next = value as 'visual' | 'json'
+          setEditMode(next)
+          if (next === 'json') {
+            syncToJson(tslModel)
+          } else {
+            syncFromJson(tslText)
+          }
+        }}
         className='min-w-0'
       >
         <TabsList>

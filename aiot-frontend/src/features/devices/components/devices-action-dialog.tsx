@@ -56,7 +56,10 @@ export function DevicesActionDialog({
   // Fetch products list
   const { data: productsResponse, isLoading: isLoadingProducts } =
     useAllProducts()
-  const products = productsResponse?.products || []
+  const products = React.useMemo(
+    () => productsResponse?.products || [],
+    [productsResponse],
+  )
 
   // Create and update mutations
   const createDevice = useCreateDevice()
@@ -108,7 +111,7 @@ export function DevicesActionDialog({
         // Create new device
         await createDevice.mutateAsync({
           name: values.name,
-          productId: values.productId,
+          productId: Number(values.productId),
           metadata: values.metadata || undefined,
         })
         toast.success(
@@ -219,7 +222,7 @@ export function DevicesActionDialog({
                           {products.map((product) => (
                             <SelectItem
                               key={product.id}
-                              value={product.id || ''}
+                              value={product.id != null ? String(product.id) : ''}
                             >
                               {product.name}
                             </SelectItem>

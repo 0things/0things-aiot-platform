@@ -1946,6 +1946,133 @@ const docTemplate = `{
                 }
             }
         },
+        "/products/key/{productKey}/message-parser": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取产品唯一的消息解析脚本；尚未配置时返回默认模板。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "获取产品消息解析器",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-MessageParserGetProductMessageParserResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "按产品覆盖保存 JavaScript ES5 消息解析脚本。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "保存产品消息解析器",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MessageParserUpsertProductMessageParserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-MessageParserGetProductMessageParserResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/key/{productKey}/message-parser/execute": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "仅在受限 JavaScript ES5 运行时中执行保存的产品脚本。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "模拟执行产品消息解析器",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MessageParserExecuteProductMessageParserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-MessageParserExecuteProductMessageParserResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/products/{id}": {
             "get": {
                 "security": [
@@ -3204,6 +3331,34 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-MessageParserExecuteProductMessageParserResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/MessageParserExecuteProductMessageParserResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-MessageParserGetProductMessageParserResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/MessageParserGetProductMessageParserResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-OtaCreateOTAPackageResponse": {
             "type": "object",
             "properties": {
@@ -4141,6 +4296,88 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "MessageParserExecuteProductMessageParserRequest": {
+            "type": "object",
+            "required": [
+                "mode"
+            ],
+            "properties": {
+                "jsonObj": {
+                    "type": "string"
+                },
+                "mode": {
+                    "type": "string",
+                    "enum": [
+                        "device_report",
+                        "device_receive",
+                        "custom"
+                    ]
+                },
+                "rawData": {
+                    "type": "string"
+                },
+                "topic": {
+                    "type": "string"
+                }
+            }
+        },
+        "MessageParserExecuteProductMessageParserResponse": {
+            "type": "object",
+            "properties": {
+                "jsonOutput": {
+                    "type": "string"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "rawData": {
+                    "type": "string"
+                }
+            }
+        },
+        "MessageParserGetProductMessageParserResponse": {
+            "type": "object",
+            "properties": {
+                "parser": {
+                    "$ref": "#/definitions/MessageParserProductMessageParser"
+                }
+            }
+        },
+        "MessageParserProductMessageParser": {
+            "type": "object",
+            "properties": {
+                "isDefault": {
+                    "type": "boolean"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "productKey": {
+                    "type": "string"
+                },
+                "script": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "MessageParserUpsertProductMessageParserRequest": {
+            "type": "object",
+            "required": [
+                "language",
+                "script"
+            ],
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "script": {
+                    "type": "string"
                 }
             }
         },

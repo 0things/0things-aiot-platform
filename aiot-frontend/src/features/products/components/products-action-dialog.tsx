@@ -94,6 +94,7 @@ export function ProductsActionDialog({
   })
 
   // Watch nodeType to control connectivity method field visibility and protocol options
+  // eslint-disable-next-line react-hooks/incompatible-library
   const nodeType = form.watch('nodeType')
   const showConnectivityMethod = nodeType === 'direct' || nodeType === 'gateway'
 

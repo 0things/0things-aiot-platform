@@ -173,6 +173,7 @@ export function DeviceEvents() {
       enableHiding: false,
     },
   ]
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: data?.events || [],
     columns,

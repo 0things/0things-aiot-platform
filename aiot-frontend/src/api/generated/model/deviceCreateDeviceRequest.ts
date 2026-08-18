@@ -8,7 +8,7 @@
 
 export interface DeviceCreateDeviceRequest {
   enabled?: boolean;
-  metadata?: number[];
+  metadata?: string;
   name: string;
   productId: number;
 }

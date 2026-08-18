@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
@@ -13,6 +13,10 @@ import * as axiosClients from '@/api/clients'
  * Integration tests for OTA Package Detail Page
  * Tests the complete data flow from API calls to component rendering
  */
+
+interface MockGetConfig {
+  params?: { page?: number; status?: string }
+}
 
 // Mock axios module
 jest.mock('@/api/clients', () => ({
@@ -205,7 +209,7 @@ describe('OTA Package Detail Page - Integration Tests', () => {
     }
 
     ;(axiosClients.axiosInstance.get as jest.Mock).mockImplementation(
-      (url: string, config?: any) => {
+      (url: string, config?: MockGetConfig) => {
         if (url.includes('/device-deployments')) {
           const page = config?.params?.page || 1
           if (page === 1) {
@@ -275,7 +279,7 @@ describe('OTA Package Detail Page - Integration Tests', () => {
     }
 
     ;(axiosClients.axiosInstance.get as jest.Mock).mockImplementation(
-      (url: string, config?: any) => {
+      (url: string, config?: MockGetConfig) => {
         if (url.includes('/device-deployments')) {
           const status = config?.params?.status
           if (status === 'success') {
@@ -317,7 +321,7 @@ describe('OTA Package Detail Page - Integration Tests', () => {
       new Error('Network error')
     )
 
-    const { result, rerender } = renderHook(
+    const { result } = renderHook(
       () => useOTAPackageDetail('firmware-v2.0.0'),
       { wrapper: createWrapper() }
     )

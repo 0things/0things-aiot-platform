@@ -37,6 +37,10 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLFormElement> {
   redirectTo?: string
 }
 
+function computeExpiry(): number {
+  return Date.now() + 24 * 60 * 60 * 1000
+}
+
 export function UserAuthForm({
   className,
   redirectTo,
@@ -69,7 +73,7 @@ export function UserAuthForm({
         accountNo: data.email,
         email: data.email,
         role: ['user'],
-        exp: Date.now() + 24 * 60 * 60 * 1000,
+        exp: computeExpiry(),
       })
       auth.setAccessToken(accessToken)
       navigate({ to: redirectTo || '/', replace: true })

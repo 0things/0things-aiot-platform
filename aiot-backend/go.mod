@@ -14,6 +14,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/redis/go-redis/v9 v9.17.1
+	github.com/robertkrimen/otto v0.5.1
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/files v1.0.1
@@ -142,6 +143,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251124214823-79d6a2a48846 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
+	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.4 // indirect
