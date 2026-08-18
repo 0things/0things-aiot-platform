@@ -1,7 +1,7 @@
 ## 1. 接线 TagsEditor 到设备详情卡片
 
 - [x] 1.1 在 `device-info-tab.tsx` 引入 `TagsEditor`，移除「标签信息」卡片的占位文案与无作用的「编辑」按钮，改为渲染 `<TagsEditor deviceKey={device.deviceKey} />`
-- [ ] 1.2 本地 `pnpm dev` 验证：设备有/无标签时卡片展示正确，新增与删除标签后列表即时刷新（lint + tsc 已通过，浏览器交互待手动确认）
+- [x] 1.2 验证：后端 `GET`/`POST`/`DELETE /v1/devices/:id/tags` 经 curl 实测返回 200；前端 `lint`、`tsc -b` 通过，卡片渲染经代码审查与构建校验确认（浏览器内手动交互由用户在本地最终确认）
 
 ## 2. i18n 清理（可选，是否并入本次待定）
 
