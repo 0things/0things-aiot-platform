@@ -513,7 +513,7 @@ func TestDeviceHandler_UpdateDevice_ServiceError(t *testing.T) {
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 	router.PUT("/devices/:id", deviceHandler.UpdateDevice)
 
-	mockService.EXPECT().UpdateDevice(gomock.Any(), int64(1), "Test", "", []byte(nil)).Return(nil, errors.New("invalid status transition"))
+	mockService.EXPECT().UpdateDevice(gomock.Any(), int64(1), "Test", "", "").Return(nil, errors.New("invalid status transition"))
 	body, _ := json.Marshal(map[string]string{"name": "Test"})
 	req, _ := http.NewRequest("PUT", "/devices/1", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -919,7 +919,7 @@ func TestDeviceHandler_Reported_ServiceError(t *testing.T) {
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 	router.PUT("/devices/:id/shadow/reported", deviceHandler.Reported)
 
-	reported := map[string]any{"temp": 25}
+	reported := map[string]any{"temp": float64(25)}
 	mockService.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "device", nil, &reported, false).Return(nil, errors.New("not found"))
 	body, _ := json.Marshal(map[string]any{"version": 0, "reported": reported})
 	req, _ := http.NewRequest("PUT", "/devices/1/shadow/reported", bytes.NewBuffer(body))
