@@ -4,23 +4,23 @@
 
 本仓库包含三个可独立部署的部分：
 
-- `aiot-frontend/`：基于 Vite + React + TypeScript 的管理后台 UI。业务特性代码放在 `src/features/`，通用组件放在 `src/components/`，API 客户端放在 `src/api/`，翻译文件位于 `public/locales/{zh,en}/`。
-- `aiot-backend/`：Go 编写的 HTTP 服务。业务代码统一放在 `cmd/`、`internal/` 下，可复用包放在 `pkg/`；服务端的测试位于 `test/server/`。
+- `frontend/`：基于 Vite + React + TypeScript 的管理后台 UI。业务特性代码放在 `src/features/`，通用组件放在 `src/components/`，API 客户端放在 `src/api/`，翻译文件位于 `public/locales/{zh,en}/`。
+- `backend/`：Go 编写的 HTTP 服务。业务代码统一放在 `cmd/`、`internal/` 下，可复用包放在 `pkg/`；服务端的测试位于 `test/server/`。
 - `telemetry-service/`：基于 Go/Kratos 的遥测服务。Protobuf 定义在 `api/` 和 `internal/` 中；生成代码与源码放在同一目录。
 
-请勿手工编辑 `aiot-frontend/src/api/generated/` 中的生成代码；契约变更时应通过 OpenAPI 源重新生成。
+请勿手工编辑 `frontend/src/api/generated/` 中的生成代码；契约变更时应通过 OpenAPI 源重新生成。
 
 ## 构建、测试与开发命令
 
 请在对应包目录下执行命令：
 
 ```bash
-cd aiot-frontend && pnpm dev          # 启动本地 Vite 开发服务器
-cd aiot-frontend && pnpm build        # TypeScript 类型检查并产出生产构建
-cd aiot-frontend && pnpm lint         # 运行 ESLint
-cd aiot-frontend && pnpm format:check # Prettier 格式校验
-cd aiot-backend && make test          # 运行 Go 服务端测试并生成覆盖率报告
-cd aiot-backend && make build         # 构建 bin/server
+cd frontend && pnpm dev          # 启动本地 Vite 开发服务器
+cd frontend && pnpm build        # TypeScript 类型检查并产出生产构建
+cd frontend && pnpm lint         # 运行 ESLint
+cd frontend && pnpm format:check # Prettier 格式校验
+cd backend && make test          # 运行 Go 服务端测试并生成覆盖率报告
+cd backend && make build         # 构建 bin/server
 cd telemetry-service && make build    # 构建遥测服务可执行文件
 ```
 

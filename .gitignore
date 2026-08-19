@@ -20,9 +20,9 @@
 **/*.log
 **/*.db
 **/bin/
-/aiot-backend/server
-/aiot-backend/seed
-/aiot-frontend/.tanstack/tmp/
+/backend/server
+/backend/seed
+/frontend/.tanstack/tmp/
 /telemetry-service/telemetry-service
 
 # OS and editor files

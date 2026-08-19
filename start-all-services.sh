@@ -9,9 +9,9 @@ echo "🚀 Starting all 0things services..."
 echo ""
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_DIR="$PROJECT_DIR/aiot-backend"
+BACKEND_DIR="$PROJECT_DIR/backend"
 TELEMETRY_SERVICE_DIR="$PROJECT_DIR/telemetry-service"
-FRONTEND_DIR="$PROJECT_DIR/aiot-frontend"
+FRONTEND_DIR="$PROJECT_DIR/frontend"
 
 # Colors for output
 RED='\033[0;31m'
@@ -39,7 +39,7 @@ print_service() {
 
 # Check if services exist
 if [ ! -d "$BACKEND_DIR" ]; then
-    print_error "0things-backend directory not found"
+    print_error "backend directory not found"
     exit 1
 fi
 
@@ -62,7 +62,7 @@ cleanup() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     print_info "Shutting down services..."
 
-    pkill -f "go run.*0things-backend/cmd" || true
+    pkill -f "go run.*aiot-backend/cmd" || true
     pkill -f "go run.*telemetry-service/cmd" || true
     pkill -f "vite" || true
 
@@ -78,8 +78,8 @@ print_service "Starting backend..."
 cd "$BACKEND_DIR"
 
 # Kill any existing process
-pkill -f "go run.*0things-backend/cmd" || true
-pkill -f "0things-backend" || true
+pkill -f "go run.*aiot-backend/cmd" || true
+pkill -f "aiot-backend" || true
 sleep 1
 
 # Start in background with output to log file and terminal

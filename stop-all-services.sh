@@ -20,7 +20,7 @@ print_error() {
 }
 
 # Stop backend
-if pkill -f "go run.*aiot-backend/cmd" 2>/dev/null; then
+if pkill -f "go run.*backend/cmd" 2>/dev/null; then
     print_status "Stopped backend"
 else
     echo "  backend not running"
