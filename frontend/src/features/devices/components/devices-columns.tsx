@@ -9,6 +9,7 @@ import { LongText } from '@/components/long-text'
 import { deviceStateStyles } from '../data/data'
 import { type Device, type DeviceState } from '../data/schema'
 import { DataTableRowActions } from './data-table-row-actions'
+import { DeviceEnabledSwitch } from './device-enabled-switch'
 
 export const useDevicesColumns = (): ColumnDef<Device>[] => {
   const { t } = useTranslation('deviceManagement')
@@ -142,14 +143,7 @@ export const useDevicesColumns = (): ColumnDef<Device>[] => {
           title={t('devices.columns.enabled')}
         />
       ),
-      cell: ({ row }) => {
-        const enabled = row.getValue('enabled') as boolean
-        return (
-          <Badge variant={enabled ? 'default' : 'secondary'}>
-            {enabled ? t('devices.enabled.yes') : t('devices.enabled.no')}
-          </Badge>
-        )
-      },
+      cell: ({ row }) => <DeviceEnabledSwitch device={row.original} />,
       filterFn: (row, id, value) => {
         return value === row.getValue(id)
       },

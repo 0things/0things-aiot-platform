@@ -1,7 +1,7 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { Link } from '@tanstack/react-router'
 import { type Row } from '@tanstack/react-table'
-import { Pencil, Trash2, Power, PowerOff, Eye } from 'lucide-react'
+import { Pencil, Trash2, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -21,7 +21,6 @@ type DataTableRowActionsProps = {
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const { setOpen, setCurrentRow } = useDevices()
   const device = row.original
-  const isEnabled = device.enabled
 
   return (
     <>
@@ -60,18 +59,6 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             Edit
             <DropdownMenuShortcut>
               <Pencil size={16} />
-            </DropdownMenuShortcut>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onClick={() => {
-              setCurrentRow(row.original)
-              setOpen('enable')
-            }}
-          >
-            {isEnabled ? 'Disable' : 'Enable'}
-            <DropdownMenuShortcut>
-              {isEnabled ? <PowerOff size={16} /> : <Power size={16} />}
             </DropdownMenuShortcut>
           </DropdownMenuItem>
 

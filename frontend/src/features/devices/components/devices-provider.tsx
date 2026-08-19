@@ -3,12 +3,7 @@ import useDialogState from '@/hooks/use-dialog-state'
 import { type Device } from '../data/schema'
 
 type DevicesDialogType =
-  | 'create'
-  | 'edit'
-  | 'delete'
-  | 'activate'
-  | 'enable'
-  | 'batch-upload'
+  'create' | 'edit' | 'delete' | 'activate' | 'batch-upload'
 
 type DevicesContextType = {
   open: DevicesDialogType | null

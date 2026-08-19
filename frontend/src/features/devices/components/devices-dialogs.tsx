@@ -2,7 +2,6 @@ import { DevicesActionDialog } from './devices-action-dialog'
 import { DevicesActivateDialog } from './devices-activate-dialog'
 import { DevicesBatchUploadDialog } from './devices-batch-upload-dialog'
 import { DevicesDeleteDialog } from './devices-delete-dialog'
-import { DevicesEnableDialog } from './devices-enable-dialog'
 import { useDevices } from './devices-provider'
 
 export function DevicesDialogs() {
@@ -52,18 +51,6 @@ export function DevicesDialogs() {
             open={open === 'activate'}
             onOpenChange={() => {
               setOpen('activate')
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
-            }}
-            currentRow={currentRow}
-          />
-
-          <DevicesEnableDialog
-            key={`device-enable-${currentRow.id}`}
-            open={open === 'enable'}
-            onOpenChange={() => {
-              setOpen('enable')
               setTimeout(() => {
                 setCurrentRow(null)
               }, 500)
