@@ -141,3 +141,67 @@ func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, 
 	}
 	return deployments, total, nil
 }
+
+// CreateDeployments 为给定的 OTA 升级包在每台目标设备上记录一条待升级记录。
+// 若同一设备+升级包已存在记录，则更新为 "pending" 而非重复插入。
+// 返回受影响的设备数量。
+func (r *OTARepository) CreateDeployments(ctx context.Context, packageID int64, deviceIDs []int64) (int, error) {
+	if len(deviceIDs) == 0 {
+		return 0, nil
+	}
+	pkgID := strconv.FormatInt(packageID, 10)
+	db := r.DB(ctx)
+
+	// 去重，避免同一设备重复处理。
+	seen := make(map[int64]struct{}, len(deviceIDs))
+	uniq := make([]int64, 0, len(deviceIDs))
+	for _, id := range deviceIDs {
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		uniq = append(uniq, id)
+	}
+	deviceIDs = uniq
+
+	// 一次性查出本包下这批设备已有的升级记录。
+	var existing []model.DeviceUpgradeStatus
+	if err := db.Where("ota_package_id = ? AND device_id IN ?", pkgID, deviceIDs).
+		Find(&existing).Error; err != nil {
+		return 0, err
+	}
+	existingStatus := make(map[int64]string, len(existing))
+	for _, e := range existing {
+		existingStatus[e.DeviceID] = e.Status
+	}
+
+	toInsert := make([]model.DeviceUpgradeStatus, 0, len(deviceIDs))
+	toUpdate := make([]int64, 0)
+	for _, deviceID := range deviceIDs {
+		if status, ok := existingStatus[deviceID]; ok {
+			if status != "pending" {
+				toUpdate = append(toUpdate, deviceID)
+			}
+		} else {
+			toInsert = append(toInsert, model.DeviceUpgradeStatus{
+				DeviceID:     deviceID,
+				OTAPackageID: pkgID,
+				Status:       "pending",
+			})
+		}
+	}
+
+	if len(toUpdate) > 0 {
+		if err := db.Model(&model.DeviceUpgradeStatus{}).
+			Where("ota_package_id = ? AND device_id IN ?", pkgID, toUpdate).
+			Update("status", "pending").Error; err != nil {
+			return 0, err
+		}
+	}
+	if len(toInsert) > 0 {
+		if err := db.Create(&toInsert).Error; err != nil {
+			return 0, err
+		}
+	}
+	return len(deviceIDs), nil
+}

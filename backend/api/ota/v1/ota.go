@@ -33,6 +33,10 @@ type CreateOTAPackageRequest struct {
 	ReleaseNotes string `json:"releaseNotes"`
 }//@name OtaCreateOTAPackageRequest
 
+type DeployOTAPackageRequest struct {
+	DeviceKeys []string `json:"deviceKeys" binding:"required"`
+}//@name OtaDeployOTAPackageRequest
+
 type SuccessResponse struct {
 	Success bool `json:"success"`
 }//@name OtaSuccessResponse

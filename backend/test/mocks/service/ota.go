@@ -79,6 +79,21 @@ func (mr *MockOTAServiceInterfaceMockRecorder) Delete(ctx, id interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockOTAServiceInterface)(nil).Delete), ctx, id)
 }
 
+// Deploy mocks base method.
+func (m *MockOTAServiceInterface) Deploy(ctx context.Context, packageID int64, deviceKeys []string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Deploy", ctx, packageID, deviceKeys)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Deploy indicates an expected call of Deploy.
+func (mr *MockOTAServiceInterfaceMockRecorder) Deploy(ctx, packageID, deviceKeys interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deploy", reflect.TypeOf((*MockOTAServiceInterface)(nil).Deploy), ctx, packageID, deviceKeys)
+}
+
 // Deployments mocks base method.
 func (m *MockOTAServiceInterface) Deployments(ctx context.Context, packageName string, page, size int, status string) ([]model.DeviceDeployment, int64, error) {
 	m.ctrl.T.Helper()

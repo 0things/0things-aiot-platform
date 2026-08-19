@@ -19,6 +19,7 @@ import {
   postOtaPackages,
   putOtaPackagesId,
 } from '@/api/generated'
+import { orvalAxios } from '@/api/orval-mutator'
 import type { OTAPackage } from '../data/schema'
 
 type CreateOTAPackagePayload = Omit<
@@ -214,6 +215,48 @@ export function useDeleteOTAPackages() {
       const message =
         (error as unknown as ApiError).response?.data?.message ||
         'Failed to delete OTA packages'
+      toast.error(message)
+    },
+  })
+}
+
+interface DeployOTAPackagePayload {
+  id: string
+  deviceKeys: string[]
+}
+
+/**
+ * Deploy an OTA package to the given target devices. Backed by
+ * POST /v1/ota-packages/:id/deploy.
+ */
+export async function deployOtaPackage({
+  id,
+  deviceKeys,
+}: DeployOTAPackagePayload) {
+  return orvalAxios<{ code: number; message: string; data: { success: boolean } }>({
+    method: 'POST',
+    url: `/ota-packages/${id}/deploy`,
+    data: { deviceKeys },
+  })
+}
+
+/**
+ * Hook to deploy an OTA package
+ */
+export function useDeployOTAPackage() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, deviceKeys }: DeployOTAPackagePayload) =>
+      deployOtaPackage({ id, deviceKeys }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
+      toast.success('OTA package deployment started')
+    },
+    onError: (error) => {
+      const message =
+        (error as unknown as ApiError).response?.data?.message ||
+        'Failed to deploy OTA package'
       toast.error(message)
     },
   })

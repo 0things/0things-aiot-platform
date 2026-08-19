@@ -16,15 +16,15 @@ import {
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useUpdateOTAPackage } from '../api/queries'
+import { useDeployOTAPackage } from '../api/queries'
 import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
 
 export function DeployPackageDialog() {
   const { t } = useTranslation('operationsMonitoring')
   const { openDialog, setOpenDialog, selectedPackage } = useOTAPackagesContext()
-  const updatePackage = useUpdateOTAPackage()
+  const deployPackage = useDeployOTAPackage()
   const [targetDevices, setTargetDevices] = useState<'all' | 'specific'>('all')
-  const [selectedDeviceIds, setSelectedDeviceIds] = useState<number[]>([])
+  const [selectedDeviceKeys, setSelectedDeviceKeys] = useState<string[]>([])
   const [isDeploying, setIsDeploying] = useState(false)
 
   const productId = selectedPackage?.productId
@@ -37,10 +37,12 @@ export function DeployPackageDialog() {
       const response = await getDevices({
         productId: Number(productId),
         page: 1,
-        pageSize: 1,
+        pageSize: 200,
         enabled: true,
       })
-      return response.data?.total || 0
+      return (response.data?.devices ?? [])
+        .map((d) => d.deviceKey)
+        .filter((k): k is string => !!k)
     },
     enabled: !!productId && openDialog === 'deploy',
   })
@@ -61,29 +63,33 @@ export function DeployPackageDialog() {
 
   const handleClose = () => {
     setTargetDevices('all')
-    setSelectedDeviceIds([])
+    setSelectedDeviceKeys([])
     setOpenDialog(null)
   }
 
   const estimatedDeviceCount = useMemo(() => {
     if (targetDevices === 'all') {
-      return allDevicesQuery.data ?? 0
+      return allDevicesQuery.data?.length ?? 0
     }
-    return selectedDeviceIds.length
-  }, [allDevicesQuery.data, selectedDeviceIds.length, targetDevices])
+    return selectedDeviceKeys.length
+  }, [allDevicesQuery.data, selectedDeviceKeys.length, targetDevices])
 
-  const toggleDeviceSelection = (deviceId: number, checked: boolean) => {
-    setSelectedDeviceIds((current) => {
+  const toggleDeviceSelection = (deviceKey: string, checked: boolean) => {
+    setSelectedDeviceKeys((current) => {
       if (checked) {
-        return current.includes(deviceId) ? current : [...current, deviceId]
+        return current.includes(deviceKey) ? current : [...current, deviceKey]
       }
-      return current.filter((id) => id !== deviceId)
+      return current.filter((key) => key !== deviceKey)
     })
   }
 
   const handleDeploy = async () => {
     if (!selectedPackage?.id) return
-    if (targetDevices === 'specific' && selectedDeviceIds.length === 0) {
+    const deviceKeys =
+      targetDevices === 'all'
+        ? (allDevicesQuery.data ?? [])
+        : selectedDeviceKeys
+    if (deviceKeys.length === 0) {
       toast.error('Select at least one device')
       return
     }
@@ -91,12 +97,9 @@ export function DeployPackageDialog() {
     setIsDeploying(true)
 
     try {
-      await updatePackage.mutateAsync({
+      await deployPackage.mutateAsync({
         id: selectedPackage.id,
-        data: {
-          packageName: selectedPackage.packageName,
-          status: 'deploying',
-        },
+        deviceKeys,
       })
 
       toast.success(t('ota.notifications.deploymentStarted'))
@@ -171,17 +174,17 @@ export function DeployPackageDialog() {
                         </div>
                       )}
                     {specificDevicesQuery.data?.map((device) => {
-                      const deviceId = Number(device.id)
-                      const checked = selectedDeviceIds.includes(deviceId)
+                      const deviceKey = device.deviceKey ?? ''
+                      const checked = selectedDeviceKeys.includes(deviceKey)
                       return (
                         <label
-                          key={device.id}
+                          key={deviceKey}
                           className='flex cursor-pointer items-start gap-3 rounded-md border p-3'
                         >
                           <Checkbox
                             checked={checked}
                             onCheckedChange={(value) =>
-                              toggleDeviceSelection(deviceId, Boolean(value))
+                              toggleDeviceSelection(deviceKey, Boolean(value))
                             }
                           />
                           <div className='min-w-0 text-sm'>
@@ -189,7 +192,7 @@ export function DeployPackageDialog() {
                               {device.name || device.deviceKey}
                             </div>
                             <div className='text-muted-foreground font-mono text-xs'>
-                              ID {device.id} · {device.deviceKey}
+                              {device.deviceKey}
                             </div>
                           </div>
                         </label>
@@ -252,7 +255,7 @@ export function DeployPackageDialog() {
             onClick={handleDeploy}
             disabled={
               isDeploying ||
-              (targetDevices === 'specific' && selectedDeviceIds.length === 0)
+              (targetDevices === 'specific' && selectedDeviceKeys.length === 0)
             }
           >
             {isDeploying

@@ -14,6 +14,7 @@ type OTAServiceInterface interface {
 	Create(ctx context.Context, pkg *model.OTAPackage, productKey string) error
 	Update(ctx context.Context, pkg *model.OTAPackage) error
 	Delete(ctx context.Context, id int64) error
+	Deploy(ctx context.Context, packageID int64, deviceKeys []string) (int, error)
 	Statistics(ctx context.Context, packageName string) (UpgradeStatistics, error)
 	Batches(ctx context.Context, packageName string) ([]model.UpgradeBatch, error)
 	Deployments(ctx context.Context, packageName string, page, size int, status string) ([]model.DeviceDeployment, int64, error)
@@ -22,6 +23,7 @@ type OTAServiceInterface interface {
 type OTAService struct {
 	repo        *repository.OTARepository
 	productRepo *repository.ProductRepository
+	deviceRepo  *repository.DeviceRepository
 }
 
 type UpgradeStatistics struct {
@@ -34,8 +36,8 @@ type UpgradeStatistics struct {
 	InProgressUpgrades int64
 }
 
-func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository) *OTAService {
-	return &OTAService{repo: repo, productRepo: productRepo}
+func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository) *OTAService {
+	return &OTAService{repo: repo, productRepo: productRepo, deviceRepo: deviceRepo}
 }
 
 func (s *OTAService) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) {
@@ -66,6 +68,33 @@ func (s *OTAService) Update(ctx context.Context, pkg *model.OTAPackage) error {
 
 func (s *OTAService) Delete(ctx context.Context, id int64) error {
 	return s.repo.Delete(ctx, id)
+}
+
+func (s *OTAService) Deploy(ctx context.Context, packageID int64, deviceKeys []string) (int, error) {
+	if _, err := s.repo.Find(ctx, packageID); err != nil {
+		return 0, err
+	}
+	devices, err := s.deviceRepo.FindByKeys(ctx, deviceKeys)
+	if err != nil {
+		return 0, err
+	}
+	deviceIDs := make([]int64, 0, len(devices))
+	for _, d := range devices {
+		deviceIDs = append(deviceIDs, d.ID)
+	}
+	count, err := s.repo.CreateDeployments(ctx, packageID, deviceIDs)
+	if err != nil {
+		return 0, err
+	}
+	pkg, err := s.repo.Find(ctx, packageID)
+	if err != nil {
+		return count, err
+	}
+	pkg.Status = "deploying"
+	if err := s.repo.Save(ctx, pkg); err != nil {
+		return count, err
+	}
+	return count, nil
 }
 
 func (s *OTAService) Statistics(ctx context.Context, packageName string) (UpgradeStatistics, error) {

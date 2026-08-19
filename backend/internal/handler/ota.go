@@ -1,11 +1,16 @@
 package handler
 
 import (
+	"errors"
+	"net/http"
+
 	otaV1 "aiot-backend/api/ota/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
+	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type OTAHandler struct {
@@ -43,6 +48,27 @@ func otaDeploymentJSON(deployment model.DeviceDeployment) otaV1.DeviceDeployment
 	}
 }
 
+// otaError maps a domain error to the proper HTTP status and delegates to the
+// unified v1.HandleError envelope (preserving the previous deviceError mapping).
+func otaError(c *gin.Context, err error) {
+	status := http.StatusInternalServerError
+	sentinel := err
+	switch {
+	case errors.Is(err, repository.ErrNotFound) || errors.Is(err, gorm.ErrRecordNotFound):
+		status = http.StatusNotFound
+		sentinel = v1.ErrNotFound
+	case errors.Is(err, repository.ErrVersionConflict):
+		status = http.StatusConflict
+	case err.Error() == "invalid status transition" ||
+		err.Error() == "device already activated" ||
+		err.Error() == "name is required" ||
+		err.Error() == "invalid tag key":
+		status = http.StatusBadRequest
+		sentinel = v1.ErrBadRequest
+	}
+	v1.HandleError(c, status, sentinel, nil)
+}
+
 // ListOTA godoc
 // @Summary 获取 OTA 升级包列表
 // @Schemes
@@ -59,7 +85,7 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 	pageNumber, pageSize := page(c, 20)
 	packages, total, err := h.svc.List(c, pageNumber, pageSize)
 	if err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
 	items := make([]otaV1.OTAPackage, len(packages))
@@ -81,14 +107,14 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 // @Success 200 {object} v1.ApiResponse[otaV1.GetOTAPackageResponse]
 // @Router /ota-packages/{id} [get]
 func (h *OTAHandler) GetOTA(c *gin.Context) {
-	packageID, err := id(c)
-	if err != nil {
-		deviceError(c, err)
+		packageID, err := id(c)
+		if err != nil {
+			otaError(c, err)
 		return
 	}
 	pkg, err := h.svc.Get(c, packageID)
 	if err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.GetOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
@@ -107,8 +133,8 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 // @Router /ota-packages [post]
 func (h *OTAHandler) CreateOTA(c *gin.Context) {
 	var req otaV1.CreateOTAPackageRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		if err := c.ShouldBindJSON(&req); err != nil {
+			otaError(c, err)
 		return
 	}
 	pkg := &model.OTAPackage{PackageName: req.PackageName, Version: req.Version, PackageType: req.PackageType, Status: req.Status, UploadType: req.UploadType, FileURL: req.FileURL, FileSize: req.FileSize, Checksum: req.Checksum, Description: req.Description, ReleaseNotes: req.ReleaseNotes}
@@ -116,7 +142,7 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 		pkg.Status = "draft"
 	}
 	if err := h.svc.Create(c, pkg, req.ProductKey); err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.CreateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
@@ -135,25 +161,56 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 // @Success 200 {object} v1.ApiResponse[otaV1.UpdateOTAPackageResponse]
 // @Router /ota-packages/{id} [put]
 func (h *OTAHandler) UpdateOTA(c *gin.Context) {
-	packageID, err := id(c)
-	if err != nil {
-		deviceError(c, err)
+		packageID, err := id(c)
+		if err != nil {
+			otaError(c, err)
 		return
 	}
 	var req otaV1.OTAPackageRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		if err := c.ShouldBindJSON(&req); err != nil {
+			otaError(c, err)
 		return
 	}
 	pkg, err := h.svc.Get(c, packageID)
 	if err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
-	pkg.PackageName, pkg.Version, pkg.ProductID, pkg.PackageType, pkg.Status, pkg.UploadType = req.PackageName, req.Version, req.ProductID, req.PackageType, req.Status, req.UploadType
-	pkg.FileURL, pkg.FileSize, pkg.Checksum, pkg.Description, pkg.ReleaseNotes = req.FileURL, req.FileSize, req.Checksum, req.Description, req.ReleaseNotes
+	if req.PackageName != "" {
+		pkg.PackageName = req.PackageName
+	}
+	if req.Version != "" {
+		pkg.Version = req.Version
+	}
+	if req.ProductID != 0 {
+		pkg.ProductID = req.ProductID
+	}
+	if req.PackageType != "" {
+		pkg.PackageType = req.PackageType
+	}
+	if req.Status != "" {
+		pkg.Status = req.Status
+	}
+	if req.UploadType != "" {
+		pkg.UploadType = req.UploadType
+	}
+	if req.FileURL != "" {
+		pkg.FileURL = req.FileURL
+	}
+	if req.FileSize != 0 {
+		pkg.FileSize = req.FileSize
+	}
+	if req.Checksum != "" {
+		pkg.Checksum = req.Checksum
+	}
+	if req.Description != "" {
+		pkg.Description = req.Description
+	}
+	if req.ReleaseNotes != "" {
+		pkg.ReleaseNotes = req.ReleaseNotes
+	}
 	if err := h.svc.Update(c, pkg); err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.UpdateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
@@ -176,9 +233,45 @@ func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 		err = h.svc.Delete(c, packageID)
 	}
 	if err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
+	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
+}
+
+// DeployOTA godoc
+// @Summary 部署 OTA 升级包
+// @Schemes
+// @Description 将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "升级包 ID"
+// @Param request body otaV1.DeployOTAPackageRequest true "目标设备 deviceKey 列表"
+// @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
+// @Router /ota-packages/{id}/deploy [post]
+func (h *OTAHandler) DeployOTA(c *gin.Context) {
+	packageID, err := id(c)
+	if err != nil {
+		otaError(c, err)
+		return
+	}
+	var req otaV1.DeployOTAPackageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		otaError(c, err)
+		return
+	}
+	if len(req.DeviceKeys) == 0 {
+		v1.HandleError(c, http.StatusBadRequest, v1.ErrBadRequest, nil)
+		return
+	}
+	count, err := h.svc.Deploy(c, packageID, req.DeviceKeys)
+	if err != nil {
+		otaError(c, err)
+		return
+	}
+	_ = count
 	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
 }
 
@@ -196,7 +289,7 @@ func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 func (h *OTAHandler) OTAStats(c *gin.Context) {
 	stats, err := h.svc.Statistics(c, c.Param("id"))
 	if err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.GetUpgradeStatisticsResponse{Statistics: otaV1.UpgradeStatistics{
@@ -221,7 +314,7 @@ func (h *OTAHandler) OTAStats(c *gin.Context) {
 func (h *OTAHandler) OTABatches(c *gin.Context) {
 	batches, err := h.svc.Batches(c, c.Param("id"))
 	if err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
 	items := make([]otaV1.UpgradeBatch, len(batches))
@@ -249,7 +342,7 @@ func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	pageNumber, pageSize := page(c, 100)
 	deployments, total, err := h.svc.Deployments(c, c.Param("id"), pageNumber, pageSize, c.Query("status"))
 	if err != nil {
-		deviceError(c, err)
+		otaError(c, err)
 		return
 	}
 	items := make([]otaV1.DeviceDeployment, len(deployments))

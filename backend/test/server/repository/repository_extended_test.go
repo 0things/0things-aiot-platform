@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"strconv"
 	"testing"
 	"time"
 
@@ -830,6 +831,73 @@ func TestOTARepository_FindByName_NotFound_SQLite(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestOTARepository_CreateDeployments(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.OTAPackage{}, &model.DeviceUpgradeStatus{}))
+
+	iotDB := &repository.IoTDB{DB: db}
+	otaRepo := repository.NewOTARepository(iotDB)
+	productRepo := repository.NewProductRepository(iotDB)
+	ctx := tenant.WithTenant(context.Background(), 1)
+
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	require.NoError(t, productRepo.Create(ctx, product))
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, TenantID: 1}
+	require.NoError(t, otaRepo.Create(ctx, pkg))
+	pkgID := strconv.FormatInt(pkg.ID, 10)
+
+	readRows := func() []model.DeviceUpgradeStatus {
+		var rows []model.DeviceUpgradeStatus
+		require.NoError(t, db.Where("ota_package_id = ?", pkgID).Find(&rows).Error)
+		return rows
+	}
+
+	// 空输入
+	n, err := otaRepo.CreateDeployments(ctx, pkg.ID, nil)
+	require.NoError(t, err)
+	assert.Equal(t, 0, n)
+
+	// 批量插入 3 台设备
+	deviceIDs := []int64{1, 2, 3}
+	n, err = otaRepo.CreateDeployments(ctx, pkg.ID, deviceIDs)
+	require.NoError(t, err)
+	assert.Equal(t, 3, n)
+	rows := readRows()
+	assert.Len(t, rows, 3)
+	for _, r := range rows {
+		assert.Equal(t, "pending", r.Status)
+	}
+
+	// 幂等：再次部署同批设备不重复插入
+	n, err = otaRepo.CreateDeployments(ctx, pkg.ID, deviceIDs)
+	require.NoError(t, err)
+	assert.Equal(t, 3, n)
+	assert.Len(t, readRows(), 3)
+
+	// 已存在且非 pending 的记录应被更新为 pending，而非新增
+	require.NoError(t, db.Create(&model.DeviceUpgradeStatus{
+		DeviceID:     4,
+		OTAPackageID: pkgID,
+		Status:       "success",
+	}).Error)
+	n, err = otaRepo.CreateDeployments(ctx, pkg.ID, []int64{4})
+	require.NoError(t, err)
+	assert.Equal(t, 1, n)
+	updated := readRows()
+	require.Len(t, updated, 4)
+	for _, r := range updated {
+		if r.DeviceID == 4 {
+			assert.Equal(t, "pending", r.Status)
+		}
+	}
+
+	// 入参重复设备 ID 只处理一次
+	n, err = otaRepo.CreateDeployments(ctx, pkg.ID, []int64{5, 5, 5})
+	require.NoError(t, err)
+	assert.Equal(t, 1, n)
+}
+
 func TestOTARepository_Delete_NotFound(t *testing.T) {
 	otaRepo, _ := setupSQLiteOTARepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
@@ -873,6 +941,40 @@ func TestDeviceRepository_FindByKeyForEvent_NotFound(t *testing.T) {
 
 	_, err := deviceRepo.FindByKeyForEvent(ctx, "NONEXIST")
 	assert.Error(t, err)
+}
+
+func TestDeviceRepository_FindByKeys(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&model.Device{}))
+
+	iotDB := &repository.IoTDB{DB: db}
+	deviceRepo := repository.NewDeviceRepository(iotDB, &repository.IoTRedis{Client: nil})
+	ctx := tenant.WithTenant(context.Background(), 1)
+
+	require.NoError(t, db.Create(&model.Device{DeviceKey: "D001", Name: "dev1", TenantID: 1, Enabled: true}).Error)
+	require.NoError(t, db.Create(&model.Device{DeviceKey: "D002", Name: "dev2", TenantID: 1, Enabled: true}).Error)
+	require.NoError(t, db.Create(&model.Device{DeviceKey: "D003", Name: "dev3", TenantID: 2, Enabled: true}).Error)
+
+	// 命中同租户多台
+	devices, err := deviceRepo.FindByKeys(ctx, []string{"D001", "D002"})
+	require.NoError(t, err)
+	assert.Len(t, devices, 2)
+
+	// 部分命中：未知 key 被忽略
+	devices, err = deviceRepo.FindByKeys(ctx, []string{"D001", "UNKNOWN"})
+	require.NoError(t, err)
+	assert.Len(t, devices, 1)
+
+	// 跨租户 D003 不应返回（当前 tenant=1）
+	devices, err = deviceRepo.FindByKeys(ctx, []string{"D003"})
+	require.NoError(t, err)
+	assert.Empty(t, devices)
+
+	// 空输入返回 nil
+	devices, err = deviceRepo.FindByKeys(ctx, nil)
+	require.NoError(t, err)
+	assert.Nil(t, devices)
 }
 
 func TestDeviceRepository_List_WithEnabledFilter(t *testing.T) {

@@ -82,7 +82,8 @@ func NewTestAlertService(db *gorm.DB) *service.AlertService {
 func NewTestOTATotalService(db *gorm.DB) *service.OTAService {
 	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
-	return service.NewOTAService(otaRepo, productRepo)
+	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
+	return service.NewOTAService(otaRepo, productRepo, deviceRepo)
 }
 
 func NewTestSceneLinkageService(db *gorm.DB) *service.SceneLinkageService {

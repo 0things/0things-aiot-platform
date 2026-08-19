@@ -63,6 +63,21 @@ func (r *DeviceRepository) FindByKey(ctx context.Context, key string) (*model.De
 	return item, nil
 }
 
+// FindByKeys resolves multiple devices by their device keys in a single query.
+func (r *DeviceRepository) FindByKeys(ctx context.Context, keys []string) ([]*model.Device, error) {
+	if len(keys) == 0 {
+		return nil, nil
+	}
+	q := useQuery(r.db)
+	devices, err := q.Device.WithContext(ctx).
+		Where(q.Device.DeviceKey.In(keys...), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).
+		Find()
+	if err != nil {
+		return nil, err
+	}
+	return devices, nil
+}
+
 // FindByKeyForEvent resolves a device from a broker event, which has no user
 // request context. Device keys are globally unique in the device protocol.
 func (r *DeviceRepository) FindByKeyForEvent(ctx context.Context, key string) (*model.Device, error) {
