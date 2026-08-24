@@ -33,7 +33,6 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		&model.DeviceUpgradeStatus{},
 		&model.SceneLinkage{},
 		&model.SceneLinkageDetail{},
-		&model.Alert{},
 	)
 	require.NoError(t, err)
 
@@ -72,11 +71,6 @@ func NewTestDeviceService(db *gorm.DB) *service.DeviceService {
 func NewTestProductService(db *gorm.DB) *service.ProductService {
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	return service.NewProductService(productRepo)
-}
-
-func NewTestAlertService(db *gorm.DB) *service.AlertService {
-	alertRepo := repository.NewAlertRepository(&repository.IoTDB{DB: db})
-	return service.NewAlertService(alertRepo)
 }
 
 func NewTestOTATotalService(db *gorm.DB) *service.OTAService {

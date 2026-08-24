@@ -724,47 +724,6 @@ func TestProductRepository_DB(t *testing.T) {
 	assert.NotNil(t, db)
 }
 
-// --- Alert Repository Extended Tests (SQLite) ---
-
-func setupSQLiteAlertRepo(t *testing.T) (*repository.AlertRepository, *repository.ProductRepository) {
-	t.Helper()
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	iotDB := &repository.IoTDB{DB: db}
-	alertRepo := repository.NewAlertRepository(iotDB)
-	productRepo := repository.NewProductRepository(iotDB)
-	return alertRepo, productRepo
-}
-
-func TestAlertRepository_List_WithFilters(t *testing.T) {
-	alertRepo, productRepo := setupSQLiteAlertRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
-
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
-	productRepo.Create(ctx, product)
-
-	// Create alerts via GORM directly (alert no longer joins rule)
-	db := productRepo.DB(ctx)
-	db.Create(&model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "active", Severity: "critical", DeviceKey: "D001"})
-	db.Create(&model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "resolved", Severity: "low", DeviceKey: "D002"})
-
-	// List with status filter
-	alerts, total, err := alertRepo.List(ctx, 1, 10, "active", "", "")
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-	assert.Len(t, alerts, 1)
-
-	// List with severity filter
-	alerts, total, err = alertRepo.List(ctx, 1, 10, "", "critical", "")
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-
-	// List with deviceKey filter
-	alerts, total, err = alertRepo.List(ctx, 1, 10, "", "", "D002")
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-}
-
 // --- OTA Repository Extended Tests (SQLite) ---
 
 func setupSQLiteOTARepo(t *testing.T) (*repository.OTARepository, *repository.ProductRepository) {

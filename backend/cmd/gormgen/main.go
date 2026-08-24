@@ -31,7 +31,6 @@ func main() {
 		model.DevicePushRecord{},
 		model.SceneLinkage{},
 		model.SceneLinkageDetail{},
-		model.Alert{},
 	)
 
 	g.Execute()

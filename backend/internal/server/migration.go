@@ -53,7 +53,6 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 		&model.DeviceUpgradeStatus{},
 		&model.SceneLinkage{},
 		&model.SceneLinkageDetail{},
-		&model.Alert{},
 	); err != nil {
 		return err
 	}

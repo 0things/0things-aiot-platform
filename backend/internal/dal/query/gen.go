@@ -18,7 +18,6 @@ import (
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                   db,
-		Alert:                newAlert(db, opts...),
 		Device:               newDevice(db, opts...),
 		DeviceEvent:          newDeviceEvent(db, opts...),
 		DevicePushRecord:     newDevicePushRecord(db, opts...),
@@ -40,7 +39,6 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db *gorm.DB
 
-	Alert                alert
 	Device               device
 	DeviceEvent          deviceEvent
 	DevicePushRecord     devicePushRecord
@@ -65,7 +63,6 @@ func (q *Query) UnderlyingDB() *gorm.DB { return q.db }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                   db,
-		Alert:                q.Alert.clone(db),
 		Device:               q.Device.clone(db),
 		DeviceEvent:          q.DeviceEvent.clone(db),
 		DevicePushRecord:     q.DevicePushRecord.clone(db),
@@ -95,7 +92,6 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                   db,
-		Alert:                q.Alert.replaceDB(db),
 		Device:               q.Device.replaceDB(db),
 		DeviceEvent:          q.DeviceEvent.replaceDB(db),
 		DevicePushRecord:     q.DevicePushRecord.replaceDB(db),
@@ -115,7 +111,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
-	Alert                *alertDo
 	Device               *deviceDo
 	DeviceEvent          *deviceEventDo
 	DevicePushRecord     *devicePushRecordDo
@@ -135,7 +130,6 @@ type queryCtx struct {
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Alert:                q.Alert.WithContext(ctx),
 		Device:               q.Device.WithContext(ctx),
 		DeviceEvent:          q.DeviceEvent.WithContext(ctx),
 		DevicePushRecord:     q.DevicePushRecord.WithContext(ctx),

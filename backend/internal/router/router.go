@@ -18,7 +18,6 @@ type RouterDeps struct {
 	DeviceHandler               *handler.DeviceHandler
 	SceneLinkageHandler         *handler.SceneLinkageHandler
 	SceneLinkageDetailHandler   *handler.SceneLinkageDetailHandler
-	AlertHandler                *handler.AlertHandler
 	OTAHandler                  *handler.OTAHandler
 	FileHandler                 *handler.FileHandler
 	DeviceEventHandler          *handler.DeviceEventHandler

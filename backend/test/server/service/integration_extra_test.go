@@ -306,16 +306,6 @@ func TestIntegrationProductService_Restore_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestIntegrationAlertService_List_WithFilters(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestAlertService(db)
-
-	alerts, total, err := svc.List(ctx2(), 1, 10, "critical", "high", "D001")
-	require.NoError(t, err)
-	assert.Equal(t, int64(0), total)
-	assert.Empty(t, alerts)
-}
-
 func TestIntegrationOTAService_List_WithPagination(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
@@ -597,20 +587,6 @@ func TestIntegrationProductTSLService_Get_ProductNotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestIntegrationAlertService_Get(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestAlertService(db)
-
-	alert := &model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "active", Severity: "critical"}
-	err := db.Create(alert).Error
-	require.NoError(t, err)
-
-	result, err := svc.Get(ctx2(), alert.ID)
-	require.NoError(t, err)
-	assert.Equal(t, "active", result.Status)
-}
-
 func TestIntegrationOTAService_Get(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
@@ -730,46 +706,6 @@ func TestIntegrationOTAService_FindByName(t *testing.T) {
 	result, err := svc.Get(ctx2(), pkg.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "fw-unique", result.PackageName)
-}
-
-func TestIntegrationAlertService_SetStatus_Acknowledged(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestAlertService(db)
-
-	alert := &model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "active", Severity: "critical"}
-	err := db.Create(alert).Error
-	require.NoError(t, err)
-
-	result, err := svc.SetStatus(ctx2(), alert.ID, "acknowledged")
-	require.NoError(t, err)
-	assert.Equal(t, "acknowledged", result.Status)
-	assert.NotNil(t, result.AckAt)
-	assert.Nil(t, result.ResolvedAt)
-}
-
-func TestIntegrationAlertService_SetStatus_Resolved(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestAlertService(db)
-
-	alert := &model.Alert{RuleID: 1, RuleName: "Test Rule", Status: "active", Severity: "critical"}
-	err := db.Create(alert).Error
-	require.NoError(t, err)
-
-	result, err := svc.SetStatus(ctx2(), alert.ID, "resolved")
-	require.NoError(t, err)
-	assert.Equal(t, "resolved", result.Status)
-	assert.NotNil(t, result.ResolvedAt)
-	assert.Nil(t, result.AckAt)
-}
-
-func TestIntegrationAlertService_SetStatus_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestAlertService(db)
-
-	_, err := svc.SetStatus(ctx2(), 999, "resolved")
-	assert.Error(t, err)
 }
 
 func TestIntegrationOTAService_Statistics_WithData(t *testing.T) {

@@ -385,25 +385,6 @@ func TestIntegrationProductService_CRUD(t *testing.T) {
 	assert.NotNil(t, restored)
 }
 
-func TestIntegrationAlertService_CRUD(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestAlertService(db)
-
-	// List empty
-	alerts, total, err := svc.List(ctx(), 1, 10, "", "", "")
-	require.NoError(t, err)
-	assert.Equal(t, int64(0), total)
-	assert.NotNil(t, alerts)
-
-	// Get not found
-	_, err = svc.Get(ctx(), 999)
-	assert.Error(t, err)
-
-	// SetStatus not found
-	_, err = svc.SetStatus(ctx(), 999, "acknowledged")
-	assert.Error(t, err)
-}
-
 func TestIntegrationOTAService_CRUD(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)

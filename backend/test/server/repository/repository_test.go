@@ -14,61 +14,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func setupAlertRepository(t *testing.T) (*repository.AlertRepository, sqlmock.Sqlmock) {
-	t.Helper()
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
-
-	db, err := gorm.Open(mysql.New(mysql.Config{
-		Conn:                      mockDB,
-		SkipInitializeWithVersion: true,
-	}), &gorm.Config{})
-	require.NoError(t, err)
-
-	alertRepo := repository.NewAlertRepository(&repository.IoTDB{DB: db})
-	return alertRepo, mock
-}
-
-func TestAlertRepository_List(t *testing.T) {
-	alertRepo, mock := setupAlertRepository(t)
-	ctx := context.Background()
-
-	rows := sqlmock.NewRows([]string{"id", "summary", "status", "severity", "device_key", "created_at", "updated_at"}).
-		AddRow(1, "High Temperature", "active", "critical", "D001", time.Now(), time.Now())
-	mock.ExpectQuery("SELECT .+ FROM `alerts`").WillReturnRows(rows)
-
-	alerts, total, err := alertRepo.List(ctx, 1, 10, "", "", "")
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), total)
-	assert.Len(t, alerts, 1)
-}
-
-func TestAlertRepository_Find(t *testing.T) {
-	alertRepo, mock := setupAlertRepository(t)
-	ctx := context.Background()
-
-	rows := sqlmock.NewRows([]string{"id", "summary", "status", "severity", "device_key", "created_at", "updated_at"}).
-		AddRow(1, "High Temperature", "active", "critical", "D001", time.Now(), time.Now())
-	mock.ExpectQuery("SELECT .+ FROM `alerts`").WillReturnRows(rows)
-
-	alert, err := alertRepo.Find(ctx, 1)
-	assert.NoError(t, err)
-	assert.Equal(t, "High Temperature", alert.Summary)
-}
-
-func TestAlertRepository_UpdateStatus(t *testing.T) {
-	alertRepo, mock := setupAlertRepository(t)
-	ctx := context.Background()
-
-	mock.ExpectBegin()
-	mock.ExpectExec("UPDATE `alerts`").WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectCommit()
-
-	alert := &model.Alert{ID: 1, Summary: "High Temperature"}
-	err := alertRepo.UpdateStatus(ctx, alert, "resolved", time.Now())
-	assert.NoError(t, err)
-}
-
 func setupDeviceRepository(t *testing.T) (*repository.DeviceRepository, sqlmock.Sqlmock) {
 	t.Helper()
 	mockDB, mock, err := sqlmock.New()

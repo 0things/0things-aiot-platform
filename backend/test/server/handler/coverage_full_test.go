@@ -43,7 +43,6 @@ type coverageRouters struct {
 	device     *mock_service.MockDeviceServiceInterface
 	product    *mock_service.MockProductServiceInterface
 	ota        *mock_service.MockOTAServiceInterface
-	alert      *mock_service.MockAlertServiceInterface
 	deviceEvent *mock_service.MockDeviceEventServiceInterface
 }
 
@@ -61,14 +60,12 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 		device:      mock_service.NewMockDeviceServiceInterface(ctrl),
 		product:     mock_service.NewMockProductServiceInterface(ctrl),
 		ota:         mock_service.NewMockOTAServiceInterface(ctrl),
-		alert:       mock_service.NewMockAlertServiceInterface(ctrl),
 		deviceEvent: mock_service.NewMockDeviceEventServiceInterface(ctrl),
 	}
 
 	dh := handler.NewDeviceHandler(h, cr.device, coverageConf)
 	ph := handler.NewProductHandler(h, cr.product)
 	oh := handler.NewOTAHandler(h, cr.ota)
-	ah := handler.NewAlertHandler(h, cr.alert)
 	eh := handler.NewDeviceEventHandler(h, cr.deviceEvent)
 
 	r.GET("/devices/stats", dh.Stats)
@@ -111,11 +108,6 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 	r.GET("/ota/packages/:id/stats", oh.OTAStats)
 	r.GET("/ota/packages/:id/batches", oh.OTABatches)
 	r.GET("/ota/packages/:id/deployments", oh.OTADeployments)
-
-	r.GET("/alerts", ah.ListAlerts)
-	r.GET("/alerts/:id", ah.GetAlert)
-	r.POST("/alerts/:id/ack", ah.AckAlert)
-	r.POST("/alerts/:id/resolve", ah.ResolveAlert)
 
 	r.GET("/device-events", eh.ListDeviceEvents)
 
@@ -529,57 +521,6 @@ func TestCoverage_OTA_Deployments_WithStatus(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func TestCoverage_Alert_List_Success(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.alert.EXPECT().List(gomock.Any(), 1, 20, "critical", "high", "D001").Return([]model.Alert{{ID: 1, RuleName: "Rule"}}, int64(1), nil)
-	w := cr.do("GET", "/alerts?status=critical&severity=high&device_key=D001", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestCoverage_Alert_Ack_InvalidID(t *testing.T) {
-	cr := newCoverageRouters(t)
-	w := cr.do("POST", "/alerts/abc/ack", nil)
-	assert.True(t, w.Code >= 400, "expected error status code")
-}
-
-func TestCoverage_Alert_Ack_Error(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.alert.EXPECT().SetStatus(gomock.Any(), int64(1), "acknowledged").Return(nil, repository.ErrNotFound)
-	w := cr.do("POST", "/alerts/1/ack", nil)
-	assert.Equal(t, http.StatusNotFound, w.Code)
-}
-
-func TestCoverage_Alert_Ack_Success(t *testing.T) {
-	cr := newCoverageRouters(t)
-	now := time.Now()
-	alert := &model.Alert{ID: 1, Status: "acknowledged", AckAt: &now}
-	cr.alert.EXPECT().SetStatus(gomock.Any(), int64(1), "acknowledged").Return(alert, nil)
-	w := cr.do("POST", "/alerts/1/ack", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestCoverage_Alert_Resolve_InvalidID(t *testing.T) {
-	cr := newCoverageRouters(t)
-	w := cr.do("POST", "/alerts/abc/resolve", nil)
-	assert.True(t, w.Code >= 400, "expected error status code")
-}
-
-func TestCoverage_Alert_Resolve_Error(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.alert.EXPECT().SetStatus(gomock.Any(), int64(1), "resolved").Return(nil, repository.ErrNotFound)
-	w := cr.do("POST", "/alerts/1/resolve", nil)
-	assert.Equal(t, http.StatusNotFound, w.Code)
-}
-
-func TestCoverage_Alert_Resolve_Success(t *testing.T) {
-	cr := newCoverageRouters(t)
-	now := time.Now()
-	alert := &model.Alert{ID: 1, Status: "resolved", ResolvedAt: &now}
-	cr.alert.EXPECT().SetStatus(gomock.Any(), int64(1), "resolved").Return(alert, nil)
-	w := cr.do("POST", "/alerts/1/resolve", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
 // --- Device Event Handler Tests ---
 
 func TestCoverage_DeviceEvent_List_Error(t *testing.T) {
@@ -679,30 +620,6 @@ func TestCoverage_Raw_InvalidLegacyString(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.Product{ID: 1, Metadata: `"not-valid-json`}, nil)
 	w := cr.do("GET", "/products/1", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestCoverage_Raw_AlertPayloadString(t *testing.T) {
-	cr := newCoverageRouters(t)
-	alert := &model.Alert{ID: 1, RuleName: "Test", Payload: `"alert payload"`}
-	cr.alert.EXPECT().Get(gomock.Any(), int64(1)).Return(alert, nil)
-	w := cr.do("GET", "/alerts/1", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestCoverage_Raw_AlertPayloadJSON(t *testing.T) {
-	cr := newCoverageRouters(t)
-	alert := &model.Alert{ID: 1, RuleName: "Test", Payload: `{"key":"value"}`}
-	cr.alert.EXPECT().Get(gomock.Any(), int64(1)).Return(alert, nil)
-	w := cr.do("GET", "/alerts/1", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestCoverage_Raw_AlertPayloadEmpty(t *testing.T) {
-	cr := newCoverageRouters(t)
-	alert := &model.Alert{ID: 1, RuleName: "Test", Payload: ""}
-	cr.alert.EXPECT().Get(gomock.Any(), int64(1)).Return(alert, nil)
-	w := cr.do("GET", "/alerts/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 

@@ -13,7 +13,6 @@ func InitV1Routers(deps RouterDeps, r *gin.RouterGroup) {
 	InitProductMessageParserRouter(deps, protected)
 	InitDeviceRouter(deps, protected)
 	InitSceneLinkageRouter(deps, protected)
-	InitAlertRouter(deps, protected)
 	InitOTARouter(deps, protected)
 	InitFileRouter(deps, protected)
 	InitDeviceEventRouter(deps, protected)
