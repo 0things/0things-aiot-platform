@@ -57,7 +57,7 @@ export function FirmwareDistributionChart({
   data,
   isLoading,
 }: FirmwareDistributionChartProps) {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
 
   const chartData: FirmwareRow[] = data.map((item, index) => ({
     version: item.version,
@@ -69,7 +69,7 @@ export function FirmwareDistributionChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('ota.analytics.charts.firmwareDistribution')}</CardTitle>
+        <CardTitle>{t('analytics.charts.firmwareDistribution')}</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (

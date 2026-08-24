@@ -15,7 +15,7 @@ import { RecentActivityTable } from './recent-activity-table'
 export function OTAAnalytics() {
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useOTAAnalytics()
-  const { t, i18n } = useTranslation('operationsMonitoring')
+  const { t, i18n } = useTranslation('ota')
   const locale = i18n.language?.startsWith('zh') ? zhCN : enUS
 
   if (isError) {
@@ -26,12 +26,12 @@ export function OTAAnalytics() {
             <div className='flex flex-col items-center gap-2 text-center'>
               <AlertTriangle className='h-10 w-10 text-destructive' />
               <h3 className='text-lg font-semibold'>
-                {t('ota.analytics.title')}
+                {t('analytics.title')}
               </h3>
               <p className='text-sm text-muted-foreground'>
                 {error instanceof Error
                   ? error.message
-                  : t('ota.analytics.errorFallback')}
+                  : t('analytics.errorFallback')}
               </p>
             </div>
             <Button
@@ -61,16 +61,16 @@ export function OTAAnalytics() {
       <div className='flex flex-wrap items-end justify-between gap-3'>
         <div>
           <h1 className='text-2xl font-semibold tracking-tight'>
-            {t('ota.analytics.title')}
+            {t('analytics.title')}
           </h1>
           <p className='mt-1 text-sm text-muted-foreground'>
-            {t('ota.analytics.subtitle')}
+            {t('analytics.subtitle')}
           </p>
         </div>
         <div className='flex items-center gap-3'>
           {lastUpdated && (
             <span className='text-xs text-muted-foreground tabular-nums'>
-              {t('ota.analytics.lastUpdated', { time: lastUpdated })}
+              {t('analytics.lastUpdated', { time: lastUpdated })}
             </span>
           )}
           <Button

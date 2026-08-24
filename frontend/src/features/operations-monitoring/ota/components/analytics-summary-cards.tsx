@@ -12,32 +12,32 @@ export function AnalyticsSummaryCards({
   summary,
   isLoading,
 }: AnalyticsSummaryCardsProps) {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
 
   const cards = [
     {
-      title: t('ota.analytics.summary.totalPackages'),
+      title: t('analytics.summary.totalPackages'),
       value: summary.totalPackages,
       icon: Package,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
     {
-      title: t('ota.analytics.summary.activeDeployments'),
+      title: t('analytics.summary.activeDeployments'),
       value: summary.activeDeployments,
       icon: Upload,
       color: 'text-amber-600',
       bgColor: 'bg-amber-100',
     },
     {
-      title: t('ota.analytics.summary.successRate'),
+      title: t('analytics.summary.successRate'),
       value: `${summary.successRate}%`,
       icon: CheckCircle2,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
-      title: t('ota.analytics.summary.failedDeployments'),
+      title: t('analytics.summary.failedDeployments'),
       value: summary.failedDeployments,
       icon: XCircle,
       color: 'text-red-600',

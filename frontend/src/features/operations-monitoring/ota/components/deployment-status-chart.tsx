@@ -50,23 +50,23 @@ export function DeploymentStatusChart({
   data,
   isLoading,
 }: DeploymentStatusChartProps) {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
 
   const chartData = data.map((item) => ({
-    name: t(`ota.analytics.deploymentStatus.${item.status}`),
+    name: t(`analytics.deploymentStatus.${item.status}`),
     value: item.count,
     percentage: item.percentage,
     fill: STATUS_TOKEN[item.status],
   }))
 
   const total = chartData.reduce((acc, c) => acc + c.value, 0)
-  const successItem = chartData.find((c) => c.name === t('ota.analytics.deploymentStatus.success'))
+  const successItem = chartData.find((c) => c.name === t('analytics.deploymentStatus.success'))
   const successRate = successItem?.percentage ?? 0
 
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>{t('ota.analytics.charts.deploymentStatus')}</CardTitle>
+        <CardTitle>{t('analytics.charts.deploymentStatus')}</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -103,7 +103,7 @@ export function DeploymentStatusChart({
                 </span>
               </span>
               <span className='text-xs text-muted-foreground'>
-                {t('ota.analytics.deploymentStatus.success')} ·{' '}
+                {t('analytics.deploymentStatus.success')} ·{' '}
                 <span className='tabular-nums'>{total}</span>
               </span>
             </div>

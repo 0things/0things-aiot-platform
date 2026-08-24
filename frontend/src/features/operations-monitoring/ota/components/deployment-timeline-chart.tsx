@@ -43,21 +43,21 @@ function TimelineTooltip({
       <div className='flex items-center gap-2'>
         <span className='h-2 w-2 rounded-full bg-chart-1' />
         <span className='text-muted-foreground'>
-          {t('ota.analytics.timeline.deployments')}
+          {t('analytics.timeline.deployments')}
         </span>
         <span className='ml-auto tabular-nums'>{row.deployments}</span>
       </div>
       <div className='flex items-center gap-2'>
         <span className='h-2 w-2 rounded-full bg-chart-2' />
         <span className='text-muted-foreground'>
-          {t('ota.analytics.timeline.successes')}
+          {t('analytics.timeline.successes')}
         </span>
         <span className='ml-auto tabular-nums'>{row.successes}</span>
       </div>
       <div className='flex items-center gap-2'>
         <span className='h-2 w-2 rounded-full bg-chart-5' />
         <span className='text-muted-foreground'>
-          {t('ota.analytics.timeline.failures')}
+          {t('analytics.timeline.failures')}
         </span>
         <span className='ml-auto tabular-nums'>{row.failures}</span>
       </div>
@@ -69,7 +69,7 @@ export function DeploymentTimelineChart({
   data,
   isLoading,
 }: DeploymentTimelineChartProps) {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
 
   const chartData: TimelineRow[] = data.map((item) => ({
     date: new Date(item.date).toLocaleDateString('en-US', {
@@ -88,17 +88,17 @@ export function DeploymentTimelineChart({
   }> = [
     {
       key: 'deployments',
-      label: t('ota.analytics.timeline.deployments'),
+      label: t('analytics.timeline.deployments'),
       token: 'var(--chart-1)',
     },
     {
       key: 'successes',
-      label: t('ota.analytics.timeline.successes'),
+      label: t('analytics.timeline.successes'),
       token: 'var(--chart-2)',
     },
     {
       key: 'failures',
-      label: t('ota.analytics.timeline.failures'),
+      label: t('analytics.timeline.failures'),
       token: 'var(--chart-5)',
     },
   ]
@@ -106,7 +106,7 @@ export function DeploymentTimelineChart({
   return (
     <Card className='h-full'>
       <CardHeader className='flex flex-row items-center justify-between space-y-0'>
-        <CardTitle>{t('ota.analytics.charts.deploymentTimeline')}</CardTitle>
+        <CardTitle>{t('analytics.charts.deploymentTimeline')}</CardTitle>
         <div className='flex items-center gap-3 text-xs text-muted-foreground'>
           {series.map((s) => (
             <span key={s.key} className='flex items-center gap-1.5'>

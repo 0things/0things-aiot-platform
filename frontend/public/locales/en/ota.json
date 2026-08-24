@@ -1,0 +1,292 @@
+{
+  "title": "OTA Upgrade",
+  "tabs": {
+    "packages": "Upgrade Packages",
+    "analytics": "Data Analysis"
+  },
+  "packageList": {
+    "title": "OTA Packages",
+    "description": "Manage firmware and software upgrade packages.",
+    "columns": {
+      "packageName": "Package Name",
+      "version": "Version",
+      "packageType": "Package Type",
+      "productName": "Product Name",
+      "moduleName": "Module Name",
+      "createdAt": "Created"
+    },
+    "filters": {
+      "allPackages": "All Packages",
+      "upgradePackages": "Upgrade Packages",
+      "securityPackages": "Security Patches",
+      "patchPackages": "Patches",
+      "allProducts": "All Products",
+      "allModules": "All Modules",
+      "searchPlaceholder": "Search package name..."
+    },
+    "packageTypes": {
+      "upgrade": "Upgrade",
+      "security": "Security",
+      "patch": "Patch",
+      "firmware": "Firmware",
+      "config": "Config",
+      "full": "Full"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "deploying": "Deploying",
+      "success": "Success",
+      "partial": "Partial",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "released": "Released",
+      "archived": "Archived"
+    },
+    "actions": {
+      "create": "Create Package",
+      "deploy": "Deploy",
+      "cancel": "Cancel Deployment",
+      "viewDetails": "View Details",
+      "bulkDelete": "Delete Selected"
+    },
+    "emptyState": {
+      "title": "No upgrade packages",
+      "description": "Get started by creating your first upgrade package.",
+      "action": "Create Package"
+    }
+  },
+  "packageForm": {
+    "create": {
+      "title": "Create Upgrade Package",
+      "description": "Upload a new firmware or software upgrade package."
+    },
+    "edit": {
+      "title": "Edit Upgrade Package",
+      "description": "Update upgrade package details."
+    },
+    "fields": {
+      "packageName": "Package Name",
+      "packageNamePlaceholder": "e.g., firmware-v2.0.0",
+      "version": "Version",
+      "versionPlaceholder": "e.g., 2.0.0 or 2.0.0.1",
+      "packageType": "Package Type",
+      "packageTypePlaceholder": "Select package type",
+      "productName": "Product Name",
+      "productNamePlaceholder": "Select product",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe what this upgrade includes...",
+      "uploadMethod": "Upload Method",
+      "uploadBinaryFile": "Upload binary file",
+      "useExternalUrl": "Use external URL",
+      "file": "Upgrade File",
+      "filePlaceholder": "Upload package file (max 100MB)",
+      "externalUrl": "External URL",
+      "externalUrlPlaceholder": "https://example.com/firmware.bin"
+    },
+    "validation": {
+      "packageNameRequired": "Package name is required",
+      "versionRequired": "Version is required",
+      "versionInvalid": "Version must follow semantic versioning (e.g., 1.0.0 or 1.0.0.0)",
+      "packageTypeRequired": "Package type is required",
+      "productNameRequired": "Product name is required",
+      "fileOrUrlRequired": "Please upload a file or provide an external URL",
+      "fileTooLarge": "File size must be less than 100MB",
+      "invalidUrl": "Please provide a valid URL"
+    },
+    "submit": "Create Package",
+    "update": "Update Package"
+  },
+  "deployForm": {
+    "title": "Deploy Upgrade Package",
+    "description": "Configure and deploy upgrade to target devices.",
+    "fields": {
+      "targetDevices": "Target Devices",
+      "allDevices": "All Devices",
+      "specificDevices": "Specific Devices",
+      "schedule": "Schedule",
+      "immediate": "Immediate",
+      "scheduled": "Scheduled",
+      "scheduleTime": "Schedule Time",
+      "estimatedDevices": "Estimated Devices"
+    },
+    "confirmation": {
+      "title": "Confirm Deployment",
+      "message": "Are you sure you want to deploy this package to {{count}} devices?",
+      "warning": "This action cannot be undone."
+    },
+    "submit": "Deploy Now"
+  },
+  "deleteDialog": {
+    "title": "Delete Upgrade Package",
+    "description": "Are you sure you want to delete \"{{packageName}}\"?",
+    "warning": "This action cannot be undone."
+  },
+  "viewDialog": {
+    "title": "Package Details",
+    "description": "View detailed information about the upgrade package.",
+    "sections": {
+      "basicInfo": "Basic Information",
+      "fileInfo": "File Information",
+      "deploymentStats": "Deployment Statistics",
+      "timestamps": "Timestamps"
+    },
+    "fields": {
+      "fileSize": "File Size",
+      "checksum": "Checksum",
+      "fileUrl": "File URL",
+      "targetDeviceCount": "Target Devices",
+      "successCount": "Successes",
+      "failureCount": "Failures",
+      "deploymentProgress": "Progress",
+      "deployedAt": "Deployed At",
+      "createdBy": "Created By"
+    }
+  },
+  "packageDetail": {
+    "loading": "Loading...",
+    "unknownPackage": "Unknown package",
+    "version": "Version: {{version}}",
+    "type": "Type",
+    "error": "Error",
+    "lastUpdated": {
+      "label": "Last updated: {{time}}",
+      "justNow": "Just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago"
+    },
+    "statistics": {
+      "targetDevices": "Target Devices",
+      "successful": "Successful",
+      "failed": "Failed",
+      "inProgress": "In Progress"
+    },
+    "tabs": {
+      "batches": "Batch Management",
+      "devices": "Device List",
+      "info": "Package Info"
+    },
+    "columns": {
+      "batchId": "Batch ID",
+      "batchName": "Batch Name",
+      "type": "Type",
+      "strategy": "Strategy",
+      "devices": "Devices",
+      "device": "Device",
+      "product": "Product",
+      "version": "Version",
+      "lastUpdated": "Last Updated"
+    },
+    "filters": {
+      "allStatus": "All Status"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "in_progress": "In Progress",
+      "success": "Success",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "batchTypes": {
+      "manual": "Manual",
+      "automatic": "Automatic"
+    },
+    "strategies": {
+      "immediate": "Immediate",
+      "scheduled": "Scheduled"
+    },
+    "errors": {
+      "loadPackage": {
+        "title": "Failed to load package details",
+        "description": "The OTA package could not be loaded. Please check the package ID and try again."
+      },
+      "loadBatches": {
+        "title": "Failed to load batches",
+        "description": "Could not load upgrade batches. Please try again."
+      },
+      "loadDevices": {
+        "title": "Failed to load devices",
+        "description": "Could not load device deployment status. Please try again."
+      }
+    },
+    "emptyBatches": "No batches found",
+    "emptyDevices": "No devices found",
+    "notUpdated": "Not updated",
+    "pagination": "Page {{current}} of {{total}}",
+    "previous": "Previous",
+    "retry": "Retry",
+    "sections": {
+      "basicInformation": "Basic Information",
+      "fileInformation": "File Information",
+      "descriptionAndNotes": "Description & Notes"
+    },
+    "fields": {
+      "checksum": "Checksum (SHA256)",
+      "releaseNotes": "Release Notes"
+    },
+    "emptyDescription": "No description provided",
+    "emptyReleaseNotes": "No release notes provided"
+  },
+  "analytics": {
+    "title": "Upgrade Analytics",
+    "subtitle": "Real-time view of package deployment, success rates and fleet distribution.",
+    "errorFallback": "An error occurred while loading analytics data. Please try again.",
+    "lastUpdated": "Last updated: {{time}}",
+    "summary": {
+      "totalPackages": "Total Packages",
+      "activeDeployments": "Active Deployments",
+      "successRate": "Success Rate",
+      "failedDeployments": "Failed Deployments"
+    },
+    "deploymentStatus": {
+      "success": "Success",
+      "failed": "Failed",
+      "in_progress": "In Progress"
+    },
+    "timeline": {
+      "deployments": "Deployments",
+      "successes": "Successes",
+      "failures": "Failures"
+    },
+    "actions": {
+      "created": "Created",
+      "deployed": "Deployed",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "statuses": {
+      "success": "Success",
+      "failed": "Failed",
+      "in_progress": "In Progress",
+      "pending": "Pending"
+    },
+    "charts": {
+      "deploymentStatus": "Deployment Status Distribution",
+      "deploymentTimeline": "Deployment Timeline (Last 30 Days)",
+      "firmwareDistribution": "Firmware Version Distribution"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "packageName": "Package Name",
+      "version": "Version",
+      "action": "Action",
+      "productName": "Product Name",
+      "status": "Status",
+      "time": "Time",
+      "noData": "No recent activity"
+    },
+    "export": {
+      "exportData": "Export Data",
+      "downloadChart": "Download Chart"
+    }
+  },
+  "notifications": {
+    "packageCreated": "Package created successfully",
+    "packageUpdated": "Package updated successfully",
+    "packageDeleted": "Package deleted successfully",
+    "deploymentStarted": "Deployment started successfully",
+    "deploymentCancelled": "Deployment cancelled",
+    "error": "An error occurred. Please try again."
+  }
+}

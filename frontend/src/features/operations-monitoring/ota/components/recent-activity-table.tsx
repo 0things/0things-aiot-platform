@@ -32,13 +32,13 @@ export function RecentActivityTable({
   data,
   isLoading,
 }: RecentActivityTableProps) {
-  const { t, i18n } = useTranslation('operationsMonitoring')
+  const { t, i18n } = useTranslation('ota')
   const locale = i18n.language?.startsWith('zh') ? zhCN : enUS
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('ota.analytics.recentActivity.title')}</CardTitle>
+        <CardTitle>{t('analytics.recentActivity.title')}</CardTitle>
       </CardHeader>
       <CardContent className='px-0 pt-0'>
         {isLoading ? (
@@ -49,29 +49,29 @@ export function RecentActivityTable({
           </div>
         ) : data.length === 0 ? (
           <div className='px-6 pb-6 pt-2 text-sm text-muted-foreground'>
-            {t('ota.analytics.recentActivity.noData')}
+            {t('analytics.recentActivity.noData')}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow className='hover:bg-transparent'>
                 <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
-                  {t('ota.analytics.recentActivity.packageName')}
+                  {t('analytics.recentActivity.packageName')}
                 </TableHead>
                 <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
-                  {t('ota.analytics.recentActivity.version')}
+                  {t('analytics.recentActivity.version')}
                 </TableHead>
                 <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
-                  {t('ota.analytics.recentActivity.action')}
+                  {t('analytics.recentActivity.action')}
                 </TableHead>
                 <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
-                  {t('ota.analytics.recentActivity.productName')}
+                  {t('analytics.recentActivity.productName')}
                 </TableHead>
                 <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
-                  {t('ota.analytics.recentActivity.status')}
+                  {t('analytics.recentActivity.status')}
                 </TableHead>
                 <TableHead className='text-right text-xs uppercase tracking-wide text-muted-foreground'>
-                  {t('ota.analytics.recentActivity.time')}
+                  {t('analytics.recentActivity.time')}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -84,7 +84,7 @@ export function RecentActivityTable({
                   </TableCell>
                   <TableCell>
                     <Badge variant='outline' className='font-normal'>
-                      {t(`ota.analytics.actions.${item.action}` as const)}
+                      {t(`analytics.actions.${item.action}` as const)}
                     </Badge>
                   </TableCell>
                   <TableCell className='text-muted-foreground'>
@@ -92,7 +92,7 @@ export function RecentActivityTable({
                   </TableCell>
                   <TableCell>
                     <Badge variant={STATUS_VARIANT[item.status as StatusKey]}>
-                      {t(`ota.analytics.statuses.${item.status}` as const)}
+                      {t(`analytics.statuses.${item.status}` as const)}
                     </Badge>
                   </TableCell>
                   <TableCell className='text-right font-mono text-xs tabular-nums text-muted-foreground'>
