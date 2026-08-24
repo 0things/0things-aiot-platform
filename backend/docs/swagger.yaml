@@ -370,12 +370,12 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-MessageParserGetProductMessageParserResponse:
+  ApiResponse-MessageParserProductMessageParser:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/MessageParserGetProductMessageParserResponse'
+        $ref: '#/definitions/MessageParserProductMessageParser'
       message:
         type: string
     type: object
@@ -1014,11 +1014,6 @@ definitions:
       rawData:
         type: string
     type: object
-  MessageParserGetProductMessageParserResponse:
-    properties:
-      parser:
-        $ref: '#/definitions/MessageParserProductMessageParser'
-    type: object
   MessageParserProductMessageParser:
     properties:
       isDefault:
@@ -1028,8 +1023,6 @@ definitions:
       productKey:
         type: string
       script:
-        type: string
-      updatedAt:
         type: string
     type: object
   MessageParserUpsertProductMessageParserRequest:
@@ -1074,6 +1067,15 @@ definitions:
     properties:
       otaPackage:
         $ref: '#/definitions/OtaOTAPackage'
+    type: object
+  OtaDeployOTAPackageRequest:
+    properties:
+      deviceKeys:
+        items:
+          type: string
+        type: array
+    required:
+    - deviceKeys
     type: object
   OtaDeviceDeployment:
     properties:
@@ -1204,6 +1206,16 @@ definitions:
         type: string
     required:
     - packageName
+    type: object
+  OtaReportOTAStatusRequest:
+    properties:
+      deviceKey:
+        type: string
+      status:
+        type: string
+    required:
+    - deviceKey
+    - status
     type: object
   OtaSuccessResponse:
     properties:
@@ -2492,11 +2504,40 @@ paths:
       summary: 更新 OTA 升级包
       tags:
       - OTA 模块
-  /ota-packages/{id}/batches:
-    get:
+  /ota-packages/{id}/deploy:
+    post:
       consumes:
       - application/json
-      description: 获取指定 OTA 升级包下的升级批次
+      description: 将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying
+      parameters:
+      - description: 升级包 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 目标设备 deviceKey 列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/OtaDeployOTAPackageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-OtaSuccessResponse'
+      security:
+      - Bearer: []
+      summary: 部署 OTA 升级包
+      tags:
+      - OTA 模块
+  /ota-packages/{id}/dispatch:
+    post:
+      consumes:
+      - application/json
+      description: 将升级包下所有 pending 的设备升级记录推进为 in_progress；周期性下发任务会自动执行，此接口用于手动触发
       parameters:
       - description: 升级包 ID
         in: path
@@ -2509,23 +2550,75 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse-OtaListUpgradeBatchesResponse'
+            $ref: '#/definitions/ApiResponse-OtaSuccessResponse'
       security:
       - Bearer: []
-      summary: 获取 OTA 升级批次列表
+      summary: 触发 OTA 升级包下发
       tags:
       - OTA 模块
-  /ota-packages/{id}/device-deployments:
-    get:
+  /ota-packages/{id}/report:
+    post:
       consumes:
       - application/json
-      description: 分页获取指定升级包下的设备部署记录
+      description: 设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态
       parameters:
       - description: 升级包 ID
         in: path
         name: id
         required: true
         type: integer
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/OtaReportOTAStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-OtaSuccessResponse'
+      security:
+      - Bearer: []
+      summary: 上报设备 OTA 升级结果
+      tags:
+      - OTA 模块
+  /ota-packages/{packageName}/batches:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定 OTA 升级包下的升级批次
+      parameters:
+      - description: 升级包名称
+        in: path
+        name: packageName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-OtaListUpgradeBatchesResponse'
+      security:
+      - Bearer: []
+      summary: 获取 OTA 升级批次列表
+      tags:
+      - OTA 模块
+  /ota-packages/{packageName}/device-deployments:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取指定升级包下的设备部署记录
+      parameters:
+      - description: 升级包名称
+        in: path
+        name: packageName
+        required: true
+        type: string
       - description: 页码
         in: query
         name: page
@@ -2550,17 +2643,17 @@ paths:
       summary: 获取 OTA 设备部署列表
       tags:
       - OTA 模块
-  /ota-packages/{id}/upgrade-statistics:
+  /ota-packages/{packageName}/upgrade-statistics:
     get:
       consumes:
       - application/json
       description: 获取指定 OTA 升级包的升级统计数据
       parameters:
-      - description: 升级包 ID
+      - description: 升级包名称
         in: path
-        name: id
+        name: packageName
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -2871,7 +2964,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse-MessageParserGetProductMessageParserResponse'
+            $ref: '#/definitions/ApiResponse-MessageParserProductMessageParser'
       security:
       - Bearer: []
       summary: 获取产品消息解析器
@@ -2899,7 +2992,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse-MessageParserGetProductMessageParserResponse'
+            $ref: '#/definitions/ApiResponse-MessageParserProductMessageParser'
       security:
       - Bearer: []
       summary: 保存产品消息解析器

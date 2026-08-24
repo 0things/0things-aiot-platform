@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"strconv"
 
 	"aiot-backend/internal/model"
@@ -15,6 +16,9 @@ type OTAServiceInterface interface {
 	Update(ctx context.Context, pkg *model.OTAPackage) error
 	Delete(ctx context.Context, id int64) error
 	Deploy(ctx context.Context, packageID int64, deviceKeys []string) (int, error)
+	Dispatch(ctx context.Context, packageID int64) (int64, error)
+	DispatchAll(ctx context.Context) (int64, error)
+	ReportStatus(ctx context.Context, packageID int64, deviceKey string, status string) error
 	Statistics(ctx context.Context, packageName string) (UpgradeStatistics, error)
 	Batches(ctx context.Context, packageName string) ([]model.UpgradeBatch, error)
 	Deployments(ctx context.Context, packageName string, page, size int, status string) ([]model.DeviceDeployment, int64, error)
@@ -95,6 +99,88 @@ func (s *OTAService) Deploy(ctx context.Context, packageID int64, deviceKeys []s
 		return count, err
 	}
 	return count, nil
+}
+
+// Dispatch 将指定升级包下所有 pending 的设备升级记录推进为 in_progress（下发命令），
+// 并确保升级包处于 deploying 状态。返回受影响的设备数量。
+func (s *OTAService) Dispatch(ctx context.Context, packageID int64) (int64, error) {
+	if _, err := s.repo.Find(ctx, packageID); err != nil {
+		return 0, err
+	}
+	affected, err := s.repo.DispatchPending(ctx, packageID)
+	if err != nil {
+		return 0, err
+	}
+	pkg, err := s.repo.Find(ctx, packageID)
+	if err != nil {
+		return affected, err
+	}
+	if pkg.Status != "deploying" {
+		pkg.Status = "deploying"
+		if err := s.repo.Save(ctx, pkg); err != nil {
+			return affected, err
+		}
+	}
+	return affected, nil
+}
+
+// DispatchAll 扫描所有仍有 pending 记录的升级包并批量下发。返回受影响设备总数。
+func (s *OTAService) DispatchAll(ctx context.Context) (int64, error) {
+	pkgIDs, err := s.repo.PendingPackageIDs(ctx)
+	if err != nil {
+		return 0, err
+	}
+	var total int64
+	for _, id := range pkgIDs {
+		n, err := s.Dispatch(ctx, id)
+		if err != nil {
+			return total, err
+		}
+		total += n
+	}
+	return total, nil
+}
+
+// ReportStatus 上报某台设备对指定升级包的升级结果（in_progress/success/failed），
+// 更新设备升级记录并重新聚合升级包状态。
+func (s *OTAService) ReportStatus(ctx context.Context, packageID int64, deviceKey string, status string) error {
+	if status != "in_progress" && status != "success" && status != "failed" {
+		return errors.New("invalid upgrade status: " + status)
+	}
+	device, err := s.deviceRepo.FindByKey(ctx, deviceKey)
+	if err != nil {
+		return err
+	}
+	if err := s.repo.UpdateDeviceStatus(ctx, packageID, device.ID, status, ""); err != nil {
+		return err
+	}
+	return s.recomputePackageStatus(ctx, packageID)
+}
+
+// recomputePackageStatus 根据设备升级记录聚合升级包状态：
+// 仍有 pending/in_progress 时保持 deploying；全部成功为 success；
+// 全部失败为 failed；部分成功部分失败为 partial。
+func (s *OTAService) recomputePackageStatus(ctx context.Context, packageID int64) error {
+	counts, err := s.repo.Statistics(ctx, packageID)
+	if err != nil {
+		return err
+	}
+	if counts.Pending > 0 || counts.InProgress > 0 {
+		return nil
+	}
+	pkg, err := s.repo.Find(ctx, packageID)
+	if err != nil {
+		return err
+	}
+	switch {
+	case counts.Failed == 0:
+		pkg.Status = "success"
+	case counts.Success == 0:
+		pkg.Status = "failed"
+	default:
+		pkg.Status = "partial"
+	}
+	return s.repo.Save(ctx, pkg)
 }
 
 func (s *OTAService) Statistics(ctx context.Context, packageName string) (UpgradeStatistics, error) {

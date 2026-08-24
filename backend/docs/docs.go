@@ -1639,7 +1639,136 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/batches": {
+        "/ota-packages/{id}/deploy": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "部署 OTA 升级包",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "目标设备 deviceKey 列表",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OtaDeployOTAPackageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota-packages/{id}/dispatch": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "将升级包下所有 pending 的设备升级记录推进为 in_progress；周期性下发任务会自动执行，此接口用于手动触发",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "触发 OTA 升级包下发",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota-packages/{id}/report": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "上报设备 OTA 升级结果",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OtaReportOTAStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota-packages/{packageName}/batches": {
             "get": {
                 "security": [
                     {
@@ -1659,9 +1788,9 @@ const docTemplate = `{
                 "summary": "获取 OTA 升级批次列表",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包名称",
+                        "name": "packageName",
                         "in": "path",
                         "required": true
                     }
@@ -1676,7 +1805,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/device-deployments": {
+        "/ota-packages/{packageName}/device-deployments": {
             "get": {
                 "security": [
                     {
@@ -1696,9 +1825,9 @@ const docTemplate = `{
                 "summary": "获取 OTA 设备部署列表",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包名称",
+                        "name": "packageName",
                         "in": "path",
                         "required": true
                     },
@@ -1731,7 +1860,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/upgrade-statistics": {
+        "/ota-packages/{packageName}/upgrade-statistics": {
             "get": {
                 "security": [
                     {
@@ -1751,9 +1880,9 @@ const docTemplate = `{
                 "summary": "获取 OTA 升级统计",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包名称",
+                        "name": "packageName",
                         "in": "path",
                         "required": true
                     }
@@ -1977,7 +2106,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-MessageParserGetProductMessageParserResponse"
+                            "$ref": "#/definitions/ApiResponse-MessageParserProductMessageParser"
                         }
                     }
                 }
@@ -2021,7 +2150,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-MessageParserGetProductMessageParserResponse"
+                            "$ref": "#/definitions/ApiResponse-MessageParserProductMessageParser"
                         }
                     }
                 }
@@ -3345,14 +3474,14 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-MessageParserGetProductMessageParserResponse": {
+        "ApiResponse-MessageParserProductMessageParser": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/MessageParserGetProductMessageParserResponse"
+                    "$ref": "#/definitions/MessageParserProductMessageParser"
                 },
                 "message": {
                     "type": "string"
@@ -4338,14 +4467,6 @@ const docTemplate = `{
                 }
             }
         },
-        "MessageParserGetProductMessageParserResponse": {
-            "type": "object",
-            "properties": {
-                "parser": {
-                    "$ref": "#/definitions/MessageParserProductMessageParser"
-                }
-            }
-        },
         "MessageParserProductMessageParser": {
             "type": "object",
             "properties": {
@@ -4359,9 +4480,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "script": {
-                    "type": "string"
-                },
-                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -4428,6 +4546,20 @@ const docTemplate = `{
             "properties": {
                 "otaPackage": {
                     "$ref": "#/definitions/OtaOTAPackage"
+                }
+            }
+        },
+        "OtaDeployOTAPackageRequest": {
+            "type": "object",
+            "required": [
+                "deviceKeys"
+            ],
+            "properties": {
+                "deviceKeys": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -4626,6 +4758,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "OtaReportOTAStatusRequest": {
+            "type": "object",
+            "required": [
+                "deviceKey",
+                "status"
+            ],
+            "properties": {
+                "deviceKey": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

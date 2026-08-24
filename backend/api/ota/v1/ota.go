@@ -37,6 +37,11 @@ type DeployOTAPackageRequest struct {
 	DeviceKeys []string `json:"deviceKeys" binding:"required"`
 }//@name OtaDeployOTAPackageRequest
 
+type ReportOTAStatusRequest struct {
+	DeviceKey string `json:"deviceKey" binding:"required"`
+	Status    string `json:"status" binding:"required"`
+}//@name OtaReportOTAStatusRequest
+
 type SuccessResponse struct {
 	Success bool `json:"success"`
 }//@name OtaSuccessResponse

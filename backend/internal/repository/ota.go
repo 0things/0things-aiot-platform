@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strconv"
+	"time"
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
@@ -182,13 +183,15 @@ func (r *OTARepository) CreateDeployments(ctx context.Context, packageID int64, 
 			if status != "pending" {
 				toUpdate = append(toUpdate, deviceID)
 			}
-		} else {
-			toInsert = append(toInsert, model.DeviceUpgradeStatus{
-				DeviceID:     deviceID,
-				OTAPackageID: pkgID,
-				Status:       "pending",
-			})
-		}
+	} else {
+		now := time.Now().UnixMilli()
+		toInsert = append(toInsert, model.DeviceUpgradeStatus{
+			DeviceID:             deviceID,
+			OTAPackageID:         pkgID,
+			Status:               "pending",
+			LastStatusChangeTime: &now,
+		})
+	}
 	}
 
 	if len(toUpdate) > 0 {
@@ -204,4 +207,53 @@ func (r *OTARepository) CreateDeployments(ctx context.Context, packageID int64, 
 		}
 	}
 	return len(deviceIDs), nil
+}
+
+// DispatchPending 将指定升级包下所有 pending 的设备升级记录推进为 in_progress，
+// 代表升级命令已下发（设备侧开始升级）。返回受影响的记录数。
+func (r *OTARepository) DispatchPending(ctx context.Context, packageID int64) (int64, error) {
+	res := r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
+		Where("ota_package_id = ? AND status = ?", strconv.FormatInt(packageID, 10), "pending").
+		Updates(map[string]interface{}{
+			"status":                  "in_progress",
+			"last_status_change_time": time.Now().UnixMilli(),
+		})
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return res.RowsAffected, nil
+}
+
+// UpdateDeviceStatus 更新单台设备的升级状态（及可选的当前版本）。
+func (r *OTARepository) UpdateDeviceStatus(ctx context.Context, packageID, deviceID int64, status, currentVersion string) error {
+	updates := map[string]interface{}{
+		"status":                  status,
+		"last_status_change_time": time.Now().UnixMilli(),
+	}
+	if currentVersion != "" {
+		updates["current_version"] = currentVersion
+	}
+	return r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
+		Where("ota_package_id = ? AND device_id = ?", strconv.FormatInt(packageID, 10), deviceID).
+		Updates(updates).Error
+}
+
+// PendingPackageIDs 返回当前仍有 pending 设备升级记录的升级包 ID 列表。
+func (r *OTARepository) PendingPackageIDs(ctx context.Context) ([]int64, error) {
+	var ids []string
+	if err := r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
+		Where("status = ?", "pending").
+		Distinct("ota_package_id").
+		Pluck("ota_package_id", &ids).Error; err != nil {
+		return nil, err
+	}
+	result := make([]int64, 0, len(ids))
+	for _, s := range ids {
+		id, err := strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			continue
+		}
+		result = append(result, id)
+	}
+	return result, nil
 }

@@ -10,6 +10,8 @@ func InitOTARouter(deps RouterDeps, r *gin.RouterGroup) {
 	r.PUT("/ota-packages/:id", ota.UpdateOTA)
 	r.DELETE("/ota-packages/:id", ota.DeleteOTA)
 	r.POST("/ota-packages/:id/deploy", ota.DeployOTA)
+	r.POST("/ota-packages/:id/dispatch", ota.DispatchOTA)
+	r.POST("/ota-packages/:id/report", ota.ReportOTAStatus)
 	r.GET("/ota-packages/:id/upgrade-statistics", ota.OTAStats)
 	r.GET("/ota-packages/:id/batches", ota.OTABatches)
 	r.GET("/ota-packages/:id/device-deployments", ota.OTADeployments)
