@@ -37,11 +37,19 @@ func HandleError(ctx *gin.Context, httpCode int, err error, data interface{}) {
 	if data == nil {
 		data = map[string]string{}
 	}
-	resp := ApiResponse[any]{Code: errorCodeMap[err], Message: err.Error(), Data: data}
-	if _, ok := errorCodeMap[err]; !ok {
-		resp = ApiResponse[any]{Code: 500, Message: "unknown error", Data: data}
+	code := codeForError(err)
+	ctx.JSON(httpCode, ApiResponse[any]{Code: code, Message: err.Error(), Data: data})
+}
+
+// codeForError resolves the registered HTTP code for a sentinel error. Some
+// errors (e.g. validator.ValidationErrors) are not hashable, so the map lookup
+// is guarded to avoid a panic on invalid request payloads.
+func codeForError(err error) int {
+	defer func() { _ = recover() }()
+	if code, ok := errorCodeMap[err]; ok {
+		return code
 	}
-	ctx.JSON(httpCode, resp)
+	return 500
 }
 
 type Error struct {
