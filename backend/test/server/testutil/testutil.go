@@ -41,10 +41,10 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 
 func SeedTestData(t *testing.T, db *gorm.DB) {
 	t.Helper()
-	product := &model.Product{ID: 1, ProductKey: "P001", Name: "Test Product", TenantID: 1}
+	product := &model.Product{ID: 1, ProductKey: "P001", Name: "Test Product", OrganizationID: 1}
 	db.Create(product)
 
-	device := &model.Device{ID: 1, DeviceKey: "D001", Name: "Test Device", ProductID: 1, TenantID: 1, Enabled: true}
+	device := &model.Device{ID: 1, DeviceKey: "D001", Name: "Test Device", ProductID: 1, OrganizationID: 1, Enabled: true}
 	db.Create(device)
 
 	db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"})
@@ -97,6 +97,6 @@ func NewTestProductTSLService(db *gorm.DB) *service.ProductTSLService {
 	return service.NewProductTSLService(productRepo, tslRepo)
 }
 
-func ContextWithTenant(ctx context.Context, tenantID int64) context.Context {
-	return context.WithValue(ctx, "tenant_id", tenantID)
+func ContextWithTenant(ctx context.Context, organizationID int64) context.Context {
+	return context.WithValue(ctx, "organization_id", organizationID)
 }

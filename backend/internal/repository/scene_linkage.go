@@ -23,7 +23,7 @@ func (r *SceneLinkageRepository) DB(ctx context.Context) *gorm.DB {
 
 func (r *SceneLinkageRepository) Find(ctx context.Context, id int64) (*model.SceneLinkage, error) {
 	q := useIoTQuery(r.db)
-	scene, err := q.SceneLinkage.WithContext(ctx).Where(q.SceneLinkage.ID.Eq(id), q.SceneLinkage.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+	scene, err := q.SceneLinkage.WithContext(ctx).Where(q.SceneLinkage.ID.Eq(id), q.SceneLinkage.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -35,7 +35,7 @@ func (r *SceneLinkageRepository) Find(ctx context.Context, id int64) (*model.Sce
 
 func (r *SceneLinkageRepository) List(ctx context.Context, page, size int, search string, enable int) ([]model.SceneLinkage, int64, error) {
 	q := useIoTQuery(r.db)
-	scenes := q.SceneLinkage.WithContext(ctx).Where(q.SceneLinkage.TenantID.Eq(tenant.GetTenantID(ctx)))
+	scenes := q.SceneLinkage.WithContext(ctx).Where(q.SceneLinkage.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
 	if search != "" {
 		scenes = scenes.Where(q.SceneLinkage.Name.Like("%" + search + "%"))
 	}
@@ -54,7 +54,7 @@ func (r *SceneLinkageRepository) List(ctx context.Context, page, size int, searc
 }
 
 func (r *SceneLinkageRepository) Create(ctx context.Context, scene *model.SceneLinkage) error {
-	scene.TenantID = tenant.GetTenantID(ctx)
+	scene.OrganizationID = tenant.GetOrganizationID(ctx)
 	return useIoTQuery(r.db).SceneLinkage.WithContext(ctx).Create(scene)
 }
 

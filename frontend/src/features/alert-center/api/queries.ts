@@ -10,7 +10,7 @@ export type AlertStatus = 'open' | 'acknowledged' | 'resolved' | 'snoozed'
 
 export type Alert = {
   id: string
-  tenantId: string
+  organizationId: string
   ruleId: string
   ruleName?: string
   deviceKey: string

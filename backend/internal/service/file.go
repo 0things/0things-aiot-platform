@@ -81,5 +81,5 @@ func (s *FileService) otaObjectKey(ctx context.Context, filename string) string 
 		prefix = "ota"
 	}
 	extension := strings.ToLower(filepath.Ext(filename))
-	return path.Join(prefix, time.Now().UTC().Format("2006/01/02"), fmt.Sprintf("%d", tenant.GetTenantID(ctx)), uuid.NewString()+extension)
+	return path.Join(prefix, time.Now().UTC().Format("2006/01/02"), fmt.Sprintf("%d", tenant.GetOrganizationID(ctx)), uuid.NewString()+extension)
 }

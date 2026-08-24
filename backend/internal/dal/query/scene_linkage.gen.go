@@ -28,7 +28,7 @@ func newSceneLinkage(db *gorm.DB, opts ...gen.DOOption) sceneLinkage {
 	tableName := _sceneLinkage.sceneLinkageDo.TableName()
 	_sceneLinkage.ALL = field.NewAsterisk(tableName)
 	_sceneLinkage.ID = field.NewInt64(tableName, "id")
-	_sceneLinkage.TenantID = field.NewInt64(tableName, "tenant_id")
+	_sceneLinkage.OrganizationID = field.NewInt64(tableName, "organization_id")
 	_sceneLinkage.Name = field.NewString(tableName, "name")
 	_sceneLinkage.Description = field.NewString(tableName, "description")
 	_sceneLinkage.Enable = field.NewInt(tableName, "enable")
@@ -46,7 +46,7 @@ type sceneLinkage struct {
 
 	ALL         field.Asterisk
 	ID          field.Int64
-	TenantID    field.Int64
+	OrganizationID    field.Int64
 	Name        field.String
 	Description field.String
 	Enable      field.Int
@@ -70,7 +70,7 @@ func (s sceneLinkage) As(alias string) *sceneLinkage {
 func (s *sceneLinkage) updateTableName(table string) *sceneLinkage {
 	s.ALL = field.NewAsterisk(table)
 	s.ID = field.NewInt64(table, "id")
-	s.TenantID = field.NewInt64(table, "tenant_id")
+	s.OrganizationID = field.NewInt64(table, "organization_id")
 	s.Name = field.NewString(table, "name")
 	s.Description = field.NewString(table, "description")
 	s.Enable = field.NewInt(table, "enable")
@@ -107,7 +107,7 @@ func (s *sceneLinkage) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 func (s *sceneLinkage) fillFieldMap() {
 	s.fieldMap = make(map[string]field.Expr, 8)
 	s.fieldMap["id"] = s.ID
-	s.fieldMap["tenant_id"] = s.TenantID
+	s.fieldMap["organization_id"] = s.OrganizationID
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["description"] = s.Description
 	s.fieldMap["enable"] = s.Enable

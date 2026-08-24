@@ -21,7 +21,7 @@ func (r *DeviceEventRepository) Create(ctx context.Context, event *model.DeviceE
 
 func (r *DeviceEventRepository) List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error) {
 	q := useIoTQuery(r.db)
-	base := q.DeviceEvent.WithContext(ctx).Join(q.Device, q.Device.ID.EqCol(q.DeviceEvent.DeviceID)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)))
+	base := q.DeviceEvent.WithContext(ctx).Join(q.Device, q.Device.ID.EqCol(q.DeviceEvent.DeviceID)).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
 	if keyword != "" {
 		term := "%" + strings.ToLower(keyword) + "%"
 		base = base.Where(field.Or(q.Device.DeviceKey.Lower().Like(term), q.Device.Name.Lower().Like(term), q.DeviceEvent.EventType.Lower().Like(term)))

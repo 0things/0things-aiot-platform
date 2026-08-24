@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
 	"aiot-backend/api/v1"
 	"aiot-backend/internal/tenant"
 	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -35,7 +35,7 @@ func StrictAuth(j *jwt.JWT, logger *log.Logger) gin.HandlerFunc {
 		}
 
 		ctx.Set("claims", claims)
-		ctx.Request = ctx.Request.WithContext(tenant.WithTenant(ctx.Request.Context(), claims.TenantID))
+		ctx.Request = ctx.Request.WithContext(tenant.WithTenant(ctx.Request.Context(), claims.OrganizationID))
 		recoveryLoggerFunc(ctx, logger)
 		ctx.Next()
 	}
@@ -62,7 +62,7 @@ func NoStrictAuth(j *jwt.JWT, logger *log.Logger) gin.HandlerFunc {
 		}
 
 		ctx.Set("claims", claims)
-		ctx.Request = ctx.Request.WithContext(tenant.WithTenant(ctx.Request.Context(), claims.TenantID))
+		ctx.Request = ctx.Request.WithContext(tenant.WithTenant(ctx.Request.Context(), claims.OrganizationID))
 		recoveryLoggerFunc(ctx, logger)
 		ctx.Next()
 	}

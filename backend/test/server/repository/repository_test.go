@@ -46,7 +46,7 @@ func TestDeviceRepository_Create(t *testing.T) {
 	mock.ExpectExec("INSERT INTO `device_states`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
-	device := &model.Device{DeviceKey: "D002", Name: "New Device", ProductID: 1, TenantID: 1}
+	device := &model.Device{DeviceKey: "D002", Name: "New Device", ProductID: 1, OrganizationID: 1}
 	err := deviceRepo.Create(ctx, device)
 	assert.NoError(t, err)
 }
@@ -131,7 +131,7 @@ func TestOTARepository_Create(t *testing.T) {
 	mock.ExpectExec("INSERT INTO `ota_packages`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
-	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", TenantID: 1}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", OrganizationID: 1}
 	err := otaRepo.Create(ctx, pkg)
 	assert.NoError(t, err)
 }

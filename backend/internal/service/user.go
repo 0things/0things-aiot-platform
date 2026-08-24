@@ -78,8 +78,8 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, 
 	if err != nil {
 		return "", err
 	}
-	tenantID := tenant.GetTenantID(ctx)
-	token, err := s.jwt.GenToken(user.UserId, tenantID, time.Now().Add(time.Hour*24*90))
+	organizationID := tenant.GetOrganizationID(ctx)
+	token, err := s.jwt.GenToken(user.UserId, organizationID, time.Now().Add(time.Hour*24*90))
 	if err != nil {
 		return "", err
 	}

@@ -1230,7 +1230,7 @@ definitions:
         type: string
       status:
         type: string
-      tenantId:
+      organizationId:
         type: integer
       updatedAt:
         type: string
@@ -1362,7 +1362,7 @@ definitions:
         type: integer
       name:
         type: string
-      tenantId:
+      organizationId:
         type: integer
       updatedAt:
         type: string

@@ -37,10 +37,10 @@ func newOTAServiceForTest(t *testing.T) (*OTAService, *gorm.DB) {
 func seedOTAProductAndDevices(t *testing.T, db *gorm.DB) (int64, []string) {
 	t.Helper()
 	ctx := context.Background()
-	product := &model.Product{ProductKey: "P001", Name: "Sensor", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Sensor", OrganizationID: 1}
 	require.NoError(t, db.WithContext(ctx).Create(product).Error)
-	dev1 := &model.Device{DeviceKey: "D1", Name: "d1", ProductID: product.ID, TenantID: 1}
-	dev2 := &model.Device{DeviceKey: "D2", Name: "d2", ProductID: product.ID, TenantID: 1}
+	dev1 := &model.Device{DeviceKey: "D1", Name: "d1", ProductID: product.ID, OrganizationID: 1}
+	dev2 := &model.Device{DeviceKey: "D2", Name: "d2", ProductID: product.ID, OrganizationID: 1}
 	require.NoError(t, db.WithContext(ctx).Create(dev1).Error)
 	require.NoError(t, db.WithContext(ctx).Create(dev2).Error)
 	return product.ID, []string{"D1", "D2"}

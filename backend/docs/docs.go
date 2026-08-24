@@ -4663,7 +4663,7 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "tenantId": {
+                "organizationId": {
                     "type": "integer"
                 },
                 "updatedAt": {
@@ -4868,7 +4868,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "tenantId": {
+                "organizationId": {
                     "type": "integer"
                 },
                 "updatedAt": {

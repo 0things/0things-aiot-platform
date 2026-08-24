@@ -24,7 +24,7 @@ func (r *ProductRepository) DB(ctx context.Context) *gorm.DB {
 
 func (r *ProductRepository) Find(ctx context.Context, id int64) (*model.Product, error) {
 	q := useIoTQuery(r.db)
-	product, err := q.Product.WithContext(ctx).Where(q.Product.ID.Eq(id), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+	product, err := q.Product.WithContext(ctx).Where(q.Product.ID.Eq(id), q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -36,7 +36,7 @@ func (r *ProductRepository) Find(ctx context.Context, id int64) (*model.Product,
 
 func (r *ProductRepository) FindByKey(ctx context.Context, key string) (*model.Product, error) {
 	q := useIoTQuery(r.db)
-	product, err := q.Product.WithContext(ctx).Where(q.Product.ProductKey.Eq(key), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).First()
+	product, err := q.Product.WithContext(ctx).Where(q.Product.ProductKey.Eq(key), q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -56,17 +56,17 @@ func (r *ProductRepository) Save(ctx context.Context, product *model.Product) er
 
 func (r *ProductRepository) CountDevices(ctx context.Context, productID int64) (int64, error) {
 	q := useIoTQuery(r.db)
-	return q.Device.WithContext(ctx).Where(q.Device.ProductID.Eq(productID), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Count()
+	return q.Device.WithContext(ctx).Where(q.Device.ProductID.Eq(productID), q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Count()
 }
 
 func (r *ProductRepository) Delete(ctx context.Context, product *model.Product) error {
-	_, err := useIoTQuery(r.db).Product.WithContext(ctx).Where(useIoTQuery(r.db).Product.TenantID.Eq(tenant.GetTenantID(ctx))).Delete(product)
+	_, err := useIoTQuery(r.db).Product.WithContext(ctx).Where(useIoTQuery(r.db).Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Delete(product)
 	return err
 }
 
 func (r *ProductRepository) List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error) {
 	q := useIoTQuery(r.db)
-	products := q.Product.WithContext(ctx).Where(q.Product.TenantID.Eq(tenant.GetTenantID(ctx)))
+	products := q.Product.WithContext(ctx).Where(q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
 	if category != "" {
 		products = products.Where(q.Product.Category.Eq(category))
 	}
@@ -89,6 +89,6 @@ func (r *ProductRepository) List(ctx context.Context, page, size int, category, 
 
 func (r *ProductRepository) Restore(ctx context.Context, id int64) error {
 	q := useIoTQuery(r.db)
-	_, err := q.Product.WithContext(ctx).Unscoped().Where(q.Product.ID.Eq(id), q.Product.TenantID.Eq(tenant.GetTenantID(ctx))).UpdateSimple(q.Product.DeletedAt.Null())
+	_, err := q.Product.WithContext(ctx).Unscoped().Where(q.Product.ID.Eq(id), q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).UpdateSimple(q.Product.DeletedAt.Null())
 	return err
 }

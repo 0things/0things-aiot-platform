@@ -39,7 +39,7 @@ type Product struct {
 	NodeType           string     `json:"nodeType"`
 	ConnectivityMethod string     `json:"connectivityMethod"`
 	AccessProtocol     string     `json:"accessProtocol"`
-	TenantID           int64      `json:"tenantId"`
+	OrganizationID           int64      `json:"organizationId"`
 	CreatedAt          time.Time  `json:"createdAt"`
 	UpdatedAt          time.Time  `json:"updatedAt"`
 	DeletedAt          *time.Time `json:"deletedAt,omitempty"`

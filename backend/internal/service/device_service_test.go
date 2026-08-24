@@ -22,8 +22,8 @@ func newDeviceSvc(t *testing.T) (*DeviceService, *gorm.DB, context.Context) {
 		&model.Product{}, &model.Device{}, &model.DeviceState{}, &model.DeviceTag{},
 		&model.DeviceShadow{}, &model.DeviceShadowHistory{}, &model.DevicePushRecord{},
 	))
-	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "Test", TenantID: 1}).Error)
-	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "D001", Name: "Test Device", ProductID: 1, TenantID: 1, Enabled: true}).Error)
+	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "Test", OrganizationID: 1}).Error)
+	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "D001", Name: "Test Device", ProductID: 1, OrganizationID: 1, Enabled: true}).Error)
 	require.NoError(t, db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"}).Error)
 
 	iotDB := &repository.IoTDB{DB: db}
@@ -106,7 +106,7 @@ func TestDeviceService_UpdateDevice_InvalidTransition(t *testing.T) {
 
 func TestDeviceService_Activate(t *testing.T) {
 	svc, db, ctx := newDeviceSvc(t)
-	require.NoError(t, db.Create(&model.Device{ID: 2, DeviceKey: "D002", Name: "d2", ProductID: 1, TenantID: 1, Enabled: true}).Error)
+	require.NoError(t, db.Create(&model.Device{ID: 2, DeviceKey: "D002", Name: "d2", ProductID: 1, OrganizationID: 1, Enabled: true}).Error)
 	require.NoError(t, db.Create(&model.DeviceState{ID: 2, DeviceKey: "D002", State: "inactive"}).Error)
 	d, err := svc.Activate(ctx, 2)
 	require.NoError(t, err)

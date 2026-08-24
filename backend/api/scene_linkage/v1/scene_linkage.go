@@ -14,7 +14,7 @@ type SceneLinkageRequest struct {
 
 type SceneLinkage struct {
 	ID          int64     `json:"id"`
-	TenantID    int64     `json:"tenantId"`
+	OrganizationID    int64     `json:"organizationId"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Enable      int       `json:"enable"`
