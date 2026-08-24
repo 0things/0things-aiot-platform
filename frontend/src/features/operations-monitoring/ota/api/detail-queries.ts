@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
-import type {
-  OtaOTAPackage,
-  OtaUpgradeStatistics,
-  OtaDeviceDeployment,
-  OtaUpgradeBatch,
-} from '@/api/generated/model'
 import {
   getOtaPackagesId,
   getOtaPackagesIdBatches,
   getOtaPackagesIdDeviceDeployments,
   getOtaPackagesIdUpgradeStatistics,
 } from '@/api/generated'
+import type {
+  OtaOTAPackage,
+  OtaUpgradeStatistics,
+  OtaDeviceDeployment,
+  OtaUpgradeBatch,
+} from '@/api/generated/model'
 
 interface OTAPackageDetail {
   id: string
@@ -48,7 +48,6 @@ interface DeviceDeployment {
   productId: string
   productKey: string
   currentVersion: string
-  upgradeBatchId: string
   status: string
   lastStatusChangeTime: string | number
   createdAt: Date
@@ -102,18 +101,19 @@ export function useUpgradeStatistics(packageName: string) {
   return useQuery({
     queryKey: ['upgrade-statistics', packageName],
     queryFn: async () => {
-      const response = await getOtaPackagesIdUpgradeStatistics(Number(packageName))
-      const data: OtaUpgradeStatistics =
-        (response.data as unknown as OtaUpgradeStatistics) ?? {}
-        return {
-          packageId: data.packageId || packageName,
-          totalTargetDevices: data.totalTargetDevices || 0,
-          successfulUpgrades: data.successfulUpgrades || 0,
-          failedUpgrades: data.failedUpgrades || 0,
-          cancelledUpgrades: data.cancelledUpgrades || 0,
-          pendingUpgrades: data.pendingUpgrades || 0,
-          inProgressUpgrades: data.inProgressUpgrades || 0,
-        }
+      const response = await getOtaPackagesIdUpgradeStatistics(
+        Number(packageName)
+      )
+      const data: OtaUpgradeStatistics = response.data?.statistics ?? {}
+      return {
+        packageId: data.packageId || packageName,
+        totalTargetDevices: data.totalTargetDevices || 0,
+        successfulUpgrades: data.successfulUpgrades || 0,
+        failedUpgrades: data.failedUpgrades || 0,
+        cancelledUpgrades: data.cancelledUpgrades || 0,
+        pendingUpgrades: data.pendingUpgrades || 0,
+        inProgressUpgrades: data.inProgressUpgrades || 0,
+      }
     },
     staleTime: 0, // No caching
     enabled: !!packageName, // Only run query if packageName is provided
@@ -134,28 +134,30 @@ export function useDeviceDeployments(
   return useQuery<DeviceDeploymentList>({
     queryKey: ['device-deployments', packageName, page, pageSize, status],
     queryFn: async () => {
-      const data = (await getOtaPackagesIdDeviceDeployments(Number(packageName), {
-        page,
-        pageSize,
-        status,
-      }))?.data ?? {}
-        return {
-          deployments: (data.deployments || []).map((d: OtaDeviceDeployment) => ({
-            deviceId: String(d.deviceId ?? ''),
-            deviceKey: d.deviceKey ?? '',
-            deviceName: d.deviceName ?? '',
-            productId: String(d.productId ?? ''),
-            productKey: d.productKey ?? '',
-            currentVersion: d.currentVersion ?? '',
-            upgradeBatchId: d.upgradeBatchId ?? '',
-            status: d.status ?? '',
-            lastStatusChangeTime: d.lastStatusChangeTime ?? 0,
-            createdAt: d.createdAt ? new Date(d.createdAt) : new Date(),
-          })),
-          total: data.total || 0,
-          page: data.page || page,
-          pageSize: data.pageSize || pageSize,
-        }
+      const data =
+        (
+          await getOtaPackagesIdDeviceDeployments(Number(packageName), {
+            page,
+            pageSize,
+            status,
+          })
+        )?.data ?? {}
+      return {
+        deployments: (data.deployments || []).map((d: OtaDeviceDeployment) => ({
+          deviceId: String(d.deviceId ?? ''),
+          deviceKey: d.deviceKey ?? '',
+          deviceName: d.deviceName ?? '',
+          productId: String(d.productId ?? ''),
+          productKey: d.productKey ?? '',
+          currentVersion: d.currentVersion ?? '',
+          status: d.status ?? '',
+          lastStatusChangeTime: d.lastStatusChangeTime ?? 0,
+          createdAt: d.createdAt ? new Date(d.createdAt) : new Date(),
+        })),
+        total: data.total || 0,
+        page: data.page || page,
+        pageSize: data.pageSize || pageSize,
+      }
     },
     staleTime: 0, // No caching
     enabled: !!packageName, // Only run query if packageName is provided
@@ -170,16 +172,17 @@ export function useUpgradeBatches(packageName: string) {
   return useQuery<UpgradeBatch[]>({
     queryKey: ['upgrade-batches', packageName],
     queryFn: async () => {
-      const data = (await getOtaPackagesIdBatches(Number(packageName)))?.data ?? {}
+      const data =
+        (await getOtaPackagesIdBatches(Number(packageName)))?.data ?? {}
       return (data.batches || []).map((b: OtaUpgradeBatch) => ({
-          batchId: b.batchId ?? '',
-          batchName: b.batchName ?? '',
-          batchType: b.batchType ?? '',
-          upgradeStrategy: b.upgradeStrategy ?? '',
-          status: b.status ?? '',
-          targetDeviceCount: b.targetDeviceCount ?? 0,
-          createdAt: b.createdAt ? new Date(b.createdAt) : new Date(),
-        }))
+        batchId: b.batchId ?? '',
+        batchName: b.batchName ?? '',
+        batchType: b.batchType ?? '',
+        upgradeStrategy: b.upgradeStrategy ?? '',
+        status: b.status ?? '',
+        targetDeviceCount: b.targetDeviceCount ?? 0,
+        createdAt: b.createdAt ? new Date(b.createdAt) : new Date(),
+      }))
     },
     staleTime: 0, // No caching
     enabled: !!packageName, // Only run query if packageName is provided

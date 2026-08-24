@@ -1,13 +1,13 @@
 import React, { type ReactNode } from 'react'
-import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { renderHook, waitFor } from '@testing-library/react'
+import * as axiosClients from '@/api/clients'
 import {
   useOTAPackageDetail,
   useUpgradeStatistics,
   useDeviceDeployments,
   useUpgradeBatches,
 } from '../api/detail-queries'
-import * as axiosClients from '@/api/clients'
 
 /**
  * Integration tests for OTA Package Detail Page
@@ -104,7 +104,7 @@ describe('OTA Package Detail Page - Integration Tests', () => {
     ;(axiosClients.axiosInstance.get as jest.Mock).mockImplementation(
       (url: string) => {
         if (url.includes('/upgrade-statistics')) {
-          return Promise.resolve({ data: statsData })
+          return Promise.resolve({ data: { statistics: statsData } })
         }
         if (url.includes('/batches')) {
           return Promise.resolve({ data: batchesData })
@@ -291,8 +291,7 @@ describe('OTA Package Detail Page - Integration Tests', () => {
     )
 
     const { result } = renderHook(
-      () =>
-        useDeviceDeployments('firmware-v2.0.0', 1, 100, 'success', true),
+      () => useDeviceDeployments('firmware-v2.0.0', 1, 100, 'success', true),
       { wrapper: createWrapper() }
     )
 
@@ -301,7 +300,9 @@ describe('OTA Package Detail Page - Integration Tests', () => {
     })
 
     expect(result.current.data?.deployments).toHaveLength(30)
-    expect(result.current.data?.deployments?.every((d) => d.status === 'success')).toBe(true)
+    expect(
+      result.current.data?.deployments?.every((d) => d.status === 'success')
+    ).toBe(true)
     expect(axiosClients.axiosInstance.get).toHaveBeenCalledWith(
       expect.stringContaining('/device-deployments'),
       expect.objectContaining({
@@ -516,8 +517,8 @@ describe('OTA Package Detail Page - Integration Tests', () => {
     expect(batchesResult.current.data).toHaveLength(1)
 
     // Verify consistency: deployment version matches package version
-    expect(deploymentsResult.current.data?.deployments?.[0]?.currentVersion).toBe(
-      pkgResult.current.data?.version
-    )
+    expect(
+      deploymentsResult.current.data?.deployments?.[0]?.currentVersion
+    ).toBe(pkgResult.current.data?.version)
   })
 })

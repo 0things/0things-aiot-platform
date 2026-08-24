@@ -1,15 +1,23 @@
-import { useParams, useNavigate } from '@tanstack/react-router'
-import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, Loader2, AlertCircle, RotateCw } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import {
-  useOTAPackageDetail,
-  useUpgradeStatistics,
-  useDeviceDeployments,
-  useUpgradeBatches,
-} from '../api/detail-queries'
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+} from '@radix-ui/react-icons'
+import { useParams, useNavigate } from '@tanstack/react-router'
+import { ArrowLeft, Loader2, AlertCircle, RotateCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { cn, getPageNumbers } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -19,20 +27,15 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  useOTAPackageDetail,
+  useUpgradeStatistics,
+  useDeviceDeployments,
+} from '../api/detail-queries'
 
 /**
  * Type definitions for API response data
  */
-interface UpgradeBatch {
-  batchId: string
-  batchName: string
-  batchType: string
-  upgradeStrategy: string
-  status: string
-  targetDeviceCount: number
-  createdAt: Date
-}
-
 interface DeviceDeployment {
   deviceId: string
   deviceKey: string
@@ -40,7 +43,6 @@ interface DeviceDeployment {
   productId: string
   productKey: string
   currentVersion: string
-  upgradeBatchId: string
   status: string
   lastStatusChangeTime: string | number
   createdAt: Date
@@ -55,12 +57,14 @@ function ErrorAlert({
   message: string
   onRetry?: () => void
 }) {
+  const { t } = useTranslation('ota')
+
   return (
-    <div className='rounded-lg border border-red-200 bg-red-50 p-4 flex items-start gap-3'>
-      <AlertCircle className='h-5 w-5 text-red-600 flex-shrink-0 mt-0.5' />
+    <div className='flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4'>
+      <AlertCircle className='mt-0.5 h-5 w-5 flex-shrink-0 text-red-600' />
       <div className='flex-1'>
         <h3 className='font-medium text-red-900'>{title}</h3>
-        <p className='text-sm text-red-700 mt-1'>{message}</p>
+        <p className='mt-1 text-sm text-red-700'>{message}</p>
       </div>
       {onRetry && (
         <Button
@@ -69,8 +73,8 @@ function ErrorAlert({
           onClick={onRetry}
           className='flex-shrink-0'
         >
-          <RotateCw className='h-4 w-4 mr-1' />
-          Retry
+          <RotateCw className='mr-1 h-4 w-4' />
+          {t('packageDetail.retry')}
         </Button>
       )}
     </div>
@@ -79,44 +83,15 @@ function ErrorAlert({
 
 function SkeletonCard() {
   return (
-    <div className='rounded-lg border p-4 bg-card animate-pulse'>
-      <div className='h-4 bg-muted rounded w-24 mb-3' />
-      <div className='h-8 bg-muted rounded w-16' />
+    <div className='animate-pulse rounded-lg border bg-card p-4'>
+      <div className='mb-3 h-4 w-24 rounded bg-muted' />
+      <div className='h-8 w-16 rounded bg-muted' />
     </div>
   )
 }
 
-function BatchRow({ batch }: { batch: UpgradeBatch }) {
-  return (
-    <TableRow>
-      <TableCell className='font-mono text-sm'>{batch.batchId}</TableCell>
-      <TableCell>{batch.batchName}</TableCell>
-      <TableCell>
-        <Badge variant='outline' className='capitalize'>
-          {batch.batchType}
-        </Badge>
-      </TableCell>
-      <TableCell className='capitalize'>{batch.upgradeStrategy}</TableCell>
-      <TableCell>
-        <Badge
-          className='capitalize'
-          variant={
-            batch.status === 'completed'
-              ? 'default'
-              : batch.status === 'in_progress'
-                ? 'secondary'
-                : 'outline'
-          }
-        >
-          {batch.status}
-        </Badge>
-      </TableCell>
-      <TableCell>{batch.targetDeviceCount}</TableCell>
-    </TableRow>
-  )
-}
-
 function DeviceRow({ d }: { d: DeviceDeployment }) {
+  const { t } = useTranslation('ota')
   return (
     <TableRow>
       <TableCell className='font-mono text-xs sm:text-sm'>
@@ -124,10 +99,9 @@ function DeviceRow({ d }: { d: DeviceDeployment }) {
       </TableCell>
       <TableCell className='text-xs sm:text-sm'>{d.productKey}</TableCell>
       <TableCell className='text-xs sm:text-sm'>{d.currentVersion}</TableCell>
-      <TableCell className='font-mono text-xs'>{d.upgradeBatchId}</TableCell>
       <TableCell>
         <Badge
-          className='capitalize text-xs'
+          className='text-xs capitalize'
           variant={
             d.status === 'success'
               ? 'default'
@@ -136,13 +110,135 @@ function DeviceRow({ d }: { d: DeviceDeployment }) {
                 : 'outline'
           }
         >
-          {d.status}
+          {t(`packageDetail.statuses.${d.status}`, {
+            defaultValue: d.status,
+          })}
         </Badge>
       </TableCell>
-      <TableCell className='text-xs sm:text-sm text-muted-foreground'>
-        {new Date(d.lastStatusChangeTime).toLocaleString()}
+      <TableCell className='text-xs text-muted-foreground sm:text-sm'>
+        {d.lastStatusChangeTime
+          ? new Date(d.lastStatusChangeTime).toLocaleString()
+          : t('packageDetail.notUpdated')}
       </TableCell>
     </TableRow>
+  )
+}
+
+function DeploymentPagination({
+  currentPage,
+  pageSize,
+  total,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  currentPage: number
+  pageSize: number
+  total: number
+  onPageChange: (page: number) => void
+  onPageSizeChange: (size: number) => void
+}) {
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const pageNumbers = getPageNumbers(currentPage, totalPages)
+  const canPrevious = currentPage > 1
+  const canNext = currentPage < totalPages
+
+  return (
+    <div
+      className={cn(
+        'flex items-center justify-between overflow-clip px-2',
+        '@max-2xl/content:flex-col-reverse @max-2xl/content:gap-4'
+      )}
+      style={{ overflowClipMargin: 1 }}
+    >
+      <div className='flex w-full items-center justify-between'>
+        <div className='flex w-[100px] items-center justify-center text-sm font-medium @2xl/content:hidden'>
+          Page {currentPage} of {totalPages}
+        </div>
+        <div className='flex items-center gap-2 @max-2xl/content:flex-row-reverse'>
+          <Select
+            value={`${pageSize}`}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
+          >
+            <SelectTrigger className='h-8 w-[70px]'>
+              <SelectValue placeholder={pageSize} />
+            </SelectTrigger>
+            <SelectContent side='top'>
+              {[10, 20, 30, 40, 50, pageSize]
+                .filter((size, index, arr) => arr.indexOf(size) === index)
+                .sort((a, b) => a - b)
+                .map((size) => (
+                  <SelectItem key={size} value={`${size}`}>
+                    {size}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <p className='hidden text-sm font-medium sm:block'>Rows per page</p>
+        </div>
+      </div>
+
+      <div className='flex items-center sm:space-x-6 lg:space-x-8'>
+        <div className='flex w-[100px] items-center justify-center text-sm font-medium @max-3xl/content:hidden'>
+          Page {currentPage} of {totalPages}
+        </div>
+        <div className='flex items-center space-x-2'>
+          <Button
+            variant='outline'
+            className='size-8 p-0 @max-md/content:hidden'
+            onClick={() => onPageChange(1)}
+            disabled={!canPrevious}
+          >
+            <span className='sr-only'>Go to first page</span>
+            <DoubleArrowLeftIcon className='h-4 w-4' />
+          </Button>
+          <Button
+            variant='outline'
+            className='size-8 p-0'
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={!canPrevious}
+          >
+            <span className='sr-only'>Go to previous page</span>
+            <ChevronLeftIcon className='h-4 w-4' />
+          </Button>
+
+          {pageNumbers.map((pageNumber, index) => (
+            <div key={`${pageNumber}-${index}`} className='flex items-center'>
+              {pageNumber === '...' ? (
+                <span className='px-1 text-sm text-muted-foreground'>...</span>
+              ) : (
+                <Button
+                  variant={currentPage === pageNumber ? 'default' : 'outline'}
+                  className='h-8 min-w-8 px-2'
+                  onClick={() => onPageChange(pageNumber as number)}
+                >
+                  <span className='sr-only'>Go to page {pageNumber}</span>
+                  {pageNumber}
+                </Button>
+              )}
+            </div>
+          ))}
+
+          <Button
+            variant='outline'
+            className='size-8 p-0'
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={!canNext}
+          >
+            <span className='sr-only'>Go to next page</span>
+            <ChevronRightIcon className='h-4 w-4' />
+          </Button>
+          <Button
+            variant='outline'
+            className='size-8 p-0 @max-md/content:hidden'
+            onClick={() => onPageChange(totalPages)}
+            disabled={!canNext}
+          >
+            <span className='sr-only'>Go to last page</span>
+            <DoubleArrowRightIcon className='h-4 w-4' />
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -152,7 +248,6 @@ function DeviceRow({ d }: { d: DeviceDeployment }) {
  * - Package metadata
  * - Upgrade statistics (target devices, success/fail counts)
  * - Device deployment status
- * - Upgrade batches
  *
  * Responsive design:
  * - Mobile (< 640px): Single column layout, stacked cards
@@ -160,14 +255,14 @@ function DeviceRow({ d }: { d: DeviceDeployment }) {
  * - Desktop (> 1024px): 4-column layout for statistics
  */
 export function OTAPackageDetailPage() {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
   const navigate = useNavigate()
   const params = useParams({
     from: '/_authenticated/operations-monitoring/ota/packages/$id/',
   })
 
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize] = useState(100)
+  const [pageSize, setPageSize] = useState(10)
   const [statusFilter, setStatusFilter] = useState<string>()
 
   // Data fetching hooks
@@ -181,21 +276,15 @@ export function OTAPackageDetailPage() {
     pageSize,
     statusFilter
   )
-  const batchesQuery = useUpgradeBatches(packageName || '')
 
   const lastUpdated = useMemo(() => {
     const times = [
       statisticsQuery.dataUpdatedAt,
       deploymentsQuery.dataUpdatedAt,
-      batchesQuery.dataUpdatedAt,
     ]
     const latest = Math.max(...times)
     return latest > 0 ? new Date(latest) : new Date()
-  }, [
-    statisticsQuery.dataUpdatedAt,
-    deploymentsQuery.dataUpdatedAt,
-    batchesQuery.dataUpdatedAt,
-  ])
+  }, [statisticsQuery.dataUpdatedAt, deploymentsQuery.dataUpdatedAt])
 
   const formatLastUpdated = () => {
     const now = new Date()
@@ -204,9 +293,11 @@ export function OTAPackageDetailPage() {
     const minutes = Math.floor(seconds / 60)
     const hours = Math.floor(minutes / 60)
 
-    if (seconds < 60) return 'Just now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
+    if (seconds < 60) return t('packageDetail.lastUpdated.justNow')
+    if (minutes < 60)
+      return t('packageDetail.lastUpdated.minutesAgo', { count: minutes })
+    if (hours < 24)
+      return t('packageDetail.lastUpdated.hoursAgo', { count: hours })
     return lastUpdated.toLocaleTimeString()
   }
 
@@ -227,12 +318,14 @@ export function OTAPackageDetailPage() {
           className='mb-2 w-fit'
         >
           <ArrowLeft className='mr-2 h-4 w-4' />
-          {t('common.back')}
+          {t('common:back')}
         </Button>
         <ErrorAlert
-          title='Failed to load package details'
-          message='The OTA package could not be loaded. Please check the package ID and try again.'
-          onRetry={() => { void packageQuery.refetch() }}
+          title={t('packageDetail.errors.loadPackage.title')}
+          message={t('packageDetail.errors.loadPackage.description')}
+          onRetry={() => {
+            void packageQuery.refetch()
+          }}
         />
       </div>
     )
@@ -242,206 +335,224 @@ export function OTAPackageDetailPage() {
   const stats = statisticsQuery.data
 
   return (
-    <div className='flex flex-1 flex-col gap-4 px-2 sm:px-4 py-2'>
+    <div className='flex flex-1 flex-col gap-4 px-2 py-2 sm:px-4'>
       {/* Header with back button */}
       <div className='flex items-center justify-between gap-2'>
-        <Button
-          variant='ghost'
-          size='sm'
-          onClick={handleBack}
-          className='mb-2'
-        >
+        <Button variant='ghost' size='sm' onClick={handleBack} className='mb-2'>
           <ArrowLeft className='mr-2 h-4 w-4' />
-          {t('common.back')}
+          {t('common:back')}
         </Button>
       </div>
 
       {/* Main content */}
       <div className='flex flex-col gap-6'>
-        {/* Title section */}
-        <div>
-          <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
+        {/* Package basics */}
+        <div className='border-b pb-5'>
+          <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>
             {packageQuery.isLoading ? (
-              <span className='animate-pulse'>Loading...</span>
+              <span className='animate-pulse'>
+                {t('packageDetail.loading')}
+              </span>
             ) : (
-              pkg?.packageName || 'Unknown Package'
+              pkg?.packageName || t('packageDetail.unknownPackage')
             )}
           </h1>
           {!packageQuery.isLoading && (
-            <p className='text-sm sm:text-base text-muted-foreground mt-1'>
-              Version: {pkg?.version} • Type:{' '}
-              <Badge className='ml-1 text-xs sm:text-sm'>{pkg?.packageType}</Badge>
-            </p>
+            <dl className='mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground sm:text-base'>
+              <div className='flex items-center gap-2'>
+                <dt>{t('packageForm.fields.version')}:</dt>
+                <dd className='font-medium text-foreground'>{pkg?.version}</dd>
+              </div>
+              <div className='flex items-center gap-2'>
+                <dt>{t('packageDetail.type')}:</dt>
+                <dd>
+                  <Badge className='text-xs sm:text-sm'>
+                    {t(`packageList.packageTypes.${pkg?.packageType}`, {
+                      defaultValue: pkg?.packageType,
+                    })}
+                  </Badge>
+                </dd>
+              </div>
+              <div className='flex items-center gap-2'>
+                <dt>{t('common:status')}:</dt>
+                <dd>
+                  <Badge variant='secondary' className='text-xs sm:text-sm'>
+                    {t(`packageList.statuses.${pkg?.status}`, {
+                      defaultValue: pkg?.status,
+                    })}
+                  </Badge>
+                </dd>
+              </div>
+              <div>
+                {t('packageDetail.lastUpdated.label', {
+                  time: formatLastUpdated(),
+                })}
+              </div>
+            </dl>
           )}
         </div>
 
-        {/* Last Updated info */}
-        <div className='text-xs sm:text-sm text-muted-foreground px-2 py-1 bg-muted rounded'>
-          Last updated: {formatLastUpdated()}
-        </div>
-
         {/* Statistics cards section */}
-        <div className='grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'>
-          <div className='rounded-lg border p-3 sm:p-4 bg-card'>
-            <div className='text-xs sm:text-sm font-medium text-muted-foreground'>
-              Target Devices
+        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4'>
+          <div className='rounded-lg border bg-card p-3 sm:p-4'>
+            <div className='text-xs font-medium text-muted-foreground sm:text-sm'>
+              {t('packageDetail.statistics.targetDevices')}
             </div>
-            <div className='text-xl sm:text-2xl font-bold mt-2'>
+            <div className='mt-2 text-xl font-bold sm:text-2xl'>
               {statisticsQuery.isLoading ? (
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : statisticsQuery.isError ? (
-                <span className='text-red-600 text-sm'>Error</span>
+                <span className='text-sm text-red-600'>
+                  {t('packageDetail.error')}
+                </span>
               ) : (
-                stats?.totalTargetDevices ?? '-'
+                (stats?.totalTargetDevices ?? '-')
               )}
             </div>
           </div>
-          <div className='rounded-lg border p-3 sm:p-4 bg-card'>
-            <div className='text-xs sm:text-sm font-medium text-muted-foreground'>
-              Successful
+          <div className='rounded-lg border bg-card p-3 sm:p-4'>
+            <div className='text-xs font-medium text-muted-foreground sm:text-sm'>
+              {t('packageDetail.statistics.successful')}
             </div>
-            <div className='text-xl sm:text-2xl font-bold text-green-600 mt-2'>
+            <div className='mt-2 text-xl font-bold text-green-600 sm:text-2xl'>
               {statisticsQuery.isLoading ? (
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : statisticsQuery.isError ? (
-                <span className='text-red-600 text-sm'>Error</span>
+                <span className='text-sm text-red-600'>
+                  {t('packageDetail.error')}
+                </span>
               ) : (
-                stats?.successfulUpgrades ?? '-'
+                (stats?.successfulUpgrades ?? '-')
               )}
             </div>
           </div>
-          <div className='rounded-lg border p-3 sm:p-4 bg-card'>
-            <div className='text-xs sm:text-sm font-medium text-muted-foreground'>
-              Failed
+          <div className='rounded-lg border bg-card p-3 sm:p-4'>
+            <div className='text-xs font-medium text-muted-foreground sm:text-sm'>
+              {t('packageDetail.statistics.failed')}
             </div>
-            <div className='text-xl sm:text-2xl font-bold text-red-600 mt-2'>
+            <div className='mt-2 text-xl font-bold text-red-600 sm:text-2xl'>
               {statisticsQuery.isLoading ? (
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : statisticsQuery.isError ? (
-                <span className='text-red-600 text-sm'>Error</span>
+                <span className='text-sm text-red-600'>
+                  {t('packageDetail.error')}
+                </span>
               ) : (
-                stats?.failedUpgrades ?? '-'
+                (stats?.failedUpgrades ?? '-')
               )}
             </div>
           </div>
-          <div className='rounded-lg border p-3 sm:p-4 bg-card'>
-            <div className='text-xs sm:text-sm font-medium text-muted-foreground'>
-              In Progress
+          <div className='rounded-lg border bg-card p-3 sm:p-4'>
+            <div className='text-xs font-medium text-muted-foreground sm:text-sm'>
+              {t('packageDetail.statistics.inProgress')}
             </div>
-            <div className='text-xl sm:text-2xl font-bold text-blue-600 mt-2'>
+            <div className='mt-2 text-xl font-bold text-blue-600 sm:text-2xl'>
               {statisticsQuery.isLoading ? (
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : statisticsQuery.isError ? (
-                <span className='text-red-600 text-sm'>Error</span>
+                <span className='text-sm text-red-600'>
+                  {t('packageDetail.error')}
+                </span>
               ) : (
-                stats?.inProgressUpgrades ?? '-'
+                (stats?.inProgressUpgrades ?? '-')
               )}
             </div>
           </div>
         </div>
 
         {/* Tabs section */}
-        <Tabs defaultValue='batches' className='w-full'>
+        <Tabs defaultValue='devices' className='w-full'>
           <TabsList>
-            <TabsTrigger value='batches'>Batch Management</TabsTrigger>
-            <TabsTrigger value='devices'>Device List</TabsTrigger>
-            <TabsTrigger value='info'>Package Info</TabsTrigger>
+            <TabsTrigger value='devices'>
+              {t('packageDetail.tabs.devices')}
+            </TabsTrigger>
+            <TabsTrigger value='info'>
+              {t('packageDetail.tabs.info')}
+            </TabsTrigger>
           </TabsList>
-
-          {/* Batch Management Tab */}
-          <TabsContent value='batches' className='space-y-4'>
-            {batchesQuery.isError && (
-              <ErrorAlert
-                title='Failed to load batches'
-                message='Could not load upgrade batches. Please try again.'
-                onRetry={() => { void batchesQuery.refetch() }}
-              />
-            )}
-            <div className='rounded-lg border bg-card'>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Batch ID</TableHead>
-                    <TableHead>Batch Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Strategy</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Devices</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {batchesQuery.isLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className='text-center py-8'>
-                        <Loader2 className='h-4 w-4 animate-spin mx-auto' />
-                      </TableCell>
-                    </TableRow>
-                  ) : batchesQuery.data?.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className='text-center py-8 text-muted-foreground'>
-                        No batches found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    batchesQuery.data?.map((batch) => (
-                      <BatchRow key={batch.batchId} batch={batch} />
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
 
           {/* Device List Tab */}
           <TabsContent value='devices' className='space-y-4'>
             {deploymentsQuery.isError && (
               <ErrorAlert
-                title='Failed to load devices'
-                message='Could not load device deployment status. Please try again.'
-                onRetry={() => { void deploymentsQuery.refetch() }}
+                title={t('packageDetail.errors.loadDevices.title')}
+                message={t('packageDetail.errors.loadDevices.description')}
+                onRetry={() => {
+                  void deploymentsQuery.refetch()
+                }}
               />
             )}
-            <div className='flex flex-col sm:flex-row gap-2 mb-4'>
-              <select
-                value={statusFilter || ''}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value || undefined)
+            <div className='mb-4 flex flex-col gap-2 sm:flex-row'>
+              <Select
+                value={statusFilter ?? 'all'}
+                onValueChange={(value) => {
+                  setStatusFilter(value === 'all' ? undefined : value)
                   setCurrentPage(1)
                 }}
-                className='px-3 py-2 border rounded-md text-sm flex-1 sm:flex-none'
               >
-                <option value=''>All Status</option>
-                <option value='pending'>Pending</option>
-                <option value='in_progress'>In Progress</option>
-                <option value='success'>Success</option>
-                <option value='failed'>Failed</option>
-                <option value='cancelled'>Cancelled</option>
-              </select>
+                <SelectTrigger className='w-full sm:w-[200px]'>
+                  <SelectValue
+                    placeholder={t('packageDetail.filters.allStatus')}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>
+                    {t('packageDetail.filters.allStatus')}
+                  </SelectItem>
+                  <SelectItem value='pending'>
+                    {t('packageDetail.statuses.pending')}
+                  </SelectItem>
+                  <SelectItem value='in_progress'>
+                    {t('packageDetail.statuses.in_progress')}
+                  </SelectItem>
+                  <SelectItem value='success'>
+                    {t('packageDetail.statuses.success')}
+                  </SelectItem>
+                  <SelectItem value='failed'>
+                    {t('packageDetail.statuses.failed')}
+                  </SelectItem>
+                  <SelectItem value='cancelled'>
+                    {t('packageDetail.statuses.cancelled')}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className='rounded-lg border bg-card overflow-x-auto'>
+            <div className='overflow-x-auto rounded-lg border bg-card'>
               <Table className='text-sm sm:text-base'>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className='text-xs sm:text-sm'>Device</TableHead>
-                    <TableHead className='text-xs sm:text-sm'>Product</TableHead>
-                    <TableHead className='text-xs sm:text-sm'>Version</TableHead>
-                    <TableHead className='text-xs sm:text-sm'>Batch ID</TableHead>
-                    <TableHead className='text-xs sm:text-sm'>Status</TableHead>
-                    <TableHead className='text-xs sm:text-sm'>Last Update</TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('packageDetail.columns.device')}
+                    </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('packageDetail.columns.product')}
+                    </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('packageDetail.columns.version')}
+                    </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('common:status')}
+                    </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('packageDetail.columns.lastUpdated')}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {deploymentsQuery.isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className='text-center py-8'>
-                        <Loader2 className='h-4 w-4 animate-spin mx-auto' />
+                      <TableCell colSpan={6} className='py-8 text-center'>
+                        <Loader2 className='mx-auto h-4 w-4 animate-spin' />
                       </TableCell>
                     </TableRow>
                   ) : deploymentsQuery.data?.deployments?.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className='text-center py-8 text-muted-foreground text-xs sm:text-sm'>
-                        No devices found
+                      <TableCell
+                        colSpan={6}
+                        className='py-8 text-center text-xs text-muted-foreground sm:text-sm'
+                      >
+                        {t('packageDetail.emptyDevices')}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -454,41 +565,22 @@ export function OTAPackageDetailPage() {
             </div>
 
             {/* Pagination */}
-            <div className='flex flex-col sm:flex-row justify-between items-center gap-4'>
-              <div className='text-xs sm:text-sm text-muted-foreground'>
-                Page {currentPage} of{' '}
-                {Math.ceil((deploymentsQuery.data?.total || 0) / pageSize)}
-              </div>
-              <div className='flex gap-2'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className='text-xs'
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setCurrentPage((p) => p + 1)}
-                  disabled={
-                    currentPage >=
-                    Math.ceil((deploymentsQuery.data?.total || 0) / pageSize)
-                  }
-                  className='text-xs'
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
+            <DeploymentPagination
+              currentPage={currentPage}
+              pageSize={pageSize}
+              total={deploymentsQuery.data?.total || 0}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size)
+                setCurrentPage(1)
+              }}
+            />
           </TabsContent>
 
           {/* Package Info Tab */}
           <TabsContent value='info' className='space-y-4'>
             {packageQuery.isLoading ? (
-              <div className='rounded-lg border p-6 bg-card space-y-4'>
+              <div className='space-y-4 rounded-lg border bg-card p-6'>
                 <div className='grid grid-cols-2 gap-4'>
                   {[1, 2, 3, 4].map((i) => (
                     <SkeletonCard key={i} />
@@ -497,62 +589,27 @@ export function OTAPackageDetailPage() {
               </div>
             ) : (
               <div className='space-y-4'>
-                {/* Basic Info Section */}
-                <div className='rounded-lg border bg-card overflow-hidden'>
-                  <div className='bg-muted px-6 py-3 border-b'>
-                    <h3 className='font-semibold text-sm'>Basic Information</h3>
-                  </div>
-                  <div className='p-6'>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                      <div>
-                        <label className='text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2 block'>
-                          Package Name
-                        </label>
-                        <p className='text-base font-mono break-all'>{pkg?.packageName}</p>
-                      </div>
-                      <div>
-                        <label className='text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2 block'>
-                          Version
-                        </label>
-                        <p className='text-base font-mono'>{pkg?.version}</p>
-                      </div>
-                      <div>
-                        <label className='text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2 block'>
-                          Package Type
-                        </label>
-                        <div className='flex items-center gap-2'>
-                          <Badge variant='secondary' className='capitalize'>{pkg?.packageType}</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <label className='text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2 block'>
-                          Status
-                        </label>
-                        <Badge className='capitalize'>{pkg?.status}</Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 {/* File Information Section */}
-                <div className='rounded-lg border bg-card overflow-hidden'>
-                  <div className='bg-muted px-6 py-3 border-b'>
-                    <h3 className='font-semibold text-sm'>File Information</h3>
+                <div className='overflow-hidden rounded-lg border bg-card'>
+                  <div className='border-b bg-muted px-6 py-3'>
+                    <h3 className='text-sm font-semibold'>
+                      {t('packageDetail.sections.fileInformation')}
+                    </h3>
                   </div>
-                  <div className='p-6 space-y-4'>
+                  <div className='space-y-4 p-6'>
                     <div>
-                      <label className='text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2 block'>
-                        File URL
+                      <label className='mb-2 block text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
+                        {t('viewDialog.fields.fileUrl')}
                       </label>
-                      <p className='text-sm break-all bg-muted p-3 rounded font-mono'>
+                      <p className='rounded bg-muted p-3 font-mono text-sm break-all'>
                         {pkg?.fileUrl || '-'}
                       </p>
                     </div>
                     <div>
-                      <label className='text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2 block'>
-                        Checksum (SHA256)
+                      <label className='mb-2 block text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
+                        {t('packageDetail.fields.checksum')}
                       </label>
-                      <p className='text-sm break-all bg-muted p-3 rounded font-mono'>
+                      <p className='rounded bg-muted p-3 font-mono text-sm break-all'>
                         {pkg?.checksum || '-'}
                       </p>
                     </div>
@@ -560,25 +617,35 @@ export function OTAPackageDetailPage() {
                 </div>
 
                 {/* Description Section */}
-                <div className='rounded-lg border bg-card overflow-hidden'>
-                  <div className='bg-muted px-6 py-3 border-b'>
-                    <h3 className='font-semibold text-sm'>Description & Notes</h3>
+                <div className='overflow-hidden rounded-lg border bg-card'>
+                  <div className='border-b bg-muted px-6 py-3'>
+                    <h3 className='text-sm font-semibold'>
+                      {t('packageDetail.sections.descriptionAndNotes')}
+                    </h3>
                   </div>
-                  <div className='p-6 space-y-4'>
+                  <div className='space-y-4 p-6'>
                     <div>
-                      <label className='text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2 block'>
-                        Description
+                      <label className='mb-2 block text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
+                        {t('packageForm.fields.description')}
                       </label>
                       <p className='text-sm leading-relaxed'>
-                        {pkg?.description || <span className='text-muted-foreground italic'>No description provided</span>}
+                        {pkg?.description || (
+                          <span className='text-muted-foreground italic'>
+                            {t('packageDetail.emptyDescription')}
+                          </span>
+                        )}
                       </p>
                     </div>
                     <div>
-                      <label className='text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2 block'>
-                        Release Notes
+                      <label className='mb-2 block text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
+                        {t('packageDetail.fields.releaseNotes')}
                       </label>
-                      <p className='text-sm whitespace-pre-wrap leading-relaxed bg-muted p-3 rounded max-h-48 overflow-y-auto'>
-                        {pkg?.releaseNotes || <span className='text-muted-foreground italic'>No release notes provided</span>}
+                      <p className='max-h-48 overflow-y-auto rounded bg-muted p-3 text-sm leading-relaxed whitespace-pre-wrap'>
+                        {pkg?.releaseNotes || (
+                          <span className='text-muted-foreground italic'>
+                            {t('packageDetail.emptyReleaseNotes')}
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -587,10 +654,10 @@ export function OTAPackageDetailPage() {
                 {/* Actions */}
                 <div className='flex gap-2 pt-2'>
                   <Button variant='outline' size='sm'>
-                    Edit Package
+                    {t('common:edit')}
                   </Button>
                   <Button variant='outline' size='sm'>
-                    Download
+                    {t('common:download')}
                   </Button>
                 </div>
               </div>
