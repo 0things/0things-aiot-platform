@@ -9,7 +9,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -29,8 +28,13 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useUpdateOTAPackage } from '../api/queries'
 import { packageTypes } from '../data/data'
-import { editPackageFormSchema, type EditPackageFormData } from '../data/schema'
+import {
+  editPackageFormSchema,
+  otaPackageFileExtensions,
+  type EditPackageFormData,
+} from '../data/schema'
 import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
+import { OTAFormMessage as FormMessage } from './ota-form-message'
 
 export function EditPackageDialog() {
   const { t } = useTranslation('ota')
@@ -130,9 +134,7 @@ export function EditPackageDialog() {
                 name='packageName'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      {t('packageForm.fields.packageName')}
-                    </FormLabel>
+                    <FormLabel>{t('packageForm.fields.packageName')}</FormLabel>
                     <FormControl>
                       <Input {...field} disabled />
                     </FormControl>
@@ -160,9 +162,7 @@ export function EditPackageDialog() {
                 name='packageType'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      {t('packageForm.fields.packageType')}
-                    </FormLabel>
+                    <FormLabel>{t('packageForm.fields.packageType')}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
@@ -191,9 +191,7 @@ export function EditPackageDialog() {
                 name='productId'
                 render={() => (
                   <FormItem>
-                    <FormLabel>
-                      {t('packageForm.fields.productName')}
-                    </FormLabel>
+                    <FormLabel>{t('packageForm.fields.productName')}</FormLabel>
                     <FormControl>
                       <Input
                         value={selectedPackage?.productName || ''}
@@ -210,9 +208,7 @@ export function EditPackageDialog() {
                 name='description'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      {t('packageForm.fields.description')}
-                    </FormLabel>
+                    <FormLabel>{t('packageForm.fields.description')}</FormLabel>
                     <FormControl>
                       <Textarea {...field} />
                     </FormControl>
@@ -230,7 +226,7 @@ export function EditPackageDialog() {
                     <FormControl>
                       <Input
                         type='file'
-                        accept='.bin,.hex,.elf'
+                        accept={otaPackageFileExtensions.join(',')}
                         onChange={(e) => {
                           const file = e.target.files?.[0]
                           onChange(file)

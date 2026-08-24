@@ -334,6 +334,15 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-FileUploadOTAFileResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/FileUploadOTAFileResponse'
+      message:
+        type: string
+    type: object
   ApiResponse-GetSceneLinkageDetailResponse:
     properties:
       code:
@@ -664,9 +673,7 @@ definitions:
       enabled:
         type: boolean
       metadata:
-        items:
-          type: integer
-        type: array
+        type: string
       name:
         type: string
       productId:
@@ -942,9 +949,7 @@ definitions:
   DeviceUpdateDeviceRequest:
     properties:
       metadata:
-        items:
-          type: integer
-        type: array
+        type: string
       name:
         type: string
       state:
@@ -964,6 +969,15 @@ definitions:
         type: integer
     required:
     - reported
+    type: object
+  FileUploadOTAFileResponse:
+    properties:
+      checksum:
+        type: string
+      fileSize:
+        type: integer
+      fileUrl:
+        type: string
     type: object
   GetSceneLinkageDetailResponse:
     properties:
@@ -2361,6 +2375,30 @@ paths:
       summary: 获取设备下行推送记录
       tags:
       - 设备模块
+  /files/ota:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传受支持的 OTA 文件到 Cloudflare R2，并返回创建 OTA 升级包所需的文件元数据
+      parameters:
+      - description: OTA upgrade file (.bin, .dav, .tar, .gz, .zip, .gzip, .apk, .tar.gz,
+          .tar.xz, .pack; max 100 MB)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-FileUploadOTAFileResponse'
+      security:
+      - Bearer: []
+      summary: 上传 OTA 升级文件
+      tags:
+      - 文件模块
   /login:
     post:
       consumes:
@@ -2504,6 +2542,29 @@ paths:
       summary: 更新 OTA 升级包
       tags:
       - OTA 模块
+  /ota-packages/{id}/batches:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定 OTA 升级包下的升级批次
+      parameters:
+      - description: 升级包 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-OtaListUpgradeBatchesResponse'
+      security:
+      - Bearer: []
+      summary: 获取 OTA 升级批次列表
+      tags:
+      - OTA 模块
   /ota-packages/{id}/deploy:
     post:
       consumes:
@@ -2531,6 +2592,41 @@ paths:
       security:
       - Bearer: []
       summary: 部署 OTA 升级包
+      tags:
+      - OTA 模块
+  /ota-packages/{id}/device-deployments:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取指定升级包下的设备部署记录
+      parameters:
+      - description: 升级包 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 部署状态
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse'
+      security:
+      - Bearer: []
+      summary: 获取 OTA 设备部署列表
       tags:
       - OTA 模块
   /ota-packages/{id}/dispatch:
@@ -2585,75 +2681,17 @@ paths:
       summary: 上报设备 OTA 升级结果
       tags:
       - OTA 模块
-  /ota-packages/{packageName}/batches:
-    get:
-      consumes:
-      - application/json
-      description: 获取指定 OTA 升级包下的升级批次
-      parameters:
-      - description: 升级包名称
-        in: path
-        name: packageName
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-OtaListUpgradeBatchesResponse'
-      security:
-      - Bearer: []
-      summary: 获取 OTA 升级批次列表
-      tags:
-      - OTA 模块
-  /ota-packages/{packageName}/device-deployments:
-    get:
-      consumes:
-      - application/json
-      description: 分页获取指定升级包下的设备部署记录
-      parameters:
-      - description: 升级包名称
-        in: path
-        name: packageName
-        required: true
-        type: string
-      - description: 页码
-        in: query
-        name: page
-        type: integer
-      - description: 每页数量
-        in: query
-        name: pageSize
-        type: integer
-      - description: 部署状态
-        in: query
-        name: status
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse'
-      security:
-      - Bearer: []
-      summary: 获取 OTA 设备部署列表
-      tags:
-      - OTA 模块
-  /ota-packages/{packageName}/upgrade-statistics:
+  /ota-packages/{id}/upgrade-statistics:
     get:
       consumes:
       - application/json
       description: 获取指定 OTA 升级包的升级统计数据
       parameters:
-      - description: 升级包名称
+      - description: 升级包 ID
         in: path
-        name: packageName
+        name: id
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:

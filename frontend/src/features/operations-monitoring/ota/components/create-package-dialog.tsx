@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -28,18 +27,21 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { SearchableSelect } from '@/components/searchable-select'
 import { useAllProducts } from '@/features/products/api/queries'
-import { useCreateOTAPackage } from '../api/queries'
+import { useCreateOTAPackage, useUploadOTAFile } from '../api/queries'
 import { packageTypes } from '../data/data'
 import {
   createPackageFormSchema,
+  otaPackageFileExtensions,
   type CreatePackageFormData,
 } from '../data/schema'
 import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
+import { OTAFormMessage as FormMessage } from './ota-form-message'
 
 export function CreatePackageDialog() {
   const { t } = useTranslation('ota')
   const { openDialog, setOpenDialog } = useOTAPackagesContext()
   const createMutation = useCreateOTAPackage()
+  const uploadMutation = useUploadOTAFile()
   const { data: productsData, isLoading: isLoadingProducts } = useAllProducts()
 
   const form = useForm<CreatePackageFormData>({
@@ -50,13 +52,22 @@ export function CreatePackageDialog() {
       packageType: 'upgrade',
       productKey: '',
       description: '',
+      uploadMethod: 'file',
       file: undefined,
+      fileUrl: '',
     },
+  })
+  const uploadMethod = useWatch({
+    control: form.control,
+    name: 'uploadMethod',
   })
 
   const onSubmit = async (data: CreatePackageFormData) => {
-    // TODO: Handle file upload - need to upload file first and get fileUrl
-    // For now, we'll create the package without file data
+    const upload =
+      data.uploadMethod === 'file'
+        ? await uploadMutation.mutateAsync(data.file!)
+        : undefined
+
     await createMutation.mutateAsync(
       {
         packageName: data.packageName,
@@ -64,7 +75,10 @@ export function CreatePackageDialog() {
         packageType: data.packageType,
         product_key: data.productKey,
         description: data.description,
-        uploadType: 'file',
+        uploadType: data.uploadMethod,
+        fileUrl: upload?.fileUrl ?? data.fileUrl,
+        fileSize: upload?.fileSize,
+        checksum: upload?.checksum,
       },
       {
         onSuccess: () => {
@@ -98,9 +112,7 @@ export function CreatePackageDialog() {
                 name='packageName'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      {t('packageForm.fields.packageName')}
-                    </FormLabel>
+                    <FormLabel>{t('packageForm.fields.packageName')}</FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t(
@@ -122,9 +134,7 @@ export function CreatePackageDialog() {
                     <FormLabel>{t('packageForm.fields.version')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder={t(
-                          'packageForm.fields.versionPlaceholder'
-                        )}
+                        placeholder={t('packageForm.fields.versionPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -138,9 +148,7 @@ export function CreatePackageDialog() {
                 name='packageType'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      {t('packageForm.fields.packageType')}
-                    </FormLabel>
+                    <FormLabel>{t('packageForm.fields.packageType')}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -172,9 +180,7 @@ export function CreatePackageDialog() {
                 name='productKey'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      {t('packageForm.fields.productName')}
-                    </FormLabel>
+                    <FormLabel>{t('packageForm.fields.productName')}</FormLabel>
                     <FormControl>
                       <SearchableSelect
                         value={field.value}
@@ -207,9 +213,7 @@ export function CreatePackageDialog() {
                 name='description'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      {t('packageForm.fields.description')}
-                    </FormLabel>
+                    <FormLabel>{t('packageForm.fields.description')}</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder={t(
@@ -225,25 +229,81 @@ export function CreatePackageDialog() {
 
               <FormField
                 control={form.control}
-                name='file'
-                render={({ field: { value, onChange, ...field } }) => (
+                name='uploadMethod'
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('packageForm.fields.file')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='file'
-                        accept='.bin,.hex,.elf'
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          onChange(file)
-                        }}
-                        {...field}
-                      />
-                    </FormControl>
+                    <FormLabel>
+                      {t('packageForm.fields.uploadMethod')}
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='file'>
+                          {t('packageForm.fields.uploadBinaryFile')}
+                        </SelectItem>
+                        <SelectItem value='url'>
+                          {t('packageForm.fields.useExternalUrl')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {uploadMethod === 'file' ? (
+                <FormField
+                  control={form.control}
+                  name='file'
+                  render={({ field: { value, onChange, ...field } }) => (
+                    <FormItem>
+                      <FormLabel>{t('packageForm.fields.file')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='file'
+                          accept={otaPackageFileExtensions.join(',')}
+                          aria-label={t('packageForm.fields.file')}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            onChange(file)
+                          }}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                <FormField
+                  control={form.control}
+                  name='fileUrl'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {t('packageForm.fields.externalUrl')}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type='url'
+                          placeholder={t(
+                            'packageForm.fields.externalUrlPlaceholder'
+                          )}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <div className='sticky bottom-0 flex gap-2 bg-background pt-4 pb-2'>
                 <Button
@@ -257,9 +317,11 @@ export function CreatePackageDialog() {
                 <Button
                   type='submit'
                   className='flex-1'
-                  disabled={createMutation.isPending}
+                  disabled={
+                    createMutation.isPending || uploadMutation.isPending
+                  }
                 >
-                  {createMutation.isPending
+                  {createMutation.isPending || uploadMutation.isPending
                     ? t('common:saving', { defaultValue: 'Saving...' })
                     : t('packageForm.submit')}
                 </Button>

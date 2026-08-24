@@ -1411,6 +1411,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/files/ota": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "上传受支持的 OTA 文件到 Cloudflare R2，并返回创建 OTA 升级包所需的文件元数据",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文件模块"
+                ],
+                "summary": "上传 OTA 升级文件",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "OTA upgrade file (.bin, .dav, .tar, .gz, .zip, .gzip, .apk, .tar.gz, .tar.xz, .pack; max 100 MB)",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-FileUploadOTAFileResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "consumes": [
@@ -1639,6 +1676,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/ota-packages/{id}/batches": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取指定 OTA 升级包下的升级批次",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "获取 OTA 升级批次列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-OtaListUpgradeBatchesResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/ota-packages/{id}/deploy": {
             "post": {
                 "security": [
@@ -1680,6 +1754,61 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota-packages/{id}/device-deployments": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "分页获取指定升级包下的设备部署记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "获取 OTA 设备部署列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "部署状态",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse"
                         }
                     }
                 }
@@ -1768,99 +1897,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{packageName}/batches": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "获取指定 OTA 升级包下的升级批次",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OTA 模块"
-                ],
-                "summary": "获取 OTA 升级批次列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "升级包名称",
-                        "name": "packageName",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-OtaListUpgradeBatchesResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/ota-packages/{packageName}/device-deployments": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "分页获取指定升级包下的设备部署记录",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OTA 模块"
-                ],
-                "summary": "获取 OTA 设备部署列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "升级包名称",
-                        "name": "packageName",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "部署状态",
-                        "name": "status",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/ota-packages/{packageName}/upgrade-statistics": {
+        "/ota-packages/{id}/upgrade-statistics": {
             "get": {
                 "security": [
                     {
@@ -1880,9 +1917,9 @@ const docTemplate = `{
                 "summary": "获取 OTA 升级统计",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "升级包名称",
-                        "name": "packageName",
+                        "type": "integer",
+                        "description": "升级包 ID",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3418,6 +3455,20 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-FileUploadOTAFileResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/FileUploadOTAFileResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-GetSceneLinkageDetailResponse": {
             "type": "object",
             "properties": {
@@ -3933,10 +3984,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -4356,10 +4404,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -4389,6 +4434,20 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "integer"
+                }
+            }
+        },
+        "FileUploadOTAFileResponse": {
+            "type": "object",
+            "properties": {
+                "checksum": {
+                    "type": "string"
+                },
+                "fileSize": {
+                    "type": "integer"
+                },
+                "fileUrl": {
+                    "type": "string"
                 }
             }
         },

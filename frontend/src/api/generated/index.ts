@@ -54,11 +54,12 @@ import type {
   ApiResponseDeviceSuccessResponse,
   ApiResponseDeviceTelemetryResponse,
   ApiResponseDeviceUpdateDeviceResponse,
+  ApiResponseFileUploadOTAFileResponse,
   ApiResponseGetSceneLinkageDetailResponse,
   ApiResponseGetSceneLinkageResponse,
   ApiResponseListSceneLinkagesResponse,
   ApiResponseMessageParserExecuteProductMessageParserResponse,
-  ApiResponseMessageParserGetProductMessageParserResponse,
+  ApiResponseMessageParserProductMessageParser,
   ApiResponseOtaCreateOTAPackageResponse,
   ApiResponseOtaGetOTAPackageResponse,
   ApiResponseOtaGetUpgradeStatisticsResponse,
@@ -103,8 +104,11 @@ import type {
   MessageParserExecuteProductMessageParserRequest,
   MessageParserUpsertProductMessageParserRequest,
   OtaCreateOTAPackageRequest,
+  OtaDeployOTAPackageRequest,
   OtaOTAPackageRequest,
+  OtaReportOTAStatusRequest,
   PostDevicesBatchUploadBody,
+  PostFilesOtaBody,
   ProductCreateProductRequest,
   ProductTslUpsertProductTSLRequest,
   ProductUpdateProductRequest,
@@ -2743,6 +2747,76 @@ export function useGetDevicesIdTelemetry<TData = Awaited<ReturnType<typeof getDe
 
 
 /**
+ * 上传受支持的 OTA 文件到 Cloudflare R2，并返回创建 OTA 升级包所需的文件元数据
+ * @summary 上传 OTA 升级文件
+ */
+export const postFilesOta = (
+    postFilesOtaBody?: BodyType<PostFilesOtaBody>,
+ signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
+if(postFilesOtaBody?.file !== undefined) {
+ formData.append(`file`, postFilesOtaBody.file);
+ }
+
+      return orvalAxios<ApiResponseFileUploadOTAFileResponse>(
+      {url: `/files/ota`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      );
+    }
+
+
+
+
+export const getPostFilesOtaMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postFilesOta>>, TError,{data?: BodyType<PostFilesOtaBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postFilesOta>>, TError,{data?: BodyType<PostFilesOtaBody>}, TContext> => {
+
+const mutationKey = ['postFilesOta'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postFilesOta>>, {data?: BodyType<PostFilesOtaBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postFilesOta(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostFilesOtaMutationResult = NonNullable<Awaited<ReturnType<typeof postFilesOta>>>
+    export type PostFilesOtaMutationBody = BodyType<PostFilesOtaBody> | undefined
+    export type PostFilesOtaMutationError = ErrorType<unknown>
+
+    /**
+ * @summary 上传 OTA 升级文件
+ */
+export const usePostFilesOta = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postFilesOta>>, TError,{data?: BodyType<PostFilesOtaBody>}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postFilesOta>>,
+        TError,
+        {data?: BodyType<PostFilesOtaBody>},
+        TContext
+      > => {
+      return useMutation(getPostFilesOtaMutationOptions(options), queryClient);
+    }
+
+/**
  * @summary 账号登录
  */
 export const postLogin = (
@@ -3288,6 +3362,73 @@ export function useGetOtaPackagesIdBatches<TData = Awaited<ReturnType<typeof get
 
 
 /**
+ * 将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying
+ * @summary 部署 OTA 升级包
+ */
+export const postOtaPackagesIdDeploy = (
+    id: number,
+    otaDeployOTAPackageRequest: BodyType<OtaDeployOTAPackageRequest>,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<ApiResponseOtaSuccessResponse>(
+      {url: `/ota-packages/${id}/deploy`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: otaDeployOTAPackageRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getPostOtaPackagesIdDeployMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdDeploy>>, TError,{id: number;data: BodyType<OtaDeployOTAPackageRequest>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdDeploy>>, TError,{id: number;data: BodyType<OtaDeployOTAPackageRequest>}, TContext> => {
+
+const mutationKey = ['postOtaPackagesIdDeploy'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postOtaPackagesIdDeploy>>, {id: number;data: BodyType<OtaDeployOTAPackageRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  postOtaPackagesIdDeploy(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostOtaPackagesIdDeployMutationResult = NonNullable<Awaited<ReturnType<typeof postOtaPackagesIdDeploy>>>
+    export type PostOtaPackagesIdDeployMutationBody = BodyType<OtaDeployOTAPackageRequest>
+    export type PostOtaPackagesIdDeployMutationError = ErrorType<unknown>
+
+    /**
+ * @summary 部署 OTA 升级包
+ */
+export const usePostOtaPackagesIdDeploy = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdDeploy>>, TError,{id: number;data: BodyType<OtaDeployOTAPackageRequest>}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postOtaPackagesIdDeploy>>,
+        TError,
+        {id: number;data: BodyType<OtaDeployOTAPackageRequest>},
+        TContext
+      > => {
+      return useMutation(getPostOtaPackagesIdDeployMutationOptions(options), queryClient);
+    }
+
+/**
  * 分页获取指定升级包下的设备部署记录
  * @summary 获取 OTA 设备部署列表
  */
@@ -3388,6 +3529,137 @@ export function useGetOtaPackagesIdDeviceDeployments<TData = Awaited<ReturnType<
 
 
 
+
+/**
+ * 将升级包下所有 pending 的设备升级记录推进为 in_progress；周期性下发任务会自动执行，此接口用于手动触发
+ * @summary 触发 OTA 升级包下发
+ */
+export const postOtaPackagesIdDispatch = (
+    id: number,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<ApiResponseOtaSuccessResponse>(
+      {url: `/ota-packages/${id}/dispatch`, method: 'POST', signal
+    },
+      );
+    }
+
+
+
+
+export const getPostOtaPackagesIdDispatchMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdDispatch>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdDispatch>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['postOtaPackagesIdDispatch'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postOtaPackagesIdDispatch>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  postOtaPackagesIdDispatch(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostOtaPackagesIdDispatchMutationResult = NonNullable<Awaited<ReturnType<typeof postOtaPackagesIdDispatch>>>
+
+    export type PostOtaPackagesIdDispatchMutationError = ErrorType<unknown>
+
+    /**
+ * @summary 触发 OTA 升级包下发
+ */
+export const usePostOtaPackagesIdDispatch = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdDispatch>>, TError,{id: number}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postOtaPackagesIdDispatch>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getPostOtaPackagesIdDispatchMutationOptions(options), queryClient);
+    }
+
+/**
+ * 设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态
+ * @summary 上报设备 OTA 升级结果
+ */
+export const postOtaPackagesIdReport = (
+    id: number,
+    otaReportOTAStatusRequest: BodyType<OtaReportOTAStatusRequest>,
+ signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<ApiResponseOtaSuccessResponse>(
+      {url: `/ota-packages/${id}/report`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: otaReportOTAStatusRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getPostOtaPackagesIdReportMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdReport>>, TError,{id: number;data: BodyType<OtaReportOTAStatusRequest>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdReport>>, TError,{id: number;data: BodyType<OtaReportOTAStatusRequest>}, TContext> => {
+
+const mutationKey = ['postOtaPackagesIdReport'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postOtaPackagesIdReport>>, {id: number;data: BodyType<OtaReportOTAStatusRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  postOtaPackagesIdReport(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostOtaPackagesIdReportMutationResult = NonNullable<Awaited<ReturnType<typeof postOtaPackagesIdReport>>>
+    export type PostOtaPackagesIdReportMutationBody = BodyType<OtaReportOTAStatusRequest>
+    export type PostOtaPackagesIdReportMutationError = ErrorType<unknown>
+
+    /**
+ * @summary 上报设备 OTA 升级结果
+ */
+export const usePostOtaPackagesIdReport = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesIdReport>>, TError,{id: number;data: BodyType<OtaReportOTAStatusRequest>}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postOtaPackagesIdReport>>,
+        TError,
+        {id: number;data: BodyType<OtaReportOTAStatusRequest>},
+        TContext
+      > => {
+      return useMutation(getPostOtaPackagesIdReportMutationOptions(options), queryClient);
+    }
 
 /**
  * 获取指定 OTA 升级包的升级统计数据
@@ -3815,7 +4087,7 @@ export const getProductsKeyProductKeyMessageParser = (
 ) => {
 
 
-      return orvalAxios<ApiResponseMessageParserGetProductMessageParserResponse>(
+      return orvalAxios<ApiResponseMessageParserProductMessageParser>(
       {url: `/products/key/${productKey}/message-parser`, method: 'GET', signal
     },
       );
@@ -3910,7 +4182,7 @@ export const putProductsKeyProductKeyMessageParser = (
 ) => {
 
 
-      return orvalAxios<ApiResponseMessageParserGetProductMessageParserResponse>(
+      return orvalAxios<ApiResponseMessageParserProductMessageParser>(
       {url: `/products/key/${productKey}/message-parser`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: messageParserUpsertProductMessageParserRequest, signal

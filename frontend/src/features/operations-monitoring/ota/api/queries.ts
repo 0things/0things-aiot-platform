@@ -16,16 +16,14 @@ import {
   deleteOtaPackagesId,
   getOtaPackages,
   getOtaPackagesId,
+  postFilesOta,
   postOtaPackages,
   putOtaPackagesId,
 } from '@/api/generated'
 import { orvalAxios } from '@/api/orval-mutator'
 import type { OTAPackage } from '../data/schema'
 
-type CreateOTAPackagePayload = Omit<
-  OtaCreateOTAPackageRequest,
-  'productId'
-> & {
+type CreateOTAPackagePayload = Omit<OtaCreateOTAPackageRequest, 'productId'> & {
   product_key: string
 }
 
@@ -136,6 +134,24 @@ export function useCreateOTAPackage() {
       const message =
         (error as unknown as ApiError).response?.data?.message ||
         'Failed to create OTA package'
+      toast.error(message)
+    },
+  })
+}
+
+export function useUploadOTAFile() {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const response = await postFilesOta({ file })
+      if (!response.data?.fileUrl) {
+        throw new Error('The upload response did not include a file URL')
+      }
+      return response.data
+    },
+    onError: (error) => {
+      const message =
+        (error as unknown as ApiError).response?.data?.message ||
+        'Failed to upload OTA package file'
       toast.error(message)
     },
   })

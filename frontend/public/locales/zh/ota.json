@@ -92,6 +92,7 @@
       "productNameRequired": "所属产品不能为空",
       "fileOrUrlRequired": "请上传文件或提供外部URL",
       "fileTooLarge": "文件大小必须小于 100MB",
+      "invalidFileType": "仅支持 .bin、.dav、.tar、.gz、.zip、.gzip、.apk、.tar.gz、.tar.xz、.pack 格式的文件",
       "invalidUrl": "请提供有效的URL"
     },
     "submit": "创建升级包",

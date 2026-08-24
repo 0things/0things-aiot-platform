@@ -92,6 +92,7 @@
       "productNameRequired": "Product name is required",
       "fileOrUrlRequired": "Please upload a file or provide an external URL",
       "fileTooLarge": "File size must be less than 100MB",
+      "invalidFileType": "Only .bin, .dav, .tar, .gz, .zip, .gzip, .apk, .tar.gz, .tar.xz, and .pack files are supported",
       "invalidUrl": "Please provide a valid URL"
     },
     "submit": "Create Package",
