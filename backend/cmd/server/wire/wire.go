@@ -53,6 +53,7 @@ var serviceSet = wire.NewSet(
 	service.NewSceneLinkageDetailService,
 	service.NewAlertService,
 	service.NewOTAService,
+	service.NewFileService,
 	service.NewDeviceEventService,
 	wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)),
 	wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)),
@@ -62,6 +63,7 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)),
 	wire.Bind(new(service.AlertServiceInterface), new(*service.AlertService)),
 	wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)),
+	wire.Bind(new(service.FileServiceInterface), new(*service.FileService)),
 	wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)),
 )
 
@@ -76,6 +78,7 @@ var handlerSet = wire.NewSet(
 	handler.NewSceneLinkageDetailHandler,
 	handler.NewAlertHandler,
 	handler.NewOTAHandler,
+	handler.NewFileHandler,
 	handler.NewDeviceEventHandler,
 )
 

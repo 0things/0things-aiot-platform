@@ -64,6 +64,8 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	otaRepository := repository.NewOTARepository(ioTDB)
 	otaService := service.NewOTAService(otaRepository, productRepository, deviceRepository)
 	otaHandler := handler.NewOTAHandler(handlerHandler, otaService)
+	fileService := service.NewFileService(viperViper)
+	fileHandler := handler.NewFileHandler(handlerHandler, fileService)
 	deviceEventRepository := repository.NewDeviceEventRepository(ioTDB)
 	deviceEventService := service.NewDeviceEventService(deviceEventRepository, deviceRepository)
 	deviceEventHandler := handler.NewDeviceEventHandler(handlerHandler, deviceEventService)
@@ -80,6 +82,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		SceneLinkageDetailHandler:   sceneLinkageDetailHandler,
 		AlertHandler:                alertHandler,
 		OTAHandler:                  otaHandler,
+		FileHandler:                 fileHandler,
 		DeviceEventHandler:          deviceEventHandler,
 	}
 	httpServer := server.NewHTTPServer(routerDeps)
@@ -99,9 +102,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewIoTDB, repository.NewIoTRedis, repository.NewProductRepository, repository.NewProductTSLRepository, repository.NewProductMessageParserRepository, repository.NewDeviceRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewSceneLinkageRepository, repository.NewSceneLinkageDetailRepository, repository.NewAlertRepository, repository.NewOTARepository, repository.NewDeviceEventRepository, repository.NewTransaction, repository.NewUserRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewProductTSLService, service.NewProductMessageParserService, service.NewDeviceService, service.NewSceneLinkageService, service.NewSceneLinkageDetailService, service.NewAlertService, service.NewOTAService, service.NewDeviceEventService, wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)), wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)), wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)), wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)), wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)), wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)), wire.Bind(new(service.AlertServiceInterface), new(*service.AlertService)), wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)), wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)))
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewProductTSLService, service.NewProductMessageParserService, service.NewDeviceService, service.NewSceneLinkageService, service.NewSceneLinkageDetailService, service.NewAlertService, service.NewOTAService, service.NewFileService, service.NewDeviceEventService, wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)), wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)), wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)), wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)), wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)), wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)), wire.Bind(new(service.AlertServiceInterface), new(*service.AlertService)), wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)), wire.Bind(new(service.FileServiceInterface), new(*service.FileService)), wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)))
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewProductTSLHandler, handler.NewProductMessageParserHandler, handler.NewDeviceHandler, handler.NewSceneLinkageHandler, handler.NewSceneLinkageDetailHandler, handler.NewAlertHandler, handler.NewOTAHandler, handler.NewDeviceEventHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewProductTSLHandler, handler.NewProductMessageParserHandler, handler.NewDeviceHandler, handler.NewSceneLinkageHandler, handler.NewSceneLinkageDetailHandler, handler.NewAlertHandler, handler.NewOTAHandler, handler.NewFileHandler, handler.NewDeviceEventHandler)
 
 var jobSet = wire.NewSet(job.NewJob, job.NewUserJob, job.NewDeviceEventConsumer)
 

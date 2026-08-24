@@ -7,6 +7,7 @@ var (
 	ErrUnauthorized        = newError(401, "Unauthorized")
 	ErrNotFound            = newError(404, "Not Found")
 	ErrInternalServerError = newError(500, "Internal Server Error")
+	ErrStorageUnavailable  = newError(503, "File storage is unavailable")
 
 	// more biz errors
 	ErrEmailAlreadyUse = newError(1001, "The email is already in use.")

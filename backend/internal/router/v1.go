@@ -15,5 +15,6 @@ func InitV1Routers(deps RouterDeps, r *gin.RouterGroup) {
 	InitSceneLinkageRouter(deps, protected)
 	InitAlertRouter(deps, protected)
 	InitOTARouter(deps, protected)
+	InitFileRouter(deps, protected)
 	InitDeviceEventRouter(deps, protected)
 }

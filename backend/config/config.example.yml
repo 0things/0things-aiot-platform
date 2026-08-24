@@ -16,6 +16,15 @@ data:
     device:
       driver: postgres
       dsn: host=127.0.0.1 port=5432 user=postgres dbname=device_service sslmode=disable
+  storage:
+    r2:
+      endpoint: "https://<account-id>.r2.cloudflarestorage.com"
+      bucket: ""
+      region: "auto"
+      access_key_id: ""
+      secret_access_key: ""
+      public_base_url: ""
+      prefix: "ota"
   redis:
     addr: 127.0.0.1:6350
     password: ""
