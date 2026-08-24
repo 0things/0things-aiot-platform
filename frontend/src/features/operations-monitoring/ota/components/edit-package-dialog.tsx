@@ -33,7 +33,7 @@ import { editPackageFormSchema, type EditPackageFormData } from '../data/schema'
 import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
 
 export function EditPackageDialog() {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
   const { openDialog, setOpenDialog, selectedPackage } = useOTAPackagesContext()
   const updatePackage = useUpdateOTAPackage()
 
@@ -114,9 +114,9 @@ export function EditPackageDialog() {
     >
       <SheetContent className='flex w-full flex-col gap-0 p-0 sm:max-w-[480px] lg:max-w-[560px]'>
         <SheetHeader className='px-6 pt-6'>
-          <SheetTitle>{t('ota.packageForm.edit.title')}</SheetTitle>
+          <SheetTitle>{t('packageForm.edit.title')}</SheetTitle>
           <SheetDescription>
-            {t('ota.packageForm.edit.description')}
+            {t('packageForm.edit.description')}
           </SheetDescription>
         </SheetHeader>
         <div className='flex-1 overflow-y-auto px-6 pb-6'>
@@ -131,7 +131,7 @@ export function EditPackageDialog() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t('ota.packageForm.fields.packageName')}
+                      {t('packageForm.fields.packageName')}
                     </FormLabel>
                     <FormControl>
                       <Input {...field} disabled />
@@ -146,7 +146,7 @@ export function EditPackageDialog() {
                 name='version'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('ota.packageForm.fields.version')}</FormLabel>
+                    <FormLabel>{t('packageForm.fields.version')}</FormLabel>
                     <FormControl>
                       <Input {...field} disabled />
                     </FormControl>
@@ -161,7 +161,7 @@ export function EditPackageDialog() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t('ota.packageForm.fields.packageType')}
+                      {t('packageForm.fields.packageType')}
                     </FormLabel>
                     <Select
                       onValueChange={field.onChange}
@@ -176,7 +176,7 @@ export function EditPackageDialog() {
                       <SelectContent>
                         {packageTypes.map((type) => (
                           <SelectItem key={type.value} value={type.value}>
-                            {t(`ota.packageList.packageTypes.${type.value}`)}
+                            {t(`packageList.packageTypes.${type.value}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -192,7 +192,7 @@ export function EditPackageDialog() {
                 render={() => (
                   <FormItem>
                     <FormLabel>
-                      {t('ota.packageForm.fields.productName')}
+                      {t('packageForm.fields.productName')}
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -211,7 +211,7 @@ export function EditPackageDialog() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t('ota.packageForm.fields.description')}
+                      {t('packageForm.fields.description')}
                     </FormLabel>
                     <FormControl>
                       <Textarea {...field} />
@@ -226,7 +226,7 @@ export function EditPackageDialog() {
                 name='file'
                 render={({ field: { value, onChange, ...field } }) => (
                   <FormItem>
-                    <FormLabel>{t('ota.packageForm.fields.file')}</FormLabel>
+                    <FormLabel>{t('packageForm.fields.file')}</FormLabel>
                     <FormControl>
                       <Input
                         type='file'
@@ -260,7 +260,7 @@ export function EditPackageDialog() {
                 >
                   {updatePackage.isPending
                     ? t('common:saving', { defaultValue: 'Saving...' })
-                    : t('ota.packageForm.update')}
+                    : t('packageForm.update')}
                 </Button>
               </div>
             </form>

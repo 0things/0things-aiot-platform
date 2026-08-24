@@ -14,10 +14,9 @@ import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
 import { CreatePackageDialog } from './create-package-dialog'
 import { DeployPackageDialog } from './deploy-package-dialog'
 import { EditPackageDialog } from './edit-package-dialog'
-import { ViewPackageDetailsDialog } from './view-package-details-dialog'
 
 export function OTAPackagesDialogs() {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
   const { openDialog, setOpenDialog, selectedPackage } = useOTAPackagesContext()
   const deleteMutation = useDeleteOTAPackage()
 
@@ -39,9 +38,6 @@ export function OTAPackagesDialogs() {
       {/* Edit Package Dialog */}
       <EditPackageDialog />
 
-      {/* View Package Details Dialog */}
-      <ViewPackageDetailsDialog />
-
       {/* Deploy Package Dialog */}
       <DeployPackageDialog />
 
@@ -52,14 +48,14 @@ export function OTAPackagesDialogs() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('ota.deleteDialog.title')}</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('ota.deleteDialog.description', {
+              {t('deleteDialog.description', {
                 packageName: selectedPackage?.packageName || '',
               })}
               <br />
               <span className='font-medium text-destructive'>
-                {t('ota.deleteDialog.warning')}
+                {t('deleteDialog.warning')}
               </span>
             </AlertDialogDescription>
           </AlertDialogHeader>

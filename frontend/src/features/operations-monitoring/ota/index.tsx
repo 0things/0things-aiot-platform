@@ -7,7 +7,7 @@ import { OTAPackagesProvider } from './components/ota-packages-provider'
 import { OTAPackagesTable } from './components/ota-packages-table'
 
 export function OTAPackages() {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
 
   return (
     <OTAErrorBoundary>
@@ -16,10 +16,10 @@ export function OTAPackages() {
           <div className='flex flex-wrap items-end justify-between gap-2'>
             <div>
               <h2 className='text-2xl font-bold tracking-tight'>
-                {t('ota.tabs.packages')}
+                {t('tabs.packages')}
               </h2>
               <p className='text-muted-foreground'>
-                {t('ota.packageList.description')}
+                {t('packageList.description')}
               </p>
             </div>
             <OTAPackagesPrimaryButtons />

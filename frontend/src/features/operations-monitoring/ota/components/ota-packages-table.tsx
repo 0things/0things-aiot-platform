@@ -33,7 +33,7 @@ import { DataTableBulkActions } from './data-table-bulk-actions'
 import { useOTAPackagesColumns } from './ota-packages-columns'
 
 export function OTAPackagesTable() {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
   const queryClient = useQueryClient()
 
   const [rowSelection, setRowSelection] = useState({})
@@ -130,16 +130,16 @@ export function OTAPackagesTable() {
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder={t('ota.packageList.filters.searchPlaceholder')}
+        searchPlaceholder={t('packageList.filters.searchPlaceholder')}
         searchKey='packageName'
         onSearch={handleSearch}
         onRefresh={handleRefresh}
         filters={[
           {
             columnId: 'packageType',
-            title: t('ota.packageList.columns.packageType'),
+            title: t('packageList.columns.packageType'),
             options: packageTypes.map((type) => ({
-              label: t(`ota.packageList.packageTypes.${type.value}`),
+              label: t(`packageList.packageTypes.${type.value}`),
               value: type.value,
             })),
           },
@@ -147,7 +147,7 @@ export function OTAPackagesTable() {
             columnId: 'status',
             title: t('common:status'),
             options: statuses.map((status) => ({
-              label: t(`ota.packageList.statuses.${status.value}`),
+              label: t(`packageList.statuses.${status.value}`),
               value: status.value,
             })),
           },
@@ -242,7 +242,7 @@ export function OTAPackagesTable() {
                   colSpan={columns.length}
                   className='h-24 text-center'
                 >
-                  {t('ota.packageList.emptyState.description')}
+                  {t('packageList.emptyState.description')}
                 </TableCell>
               </TableRow>
             )}

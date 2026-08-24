@@ -37,7 +37,7 @@ import {
 import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
 
 export function CreatePackageDialog() {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
   const { openDialog, setOpenDialog } = useOTAPackagesContext()
   const createMutation = useCreateOTAPackage()
   const { data: productsData, isLoading: isLoadingProducts } = useAllProducts()
@@ -82,9 +82,9 @@ export function CreatePackageDialog() {
     >
       <SheetContent className='flex w-full flex-col gap-0 p-0 sm:max-w-[480px] lg:max-w-[560px]'>
         <SheetHeader className='px-6 pt-6'>
-          <SheetTitle>{t('ota.packageForm.create.title')}</SheetTitle>
+          <SheetTitle>{t('packageForm.create.title')}</SheetTitle>
           <SheetDescription>
-            {t('ota.packageForm.create.description')}
+            {t('packageForm.create.description')}
           </SheetDescription>
         </SheetHeader>
         <div className='flex-1 overflow-y-auto px-6 pb-6'>
@@ -99,12 +99,12 @@ export function CreatePackageDialog() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t('ota.packageForm.fields.packageName')}
+                      {t('packageForm.fields.packageName')}
                     </FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t(
-                          'ota.packageForm.fields.packageNamePlaceholder'
+                          'packageForm.fields.packageNamePlaceholder'
                         )}
                         {...field}
                       />
@@ -119,11 +119,11 @@ export function CreatePackageDialog() {
                 name='version'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('ota.packageForm.fields.version')}</FormLabel>
+                    <FormLabel>{t('packageForm.fields.version')}</FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t(
-                          'ota.packageForm.fields.versionPlaceholder'
+                          'packageForm.fields.versionPlaceholder'
                         )}
                         {...field}
                       />
@@ -139,7 +139,7 @@ export function CreatePackageDialog() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t('ota.packageForm.fields.packageType')}
+                      {t('packageForm.fields.packageType')}
                     </FormLabel>
                     <Select
                       onValueChange={field.onChange}
@@ -149,7 +149,7 @@ export function CreatePackageDialog() {
                         <SelectTrigger>
                           <SelectValue
                             placeholder={t(
-                              'ota.packageForm.fields.packageTypePlaceholder'
+                              'packageForm.fields.packageTypePlaceholder'
                             )}
                           />
                         </SelectTrigger>
@@ -157,7 +157,7 @@ export function CreatePackageDialog() {
                       <SelectContent>
                         {packageTypes.map((type) => (
                           <SelectItem key={type.value} value={type.value}>
-                            {t(`ota.packageList.packageTypes.${type.value}`)}
+                            {t(`packageList.packageTypes.${type.value}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -173,7 +173,7 @@ export function CreatePackageDialog() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t('ota.packageForm.fields.productName')}
+                      {t('packageForm.fields.productName')}
                     </FormLabel>
                     <FormControl>
                       <SearchableSelect
@@ -188,7 +188,7 @@ export function CreatePackageDialog() {
                             })) || []
                         }
                         placeholder={t(
-                          'ota.packageForm.fields.productNamePlaceholder'
+                          'packageForm.fields.productNamePlaceholder'
                         )}
                         searchPlaceholder={t('common:search')}
                         emptyText={t('common:noData', {
@@ -208,12 +208,12 @@ export function CreatePackageDialog() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t('ota.packageForm.fields.description')}
+                      {t('packageForm.fields.description')}
                     </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder={t(
-                          'ota.packageForm.fields.descriptionPlaceholder'
+                          'packageForm.fields.descriptionPlaceholder'
                         )}
                         {...field}
                       />
@@ -228,7 +228,7 @@ export function CreatePackageDialog() {
                 name='file'
                 render={({ field: { value, onChange, ...field } }) => (
                   <FormItem>
-                    <FormLabel>{t('ota.packageForm.fields.file')}</FormLabel>
+                    <FormLabel>{t('packageForm.fields.file')}</FormLabel>
                     <FormControl>
                       <Input
                         type='file'
@@ -261,7 +261,7 @@ export function CreatePackageDialog() {
                 >
                   {createMutation.isPending
                     ? t('common:saving', { defaultValue: 'Saving...' })
-                    : t('ota.packageForm.submit')}
+                    : t('packageForm.submit')}
                 </Button>
               </div>
             </form>

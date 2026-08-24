@@ -41,7 +41,7 @@ export function OperationsMonitoring() {
                   className='flex items-center gap-2'
                 >
                   <Upload size={16} />
-                  {t('ota.tabs.packages')}
+                  {t('ota:tabs.packages')}
                 </Link>
               </TabsTrigger>
               <TabsTrigger value='analytics' asChild>
@@ -50,7 +50,7 @@ export function OperationsMonitoring() {
                   className='flex items-center gap-2'
                 >
                   <BarChart3 size={16} />
-                  {t('ota.tabs.analytics')}
+                  {t('ota:tabs.analytics')}
                 </Link>
               </TabsTrigger>
             </TabsList>

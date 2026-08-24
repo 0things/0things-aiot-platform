@@ -112,7 +112,7 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
           icon: Activity,
           items: [
             {
-              title: t('operationsMonitoring:ota.title'),
+              title: t('ota:title'),
               url: '/operations-monitoring/ota/packages',
               icon: Upload,
             },

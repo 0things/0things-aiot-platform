@@ -35,6 +35,7 @@ i18n
       'settings',
       'deviceManagement',
       'operationsMonitoring',
+      'ota',
       'iotDashboard',
       'sceneLinkage',
     ],

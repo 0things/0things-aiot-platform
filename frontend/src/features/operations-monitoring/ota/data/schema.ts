@@ -3,6 +3,8 @@ import { z } from 'zod'
 export const otaPackageStatusEnum = z.enum([
   'draft',
   'deploying',
+  'success',
+  'partial',
   'completed',
   'failed',
   'cancelled',
@@ -48,18 +50,18 @@ export type OTAPackageType = z.infer<typeof otaPackageTypeEnum>
 export const createPackageFormSchema = z.object({
   packageName: z
     .string()
-    .min(1, 'ota.packageForm.validation.packageNameRequired'),
+    .min(1, 'packageForm.validation.packageNameRequired'),
   version: z
     .string()
-    .min(1, 'ota.packageForm.validation.versionRequired')
+    .min(1, 'packageForm.validation.versionRequired')
     .regex(
       /^\d+\.\d+\.\d+(\.\d+)?$/,
-      'ota.packageForm.validation.versionInvalid'
+      'packageForm.validation.versionInvalid'
     ),
   packageType: otaPackageTypeEnum,
   productKey: z
     .string()
-    .min(1, 'ota.packageForm.validation.productNameRequired'),
+    .min(1, 'packageForm.validation.productNameRequired'),
   description: z.string().optional(),
   file: z.instanceof(File).optional(),
 })

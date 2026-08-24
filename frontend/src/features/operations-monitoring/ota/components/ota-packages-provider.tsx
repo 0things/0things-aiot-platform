@@ -1,7 +1,7 @@
 import { createContext, useState, type ReactNode } from 'react'
 import { type OTAPackage } from '../data/schema'
 
-type DialogType = 'create' | 'edit' | 'delete' | 'deploy' | 'view' | null
+type DialogType = 'create' | 'edit' | 'delete' | 'deploy' | null
 
 interface OTAPackagesContextType {
   openDialog: DialogType

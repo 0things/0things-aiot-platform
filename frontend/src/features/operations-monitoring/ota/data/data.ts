@@ -16,6 +16,16 @@ export const statuses: {
     variant: 'default',
   },
   {
+    value: 'success',
+    label: 'Success',
+    variant: 'default',
+  },
+  {
+    value: 'partial',
+    label: 'Partial',
+    variant: 'secondary',
+  },
+  {
     value: 'completed',
     label: 'Completed',
     variant: 'default',

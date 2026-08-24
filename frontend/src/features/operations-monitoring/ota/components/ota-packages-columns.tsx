@@ -11,7 +11,7 @@ import { type OTAPackage } from '../data/schema'
 import { DataTableRowActions } from './data-table-row-actions'
 
 export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
 
   return [
     {
@@ -46,7 +46,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={t('ota.packageList.columns.packageName')}
+          title={t('packageList.columns.packageName')}
         />
       ),
       cell: ({ row }) => {
@@ -78,7 +78,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={t('ota.packageList.columns.version')}
+          title={t('packageList.columns.version')}
         />
       ),
       cell: ({ row }) => (
@@ -91,14 +91,14 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={t('ota.packageList.columns.packageType')}
+          title={t('packageList.columns.packageType')}
         />
       ),
       cell: ({ row }) => {
         const packageType = row.getValue('packageType') as string
         return (
           <Badge variant='secondary' className='capitalize'>
-            {t(`ota.packageList.packageTypes.${packageType}`)}
+            {t(`packageList.packageTypes.${packageType}`)}
           </Badge>
         )
       },
@@ -112,7 +112,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={t('ota.packageList.columns.productName')}
+          title={t('packageList.columns.productName')}
         />
       ),
       cell: ({ row }) => <div>{row.getValue('productName')}</div>,
@@ -130,12 +130,13 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
         const status = row.getValue('status') as string
         const statusInfo = statuses.find((s) => s.value === status)
         const variant =
-          statusInfo?.variant === 'default' && status === 'completed'
+          statusInfo?.variant === 'default' &&
+          (status === 'completed' || status === 'success')
             ? 'default'
             : statusInfo?.variant
         return (
           <Badge variant={variant || 'outline'} className='capitalize'>
-            {t(`ota.packageList.statuses.${status}`)}
+            {t(`packageList.statuses.${status}`)}
           </Badge>
         )
       },
@@ -149,7 +150,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={t('ota.packageList.columns.createdAt')}
+          title={t('packageList.columns.createdAt')}
         />
       ),
       cell: ({ row }) => {

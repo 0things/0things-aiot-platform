@@ -1,5 +1,6 @@
 import { type Row } from '@tanstack/react-table'
 import { MoreHorizontal, Pencil, Trash2, Upload, Eye } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,7 +18,8 @@ interface DataTableRowActionsProps {
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
+  const navigate = useNavigate()
   const { setOpenDialog, setSelectedPackage } = useOTAPackagesContext()
   const pkg = row.original
 
@@ -25,7 +27,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const canDelete = pkg.status === 'draft'
   const canDeploy = pkg.status === 'draft'
 
-  const handleAction = (action: 'edit' | 'delete' | 'deploy' | 'view') => {
+  const handleAction = (action: 'edit' | 'delete' | 'deploy') => {
     setSelectedPackage(pkg)
     setOpenDialog(action)
   }
@@ -42,9 +44,16 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end' className='w-[160px]'>
-        <DropdownMenuItem onSelect={() => handleAction('view')}>
+        <DropdownMenuItem
+          onSelect={() =>
+            navigate({
+              to: '/operations-monitoring/ota/packages/$id',
+              params: { id: pkg.id },
+            })
+          }
+        >
           <Eye className='me-2 h-4 w-4' />
-          {t('ota.packageList.actions.viewDetails')}
+          {t('packageList.actions.viewDetails')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -59,7 +68,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           onSelect={() => canDeploy && handleAction('deploy')}
         >
           <Upload className='me-2 h-4 w-4' />
-          {t('ota.packageList.actions.deploy')}
+          {t('packageList.actions.deploy')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

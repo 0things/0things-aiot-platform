@@ -20,7 +20,7 @@ import { useDeployOTAPackage } from '../api/queries'
 import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
 
 export function DeployPackageDialog() {
-  const { t } = useTranslation('operationsMonitoring')
+  const { t } = useTranslation('ota')
   const { openDialog, setOpenDialog, selectedPackage } = useOTAPackagesContext()
   const deployPackage = useDeployOTAPackage()
   const [targetDevices, setTargetDevices] = useState<'all' | 'specific'>('all')
@@ -102,10 +102,10 @@ export function DeployPackageDialog() {
         deviceKeys,
       })
 
-      toast.success(t('ota.notifications.deploymentStarted'))
+      toast.success(t('notifications.deploymentStarted'))
       setOpenDialog(null)
     } catch {
-      toast.error(t('ota.notifications.error'))
+      toast.error(t('notifications.error'))
     } finally {
       setIsDeploying(false)
     }
@@ -118,16 +118,16 @@ export function DeployPackageDialog() {
     >
       <DialogContent className='sm:max-w-[560px]'>
         <DialogHeader>
-          <DialogTitle>{t('ota.deployForm.title')}</DialogTitle>
+          <DialogTitle>{t('deployForm.title')}</DialogTitle>
           <DialogDescription>
-            {t('ota.deployForm.description')}
+            {t('deployForm.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className='space-y-6 py-4'>
           <div className='space-y-3'>
             <Label className='text-base font-semibold'>
-              {t('ota.deployForm.fields.targetDevices')}
+              {t('deployForm.fields.targetDevices')}
             </Label>
             <RadioGroup
               value={targetDevices}
@@ -141,7 +141,7 @@ export function DeployPackageDialog() {
                   htmlFor='all-devices'
                   className='cursor-pointer font-normal'
                 >
-                  {t('ota.deployForm.fields.allDevices')}
+                  {t('deployForm.fields.allDevices')}
                 </Label>
               </div>
               <div className='flex items-center space-x-2'>
@@ -150,7 +150,7 @@ export function DeployPackageDialog() {
                   htmlFor='specific-devices'
                   className='cursor-pointer font-normal'
                 >
-                  {t('ota.deployForm.fields.specificDevices')}
+                  {t('deployForm.fields.specificDevices')}
                 </Label>
               </div>
             </RadioGroup>
@@ -222,7 +222,7 @@ export function DeployPackageDialog() {
                 </div>
                 <div>
                   <span className='font-medium'>
-                    {t('ota.deployForm.fields.estimatedDevices')}:
+                    {t('deployForm.fields.estimatedDevices')}:
                   </span>{' '}
                   {estimatedDeviceCount} devices
                 </div>
@@ -232,12 +232,12 @@ export function DeployPackageDialog() {
 
           <div className='rounded-lg bg-muted p-4'>
             <p className='text-sm'>
-              {t('ota.deployForm.confirmation.message', {
+              {t('deployForm.confirmation.message', {
                 count: estimatedDeviceCount,
               })}
             </p>
             <p className='mt-2 text-sm font-medium text-destructive'>
-              {t('ota.deployForm.confirmation.warning')}
+              {t('deployForm.confirmation.warning')}
             </p>
           </div>
         </div>
@@ -260,7 +260,7 @@ export function DeployPackageDialog() {
           >
             {isDeploying
               ? t('common:deploying', { defaultValue: 'Deploying...' })
-              : t('ota.deployForm.submit')}
+              : t('deployForm.submit')}
           </Button>
         </DialogFooter>
       </DialogContent>
