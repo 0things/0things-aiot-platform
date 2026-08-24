@@ -41,7 +41,7 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
   },
   teams: [
     {
-      name: 'Shadcn Admin',
+      name: '0things Admin',
       logo: Command,
       plan: 'Vite + ShadcnUI',
     },
