@@ -28,7 +28,7 @@ func newProductMessageParser(db *gorm.DB, opts ...gen.DOOption) productMessagePa
 	tableName := _productMessageParser.productMessageParserDo.TableName()
 	_productMessageParser.ALL = field.NewAsterisk(tableName)
 	_productMessageParser.ID = field.NewInt64(tableName, "id")
-	_productMessageParser.TenantID = field.NewInt64(tableName, "tenant_id")
+	_productMessageParser.OrganizationID = field.NewInt64(tableName, "organization_id")
 	_productMessageParser.ProductID = field.NewInt64(tableName, "product_id")
 	_productMessageParser.Language = field.NewString(tableName, "language")
 	_productMessageParser.Script = field.NewString(tableName, "script")
@@ -45,7 +45,7 @@ type productMessageParser struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64
-	TenantID  field.Int64
+	OrganizationID  field.Int64
 	ProductID field.Int64
 	Language  field.String
 	Script    field.String
@@ -68,7 +68,7 @@ func (p productMessageParser) As(alias string) *productMessageParser {
 func (p *productMessageParser) updateTableName(table string) *productMessageParser {
 	p.ALL = field.NewAsterisk(table)
 	p.ID = field.NewInt64(table, "id")
-	p.TenantID = field.NewInt64(table, "tenant_id")
+	p.OrganizationID = field.NewInt64(table, "organization_id")
 	p.ProductID = field.NewInt64(table, "product_id")
 	p.Language = field.NewString(table, "language")
 	p.Script = field.NewString(table, "script")
@@ -104,7 +104,7 @@ func (p *productMessageParser) GetFieldByName(fieldName string) (field.OrderExpr
 func (p *productMessageParser) fillFieldMap() {
 	p.fieldMap = make(map[string]field.Expr, 7)
 	p.fieldMap["id"] = p.ID
-	p.fieldMap["tenant_id"] = p.TenantID
+	p.fieldMap["organization_id"] = p.OrganizationID
 	p.fieldMap["product_id"] = p.ProductID
 	p.fieldMap["language"] = p.Language
 	p.fieldMap["script"] = p.Script

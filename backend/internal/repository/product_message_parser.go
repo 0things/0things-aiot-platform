@@ -21,7 +21,7 @@ func (r *ProductMessageParserRepository) FindByProductID(ctx context.Context, pr
 	q := useIoTQuery(r.db)
 	parser, err := q.ProductMessageParser.WithContext(ctx).Where(
 		q.ProductMessageParser.ProductID.Eq(productID),
-		q.ProductMessageParser.TenantID.Eq(tenant.GetTenantID(ctx)),
+		q.ProductMessageParser.OrganizationID.Eq(tenant.GetOrganizationID(ctx)),
 	).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -33,7 +33,7 @@ func (r *ProductMessageParserRepository) FindByProductID(ctx context.Context, pr
 }
 
 func (r *ProductMessageParserRepository) Save(ctx context.Context, parser *model.ProductMessageParser) error {
-	parser.TenantID = tenant.GetTenantID(ctx)
+	parser.OrganizationID = tenant.GetOrganizationID(ctx)
 	if existing, err := r.FindByProductID(ctx, parser.ProductID); err == nil {
 		parser.ID = existing.ID
 		return useIoTQuery(r.db).ProductMessageParser.WithContext(ctx).Save(parser)

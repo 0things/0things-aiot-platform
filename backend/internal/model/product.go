@@ -17,7 +17,7 @@ type Product struct {
 	NodeType           string          `gorm:"column:node_type" json:"nodeType"`
 	ConnectivityMethod string          `gorm:"column:connectivity_method" json:"connectivityMethod"`
 	AccessProtocol     string          `gorm:"column:access_protocol" json:"accessProtocol"`
-	TenantID           int64           `gorm:"column:tenant_id;not null;default:1" json:"tenantId"`
+	OrganizationID           int64           `gorm:"column:organization_id;not null;default:1" json:"organizationId"`
 	DeletedAt          gorm.DeletedAt  `gorm:"column:deleted_at" json:"-"`
 	CreatedAt          time.Time       `gorm:"column:created_at" json:"createdAt"`
 	UpdatedAt          time.Time       `gorm:"column:updated_at" json:"updatedAt"`

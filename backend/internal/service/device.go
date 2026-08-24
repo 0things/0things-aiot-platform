@@ -123,7 +123,7 @@ func (s *DeviceService) CreateDevice(ctx context.Context, d *model.Device) (*mod
 	if d.DeviceKey == "" {
 		d.DeviceKey = deviceKey()
 	}
-	d.TenantID = tenant.GetTenantID(ctx)
+	d.OrganizationID = tenant.GetOrganizationID(ctx)
 	if err := s.repo.Create(ctx, d); err != nil {
 		return nil, err
 	}

@@ -37,6 +37,14 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 			return fmt.Errorf("legacy device table %q is missing; refusing to create legacy data tables", table)
 		}
 	}
+	// Rename the legacy tenant_id column to organization_id while preserving data.
+	for _, table := range []string{"products", "devices", "product_message_parsers", "ota_packages", "scene_linkage"} {
+		if m.deviceDB.Migrator().HasColumn(table, "tenant_id") {
+			if err := m.deviceDB.Migrator().RenameColumn(table, "tenant_id", "organization_id"); err != nil {
+				return fmt.Errorf("rename tenant_id -> organization_id for %s: %w", table, err)
+			}
+		}
+	}
 	if err := m.deviceDB.AutoMigrate(
 		&model.Product{},
 		&model.ProductTSL{},
@@ -57,8 +65,8 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 		return err
 	}
 	for _, table := range []string{"products", "devices"} {
-		if err := m.deviceDB.Exec("UPDATE " + table + " SET tenant_id = 1 WHERE tenant_id IS NULL OR tenant_id = 0").Error; err != nil {
-			return fmt.Errorf("backfill tenant_id for %s: %w", table, err)
+		if err := m.deviceDB.Exec("UPDATE " + table + " SET organization_id = 1 WHERE organization_id IS NULL OR organization_id = 0").Error; err != nil {
+			return fmt.Errorf("backfill organization_id for %s: %w", table, err)
 		}
 	}
 	if !m.deviceDB.Migrator().HasTable(&model.DeviceEvent{}) {

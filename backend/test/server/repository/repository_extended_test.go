@@ -665,7 +665,7 @@ func TestProductRepository_Restore(t *testing.T) {
 	ctx := tenant.WithTenant(context.Background(), 1)
 
 	// Create a product
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	err := productRepo.Create(ctx, product)
 	require.NoError(t, err)
 
@@ -685,8 +685,8 @@ func TestProductRepository_List_WithFilters(t *testing.T) {
 	ctx := tenant.WithTenant(context.Background(), 1)
 
 	// Create products
-	productRepo.Create(ctx, &model.Product{ProductKey: "P001", Name: "IoT Sensor", Status: "active", Category: "iot", TenantID: 1})
-	productRepo.Create(ctx, &model.Product{ProductKey: "P002", Name: "Gateway", Status: "inactive", Category: "gateway", TenantID: 1})
+	productRepo.Create(ctx, &model.Product{ProductKey: "P001", Name: "IoT Sensor", Status: "active", Category: "iot", OrganizationID: 1})
+	productRepo.Create(ctx, &model.Product{ProductKey: "P002", Name: "Gateway", Status: "inactive", Category: "gateway", OrganizationID: 1})
 
 	// List with category filter
 	products, total, err := productRepo.List(ctx, 1, 10, "iot", "", "")
@@ -709,7 +709,7 @@ func TestProductRepository_CountDevices(t *testing.T) {
 	productRepo, _ := setupSQLiteProductRepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	productRepo.Create(ctx, product)
 
 	count, err := productRepo.CountDevices(ctx, product.ID)
@@ -740,10 +740,10 @@ func TestOTARepository_Statistics(t *testing.T) {
 	otaRepo, productRepo := setupSQLiteOTARepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	productRepo.Create(ctx, product)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, TenantID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, OrganizationID: 1}
 	otaRepo.Create(ctx, pkg)
 
 	stats, err := otaRepo.Statistics(ctx, pkg.ID)
@@ -755,10 +755,10 @@ func TestOTARepository_Batches(t *testing.T) {
 	otaRepo, productRepo := setupSQLiteOTARepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	productRepo.Create(ctx, product)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, TenantID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, OrganizationID: 1}
 	otaRepo.Create(ctx, pkg)
 
 	batches, err := otaRepo.Batches(ctx, pkg.ID)
@@ -770,10 +770,10 @@ func TestOTARepository_Deployments(t *testing.T) {
 	otaRepo, productRepo := setupSQLiteOTARepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	productRepo.Create(ctx, product)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, TenantID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, OrganizationID: 1}
 	otaRepo.Create(ctx, pkg)
 
 	deployments, total, err := otaRepo.Deployments(ctx, pkg.ID, 1, 10, "")
@@ -800,9 +800,9 @@ func TestOTARepository_CreateDeployments(t *testing.T) {
 	productRepo := repository.NewProductRepository(iotDB)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	require.NoError(t, productRepo.Create(ctx, product))
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, TenantID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", ProductID: product.ID, OrganizationID: 1}
 	require.NoError(t, otaRepo.Create(ctx, pkg))
 	pkgID := strconv.FormatInt(pkg.ID, 10)
 
@@ -911,9 +911,9 @@ func TestDeviceRepository_FindByKeys(t *testing.T) {
 	deviceRepo := repository.NewDeviceRepository(iotDB, &repository.IoTRedis{Client: nil})
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	require.NoError(t, db.Create(&model.Device{DeviceKey: "D001", Name: "dev1", TenantID: 1, Enabled: true}).Error)
-	require.NoError(t, db.Create(&model.Device{DeviceKey: "D002", Name: "dev2", TenantID: 1, Enabled: true}).Error)
-	require.NoError(t, db.Create(&model.Device{DeviceKey: "D003", Name: "dev3", TenantID: 2, Enabled: true}).Error)
+	require.NoError(t, db.Create(&model.Device{DeviceKey: "D001", Name: "dev1", OrganizationID: 1, Enabled: true}).Error)
+	require.NoError(t, db.Create(&model.Device{DeviceKey: "D002", Name: "dev2", OrganizationID: 1, Enabled: true}).Error)
+	require.NoError(t, db.Create(&model.Device{DeviceKey: "D003", Name: "dev3", OrganizationID: 2, Enabled: true}).Error)
 
 	// 命中同租户多台
 	devices, err := deviceRepo.FindByKeys(ctx, []string{"D001", "D002"})
@@ -940,10 +940,10 @@ func TestDeviceRepository_List_WithEnabledFilter(t *testing.T) {
 	deviceRepo, productRepo := setupSQLiteDeviceRepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	productRepo.Create(ctx, product)
 
-	device := &model.Device{DeviceKey: "D001", Name: "Enabled Device", ProductID: product.ID, TenantID: 1, Enabled: true}
+	device := &model.Device{DeviceKey: "D001", Name: "Enabled Device", ProductID: product.ID, OrganizationID: 1, Enabled: true}
 	deviceRepo.Create(ctx, device)
 
 	enabled := true
@@ -957,10 +957,10 @@ func TestDeviceRepository_List_WithSearch(t *testing.T) {
 	deviceRepo, productRepo := setupSQLiteDeviceRepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	productRepo.Create(ctx, product)
 
-	device := &model.Device{DeviceKey: "D001", Name: "Test Device", ProductID: product.ID, TenantID: 1}
+	device := &model.Device{DeviceKey: "D001", Name: "Test Device", ProductID: product.ID, OrganizationID: 1}
 	deviceRepo.Create(ctx, device)
 
 	devices, total, err := deviceRepo.List(ctx, 1, 10, 0, nil, nil, "Test")
@@ -973,10 +973,10 @@ func TestDeviceRepository_Statistics_WithData(t *testing.T) {
 	deviceRepo, productRepo := setupSQLiteDeviceRepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	productRepo.Create(ctx, product)
 
-	device := &model.Device{DeviceKey: "D001", Name: "Device 1", ProductID: product.ID, TenantID: 1}
+	device := &model.Device{DeviceKey: "D001", Name: "Device 1", ProductID: product.ID, OrganizationID: 1}
 	deviceRepo.Create(ctx, device)
 
 	stats, err := deviceRepo.Statistics(ctx)
@@ -989,10 +989,10 @@ func TestDeviceRepository_Restore_SQLite(t *testing.T) {
 	deviceRepo, productRepo := setupSQLiteDeviceRepo(t)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
 	productRepo.Create(ctx, product)
 
-	device := &model.Device{DeviceKey: "D001", Name: "Device 1", ProductID: product.ID, TenantID: 1}
+	device := &model.Device{DeviceKey: "D001", Name: "Device 1", ProductID: product.ID, OrganizationID: 1}
 	deviceRepo.Create(ctx, device)
 
 	// Delete

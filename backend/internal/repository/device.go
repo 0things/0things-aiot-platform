@@ -41,7 +41,7 @@ func (r *DeviceRepository) DB(ctx context.Context) *gorm.DB {
 
 func (r *DeviceRepository) Find(ctx context.Context, id int64) (*model.Device, error) {
 	q := useQuery(r.db)
-	item, err := q.Device.WithContext(ctx).Where(q.Device.ID.Eq(id), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Preload(q.Device.Product, q.Device.State).First()
+	item, err := q.Device.WithContext(ctx).Where(q.Device.ID.Eq(id), q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Preload(q.Device.Product, q.Device.State).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -53,7 +53,7 @@ func (r *DeviceRepository) Find(ctx context.Context, id int64) (*model.Device, e
 
 func (r *DeviceRepository) FindByKey(ctx context.Context, key string) (*model.Device, error) {
 	q := useQuery(r.db)
-	item, err := q.Device.WithContext(ctx).Where(q.Device.DeviceKey.Eq(key), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Preload(q.Device.Product, q.Device.State).First()
+	item, err := q.Device.WithContext(ctx).Where(q.Device.DeviceKey.Eq(key), q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Preload(q.Device.Product, q.Device.State).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -70,7 +70,7 @@ func (r *DeviceRepository) FindByKeys(ctx context.Context, keys []string) ([]*mo
 	}
 	q := useQuery(r.db)
 	devices, err := q.Device.WithContext(ctx).
-		Where(q.Device.DeviceKey.In(keys...), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).
+		Where(q.Device.DeviceKey.In(keys...), q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).
 		Find()
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) err
 
 func (r *DeviceRepository) List(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) {
 	q := useQuery(r.db)
-	devices := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)))
+	devices := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
 	if productID > 0 {
 		devices = devices.Where(q.Device.ProductID.Eq(productID))
 	}
@@ -144,11 +144,11 @@ func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, er
 	var total, online, offline, inactive int64
 	var err error
 	q := useQuery(r.db)
-	if total, err = q.Device.WithContext(ctx).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Count(); err != nil {
+	if total, err = q.Device.WithContext(ctx).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Count(); err != nil {
 		return DeviceStatistics{}, err
 	}
 	for state, target := range map[string]*int64{"online": &online, "offline": &offline, "inactive": &inactive} {
-		count, err := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx)), q.DeviceState.State.Eq(state)).Count()
+		count, err := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx)), q.DeviceState.State.Eq(state)).Count()
 		*target = count
 		if err != nil {
 			return DeviceStatistics{}, err
@@ -162,13 +162,13 @@ func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, er
 
 func (r *DeviceRepository) Delete(ctx context.Context, device *model.Device) error {
 	q := useQuery(r.db)
-	_, err := q.Device.WithContext(ctx).Where(q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).Delete(device)
+	_, err := q.Device.WithContext(ctx).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Delete(device)
 	return err
 }
 
 func (r *DeviceRepository) Restore(ctx context.Context, id int64) error {
 	q := useQuery(r.db)
-	_, err := q.Device.WithContext(ctx).Unscoped().Where(q.Device.ID.Eq(id), q.Device.TenantID.Eq(tenant.GetTenantID(ctx))).UpdateSimple(q.Device.DeletedAt.Null())
+	_, err := q.Device.WithContext(ctx).Unscoped().Where(q.Device.ID.Eq(id), q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).UpdateSimple(q.Device.DeletedAt.Null())
 	return err
 }
 

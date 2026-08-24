@@ -21,7 +21,7 @@ func TestIntegrationDeviceService_CreateDevice(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "New Device", ProductID: 1, TenantID: 1}
+	device := &model.Device{Name: "New Device", ProductID: 1, OrganizationID: 1}
 	result, err := svc.CreateDevice(ctx(), device)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -365,7 +365,7 @@ func TestIntegrationProductService_CRUD(t *testing.T) {
 	assert.Len(t, products, 1)
 
 	// Create
-	newProduct := &model.Product{ProductKey: "P002", Name: "New Product", TenantID: 1}
+	newProduct := &model.Product{ProductKey: "P002", Name: "New Product", OrganizationID: 1}
 	result, err := svc.Create(ctx(), newProduct)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -401,7 +401,7 @@ func TestIntegrationOTAService_CRUD(t *testing.T) {
 	assert.Error(t, err)
 
 	// Create
-	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", TenantID: 1}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", OrganizationID: 1}
 	err = svc.Create(ctx(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -431,7 +431,7 @@ func TestIntegrationOTAService_BatchesAndDeployments(t *testing.T) {
 	svc := testutil.NewTestOTATotalService(db)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", TenantID: 1}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", OrganizationID: 1}
 	err := svc.Create(ctx(), pkg, "P001")
 	require.NoError(t, err)
 

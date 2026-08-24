@@ -69,7 +69,7 @@ func main() {
 			"manufacturer": fmt.Sprintf("厂商%d", rand.Intn(10)+1),
 			"model":        fmt.Sprintf("MODEL-%c%c%c", 'A'+rand.Intn(26), 'A'+rand.Intn(26), 'A'+rand.Intn(26)),
 		})
-		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO products (product_key, name, description, category, status, metadata, node_type, connectivity_method, access_protocol, tenant_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO products (product_key, name, description, category, status, metadata, node_type, connectivity_method, access_protocol, organization_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			fmt.Sprintf("pk_product_%03d", i),
 			fmt.Sprintf("产品%d", i),
 			fmt.Sprintf("这是产品%d的描述信息", i),
@@ -95,7 +95,7 @@ func main() {
 			"firmware_version": fmt.Sprintf("v%d.%d.%d", rand.Intn(3)+1, rand.Intn(10), rand.Intn(20)),
 			"hardware_version": fmt.Sprintf("hw%d.%d", rand.Intn(5)+1, rand.Intn(3)),
 		})
-		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO devices (device_key, name, product_id, tenant_id, enabled, metadata, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO devices (device_key, name, product_id, organization_id, enabled, metadata, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 			fmt.Sprintf("dk_device_%03d", i),
 			fmt.Sprintf("设备%d", i),
 			int64(i),
@@ -247,7 +247,7 @@ func main() {
 	otaTypes := []string{"firmware", "config", "full"}
 	uploadTypes := []string{"binary", "oss"}
 	for i := 1; i <= 11; i++ {
-		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO ota_packages (package_name, version, product_id, tenant_id, package_type, status, upload_type, file_url, file_size, checksum, description, release_notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO ota_packages (package_name, version, product_id, organization_id, package_type, status, upload_type, file_url, file_size, checksum, description, release_notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			fmt.Sprintf("ota-pkg-%03d", i),
 			fmt.Sprintf("%d.%d.%d", rand.Intn(3)+1, rand.Intn(10), rand.Intn(20)),
 			int64(i),

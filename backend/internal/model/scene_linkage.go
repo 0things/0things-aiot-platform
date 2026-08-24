@@ -8,7 +8,7 @@ import (
 
 type SceneLinkage struct {
 	ID          int64           `gorm:"primaryKey"`
-	TenantID    int64           `gorm:"column:tenant_id"`
+	OrganizationID    int64           `gorm:"column:organization_id"`
 	Name        string          `gorm:"column:name"`
 	Description string          `gorm:"column:description"`
 	Enable      int             `gorm:"column:enable"` // 1 = enabled, 0 = disabled

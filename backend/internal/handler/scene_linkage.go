@@ -20,7 +20,7 @@ func NewSceneLinkageHandler(h *Handler, svc service.SceneLinkageServiceInterface
 func sceneLinkageJSON(scene model.SceneLinkage) sceneLinkageV1.SceneLinkage {
 	return sceneLinkageV1.SceneLinkage{
 		ID:          scene.ID,
-		TenantID:    scene.TenantID,
+		OrganizationID:    scene.OrganizationID,
 		Name:        scene.Name,
 		Description: scene.Description,
 		Enable:      scene.Enable,

@@ -25,8 +25,8 @@ func TestDeviceEventService_RecordAndList(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.Device{}, &model.DeviceState{}, &model.DeviceEvent{}))
-	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "p", TenantID: 1}).Error)
-	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "D001", Name: "d", ProductID: 1, TenantID: 1}).Error)
+	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "p", OrganizationID: 1}).Error)
+	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "D001", Name: "d", ProductID: 1, OrganizationID: 1}).Error)
 	require.NoError(t, db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"}).Error)
 
 	svc := NewDeviceEventService(
@@ -52,7 +52,7 @@ func TestProductTSLService_CRUD(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.ProductTSL{}))
-	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "p", TenantID: 1}).Error)
+	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "p", OrganizationID: 1}).Error)
 
 	svc := NewProductTSLService(
 		repository.NewProductRepository(iotDB(db)),
@@ -79,7 +79,7 @@ func TestProductMessageParserService(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.ProductMessageParser{}))
-	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "p", TenantID: 1}).Error)
+	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "p", OrganizationID: 1}).Error)
 
 	svc := NewProductMessageParserService(
 		repository.NewProductRepository(iotDB(db)),

@@ -14,7 +14,7 @@ func TestProductRepository(t *testing.T) {
 	repo := NewProductRepository(store)
 	ctx := context.Background()
 
-	product := &model.Product{ProductKey: "P001", Name: "sensor", Category: "environment", Status: "active", TenantID: 1}
+	product := &model.Product{ProductKey: "P001", Name: "sensor", Category: "environment", Status: "active", OrganizationID: 1}
 	require.NoError(t, repo.Create(ctx, product))
 	found, err := repo.FindByKey(ctx, "P001")
 	require.NoError(t, err)
@@ -26,7 +26,7 @@ func TestProductRepository(t *testing.T) {
 	require.EqualValues(t, 1, total)
 	require.Len(t, items, 1)
 
-	require.NoError(t, repo.Create(ctx, &model.Product{ProductKey: "P002", Name: "updated other tenant", TenantID: 2}))
+	require.NoError(t, repo.Create(ctx, &model.Product{ProductKey: "P002", Name: "updated other tenant", OrganizationID: 2}))
 	items, total, err = repo.List(ctx, 1, 20, "", "", "updated")
 	require.NoError(t, err)
 	require.EqualValues(t, 1, total)

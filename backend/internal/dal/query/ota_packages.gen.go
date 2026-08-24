@@ -31,7 +31,7 @@ func newOTAPackage(db *gorm.DB, opts ...gen.DOOption) oTAPackage {
 	_oTAPackage.PackageName = field.NewString(tableName, "package_name")
 	_oTAPackage.Version = field.NewString(tableName, "version")
 	_oTAPackage.ProductID = field.NewInt64(tableName, "product_id")
-	_oTAPackage.TenantID = field.NewInt64(tableName, "tenant_id")
+	_oTAPackage.OrganizationID = field.NewInt64(tableName, "organization_id")
 	_oTAPackage.ProductKey = field.NewString(tableName, "product_key")
 	_oTAPackage.ProductName = field.NewString(tableName, "product_name")
 	_oTAPackage.PackageType = field.NewString(tableName, "package_type")
@@ -60,7 +60,7 @@ type oTAPackage struct {
 	PackageName  field.String
 	Version      field.String
 	ProductID    field.Int64
-	TenantID     field.Int64
+	OrganizationID     field.Int64
 	ProductKey   field.String
 	ProductName  field.String
 	PackageType  field.String
@@ -95,7 +95,7 @@ func (o *oTAPackage) updateTableName(table string) *oTAPackage {
 	o.PackageName = field.NewString(table, "package_name")
 	o.Version = field.NewString(table, "version")
 	o.ProductID = field.NewInt64(table, "product_id")
-	o.TenantID = field.NewInt64(table, "tenant_id")
+	o.OrganizationID = field.NewInt64(table, "organization_id")
 	o.ProductKey = field.NewString(table, "product_key")
 	o.ProductName = field.NewString(table, "product_name")
 	o.PackageType = field.NewString(table, "package_type")
@@ -141,7 +141,7 @@ func (o *oTAPackage) fillFieldMap() {
 	o.fieldMap["package_name"] = o.PackageName
 	o.fieldMap["version"] = o.Version
 	o.fieldMap["product_id"] = o.ProductID
-	o.fieldMap["tenant_id"] = o.TenantID
+	o.fieldMap["organization_id"] = o.OrganizationID
 	o.fieldMap["product_key"] = o.ProductKey
 	o.fieldMap["product_name"] = o.ProductName
 	o.fieldMap["package_type"] = o.PackageType

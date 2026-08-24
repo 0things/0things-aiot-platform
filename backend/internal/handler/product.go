@@ -23,7 +23,7 @@ func productJSON(product model.Product, count int64) productV1.Product {
 		NodeType:           product.NodeType,
 		ConnectivityMethod: product.ConnectivityMethod,
 		AccessProtocol:     product.AccessProtocol,
-		TenantID:           product.TenantID,
+		OrganizationID:           product.OrganizationID,
 		CreatedAt:          product.CreatedAt,
 		UpdatedAt:          product.UpdatedAt,
 		DeletedAt:          deletedAt(product.DeletedAt),

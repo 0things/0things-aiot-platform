@@ -72,7 +72,7 @@ func (s *ProductService) Create(ctx context.Context, product *model.Product) (*m
 	if product.NodeType == "" {
 		product.NodeType = "direct"
 	}
-	product.TenantID = tenant.GetTenantID(ctx)
+	product.OrganizationID = tenant.GetOrganizationID(ctx)
 	if err := s.repo.Create(ctx, product); err != nil {
 		return nil, err
 	}
