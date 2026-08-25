@@ -50,6 +50,21 @@ func (mr *MockUserServiceMockRecorder) GetProfile(ctx, userId interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockUserService)(nil).GetProfile), ctx, userId)
 }
 
+// ListMyOrganizations mocks base method.
+func (m *MockUserService) ListMyOrganizations(ctx context.Context, userId string) ([]*v1.OrganizationItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListMyOrganizations", ctx, userId)
+	ret0, _ := ret[0].([]*v1.OrganizationItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListMyOrganizations indicates an expected call of ListMyOrganizations.
+func (mr *MockUserServiceMockRecorder) ListMyOrganizations(ctx, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListMyOrganizations", reflect.TypeOf((*MockUserService)(nil).ListMyOrganizations), ctx, userId)
+}
+
 // Login mocks base method.
 func (m *MockUserService) Login(ctx context.Context, req *v1.LoginRequest) (string, error) {
 	m.ctrl.T.Helper()
@@ -77,6 +92,21 @@ func (m *MockUserService) Register(ctx context.Context, req *v1.RegisterRequest)
 func (mr *MockUserServiceMockRecorder) Register(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockUserService)(nil).Register), ctx, req)
+}
+
+// SwitchOrganization mocks base method.
+func (m *MockUserService) SwitchOrganization(ctx context.Context, userId string, orgID int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SwitchOrganization", ctx, userId, orgID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SwitchOrganization indicates an expected call of SwitchOrganization.
+func (mr *MockUserServiceMockRecorder) SwitchOrganization(ctx, userId, orgID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SwitchOrganization", reflect.TypeOf((*MockUserService)(nil).SwitchOrganization), ctx, userId, orgID)
 }
 
 // UpdateProfile mocks base method.

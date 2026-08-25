@@ -101,13 +101,13 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 	r.POST("/products/:id/restore", ph.Restore)
 
 	r.GET("/ota/packages", oh.ListOTA)
-	r.GET("/ota/packages/:id", oh.GetOTA)
+	r.GET("/ota/packages/:uuid", oh.GetOTA)
 	r.POST("/ota/packages", oh.CreateOTA)
-	r.PUT("/ota/packages/:id", oh.UpdateOTA)
-	r.DELETE("/ota/packages/:id", oh.DeleteOTA)
-	r.GET("/ota/packages/:id/stats", oh.OTAStats)
-	r.GET("/ota/packages/:id/batches", oh.OTABatches)
-	r.GET("/ota/packages/:id/deployments", oh.OTADeployments)
+	r.PUT("/ota/packages/:uuid", oh.UpdateOTA)
+	r.DELETE("/ota/packages/:uuid", oh.DeleteOTA)
+	r.GET("/ota/packages/:uuid/stats", oh.OTAStats)
+	r.GET("/ota/packages/:uuid/batches", oh.OTABatches)
+	r.GET("/ota/packages/:uuid/deployments", oh.OTADeployments)
 
 	r.GET("/device-events", eh.ListDeviceEvents)
 
@@ -475,6 +475,7 @@ func TestCoverage_OTA_Create_Error(t *testing.T) {
 
 func TestCoverage_OTA_Update_InvalidID(t *testing.T) {
 	cr := newCoverageRouters(t)
+	cr.ota.EXPECT().Get(gomock.Any(), "abc").Return(nil, repository.ErrNotFound)
 	w := cr.do("PUT", "/ota/packages/abc", map[string]any{"packageName": "fw"})
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
@@ -487,14 +488,14 @@ func TestCoverage_OTA_Update_InvalidJSON(t *testing.T) {
 
 func TestCoverage_OTA_Update_GetFails(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.ota.EXPECT().Get(gomock.Any(), int64(1)).Return(nil, repository.ErrNotFound)
+	cr.ota.EXPECT().Get(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
 	w := cr.do("PUT", "/ota/packages/1", map[string]any{"packageName": "fw"})
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
 func TestCoverage_OTA_Update_SaveFails(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.ota.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.OTAPackage{ID: 1}, nil)
+	cr.ota.EXPECT().Get(gomock.Any(), "1").Return(&model.OTAPackage{ID: 1}, nil)
 	cr.ota.EXPECT().Update(gomock.Any(), gomock.Any()).Return(errors.New("save error"))
 	w := cr.do("PUT", "/ota/packages/1", map[string]any{"packageName": "fw"})
 	assert.True(t, w.Code >= 400, "expected error status code")

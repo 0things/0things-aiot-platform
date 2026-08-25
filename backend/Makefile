@@ -17,6 +17,8 @@ bootstrap:
 mock:
 	mockgen -source=internal/service/user.go -destination test/mocks/service/user.go
 	mockgen -source=internal/repository/user.go -destination test/mocks/repository/user.go
+	mockgen -source=internal/repository/organization.go -destination test/mocks/repository/organization.go
+	mockgen -source=internal/repository/organization_user.go -destination test/mocks/repository/organization_user.go
 	mockgen -source=internal/repository/repository.go -destination test/mocks/repository/repository.go
 
 .PHONY: test

@@ -123,7 +123,7 @@ func TestIntegrationDeviceService_UpdateDevice_WithMetadata(t *testing.T) {
 func TestIntegrationDeviceService_Activate(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	db.Model(&model.DeviceState{}).Where("device_id = ?", 1).Update("state", "inactive")
+	db.Model(&model.DeviceState{}).Where("device_key = ?", "D001").Update("state", "inactive")
 	svc := testutil.NewTestDeviceService(db)
 
 	device, err := svc.Activate(ctx(), 1)

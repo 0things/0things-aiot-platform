@@ -24,13 +24,13 @@ func setupOTAFullErrRouter(mockService *mock_service.MockOTAServiceInterface) *g
 	otaHandler := handler.NewOTAHandler(h, mockService)
 
 	router.GET("/ota/packages", otaHandler.ListOTA)
-	router.GET("/ota/packages/:id", otaHandler.GetOTA)
+	router.GET("/ota/packages/:uuid", otaHandler.GetOTA)
 	router.POST("/ota/packages", otaHandler.CreateOTA)
-	router.PUT("/ota/packages/:id", otaHandler.UpdateOTA)
-	router.DELETE("/ota/packages/:id", otaHandler.DeleteOTA)
-	router.GET("/ota/packages/:id/stats", otaHandler.OTAStats)
-	router.GET("/ota/packages/:id/batches", otaHandler.OTABatches)
-	router.GET("/ota/packages/:id/deployments", otaHandler.OTADeployments)
+	router.PUT("/ota/packages/:uuid", otaHandler.UpdateOTA)
+	router.DELETE("/ota/packages/:uuid", otaHandler.DeleteOTA)
+	router.GET("/ota/packages/:uuid/stats", otaHandler.OTAStats)
+	router.GET("/ota/packages/:uuid/batches", otaHandler.OTABatches)
+	router.GET("/ota/packages/:uuid/deployments", otaHandler.OTADeployments)
 
 	return router
 }
@@ -41,19 +41,20 @@ func TestOTAHandler_GetOTA_NotFound(t *testing.T) {
 	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
 	router := setupOTAFullErrRouter(mockService)
 
-	mockService.EXPECT().Get(gomock.Any(), int64(1)).Return(nil, repository.ErrNotFound)
+	mockService.EXPECT().Get(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
 	req, _ := http.NewRequest("GET", "/ota/packages/1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
-func TestOTAHandler_GetOTA_InvalidID(t *testing.T) {
+func TestOTAHandler_GetOTA_ServiceError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
 	router := setupOTAFullErrRouter(mockService)
 
+	mockService.EXPECT().Get(gomock.Any(), "abc").Return(nil, assert.AnError)
 	req, _ := http.NewRequest("GET", "/ota/packages/abc", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -79,7 +80,7 @@ func TestOTAHandler_DeleteOTA_NotFound(t *testing.T) {
 	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
 	router := setupOTAFullErrRouter(mockService)
 
-	mockService.EXPECT().Delete(gomock.Any(), int64(1)).Return(repository.ErrNotFound)
+	mockService.EXPECT().Delete(gomock.Any(), "1").Return(repository.ErrNotFound)
 	req, _ := http.NewRequest("DELETE", "/ota/packages/1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -131,7 +132,7 @@ func TestOTAHandler_UpdateOTA_GetFails(t *testing.T) {
 	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
 	router := setupOTAFullErrRouter(mockService)
 
-	mockService.EXPECT().Get(gomock.Any(), int64(1)).Return(nil, repository.ErrNotFound)
+	mockService.EXPECT().Get(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
 	body, _ := json.Marshal(map[string]interface{}{"packageName": "fw", "version": "2.0.0", "productKey": "P001"})
 	req, _ := http.NewRequest("PUT", "/ota/packages/1", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

@@ -5,17 +5,18 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	v1 "aiot-backend/api/v1"
-	"aiot-backend/pkg/jwt"
-	"aiot-backend/test/mocks/repository"
 	"os"
 	"testing"
+	"time"
 
+	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
 	"aiot-backend/pkg/config"
+	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
 	"aiot-backend/pkg/sid"
+	mock_repository "aiot-backend/test/mocks/repository"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
@@ -54,10 +55,12 @@ func TestUserService_Register(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
+	mockOrgRepo := mock_repository.NewMockOrganizationRepository(ctrl)
+	mockOrgUserRepo := mock_repository.NewMockOrganizationUserRepository(ctrl)
 	mockTm := mock_repository.NewMockTransaction(ctrl)
 	srv := service.NewService(mockTm, logger, sf, j)
 
-	userService := service.NewUserService(srv, mockUserRepo)
+	userService := service.NewUserService(srv, mockUserRepo, mockOrgRepo, mockOrgUserRepo)
 
 	ctx := context.Background()
 	req := &v1.RegisterRequest{
@@ -66,7 +69,12 @@ func TestUserService_Register(t *testing.T) {
 	}
 
 	mockUserRepo.EXPECT().GetByEmail(ctx, req.Email).Return(nil, nil)
-	mockTm.EXPECT().Transaction(ctx, gomock.Any()).Return(nil)
+	mockTm.EXPECT().Transaction(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+		return fn(ctx)
+	})
+	mockUserRepo.EXPECT().Create(ctx, gomock.Any()).Return(nil)
+	mockOrgRepo.EXPECT().Create(ctx, gomock.Any()).Return(nil)
+	mockOrgUserRepo.EXPECT().Create(ctx, gomock.Any()).Return(nil)
 
 	err := userService.Register(ctx, req)
 
@@ -78,9 +86,11 @@ func TestUserService_Register_UsernameExists(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
+	mockOrgRepo := mock_repository.NewMockOrganizationRepository(ctrl)
+	mockOrgUserRepo := mock_repository.NewMockOrganizationUserRepository(ctrl)
 	mockTm := mock_repository.NewMockTransaction(ctrl)
 	srv := service.NewService(mockTm, logger, sf, j)
-	userService := service.NewUserService(srv, mockUserRepo)
+	userService := service.NewUserService(srv, mockUserRepo, mockOrgRepo, mockOrgUserRepo)
 
 	ctx := context.Background()
 	req := &v1.RegisterRequest{
@@ -100,9 +110,11 @@ func TestUserService_Login(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
+	mockOrgRepo := mock_repository.NewMockOrganizationRepository(ctrl)
+	mockOrgUserRepo := mock_repository.NewMockOrganizationUserRepository(ctrl)
 	mockTm := mock_repository.NewMockTransaction(ctrl)
 	srv := service.NewService(mockTm, logger, sf, j)
-	userService := service.NewUserService(srv, mockUserRepo)
+	userService := service.NewUserService(srv, mockUserRepo, mockOrgRepo, mockOrgUserRepo)
 
 	ctx := context.Background()
 	req := &v1.LoginRequest{
@@ -115,8 +127,15 @@ func TestUserService_Login(t *testing.T) {
 	}
 
 	mockUserRepo.EXPECT().GetByEmail(ctx, req.Email).Return(&model.User{
+		UserId:   "user_123",
 		Password: string(hashedPassword),
 	}, nil)
+
+	now := time.Now()
+	mockOrgUserRepo.EXPECT().ListByUser(ctx, "user_123").Return([]*model.OrganizationUser{
+		{OrganizationID: 1, UserID: "user_123", LastLoginAt: &now},
+	}, nil)
+	mockOrgUserRepo.EXPECT().UpdateLastLogin(ctx, "user_123", int64(1), gomock.Any()).Return(nil)
 
 	token, err := userService.Login(ctx, req)
 
@@ -129,9 +148,11 @@ func TestUserService_Login_UserNotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
+	mockOrgRepo := mock_repository.NewMockOrganizationRepository(ctrl)
+	mockOrgUserRepo := mock_repository.NewMockOrganizationUserRepository(ctrl)
 	mockTm := mock_repository.NewMockTransaction(ctrl)
 	srv := service.NewService(mockTm, logger, sf, j)
-	userService := service.NewUserService(srv, mockUserRepo)
+	userService := service.NewUserService(srv, mockUserRepo, mockOrgRepo, mockOrgUserRepo)
 
 	ctx := context.Background()
 	req := &v1.LoginRequest{
@@ -151,9 +172,11 @@ func TestUserService_GetProfile(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
+	mockOrgRepo := mock_repository.NewMockOrganizationRepository(ctrl)
+	mockOrgUserRepo := mock_repository.NewMockOrganizationUserRepository(ctrl)
 	mockTm := mock_repository.NewMockTransaction(ctrl)
 	srv := service.NewService(mockTm, logger, sf, j)
-	userService := service.NewUserService(srv, mockUserRepo)
+	userService := service.NewUserService(srv, mockUserRepo, mockOrgRepo, mockOrgUserRepo)
 
 	ctx := context.Background()
 	userId := "123"
@@ -174,9 +197,11 @@ func TestUserService_UpdateProfile(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
+	mockOrgRepo := mock_repository.NewMockOrganizationRepository(ctrl)
+	mockOrgUserRepo := mock_repository.NewMockOrganizationUserRepository(ctrl)
 	mockTm := mock_repository.NewMockTransaction(ctrl)
 	srv := service.NewService(mockTm, logger, sf, j)
-	userService := service.NewUserService(srv, mockUserRepo)
+	userService := service.NewUserService(srv, mockUserRepo, mockOrgRepo, mockOrgUserRepo)
 
 	ctx := context.Background()
 	userId := "123"
@@ -201,9 +226,11 @@ func TestUserService_UpdateProfile_UserNotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUserRepo := mock_repository.NewMockUserRepository(ctrl)
+	mockOrgRepo := mock_repository.NewMockOrganizationRepository(ctrl)
+	mockOrgUserRepo := mock_repository.NewMockOrganizationUserRepository(ctrl)
 	mockTm := mock_repository.NewMockTransaction(ctrl)
 	srv := service.NewService(mockTm, logger, sf, j)
-	userService := service.NewUserService(srv, mockUserRepo)
+	userService := service.NewUserService(srv, mockUserRepo, mockOrgRepo, mockOrgUserRepo)
 
 	ctx := context.Background()
 	userId := "123"

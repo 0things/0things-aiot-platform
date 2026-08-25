@@ -515,7 +515,7 @@ func TestIntegrationDeviceService_UpdateDevice_OfflineToOnline(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	// First set to offline
-	db.Model(&model.DeviceState{}).Where("device_id = ?", 1).Update("state", "offline")
+	db.Model(&model.DeviceState{}).Where("device_key = ?", "D001").Update("state", "offline")
 
 	// Then transition to online
 	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", "")
@@ -529,7 +529,7 @@ func TestIntegrationDeviceService_UpdateDevice_InactiveToOnline(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	// Set to inactive
-	db.Model(&model.DeviceState{}).Where("device_id = ?", 1).Update("state", "inactive")
+	db.Model(&model.DeviceState{}).Where("device_key = ?", "D001").Update("state", "inactive")
 
 	// Try to go directly to online (invalid: must go through offline)
 	_, err := svc.UpdateDevice(ctx2(), 1, "", "online", "")

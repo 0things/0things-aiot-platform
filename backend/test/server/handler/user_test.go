@@ -121,3 +121,58 @@ func TestUserHandler_UpdateProfile(t *testing.T) {
 	obj.Value("code").IsEqual(0)
 	obj.Value("message").IsEqual("ok")
 }
+
+func TestUserHandler_ListMyOrganizations(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	orgItems := []*v1.OrganizationItem{
+		{Id: 1, Name: "Org 1", IsCurrent: true},
+		{Id: 2, Name: "Org 2", IsCurrent: false},
+	}
+
+	mockUserService := mock_service.NewMockUserService(ctrl)
+	mockUserService.EXPECT().ListMyOrganizations(gomock.Any(), userId).Return(orgItems, nil)
+
+	userHandler := handler.NewUserHandler(hdl, mockUserService)
+	router.Use(middleware.StrictAuth(jwt, logger))
+	router.GET("/organizations", userHandler.ListMyOrganizations)
+
+	obj := newHttpExcept(t, router).GET("/organizations").
+		WithHeader("Authorization", "Bearer "+genToken(t)).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	obj.Value("code").IsEqual(0)
+	obj.Value("message").IsEqual("ok")
+	obj.Value("data").Array().Length().IsEqual(2)
+}
+
+func TestUserHandler_SwitchOrganization(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	req := v1.SwitchOrgRequest{OrgId: 2}
+	newTk := "new_jwt_token_for_org_2"
+
+	mockUserService := mock_service.NewMockUserService(ctrl)
+	mockUserService.EXPECT().SwitchOrganization(gomock.Any(), userId, int64(2)).Return(newTk, nil)
+
+	userHandler := handler.NewUserHandler(hdl, mockUserService)
+	router.Use(middleware.StrictAuth(jwt, logger))
+	router.POST("/auth/switch-org", userHandler.SwitchOrganization)
+
+	obj := newHttpExcept(t, router).POST("/auth/switch-org").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("Authorization", "Bearer "+genToken(t)).
+		WithJSON(req).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	obj.Value("code").IsEqual(0)
+	obj.Value("message").IsEqual("ok")
+	obj.Value("data").Object().Value("accessToken").IsEqual(newTk)
+}
+
