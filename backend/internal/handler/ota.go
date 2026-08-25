@@ -1,15 +1,24 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	otaV1 "aiot-backend/api/ota/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
+	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
 	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
 )
+
+func otaErrorStatus(err error) int {
+	if errors.Is(err, repository.ErrNotFound) {
+		return http.StatusNotFound
+	}
+	return http.StatusInternalServerError
+}
 
 type OTAHandler struct {
 	*Handler
@@ -111,7 +120,7 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 	uuid := c.Param("uuid")
 	pkg, err := h.svc.Get(c, uuid)
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.GetOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
@@ -139,7 +148,7 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 		pkg.Status = "draft"
 	}
 	if err := h.svc.Create(c, pkg, req.ProductKey); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.CreateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
@@ -166,7 +175,7 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 	}
 	pkg, err := h.svc.Get(c, uuid)
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	if req.PackageName != "" {
@@ -203,7 +212,7 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 		pkg.ReleaseNotes = req.ReleaseNotes
 	}
 	if err := h.svc.Update(c, pkg); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.UpdateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
@@ -223,7 +232,7 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if err := h.svc.Delete(c, uuid); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
@@ -335,7 +344,7 @@ func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 		return
 	}
 	if err := h.svc.ReportStatus(c, uuid, req.DeviceKey, req.Status); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
@@ -355,7 +364,7 @@ func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 func (h *OTAHandler) OTAStats(c *gin.Context) {
 	stats, err := h.svc.Statistics(c, c.Param("uuid"))
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.GetUpgradeStatisticsResponse{Statistics: otaV1.UpgradeStatistics{
@@ -380,7 +389,7 @@ func (h *OTAHandler) OTAStats(c *gin.Context) {
 func (h *OTAHandler) OTABatches(c *gin.Context) {
 	batches, err := h.svc.Batches(c, c.Param("uuid"))
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	items := make([]otaV1.UpgradeBatch, len(batches))
@@ -408,7 +417,7 @@ func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	pageNumber, pageSize := page(c, 100)
 	deployments, total, err := h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, c.Query("status"))
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
 	items := make([]otaV1.DeviceDeployment, len(deployments))

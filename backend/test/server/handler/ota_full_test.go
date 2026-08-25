@@ -23,13 +23,13 @@ func setupOTARouterFull(mockService *mock_service.MockOTAServiceInterface) *gin.
 	otaHandler := handler.NewOTAHandler(h, mockService)
 
 	router.GET("/ota/packages", otaHandler.ListOTA)
-	router.GET("/ota/packages/:id", otaHandler.GetOTA)
+	router.GET("/ota/packages/:uuid", otaHandler.GetOTA)
 	router.POST("/ota/packages", otaHandler.CreateOTA)
-	router.PUT("/ota/packages/:id", otaHandler.UpdateOTA)
-	router.DELETE("/ota/packages/:id", otaHandler.DeleteOTA)
-	router.GET("/ota/packages/:id/stats", otaHandler.OTAStats)
-	router.GET("/ota/packages/:id/batches", otaHandler.OTABatches)
-	router.GET("/ota/packages/:id/deployments", otaHandler.OTADeployments)
+	router.PUT("/ota/packages/:uuid", otaHandler.UpdateOTA)
+	router.DELETE("/ota/packages/:uuid", otaHandler.DeleteOTA)
+	router.GET("/ota/packages/:uuid/stats", otaHandler.OTAStats)
+	router.GET("/ota/packages/:uuid/batches", otaHandler.OTABatches)
+	router.GET("/ota/packages/:uuid/deployments", otaHandler.OTADeployments)
 
 	return router
 }
@@ -42,7 +42,7 @@ func TestOTAHandler_Update(t *testing.T) {
 	router := setupOTARouterFull(mockService)
 
 	existingPkg := &model.OTAPackage{ID: 1, PackageName: "firmware-1"}
-	mockService.EXPECT().Get(gomock.Any(), int64(1)).Return(existingPkg, nil)
+	mockService.EXPECT().Get(gomock.Any(), "1").Return(existingPkg, nil)
 	mockService.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
 
 	body, _ := json.Marshal(map[string]interface{}{

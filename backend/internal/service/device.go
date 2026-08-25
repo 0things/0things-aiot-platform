@@ -223,10 +223,13 @@ func (s *DeviceService) RemoveTags(ctx context.Context, key string, keys []strin
 }
 func (s *DeviceService) deviceByIDParam(ctx context.Context, key string) (*model.Device, error) {
 	id, err := strconv.ParseInt(key, 10, 64)
-	if err != nil {
-		return nil, err
+	if err == nil {
+		d, err := s.Device(ctx, id)
+		if err == nil {
+			return d, nil
+		}
 	}
-	return s.Device(ctx, id)
+	return s.DeviceByKey(ctx, key)
 }
 
 func isNumericKey(s string) bool {
