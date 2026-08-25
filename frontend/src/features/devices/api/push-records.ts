@@ -26,10 +26,7 @@ export function useSimulatePush() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (params: {
-      deviceKey: string
-      payload: string
-    }) => {
+    mutationFn: async (params: { deviceKey: string; payload: string }) => {
       const response = await apiClient.simulatePush({
         deviceKey: params.deviceKey,
         request: {

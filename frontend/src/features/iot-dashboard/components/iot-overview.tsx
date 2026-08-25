@@ -1,3 +1,13 @@
+import {
+  ArrowDown,
+  ArrowUp,
+  Battery,
+  Cpu,
+  HardDrive,
+  Radio,
+  Router,
+  Wifi,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,16 +20,6 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  ArrowDown,
-  ArrowUp,
-  Battery,
-  Cpu,
-  HardDrive,
-  Radio,
-  Router,
-  Wifi,
-} from 'lucide-react'
 
 const kpis = [
   {
@@ -57,12 +57,37 @@ const kpis = [
 ]
 
 const productHealth = [
-  { name: '温湿度传感器 v3', uptime: 99.8, devices: 3_412, status: 'healthy' as const },
-  { name: '智能网关 Pro', uptime: 99.4, devices: 1_204, status: 'healthy' as const },
+  {
+    name: '温湿度传感器 v3',
+    uptime: 99.8,
+    devices: 3_412,
+    status: 'healthy' as const,
+  },
+  {
+    name: '智能网关 Pro',
+    uptime: 99.4,
+    devices: 1_204,
+    status: 'healthy' as const,
+  },
   { name: '能源表', uptime: 97.6, devices: 2_811, status: 'healthy' as const },
-  { name: '资产追踪器', uptime: 94.1, devices: 1_988, status: 'warning' as const },
-  { name: '空气质量节点', uptime: 98.9, devices: 2_204, status: 'healthy' as const },
-  { name: '压力传感器', uptime: 88.2, devices: 1_109, status: 'critical' as const },
+  {
+    name: '资产追踪器',
+    uptime: 94.1,
+    devices: 1_988,
+    status: 'warning' as const,
+  },
+  {
+    name: '空气质量节点',
+    uptime: 98.9,
+    devices: 2_204,
+    status: 'healthy' as const,
+  },
+  {
+    name: '压力传感器',
+    uptime: 88.2,
+    devices: 1_109,
+    status: 'critical' as const,
+  },
 ]
 
 const recentEvents = [
@@ -148,11 +173,11 @@ export function IotOverview() {
       {/* ───────── 页面标题 ───────── */}
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
         <div className='space-y-1'>
-          <p className='text-muted-foreground text-xs tracking-wider uppercase'>
+          <p className='text-xs tracking-wider text-muted-foreground uppercase'>
             {t('eyebrow')}
           </p>
           <h1 className='text-2xl font-bold tracking-tight'>{t('title')}</h1>
-          <p className='text-muted-foreground text-sm'>{t('description')}</p>
+          <p className='text-sm text-muted-foreground'>{t('description')}</p>
         </div>
         <div className='flex items-center gap-2'>
           <Tabs defaultValue='24h'>
@@ -183,16 +208,16 @@ export function IotOverview() {
                 <CardTitle className='text-sm font-medium'>
                   {t(`kpis.${kpi.key}`)}
                 </CardTitle>
-                <Icon className='text-muted-foreground h-4 w-4' />
+                <Icon className='h-4 w-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
                 <div className='text-2xl font-bold'>{kpi.value}</div>
-                <div className='text-muted-foreground flex items-center gap-1.5 text-xs'>
+                <div className='flex items-center gap-1.5 text-xs text-muted-foreground'>
                   <span
                     className={
                       kpi.trend === 'up'
-                        ? 'text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-0.5'
-                        : 'text-red-600 dark:text-red-400 inline-flex items-center gap-0.5'
+                        ? 'inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400'
+                        : 'inline-flex items-center gap-0.5 text-red-600 dark:text-red-400'
                     }
                   >
                     <TrendIcon className='h-3 w-3' />
@@ -216,7 +241,7 @@ export function IotOverview() {
                 <CardDescription>{t('throughput.description')}</CardDescription>
               </div>
               <Badge variant='secondary' className='gap-1.5'>
-                <span className='bg-emerald-500 h-1.5 w-1.5 rounded-full' />
+                <span className='h-1.5 w-1.5 rounded-full bg-emerald-500' />
                 {t('throughput.live')}
               </Badge>
             </div>
@@ -259,13 +284,13 @@ export function IotOverview() {
             <Separator />
             <div className='grid grid-cols-2 gap-4 pt-2'>
               <div>
-                <p className='text-muted-foreground text-xs'>
+                <p className='text-xs text-muted-foreground'>
                   {t('fleet.p99Latency')}
                 </p>
                 <p className='text-lg font-semibold'>142ms</p>
               </div>
               <div>
-                <p className='text-muted-foreground text-xs'>
+                <p className='text-xs text-muted-foreground'>
                   {t('fleet.avgBattery')}
                 </p>
                 <p className='text-lg font-semibold'>78%</p>
@@ -305,14 +330,14 @@ export function IotOverview() {
                         <span className='font-medium'>{product.name}</span>
                         {healthBadge(product.status)}
                       </div>
-                      <div className='text-muted-foreground flex items-center gap-3 text-xs'>
+                      <div className='flex items-center gap-3 text-xs text-muted-foreground'>
                         <span>
                           {t('products.devices', { count: product.devices })}
                         </span>
                         <span className='font-mono'>{product.uptime}%</span>
                       </div>
                     </div>
-                    <div className='bg-muted relative h-1.5 overflow-hidden rounded-full'>
+                    <div className='relative h-1.5 overflow-hidden rounded-full bg-muted'>
                       <div
                         className={`h-full ${barColor} transition-all`}
                         style={{ width: `${product.uptime}%` }}
@@ -338,12 +363,12 @@ export function IotOverview() {
                   className='flex items-center justify-between'
                 >
                   <div className='flex items-center gap-3'>
-                    <Router className='text-muted-foreground h-4 w-4' />
+                    <Router className='h-4 w-4 text-muted-foreground' />
                     <div>
                       <p className='text-sm leading-none font-medium'>
                         {region.name}
                       </p>
-                      <p className='text-muted-foreground mt-1 font-mono text-xs'>
+                      <p className='mt-1 font-mono text-xs text-muted-foreground'>
                         {region.code}
                       </p>
                     </div>
@@ -358,7 +383,7 @@ export function IotOverview() {
                           ? 'mt-1 text-xs text-red-600 dark:text-red-400'
                           : region.health < 96
                             ? 'mt-1 text-xs text-amber-600 dark:text-amber-400'
-                            : 'text-muted-foreground mt-1 text-xs'
+                            : 'mt-1 text-xs text-muted-foreground'
                       }
                     >
                       {region.health}% {t('regions.healthy')}
@@ -391,8 +416,8 @@ export function IotOverview() {
                 key={idx}
                 className='flex items-start gap-4 rounded-md border p-3'
               >
-                <div className='bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-full'>
-                  <Battery className='text-muted-foreground h-4 w-4' />
+                <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted'>
+                  <Battery className='h-4 w-4 text-muted-foreground' />
                 </div>
                 <div className='flex-1 space-y-1'>
                   <div className='flex items-center gap-2'>
@@ -401,11 +426,11 @@ export function IotOverview() {
                     </p>
                     {eventBadge(event.type)}
                   </div>
-                  <p className='text-muted-foreground text-sm'>
+                  <p className='text-sm text-muted-foreground'>
                     {event.description}
                   </p>
                 </div>
-                <span className='text-muted-foreground shrink-0 text-xs'>
+                <span className='shrink-0 text-xs text-muted-foreground'>
                   {event.time}
                 </span>
               </div>
@@ -438,16 +463,13 @@ function StatusRow({
           <span className={`h-2 w-2 rounded-full ${color}`} />
           <span>{label}</span>
         </div>
-        <div className='text-muted-foreground flex items-center gap-3 text-xs'>
+        <div className='flex items-center gap-3 text-xs text-muted-foreground'>
           <span className='font-mono'>{value.toLocaleString()}</span>
           <span className='w-10 text-right'>{pct.toFixed(1)}%</span>
         </div>
       </div>
-      <div className='bg-muted relative h-1.5 overflow-hidden rounded-full'>
-        <div
-          className={`h-full ${color}`}
-          style={{ width: `${pct}%` }}
-        />
+      <div className='relative h-1.5 overflow-hidden rounded-full bg-muted'>
+        <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   )
@@ -473,13 +495,13 @@ function OverviewChart() {
         {points.map((p) => (
           <div
             key={p.hour}
-            className='bg-primary/80 hover:bg-primary flex-1 rounded-t transition-colors'
+            className='flex-1 rounded-t bg-primary/80 transition-colors hover:bg-primary'
             style={{ height: `${(p.value / max) * 100}%` }}
             title={`${p.hour} · ${p.value.toLocaleString()} msg/s`}
           />
         ))}
       </div>
-      <div className='text-muted-foreground flex justify-between text-xs'>
+      <div className='flex justify-between text-xs text-muted-foreground'>
         {points.map((p) => (
           <span key={p.hour} className='font-mono'>
             {p.hour}

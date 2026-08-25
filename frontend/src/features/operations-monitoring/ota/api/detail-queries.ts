@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  getOtaPackagesId,
-  getOtaPackagesIdBatches,
-  getOtaPackagesIdDeviceDeployments,
-  getOtaPackagesIdUpgradeStatistics,
-  postOtaPackagesIdBatchUpgrade,
+  getOtaPackagesUuid,
+  getOtaPackagesUuidBatches,
+  getOtaPackagesUuidDeviceDeployments,
+  getOtaPackagesUuidUpgradeStatistics,
+  postOtaPackagesUuidBatchUpgrade,
 } from '@/api/generated'
 import type {
   OtaOTAPackage,
@@ -69,7 +69,7 @@ export function useOTAPackageDetail(uuid: string) {
   return useQuery({
     queryKey: ['ota-package-detail', uuid],
     queryFn: async (): Promise<OTAPackageDetail> => {
-      const response = await getOtaPackagesId(uuid as unknown as number)
+      const response = await getOtaPackagesUuid(uuid)
       const data = response.data?.otaPackage as OtaOTAPackage | undefined
       return {
         id: data?.id?.toString() || uuid,
@@ -103,9 +103,7 @@ export function useUpgradeStatistics(uuid: string) {
   return useQuery({
     queryKey: ['upgrade-statistics', uuid],
     queryFn: async () => {
-      const response = await getOtaPackagesIdUpgradeStatistics(
-        uuid as unknown as number
-      )
+      const response = await getOtaPackagesUuidUpgradeStatistics(uuid)
       const data: OtaUpgradeStatistics = response.data?.statistics ?? {}
       return {
         packageId: data.packageId || uuid,
@@ -139,7 +137,7 @@ export function useDeviceDeployments(
     queryFn: async () => {
       const data =
         (
-          await getOtaPackagesIdDeviceDeployments(uuid as unknown as number, {
+          await getOtaPackagesUuidDeviceDeployments(uuid, {
             page,
             pageSize,
             status,
@@ -176,8 +174,7 @@ export function useUpgradeBatches(uuid: string) {
   return useQuery<UpgradeBatch[]>({
     queryKey: ['upgrade-batches', uuid],
     queryFn: async () => {
-      const data =
-        (await getOtaPackagesIdBatches(uuid as unknown as number))?.data ?? {}
+      const data = (await getOtaPackagesUuidBatches(uuid))?.data ?? {}
       return (data.items || []).map((b: OtaUpgradeBatch) => ({
         batchId: b.batchId ?? '',
         upgradeStrategy: b.upgradeStrategy ?? '',
@@ -200,7 +197,7 @@ export function useBatchUpgrade(uuid: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (deviceKeys: string[]) => {
-      const response = await postOtaPackagesIdBatchUpgrade(uuid, {
+      const response = await postOtaPackagesUuidBatchUpgrade(uuid, {
         deviceKeys,
       })
       return response.data

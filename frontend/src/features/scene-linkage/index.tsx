@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { Loader2, Plus, Save, Trash2, Workflow } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import type { SceneLinkageDetailRequest } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -41,7 +42,6 @@ import {
   useUpdateSceneLinkage,
   useUpdateSceneLinkageDetail,
 } from './api/queries'
-import type { SceneLinkageDetailRequest } from '@/api/generated/model'
 
 type TriggerConfig = {
   eventType: string

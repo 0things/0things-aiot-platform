@@ -11,6 +11,7 @@ import axios, { type AxiosInstance } from 'axios'
 // Import notification-service APIs when generated
 // import { Configuration as NotificationConfiguration, NotificationsApi } from './generated/notification-service';
 
+import { useAuthStore } from '@/stores/auth-store'
 import { API_TIMEOUT } from './config'
 
 // Import other service URLs when needed
@@ -53,7 +54,9 @@ const createAxiosInstance = (): AxiosInstance => {
   instance.interceptors.request.use(
     (config) => {
       // Add authorization token if available
-      const token = localStorage.getItem('authToken')
+      const token =
+        useAuthStore.getState().auth.accessToken ||
+        localStorage.getItem('authToken')
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }

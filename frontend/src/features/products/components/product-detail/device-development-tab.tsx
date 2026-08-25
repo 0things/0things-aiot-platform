@@ -97,7 +97,7 @@ export function DeviceDevelopmentTab({ productId }: DeviceDevelopmentTabProps) {
                 </span>
               </span>
               {index < steps.length - 1 && (
-                <ChevronRight className='ml-auto mt-1 hidden h-4 w-4 text-muted-foreground/50 xl:block' />
+                <ChevronRight className='mt-1 ml-auto hidden h-4 w-4 text-muted-foreground/50 xl:block' />
               )}
             </button>
           )
@@ -130,7 +130,7 @@ function DevelopmentGuide({ currentStep }: { currentStep: DeviceStep }) {
   const guideKey = steps.find((step) => step.id === currentStep)?.key
 
   return (
-    <aside className='min-w-0 border-t pt-6 xl:border-t-0 xl:border-l xl:pl-8 xl:pt-0'>
+    <aside className='min-w-0 border-t pt-6 xl:border-t-0 xl:border-l xl:pt-0 xl:pl-8'>
       <div className='flex items-center gap-2'>
         <BookOpen className='h-4 w-4 text-primary' />
         <h3 className='font-semibold'>
@@ -142,7 +142,7 @@ function DevelopmentGuide({ currentStep }: { currentStep: DeviceStep }) {
       </p>
 
       <div className='mt-6 space-y-3 border-t pt-5'>
-        <p className='text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground'>
+        <p className='text-xs font-medium tracking-[0.16em] text-muted-foreground uppercase'>
           {t('productDetail.deviceDevelopment.guide.checklistTitle')}
         </p>
         {['product', 'network', 'model'].map((item) => (
@@ -201,7 +201,7 @@ function RegisterStep({ onNext }: { onNext: () => void }) {
           </span>
           <span>
             <span className='block font-semibold'>
-            {t('productDetail.deviceDevelopment.register.addDevice')}
+              {t('productDetail.deviceDevelopment.register.addDevice')}
             </span>
             <span className='mt-1 block text-sm text-muted-foreground'>
               {t('productDetail.deviceDevelopment.register.addDeviceHint')}
@@ -417,38 +417,38 @@ function VerifyStep({
       </div>
 
       <div className='max-w-2xl rounded-xl border bg-card p-6'>
-          <div className='space-y-4'>
-            <div className='flex items-start space-x-3'>
-              <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary'>
-                1
-              </div>
-              <div className='flex-1'>
-                <p className='text-sm'>
-                  {t('productDetail.deviceDevelopment.verify.step1')}
-                </p>
-              </div>
+        <div className='space-y-4'>
+          <div className='flex items-start space-x-3'>
+            <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary'>
+              1
             </div>
-            <div className='flex items-start space-x-3'>
-              <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary'>
-                2
-              </div>
-              <div className='flex-1'>
-                <p className='text-sm'>
-                  {t('productDetail.deviceDevelopment.verify.step2')}
-                </p>
-              </div>
-            </div>
-            <div className='flex items-start space-x-3'>
-              <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary'>
-                3
-              </div>
-              <div className='flex-1'>
-                <p className='text-sm'>
-                  {t('productDetail.deviceDevelopment.verify.step3')}
-                </p>
-              </div>
+            <div className='flex-1'>
+              <p className='text-sm'>
+                {t('productDetail.deviceDevelopment.verify.step1')}
+              </p>
             </div>
           </div>
+          <div className='flex items-start space-x-3'>
+            <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary'>
+              2
+            </div>
+            <div className='flex-1'>
+              <p className='text-sm'>
+                {t('productDetail.deviceDevelopment.verify.step2')}
+              </p>
+            </div>
+          </div>
+          <div className='flex items-start space-x-3'>
+            <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary'>
+              3
+            </div>
+            <div className='flex-1'>
+              <p className='text-sm'>
+                {t('productDetail.deviceDevelopment.verify.step3')}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className='flex justify-between'>
@@ -492,12 +492,12 @@ function ProductionStep({ onPrev }: { onPrev: () => void }) {
           className='w-full max-w-2xl rounded-xl border bg-card p-6 text-left transition-colors hover:border-primary/60'
           onClick={handleBatchRegistration}
         >
-            <h4 className='mb-2 font-semibold'>
-              {t('productDetail.deviceDevelopment.production.batchTitle')}
-            </h4>
-            <p className='text-sm text-muted-foreground'>
-              {t('productDetail.deviceDevelopment.production.batchDescription')}
-            </p>
+          <h4 className='mb-2 font-semibold'>
+            {t('productDetail.deviceDevelopment.production.batchTitle')}
+          </h4>
+          <p className='text-sm text-muted-foreground'>
+            {t('productDetail.deviceDevelopment.production.batchDescription')}
+          </p>
         </button>
       </div>
 

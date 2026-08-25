@@ -60,46 +60,25 @@ export function ProductDetailPage() {
 
         <Tabs defaultValue='info' className='flex min-w-0 flex-1 flex-col'>
           <TabsList className='mb-4 max-w-full overflow-x-auto'>
-            <TabsTrigger
-              value='info'
-              className='px-3.5'
-            >
+            <TabsTrigger value='info' className='px-3.5'>
               {t('productDetail.tabs.info')}
             </TabsTrigger>
-            <TabsTrigger
-              value='topics'
-              className='px-3.5'
-            >
+            <TabsTrigger value='topics' className='px-3.5'>
               {t('productDetail.tabs.topics')}
             </TabsTrigger>
-            <TabsTrigger
-              value='features'
-              className='px-3.5'
-            >
+            <TabsTrigger value='features' className='px-3.5'>
               {t('productDetail.tabs.features')}
             </TabsTrigger>
-            <TabsTrigger
-              value='parsing'
-              className='px-3.5'
-            >
+            <TabsTrigger value='parsing' className='px-3.5'>
               {t('productDetail.tabs.parsing')}
             </TabsTrigger>
-            <TabsTrigger
-              value='subscription'
-              className='px-3.5'
-            >
+            <TabsTrigger value='subscription' className='px-3.5'>
               {t('productDetail.tabs.subscription')}
             </TabsTrigger>
-            <TabsTrigger
-              value='development'
-              className='px-3.5'
-            >
+            <TabsTrigger value='development' className='px-3.5'>
               {t('productDetail.tabs.development')}
             </TabsTrigger>
-            <TabsTrigger
-              value='upload'
-              className='px-3.5'
-            >
+            <TabsTrigger value='upload' className='px-3.5'>
               {t('productDetail.tabs.upload')}
             </TabsTrigger>
           </TabsList>

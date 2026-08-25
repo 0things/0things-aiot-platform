@@ -59,14 +59,7 @@ interface DataTypeSpecs {
 
 interface DataType {
   type:
-  | 'int'
-  | 'float'
-  | 'double'
-  | 'bool'
-  | 'string'
-  | 'enum'
-  | 'struct'
-  | 'array'
+    'int' | 'float' | 'double' | 'bool' | 'string' | 'enum' | 'struct' | 'array'
   specs?: DataTypeSpecs
 }
 
@@ -466,7 +459,8 @@ export function FeatureDefinitionTab({
     mutationFn: async (tsl: TSLModel) => {
       const tslJsonString = JSON.stringify(tsl)
       const product = await getProductsKeyProductKey(productKey)
-      if (product.data?.product?.id === undefined) throw new Error('Product not found')
+      if (product.data?.product?.id === undefined)
+        throw new Error('Product not found')
       return postProductsIdTsl(product.data.product.id, { tsl: tslJsonString })
     },
     onSuccess: () => {
@@ -482,7 +476,8 @@ export function FeatureDefinitionTab({
   const deleteTSLMutation = useMutation({
     mutationFn: async () => {
       const product = await getProductsKeyProductKey(productKey)
-      if (product.data?.product?.id === undefined) throw new Error('Product not found')
+      if (product.data?.product?.id === undefined)
+        throw new Error('Product not found')
       return deleteProductsIdTsl(product.data.product.id)
     },
     onSuccess: () => {

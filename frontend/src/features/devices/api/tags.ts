@@ -31,7 +31,8 @@ export function useSetTags(deviceKey: string) {
     mutationFn: async (tags: Record<string, string>) => {
       return putDevicesIdTags(await getDeviceId(deviceKey), { tags })
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),
   })
 }
 
@@ -41,7 +42,8 @@ export function useAddTags(deviceKey: string) {
     mutationFn: async (tags: Record<string, string>) => {
       return postDevicesIdTags(await getDeviceId(deviceKey), { tags })
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),
   })
 }
 
@@ -51,6 +53,7 @@ export function useRemoveTags(deviceKey: string) {
     mutationFn: async (keys: string[]) => {
       return deleteDevicesIdTags(await getDeviceId(deviceKey), { keys })
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),
   })
 }

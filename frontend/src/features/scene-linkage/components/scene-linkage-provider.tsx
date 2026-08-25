@@ -24,9 +24,7 @@ export function SceneLinkageProvider({
   const [currentRow, setCurrentRow] = useState<Scene | null>(null)
 
   return (
-    <SceneLinkageContext
-      value={{ open, setOpen, currentRow, setCurrentRow }}
-    >
+    <SceneLinkageContext value={{ open, setOpen, currentRow, setCurrentRow }}>
       {children}
     </SceneLinkageContext>
   )
@@ -37,7 +35,9 @@ export const useSceneLinkage = () => {
   const context = React.useContext(SceneLinkageContext)
 
   if (!context) {
-    throw new Error('useSceneLinkage has to be used within <SceneLinkageContext>')
+    throw new Error(
+      'useSceneLinkage has to be used within <SceneLinkageContext>'
+    )
   }
 
   return context

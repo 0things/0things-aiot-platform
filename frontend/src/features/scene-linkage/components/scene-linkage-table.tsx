@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   type ColumnFiltersState,
@@ -14,6 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import {
   Table,
@@ -24,11 +24,15 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-import { useSceneLinkages, useDeleteSceneLinkage, sceneLinkageKeys } from '../api/queries'
+import {
+  useSceneLinkages,
+  useDeleteSceneLinkage,
+  sceneLinkageKeys,
+} from '../api/queries'
 import { statuses } from '../data/data'
 import { type Scene } from '../data/schema'
-import { sceneLinkageColumns as columns } from './scene-linkage-columns'
 import { DataTableBulkActions } from './data-table-bulk-actions'
+import { sceneLinkageColumns as columns } from './scene-linkage-columns'
 import { SceneLinkageDeleteDialog } from './scene-linkage-delete-dialog'
 import { useSceneLinkage } from './scene-linkage-provider'
 
@@ -49,11 +53,9 @@ export function SceneLinkageTable() {
   })
 
   const status = appliedFilters.find((f) => f.id === 'status')?.value as
-    | string
-    | undefined
+    string | undefined
   const search = appliedFilters.find((f) => f.id === 'name')?.value as
-    | string
-    | undefined
+    string | undefined
   const enable =
     status === 'enabled' ? 1 : status === 'disabled' ? 0 : undefined
 
@@ -108,9 +110,7 @@ export function SceneLinkageTable() {
   const statusFilterOptions = useMemo(
     () =>
       statuses.map((status) => ({
-        label: t(
-          status.value === 'enabled' ? 'list.enabled' : 'list.disabled'
-        ),
+        label: t(status.value === 'enabled' ? 'list.enabled' : 'list.disabled'),
         value: status.value,
       })),
     [t]
@@ -204,7 +204,10 @@ export function SceneLinkageTable() {
             {isLoading ? (
               Array.from({ length: pagination.pageSize }).map((_, index) => (
                 <TableRow key={index}>
-                  <TableCell colSpan={columns.length} className='h-24 text-center'>
+                  <TableCell
+                    colSpan={columns.length}
+                    className='h-24 text-center'
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>

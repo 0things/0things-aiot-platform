@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
-  deleteOtaPackagesId,
+  deleteOtaPackagesUuid,
   getOtaPackages,
-  getOtaPackagesId,
+  getOtaPackagesUuid,
   postFilesOta,
   postOtaPackages,
-  putOtaPackagesId,
+  putOtaPackagesUuid,
 } from '@/api/generated'
 import type {
   OtaCreateOTAPackageRequest,
@@ -116,7 +116,7 @@ export function useOTAPackage(id: string) {
   return useQuery({
     queryKey: otaPackageKeys.detail(id),
     queryFn: async () => {
-      const response = await getOtaPackagesId(id as unknown as number)
+      const response = await getOtaPackagesUuid(id)
       return response.data?.otaPackage
     },
     enabled: !!id,
@@ -178,7 +178,7 @@ export function useUpdateOTAPackage() {
       id: string
       data: OtaV1UpdateOTAPackageRequest
     }) => {
-      return putOtaPackagesId(id as unknown as number, data as never)
+      return putOtaPackagesUuid(id, data as never)
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
@@ -203,7 +203,7 @@ export function useDeleteOTAPackage() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => deleteOtaPackagesId(id as unknown as number),
+    mutationFn: (id: string) => deleteOtaPackagesUuid(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
       toast.success('OTA package deleted successfully')
@@ -226,9 +226,7 @@ export function useDeleteOTAPackages() {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       // Delete packages in parallel
-      const deletePromises = ids.map((id) =>
-        deleteOtaPackagesId(id as unknown as number)
-      )
+      const deletePromises = ids.map((id) => deleteOtaPackagesUuid(id))
       await Promise.all(deletePromises)
       return { deletedCount: ids.length }
     },

@@ -1,6 +1,6 @@
+import { useNavigate } from '@tanstack/react-router'
 import { type Row } from '@tanstack/react-table'
 import { MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react'
-import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {

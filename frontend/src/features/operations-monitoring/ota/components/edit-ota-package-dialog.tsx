@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -10,14 +11,16 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2 } from 'lucide-react'
 
 export interface EditOTAPackageDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   packageName: string
   description: string
-  onSubmit: (data: { packageName: string; description: string }) => Promise<void>
+  onSubmit: (data: {
+    packageName: string
+    description: string
+  }) => Promise<void>
 }
 
 /**
@@ -57,11 +60,7 @@ export function EditOTAPackageDialog({
 
       onOpenChange(false)
     } catch (error) {
-      alert(
-        error instanceof Error
-          ? error.message
-          : 'Failed to update package'
-      )
+      alert(error instanceof Error ? error.message : 'Failed to update package')
     } finally {
       setIsSubmitting(false)
     }
@@ -128,7 +127,9 @@ export function EditOTAPackageDialog({
               Cancel
             </Button>
             <Button type='submit' disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className='h-4 w-4 mr-2 animate-spin' />}
+              {isSubmitting && (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              )}
               Save Changes
             </Button>
           </DialogFooter>

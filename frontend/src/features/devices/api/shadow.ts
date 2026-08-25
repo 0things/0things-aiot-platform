@@ -18,7 +18,8 @@ export type ShadowDoc = {
 export const shadowKeys = {
   all: ['device-shadow'] as const,
   detail: (deviceKey: string) => [...shadowKeys.all, deviceKey] as const,
-  history: (deviceKey: string) => [...shadowKeys.all, deviceKey, 'history'] as const,
+  history: (deviceKey: string) =>
+    [...shadowKeys.all, deviceKey, 'history'] as const,
 }
 
 export function useDeviceShadow(deviceKey: string) {
@@ -35,8 +36,14 @@ export function useDeviceShadow(deviceKey: string) {
 export function useUpdateDesired(deviceKey: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (input: { desired: Record<string, unknown>; version: number }) => {
-      const res = await putDevicesIdShadowDesired(await getDeviceId(deviceKey), input)
+    mutationFn: async (input: {
+      desired: Record<string, unknown>
+      version: number
+    }) => {
+      const res = await putDevicesIdShadowDesired(
+        await getDeviceId(deviceKey),
+        input
+      )
       return (res?.data ?? res) as ShadowDoc
     },
     onSuccess: () => {

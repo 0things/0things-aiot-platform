@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAlerts, useAckAlert, useResolveAlert, type AlertStatus } from './api/queries'
+import {
+  useAlerts,
+  useAckAlert,
+  useResolveAlert,
+  type AlertStatus,
+} from './api/queries'
 
 export function AlertCenter() {
   const [status, setStatus] = useState<AlertStatus | undefined>('open')
@@ -56,7 +61,11 @@ export function AlertCenter() {
                 </div>
                 <div className='flex gap-2'>
                   {a.status === 'open' ? (
-                    <Button size='sm' variant='outline' onClick={() => ack.mutate(a.id)}>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={() => ack.mutate(a.id)}
+                    >
                       Ack
                     </Button>
                   ) : null}

@@ -1,4 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  getSceneLinkages,
+  getSceneLinkagesId,
+  getSceneLinkagesIdDetail,
+  postSceneLinkages,
+  putSceneLinkagesId,
+  deleteSceneLinkagesId,
+  postSceneLinkagesIdDetail,
+  putSceneLinkagesIdDetail,
+} from '@/api/generated'
 import type {
   ListSceneLinkagesResponse,
   SceneLinkage,
@@ -13,16 +23,6 @@ import type {
   UpdateSceneLinkageDetailResponse,
   SceneLinkageSuccessResponse,
 } from '@/api/generated/model'
-import {
-  getSceneLinkages,
-  getSceneLinkagesId,
-  getSceneLinkagesIdDetail,
-  postSceneLinkages,
-  putSceneLinkagesId,
-  deleteSceneLinkagesId,
-  postSceneLinkagesIdDetail,
-  putSceneLinkagesIdDetail,
-} from '@/api/generated'
 
 // The backend returns a generic { code, message, data } envelope; the generated
 // client types each endpoint's response as its flat payload, so we unwrap .data.
@@ -63,8 +63,11 @@ export function useSceneLinkage(id: number) {
   return useQuery({
     queryKey: sceneLinkageKeys.detail(id),
     queryFn: async () =>
-      ((await getSceneLinkagesId(id)) as unknown as ApiResponse<GetSceneLinkageResponse>)
-        .data?.sceneLinkage as SceneLinkage,
+      (
+        (await getSceneLinkagesId(
+          id
+        )) as unknown as ApiResponse<GetSceneLinkageResponse>
+      ).data?.sceneLinkage as SceneLinkage,
     enabled: Number.isFinite(id) && id > 0,
   })
 }
@@ -73,8 +76,11 @@ export function useSceneLinkageDetail(id: number) {
   return useQuery({
     queryKey: sceneLinkageKeys.detailConfig(id),
     queryFn: async () =>
-      ((await getSceneLinkagesIdDetail(id)) as unknown as ApiResponse<GetSceneLinkageDetailResponse>)
-        .data?.detail as SceneLinkageDetail,
+      (
+        (await getSceneLinkagesIdDetail(
+          id
+        )) as unknown as ApiResponse<GetSceneLinkageDetailResponse>
+      ).data?.detail as SceneLinkageDetail,
     enabled: Number.isFinite(id) && id > 0,
   })
 }
@@ -83,8 +89,11 @@ export function useCreateSceneLinkage() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: SceneLinkageRequest) =>
-      ((await postSceneLinkages(data)) as unknown as ApiResponse<CreateSceneLinkageResponse>)
-        .data?.sceneLinkage,
+      (
+        (await postSceneLinkages(
+          data
+        )) as unknown as ApiResponse<CreateSceneLinkageResponse>
+      ).data?.sceneLinkage,
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: sceneLinkageKeys.lists() }),
   })
@@ -93,9 +102,19 @@ export function useCreateSceneLinkage() {
 export function useUpdateSceneLinkage() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: SceneLinkageRequest }) =>
-      ((await putSceneLinkagesId(id, data)) as unknown as ApiResponse<UpdateSceneLinkageResponse>)
-        .data?.sceneLinkage,
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number
+      data: SceneLinkageRequest
+    }) =>
+      (
+        (await putSceneLinkagesId(
+          id,
+          data
+        )) as unknown as ApiResponse<UpdateSceneLinkageResponse>
+      ).data?.sceneLinkage,
     onSuccess: () => qc.invalidateQueries({ queryKey: sceneLinkageKeys.all }),
   })
 }
@@ -104,8 +123,11 @@ export function useDeleteSceneLinkage() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: number) =>
-      ((await deleteSceneLinkagesId(id)) as unknown as ApiResponse<SceneLinkageSuccessResponse>)
-        .data?.success,
+      (
+        (await deleteSceneLinkagesId(
+          id
+        )) as unknown as ApiResponse<SceneLinkageSuccessResponse>
+      ).data?.success,
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: sceneLinkageKeys.lists() }),
   })
@@ -121,8 +143,12 @@ export function useCreateSceneLinkageDetail() {
       id: number
       data: SceneLinkageDetailRequest
     }) =>
-      ((await postSceneLinkagesIdDetail(id, data)) as unknown as ApiResponse<CreateSceneLinkageDetailResponse>)
-        .data?.detail,
+      (
+        (await postSceneLinkagesIdDetail(
+          id,
+          data
+        )) as unknown as ApiResponse<CreateSceneLinkageDetailResponse>
+      ).data?.detail,
     onSuccess: (_r, v) =>
       qc.invalidateQueries({ queryKey: sceneLinkageKeys.detailConfig(v.id) }),
   })
@@ -138,8 +164,12 @@ export function useUpdateSceneLinkageDetail() {
       id: number
       data: SceneLinkageDetailRequest
     }) =>
-      ((await putSceneLinkagesIdDetail(id, data)) as unknown as ApiResponse<UpdateSceneLinkageDetailResponse>)
-        .data?.detail,
+      (
+        (await putSceneLinkagesIdDetail(
+          id,
+          data
+        )) as unknown as ApiResponse<UpdateSceneLinkageDetailResponse>
+      ).data?.detail,
     onSuccess: (_r, v) =>
       qc.invalidateQueries({ queryKey: sceneLinkageKeys.detailConfig(v.id) }),
   })

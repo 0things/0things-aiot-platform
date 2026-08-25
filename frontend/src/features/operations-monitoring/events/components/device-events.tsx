@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { endOfDay, format, startOfDay, subDays } from 'date-fns'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   type ColumnDef,
   flexRender,
@@ -137,16 +137,16 @@ export function DeviceEvents() {
       accessorKey: 'deviceKey',
       header: t('events.columns.deviceKey'),
       cell: ({ row }) => (
-          <span className='font-mono text-sm'>{row.original.deviceKey}</span>
+        <span className='font-mono text-sm'>{row.original.deviceKey}</span>
       ),
     },
     {
       accessorKey: 'eventType',
       header: t('events.columns.eventType'),
       cell: ({ row }) => (
-          <span className='rounded-full bg-muted px-2 py-1 font-mono text-sm'>
-            {row.original.eventType}
-          </span>
+        <span className='rounded-full bg-muted px-2 py-1 font-mono text-sm'>
+          {row.original.eventType}
+        </span>
       ),
     },
     {
@@ -166,9 +166,7 @@ export function DeviceEvents() {
     },
     {
       id: 'actions',
-      header: () => (
-        <div className='text-center'>{t('common:actions')}</div>
-      ),
+      header: () => <div className='text-center'>{t('common:actions')}</div>,
       cell: ({ row }) => <EventsRowActions row={row} />,
       enableHiding: false,
     },
@@ -200,7 +198,10 @@ export function DeviceEvents() {
     getFilteredRowModel: getFilteredRowModel(),
   })
   const applySearch = () => {
-    setFilters((current) => ({ ...buildFilters(draft), pageSize: current.pageSize }))
+    setFilters((current) => ({
+      ...buildFilters(draft),
+      pageSize: current.pageSize,
+    }))
     queryClient.invalidateQueries({ queryKey: deviceEventKeys.all })
   }
   const handleRefresh = () =>
@@ -219,7 +220,10 @@ export function DeviceEvents() {
           <Input
             value={draft.keyword}
             onChange={(event) =>
-              setDraft((current) => ({ ...current, keyword: event.target.value }))
+              setDraft((current) => ({
+                ...current,
+                keyword: event.target.value,
+              }))
             }
             onKeyDown={(event) => event.key === 'Enter' && applySearch()}
             placeholder={t('events.filters.keyword')}

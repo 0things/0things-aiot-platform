@@ -7,10 +7,10 @@ import { Loader2, LogIn } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { IconFacebook, IconGithub } from '@/assets/brand-icons'
-import { useAuthStore } from '@/stores/auth-store'
-import { cn } from '@/lib/utils'
 import { setAuthToken } from '@/api/clients'
 import { postLogin } from '@/api/generated'
+import { useAuthStore } from '@/stores/auth-store'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -30,7 +30,7 @@ const formSchema = z.object({
   password: z
     .string()
     .min(1, 'Please enter your password')
-    .min(7, 'Password must be at least 7 characters long'),
+    .min(6, 'Password must be at least 6 characters long'),
 })
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLFormElement> {

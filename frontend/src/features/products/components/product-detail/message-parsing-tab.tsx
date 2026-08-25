@@ -24,8 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
 
 type ParserMode = 'device_report' | 'device_receive' | 'custom'
 type Panel = 'input' | 'result'
@@ -79,7 +79,10 @@ export function MessageParsingTab({ productKey }: MessageParsingTabProps) {
   }
 
   const execute = async () => {
-    const data: MessageParserExecuteProductMessageParserRequest = { mode, rawData }
+    const data: MessageParserExecuteProductMessageParserRequest = {
+      mode,
+      rawData,
+    }
     if (mode === 'custom') data.topic = topic
     setExecutionError('')
     setResult('')

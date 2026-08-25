@@ -1,11 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import type {
-  ProductCreateProductRequest as ProductV1CreateProductRequest,
-  ProductGetProductByKeyResponse as ProductV1GetProductByKeyResponse,
-  ProductListProductsResponse as ProductV1ListProductsResponse,
-  ProductUpdateProductRequest as ProductV1UpdateProductRequest,
-  ProductUpdateProductResponse as ProductV1UpdateProductResponse,
-} from '@/api/generated/model'
 import {
   deleteProductsId,
   getProducts,
@@ -13,6 +6,13 @@ import {
   postProducts,
   putProductsKeyProductKey,
 } from '@/api/generated'
+import type {
+  ProductCreateProductRequest as ProductV1CreateProductRequest,
+  ProductGetProductByKeyResponse as ProductV1GetProductByKeyResponse,
+  ProductListProductsResponse as ProductV1ListProductsResponse,
+  ProductUpdateProductRequest as ProductV1UpdateProductRequest,
+  ProductUpdateProductResponse as ProductV1UpdateProductResponse,
+} from '@/api/generated/model'
 
 // ============================================================================
 // Query Keys
@@ -99,7 +99,8 @@ export function useCreateProduct() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: ProductV1CreateProductRequest) => postProducts(data as never),
+    mutationFn: (data: ProductV1CreateProductRequest) =>
+      postProducts(data as never),
     onSuccess: () => {
       // Invalidate all product lists to refetch
       queryClient.invalidateQueries({ queryKey: productKeys.lists() })

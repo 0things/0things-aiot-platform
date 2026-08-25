@@ -1,13 +1,13 @@
 import React, { type ReactNode } from 'react'
-import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { renderHook, waitFor } from '@testing-library/react'
+import * as axiosClients from '@/api/clients'
 import {
   useOTAPackageDetail,
   useUpgradeStatistics,
   useDeviceDeployments,
   useUpgradeBatches,
 } from './detail-queries'
-import * as axiosClients from '@/api/clients'
 
 // Mock axios module
 jest.mock('@/api/clients', () => ({
@@ -58,10 +58,9 @@ describe('OTA Package Detail Hooks', () => {
       data: mockData,
     })
 
-    const { result } = renderHook(
-      () => useOTAPackageDetail('test-package'),
-      { wrapper: createWrapper() }
-    )
+    const { result } = renderHook(() => useOTAPackageDetail('test-package'), {
+      wrapper: createWrapper(),
+    })
 
     // Initially loading
     expect(result.current.isLoading).toBe(true)
@@ -76,7 +75,9 @@ describe('OTA Package Detail Hooks', () => {
     expect(result.current.data?.packageName).toBe('test-package')
     expect(result.current.data?.version).toBe('v1.0.0')
     expect(result.current.data?.packageType).toBe('upgrade')
-    expect(axiosClients.axiosInstance.get).toHaveBeenCalledWith('/v1/ota-packages/test-package')
+    expect(axiosClients.axiosInstance.get).toHaveBeenCalledWith(
+      '/v1/ota-packages/test-package'
+    )
   })
 
   it('useUpgradeStatistics should fetch statistics from API', async () => {
@@ -107,7 +108,9 @@ describe('OTA Package Detail Hooks', () => {
     expect(result.current.data?.totalTargetDevices).toBe(100)
     expect(result.current.data?.successfulUpgrades).toBe(45)
     expect(result.current.data?.failedUpgrades).toBe(5)
-    expect(axiosClients.axiosInstance.get).toHaveBeenCalledWith('/v1/ota-packages/test-package/upgrade-statistics')
+    expect(axiosClients.axiosInstance.get).toHaveBeenCalledWith(
+      '/v1/ota-packages/test-package/upgrade-statistics'
+    )
   })
 
   it('useDeviceDeployments should support pagination', async () => {
@@ -226,10 +229,9 @@ describe('OTA Package Detail Hooks', () => {
       data: mockBatches,
     })
 
-    const { result } = renderHook(
-      () => useUpgradeBatches('test-package'),
-      { wrapper: createWrapper() }
-    )
+    const { result } = renderHook(() => useUpgradeBatches('test-package'), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -238,6 +240,8 @@ describe('OTA Package Detail Hooks', () => {
     expect(result.current.data).toBeDefined()
     expect(result.current.data?.length).toBe(1)
     expect(result.current.data?.[0]?.batchId).toBe('batch-001')
-    expect(axiosClients.axiosInstance.get).toHaveBeenCalledWith('/v1/ota-packages/test-package/batches')
+    expect(axiosClients.axiosInstance.get).toHaveBeenCalledWith(
+      '/v1/ota-packages/test-package/batches'
+    )
   })
 })

@@ -46,7 +46,7 @@ function FirmwareTooltip({
   return (
     <div className='rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-sm'>
       <div className='font-mono font-medium'>v{row.version}</div>
-      <div className='tabular-nums text-muted-foreground'>
+      <div className='text-muted-foreground tabular-nums'>
         {row.devices} devices · {row.percentage.toFixed(1)}%
       </div>
     </div>

@@ -1,14 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import type {
-  DeviceBatchUploadDevicesResponse as DeviceV1BatchUploadDevicesResponse,
-  DeviceCreateDeviceRequest as DeviceV1CreateDeviceRequest,
-  DeviceGetDeviceResponse as DeviceV1GetDeviceResponse,
-  DeviceMQTTParametersResponse as DeviceV1GetMqttParametersResponse,
-  DeviceListDevicesResponse as DeviceV1ListDevicesResponse,
-  DeviceSetDeviceEnabledRequest as DeviceV1SetDeviceEnabledRequest,
-  DeviceTelemetryResponse as DeviceV1GetDeviceTelemetryResponse,
-  DeviceUpdateDeviceRequest as DeviceV1UpdateDeviceRequest,
-} from '@/api/generated/model'
 import {
   deleteDevicesId,
   getDevices,
@@ -22,6 +12,16 @@ import {
   putDevicesId,
   postDevicesIdEnabled,
 } from '@/api/generated'
+import type {
+  DeviceBatchUploadDevicesResponse as DeviceV1BatchUploadDevicesResponse,
+  DeviceCreateDeviceRequest as DeviceV1CreateDeviceRequest,
+  DeviceGetDeviceResponse as DeviceV1GetDeviceResponse,
+  DeviceMQTTParametersResponse as DeviceV1GetMqttParametersResponse,
+  DeviceListDevicesResponse as DeviceV1ListDevicesResponse,
+  DeviceSetDeviceEnabledRequest as DeviceV1SetDeviceEnabledRequest,
+  DeviceTelemetryResponse as DeviceV1GetDeviceTelemetryResponse,
+  DeviceUpdateDeviceRequest as DeviceV1UpdateDeviceRequest,
+} from '@/api/generated/model'
 
 // ============================================================================
 // Query Keys
@@ -136,7 +136,8 @@ export function useCreateDevice() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: DeviceV1CreateDeviceRequest) => postDevices(data as never),
+    mutationFn: (data: DeviceV1CreateDeviceRequest) =>
+      postDevices(data as never),
     onSuccess: () => {
       // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
@@ -200,7 +201,9 @@ export function useActivateDevice() {
       id: string
       data: Record<string, never>
     }) => {
-      return postDevicesIdActivate(Number(id)) as unknown as DeviceV1GetDeviceResponse
+      return postDevicesIdActivate(
+        Number(id)
+      ) as unknown as DeviceV1GetDeviceResponse
     },
     onSuccess: (_, variables) => {
       // Invalidate the specific device detail

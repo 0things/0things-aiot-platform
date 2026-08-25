@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type {
   ProductCreateProductRequest as ProductV1CreateProductRequest,
@@ -253,7 +253,9 @@ export function ProductsActionDialog({
                         placeholder='Select connectivity method'
                         className='col-span-4'
                         items={connectivityMethods.map(({ value }) => ({
-                          label: t(`productDetail.connectivityMethods.${value}`),
+                          label: t(
+                            `productDetail.connectivityMethods.${value}`
+                          ),
                           value,
                         }))}
                       />

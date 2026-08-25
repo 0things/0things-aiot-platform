@@ -1,6 +1,3 @@
-import type {
-  DeviceSimulatePushRequest,
-} from '@/api/generated/model'
 import {
   deleteDevicesIdPushRecords,
   getDevicesIdPushRecords,
@@ -9,6 +6,7 @@ import {
   getProductsKeyProductKey,
   postDevicesIdSimulatePush,
 } from '@/api/generated'
+import type { DeviceSimulatePushRequest } from '@/api/generated/model'
 import { getDeviceId } from './device-id'
 
 /**
@@ -18,7 +16,10 @@ export async function simulatePush(params: {
   deviceKey: string
   request: DeviceSimulatePushRequest
 }) {
-  return postDevicesIdSimulatePush(await getDeviceId(params.deviceKey), params.request)
+  return postDevicesIdSimulatePush(
+    await getDeviceId(params.deviceKey),
+    params.request
+  )
 }
 
 /**
@@ -55,7 +56,9 @@ export async function clearPushRecords(params: {
   beforeTimestamp?: string
 }) {
   return deleteDevicesIdPushRecords(await getDeviceId(params.deviceKey), {
-    beforeTimestamp: params.beforeTimestamp ? Number(params.beforeTimestamp) : undefined,
+    beforeTimestamp: params.beforeTimestamp
+      ? Number(params.beforeTimestamp)
+      : undefined,
   })
 }
 
@@ -64,6 +67,7 @@ export async function clearPushRecords(params: {
  */
 export async function getProductTSL(productKey: string) {
   const product = await getProductsKeyProductKey(productKey)
-  if (product.data?.product?.id === undefined) throw new Error('Product not found')
+  if (product.data?.product?.id === undefined)
+    throw new Error('Product not found')
   return getProductsIdTsl(product.data.product.id)
 }

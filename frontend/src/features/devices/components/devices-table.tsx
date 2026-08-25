@@ -56,11 +56,9 @@ export function DevicesTable() {
   // Extract filter values from appliedFilters (not columnFilters)
   // Pass as array for standard REST API format: ?states=online&states=offline
   const states = appliedFilters.find((f) => f.id === 'state')?.value as
-    | string[]
-    | undefined
+    string[] | undefined
   const searchText = appliedFilters.find((f) => f.id === 'deviceKey')?.value as
-    | string
-    | undefined
+    string | undefined
 
   // Handler to apply filters and trigger API call
   const handleSearch = () => {

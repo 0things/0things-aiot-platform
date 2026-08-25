@@ -1,8 +1,10 @@
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 
-export type UpgradeStatus = 'pending' | 'in_progress' | 'success' | 'failed' | 'cancelled'
-export type VerificationStatus = 'completed' | 'in_progress' | 'failed' | 'pending'
+export type UpgradeStatus =
+  'pending' | 'in_progress' | 'success' | 'failed' | 'cancelled'
+export type VerificationStatus =
+  'completed' | 'in_progress' | 'failed' | 'pending'
 
 interface StatusBadgeProps {
   status: UpgradeStatus
@@ -36,7 +38,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <Badge
       variant={getVariant(status)}
-      className={cn('capitalize text-xs', className)}
+      className={cn('text-xs capitalize', className)}
     >
       {status}
     </Badge>
@@ -78,7 +80,7 @@ export function VerificationStatusBadge({
   return (
     <Badge
       variant={getVariant(status)}
-      className={cn('capitalize text-xs', className)}
+      className={cn('text-xs capitalize', className)}
     >
       {status}
       {status === 'in_progress' && progress !== undefined && (
@@ -89,7 +91,8 @@ export function VerificationStatusBadge({
 }
 
 // Batch status badge variants
-export type BatchStatus = 'pending' | 'in_progress' | 'paused' | 'completed' | 'failed'
+export type BatchStatus =
+  'pending' | 'in_progress' | 'paused' | 'completed' | 'failed'
 
 interface BatchStatusBadgeProps {
   status: BatchStatus
@@ -118,7 +121,7 @@ export function BatchStatusBadge({ status, className }: BatchStatusBadgeProps) {
   return (
     <Badge
       variant={getVariant(status)}
-      className={cn('capitalize text-xs', className)}
+      className={cn('text-xs capitalize', className)}
     >
       {status}
     </Badge>

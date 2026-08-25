@@ -1,11 +1,14 @@
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { useDeviceShadow, useUpdateDesired } from '@/features/devices/api/shadow'
-import { JsonPane } from './json-pane'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  useDeviceShadow,
+  useUpdateDesired,
+} from '@/features/devices/api/shadow'
 import { DesiredEditor } from './desired-editor'
+import { JsonPane } from './json-pane'
 
 type Props = {
   deviceKey: string
@@ -16,8 +19,10 @@ export function ShadowTab({ deviceKey }: Props) {
   const update = useUpdateDesired(deviceKey)
   const [editing, setEditing] = useState(false)
 
-  if (isLoading) return <div className='p-4 text-muted-foreground'>Loading shadow…</div>
-  if (isError || !data) return <div className='p-4 text-destructive'>Failed to load shadow.</div>
+  if (isLoading)
+    return <div className='p-4 text-muted-foreground'>Loading shadow…</div>
+  if (isError || !data)
+    return <div className='p-4 text-destructive'>Failed to load shadow.</div>
 
   const hasDelta = Object.keys(data.delta ?? {}).length > 0
 
@@ -53,7 +58,10 @@ export function ShadowTab({ deviceKey }: Props) {
               <DesiredEditor
                 initial={data.desired}
                 onSave={async (next) => {
-                  await update.mutateAsync({ desired: next, version: data.version })
+                  await update.mutateAsync({
+                    desired: next,
+                    version: data.version,
+                  })
                   toast.success('Desired state updated')
                   setEditing(false)
                 }}

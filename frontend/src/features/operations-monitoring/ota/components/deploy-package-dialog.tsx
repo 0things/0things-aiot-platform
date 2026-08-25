@@ -58,7 +58,8 @@ export function DeployPackageDialog() {
       })
       return response.data?.devices || []
     },
-    enabled: !!productId && openDialog === 'deploy' && targetDevices === 'specific',
+    enabled:
+      !!productId && openDialog === 'deploy' && targetDevices === 'specific',
   })
 
   const handleClose = () => {
@@ -119,9 +120,7 @@ export function DeployPackageDialog() {
       <DialogContent className='sm:max-w-[560px]'>
         <DialogHeader>
           <DialogTitle>{t('deployForm.title')}</DialogTitle>
-          <DialogDescription>
-            {t('deployForm.description')}
-          </DialogDescription>
+          <DialogDescription>{t('deployForm.description')}</DialogDescription>
         </DialogHeader>
 
         <div className='space-y-6 py-4'>
@@ -191,7 +190,7 @@ export function DeployPackageDialog() {
                             <div className='font-medium'>
                               {device.name || device.deviceKey}
                             </div>
-                            <div className='text-muted-foreground font-mono text-xs'>
+                            <div className='font-mono text-xs text-muted-foreground'>
                               {device.deviceKey}
                             </div>
                           </div>

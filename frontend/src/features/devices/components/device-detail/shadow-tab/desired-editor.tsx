@@ -17,7 +17,11 @@ export function DesiredEditor({ initial, onSave }: Props) {
     let parsed: Record<string, unknown>
     try {
       parsed = JSON.parse(text)
-      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      if (
+        typeof parsed !== 'object' ||
+        parsed === null ||
+        Array.isArray(parsed)
+      ) {
         setError('Desired state must be a JSON object')
         return
       }

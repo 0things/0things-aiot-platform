@@ -27,7 +27,9 @@ function StatusTooltip({
   active,
   payload,
 }: TooltipProps<number, string> & {
-  payload?: Array<{ payload: { name: string; value: number; percentage: number } }>
+  payload?: Array<{
+    payload: { name: string; value: number; percentage: number }
+  }>
 }) {
   if (!active || !payload?.length) return null
   const item = payload[0]
@@ -39,7 +41,7 @@ function StatusTooltip({
   return (
     <div className='rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-sm'>
       <div className='font-medium'>{original.name}</div>
-      <div className='tabular-nums text-muted-foreground'>
+      <div className='text-muted-foreground tabular-nums'>
         {original.value} · {original.percentage.toFixed(1)}%
       </div>
     </div>
@@ -60,7 +62,9 @@ export function DeploymentStatusChart({
   }))
 
   const total = chartData.reduce((acc, c) => acc + c.value, 0)
-  const successItem = chartData.find((c) => c.name === t('analytics.deploymentStatus.success'))
+  const successItem = chartData.find(
+    (c) => c.name === t('analytics.deploymentStatus.success')
+  )
   const successRate = successItem?.percentage ?? 0
 
   return (

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   type ColumnFiltersState,
   type PaginationState,
@@ -14,7 +15,6 @@ import {
 } from '@tanstack/react-table'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -27,8 +27,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-import { statuses, packageTypes } from '../data/data'
 import { otaPackageKeys, useOTAPackages } from '../api/queries'
+import { statuses, packageTypes } from '../data/data'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { useOTAPackagesColumns } from './ota-packages-columns'
 
@@ -48,11 +48,9 @@ export function OTAPackagesTable() {
 
   // Extract filter values from appliedFilters (not columnFilters)
   const status = appliedFilters.find((f) => f.id === 'status')?.value as
-    | string
-    | undefined
-  const packageType = appliedFilters.find((f) => f.id === 'packageType')?.value as
-    | string
-    | undefined
+    string | undefined
+  const packageType = appliedFilters.find((f) => f.id === 'packageType')
+    ?.value as string | undefined
   const searchText = appliedFilters.find((f) => f.id === 'packageName')
     ?.value as string | undefined
 

@@ -58,7 +58,7 @@ export function DevicesActionDialog({
     useAllProducts()
   const products = React.useMemo(
     () => productsResponse?.products || [],
-    [productsResponse],
+    [productsResponse]
   )
 
   // Create and update mutations
@@ -222,7 +222,9 @@ export function DevicesActionDialog({
                           {products.map((product) => (
                             <SelectItem
                               key={product.id}
-                              value={product.id != null ? String(product.id) : ''}
+                              value={
+                                product.id != null ? String(product.id) : ''
+                              }
                             >
                               {product.name}
                             </SelectItem>

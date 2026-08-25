@@ -48,11 +48,9 @@ export function ProductsTable() {
 
   // Extract filter values from appliedFilters (not columnFilters)
   const category = appliedFilters.find((f) => f.id === 'category')?.value as
-    | string
-    | undefined
+    string | undefined
   const status = appliedFilters.find((f) => f.id === 'status')?.value as
-    | string
-    | undefined
+    string | undefined
   const searchText = appliedFilters.find((f) => f.id === 'productKey')
     ?.value as string | undefined
 

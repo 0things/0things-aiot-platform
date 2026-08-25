@@ -3,10 +3,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getDevices } from '@/api/generated'
-import { useBatchUpgrade } from '../api/detail-queries'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetContent,
@@ -15,7 +15,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { useBatchUpgrade } from '../api/detail-queries'
 
 interface DeviceItem {
   id?: number
@@ -143,7 +143,7 @@ export function BatchUpgradeDialog({
               placeholder={t('packageDetail.batchUpgrade.searchDevices')}
               className='flex-1'
             />
-            <span className='whitespace-nowrap text-sm text-muted-foreground'>
+            <span className='text-sm whitespace-nowrap text-muted-foreground'>
               {t('packageDetail.batchUpgrade.selected', {
                 count: selectedKeys.length,
               })}
