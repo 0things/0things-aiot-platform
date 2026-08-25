@@ -25,5 +25,8 @@ func InitUserRouter(
 	strictAuthRouter := r.Group("/").Use(middleware.StrictAuth(deps.JWT, deps.Logger))
 	{
 		strictAuthRouter.PUT("/user", deps.UserHandler.UpdateProfile)
+		strictAuthRouter.GET("/organizations", deps.UserHandler.ListMyOrganizations)
+		strictAuthRouter.POST("/auth/switch-org", deps.UserHandler.SwitchOrganization)
 	}
 }
+

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	_ "github.com/glebarez/sqlite"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -28,6 +29,8 @@ func main() {
 
 	// Clear existing data
 	fmt.Println("Clearing existing data...")
+	userDB.Exec("DELETE FROM organization_users")
+	userDB.Exec("DELETE FROM organizations")
 	userDB.Exec("DELETE FROM users")
 	deviceDB.Exec("DELETE FROM device_events")
 	deviceDB.Exec("DELETE FROM device_tags")
@@ -38,21 +41,71 @@ func main() {
 	deviceDB.Exec("DELETE FROM products")
 	deviceDB.Exec("DELETE FROM product_ts_ls")
 	deviceDB.Exec("DELETE FROM ota_packages")
-	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('users','device_events','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','product_ts_ls','ota_packages')")
+	userDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('users','organizations','organization_users')")
+	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','product_ts_ls','ota_packages')")
 
-	// --- users (50) ---
-	fmt.Println("Seeding users...")
+	// --- organizations (3) ---
+	fmt.Println("Seeding organizations...")
+	orgs := []struct {
+		id   int64
+		name string
+		slug string
+	}{
+		{id: 1, name: "默认组织", slug: "default-org"},
+		{id: 2, name: "研发中心", slug: "rd-center"},
+		{id: 3, name: "测试环境", slug: "test-env"},
+	}
+	for _, org := range orgs {
+		_, err := userDB.Exec(`INSERT OR REPLACE INTO organizations (id, name, slug, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
+			org.id,
+			org.name,
+			org.slug,
+			time.Now().Add(-30*24*time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("organization insert error: %v", err)
+		}
+	}
+
+	// --- users (50) & organization_users ---
+	fmt.Println("Seeding users and memberships...")
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("123456"), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatalf("bcrypt generate password error: %v", err)
+	}
+
 	for i := 1; i <= 50; i++ {
+		userID := fmt.Sprintf("user_%03d", i)
 		_, err := userDB.Exec(`INSERT OR IGNORE INTO users (user_id, nickname, password, email, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
-			fmt.Sprintf("user_%03d", i),
+			userID,
 			fmt.Sprintf("用户%d", i),
-			"hashed_password_"+fmt.Sprintf("%03d", i),
+			string(hashedPassword),
 			fmt.Sprintf("user%d@example.com", i),
 			time.Now().Add(-time.Duration(rand.Intn(365)) * 24 * time.Hour),
 			time.Now(),
 		)
 		if err != nil {
 			log.Printf("user insert error: %v", err)
+		}
+
+		if i == 1 {
+			// user_001 加入全部 3 个组织，且 org 3 的 last_login_at 最新
+			t1 := time.Now().Add(-24 * time.Hour)
+			t2 := time.Now().Add(-2 * time.Hour)
+			t3 := time.Now()
+			_, _ = userDB.Exec(`INSERT OR REPLACE INTO organization_users (organization_id, user_id, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`, 1, userID, t1, time.Now(), time.Now())
+			_, _ = userDB.Exec(`INSERT OR REPLACE INTO organization_users (organization_id, user_id, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`, 2, userID, t2, time.Now(), time.Now())
+			_, _ = userDB.Exec(`INSERT OR REPLACE INTO organization_users (organization_id, user_id, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`, 3, userID, t3, time.Now(), time.Now())
+		} else {
+			// 其它用户随机分配 1~2 个组织
+			orgID := int64(rand.Intn(3) + 1)
+			var loginTime *time.Time
+			if rand.Intn(2) == 1 {
+				t := time.Now().Add(-time.Duration(rand.Intn(30)) * 24 * time.Hour)
+				loginTime = &t
+			}
+			_, _ = userDB.Exec(`INSERT OR REPLACE INTO organization_users (organization_id, user_id, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`, orgID, userID, loginTime, time.Now(), time.Now())
 		}
 	}
 
@@ -64,7 +117,10 @@ func main() {
 	connMethods := []string{"wifi", "ble", "zigbee", "lora", "4g", "ethernet"}
 	protocols := []string{"mqtt", "http", "coap", "modbus", "tcp"}
 
+	productOrgMap := make(map[int]int64)
 	for i := 1; i <= 50; i++ {
+		orgID := int64(rand.Intn(3) + 1)
+		productOrgMap[i] = orgID
 		metadata, _ := json.Marshal(map[string]interface{}{
 			"manufacturer": fmt.Sprintf("厂商%d", rand.Intn(10)+1),
 			"model":        fmt.Sprintf("MODEL-%c%c%c", 'A'+rand.Intn(26), 'A'+rand.Intn(26), 'A'+rand.Intn(26)),
@@ -79,7 +135,7 @@ func main() {
 			nodeTypes[rand.Intn(len(nodeTypes))],
 			connMethods[rand.Intn(len(connMethods))],
 			protocols[rand.Intn(len(protocols))],
-			int64(rand.Intn(3) + 1),
+			orgID,
 			time.Now().Add(-time.Duration(rand.Intn(365)) * 24 * time.Hour),
 			time.Now(),
 		)
@@ -95,11 +151,15 @@ func main() {
 			"firmware_version": fmt.Sprintf("v%d.%d.%d", rand.Intn(3)+1, rand.Intn(10), rand.Intn(20)),
 			"hardware_version": fmt.Sprintf("hw%d.%d", rand.Intn(5)+1, rand.Intn(3)),
 		})
+		orgID := productOrgMap[i]
+		if orgID == 0 {
+			orgID = int64(rand.Intn(3) + 1)
+		}
 		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO devices (device_key, name, product_id, organization_id, enabled, metadata, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 			fmt.Sprintf("dk_device_%03d", i),
 			fmt.Sprintf("设备%d", i),
 			int64(i),
-			int64(rand.Intn(3) + 1),
+			orgID,
 			rand.Intn(2) == 1,
 			string(metadata),
 			time.Now().Add(-time.Duration(rand.Intn(365)) * 24 * time.Hour),

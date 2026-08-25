@@ -20,4 +20,5 @@ type UpdateProfileRequest struct {
 type GetProfileResponseData struct {
 	UserId   string `json:"userId"`
 	Nickname string `json:"nickname" example:"alan"`
+	Email    string `json:"email" example:"alan@gmail.com"`
 }//@name ApiGetProfileResponseData

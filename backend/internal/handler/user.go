@@ -126,3 +126,69 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	v1.HandleSuccess(ctx, nil)
 }
+
+// ListMyOrganizations godoc
+// @Summary 获取我的组织列表
+// @Schemes
+// @Description
+// @Tags 用户模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} v1.ApiResponse[[]v1.OrganizationItem]
+// @Router /organizations [get]
+func (h *UserHandler) ListMyOrganizations(ctx *gin.Context) {
+	userId := GetUserIdFromCtx(ctx)
+	if userId == "" {
+		v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+		return
+	}
+
+	items, err := h.userService.ListMyOrganizations(ctx, userId)
+	if err != nil {
+		v1.HandleError(ctx, http.StatusInternalServerError, v1.ErrInternalServerError, nil)
+		return
+	}
+
+	v1.HandleSuccess(ctx, items)
+}
+
+// SwitchOrganization godoc
+// @Summary 切换组织
+// @Schemes
+// @Description
+// @Tags 用户模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body v1.SwitchOrgRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.SwitchOrgResponseData]
+// @Router /auth/switch-org [post]
+func (h *UserHandler) SwitchOrganization(ctx *gin.Context) {
+	userId := GetUserIdFromCtx(ctx)
+	if userId == "" {
+		v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+		return
+	}
+
+	var req v1.SwitchOrgRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+		return
+	}
+
+	token, err := h.userService.SwitchOrganization(ctx, userId, req.OrgId)
+	if err != nil {
+		if err == v1.ErrForbidden {
+			v1.HandleError(ctx, http.StatusForbidden, v1.ErrForbidden, nil)
+			return
+		}
+		v1.HandleError(ctx, http.StatusInternalServerError, v1.ErrInternalServerError, nil)
+		return
+	}
+
+	v1.HandleSuccess(ctx, v1.SwitchOrgResponseData{
+		AccessToken: token,
+	})
+}
+

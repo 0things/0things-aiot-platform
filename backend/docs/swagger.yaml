@@ -1,6 +1,9 @@
 definitions:
   ApiGetProfileResponseData:
     properties:
+      email:
+        example: alan@gmail.com
+        type: string
       nickname:
         example: alan
         type: string
@@ -22,6 +25,15 @@ definitions:
   ApiLoginResponseData:
     properties:
       accessToken:
+        type: string
+    type: object
+  ApiOrganizationItem:
+    properties:
+      id:
+        type: integer
+      is_current:
+        type: boolean
+      name:
         type: string
     type: object
   ApiRegisterRequest:
@@ -51,6 +63,15 @@ definitions:
         type: integer
       data:
         $ref: '#/definitions/ApiLoginResponseData'
+      message:
+        type: string
+    type: object
+  ApiResponse-ApiSwitchOrgResponseData:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/ApiSwitchOrgResponseData'
       message:
         type: string
     type: object
@@ -504,6 +525,17 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-array_ApiOrganizationItem:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/ApiOrganizationItem'
+        type: array
+      message:
+        type: string
+    type: object
   ApiSuccessResponse:
     properties:
       code:
@@ -511,6 +543,18 @@ definitions:
       data:
         type: object
       message:
+        type: string
+    type: object
+  ApiSwitchOrgRequest:
+    properties:
+      org_id:
+        type: integer
+    required:
+    - org_id
+    type: object
+  ApiSwitchOrgResponseData:
+    properties:
+      accessToken:
         type: string
     type: object
   ApiUpdateProfileRequest:
@@ -1049,7 +1093,7 @@ definitions:
       deviceName:
         type: string
       lastStatusChangeTime:
-        type: integer
+        type: string
       productId:
         type: integer
       productKey:
@@ -1447,6 +1491,29 @@ info:
   title: Nunu Example API
   version: 1.0.0
 paths:
+  /auth/switch-org:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ApiSwitchOrgRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-ApiSwitchOrgResponseData'
+      security:
+      - Bearer: []
+      summary: 切换组织
+      tags:
+      - 用户模块
   /device-events:
     get:
       description: 分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选
@@ -2254,6 +2321,22 @@ paths:
           schema:
             $ref: '#/definitions/ApiResponse-ApiLoginResponseData'
       summary: 账号登录
+      tags:
+      - 用户模块
+  /organizations:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-array_ApiOrganizationItem'
+      security:
+      - Bearer: []
+      summary: 获取我的组织列表
       tags:
       - 用户模块
   /ota-packages:

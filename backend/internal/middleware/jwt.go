@@ -35,6 +35,7 @@ func StrictAuth(j *jwt.JWT, logger *log.Logger) gin.HandlerFunc {
 		}
 
 		ctx.Set("claims", claims)
+		ctx.Set(string(tenant.OrganizationKey), claims.OrganizationID)
 		ctx.Request = ctx.Request.WithContext(tenant.WithTenant(ctx.Request.Context(), claims.OrganizationID))
 		recoveryLoggerFunc(ctx, logger)
 		ctx.Next()
@@ -62,6 +63,7 @@ func NoStrictAuth(j *jwt.JWT, logger *log.Logger) gin.HandlerFunc {
 		}
 
 		ctx.Set("claims", claims)
+		ctx.Set(string(tenant.OrganizationKey), claims.OrganizationID)
 		ctx.Request = ctx.Request.WithContext(tenant.WithTenant(ctx.Request.Context(), claims.OrganizationID))
 		recoveryLoggerFunc(ctx, logger)
 		ctx.Next()

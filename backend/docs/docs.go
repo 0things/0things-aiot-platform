@@ -24,6 +24,44 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/switch-org": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "切换组织",
+                "parameters": [
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ApiSwitchOrgRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-ApiSwitchOrgResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/device-events": {
             "get": {
                 "security": [
@@ -1305,6 +1343,33 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ApiLoginResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "获取我的组织列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-array_ApiOrganizationItem"
                         }
                     }
                 }
@@ -2817,6 +2882,10 @@ const docTemplate = `{
         "ApiGetProfileResponseData": {
             "type": "object",
             "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "alan@gmail.com"
+                },
                 "nickname": {
                     "type": "string",
                     "example": "alan"
@@ -2847,6 +2916,20 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accessToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiOrganizationItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "is_current": {
+                    "type": "boolean"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -2890,6 +2973,20 @@ const docTemplate = `{
                 },
                 "data": {
                     "$ref": "#/definitions/ApiLoginResponseData"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-ApiSwitchOrgResponseData": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/ApiSwitchOrgResponseData"
                 },
                 "message": {
                     "type": "string"
@@ -3596,6 +3693,23 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-array_ApiOrganizationItem": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ApiOrganizationItem"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiSuccessResponse": {
             "type": "object",
             "properties": {
@@ -3606,6 +3720,25 @@ const docTemplate = `{
                     "type": "object"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiSwitchOrgRequest": {
+            "type": "object",
+            "required": [
+                "org_id"
+            ],
+            "properties": {
+                "org_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ApiSwitchOrgResponseData": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
                     "type": "string"
                 }
             }
@@ -4432,7 +4565,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "lastStatusChangeTime": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "productId": {
                     "type": "integer"
