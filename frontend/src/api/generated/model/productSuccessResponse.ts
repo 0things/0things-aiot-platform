@@ -7,5 +7,5 @@
  */
 
 export interface ProductSuccessResponse {
-  success?: boolean;
+  success?: boolean
 }

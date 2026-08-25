@@ -7,12 +7,12 @@
  */
 
 export interface ProductUpdateProductRequest {
-  accessProtocol?: string;
-  category?: string;
-  connectivityMethod?: string;
-  description?: string;
-  metadata?: number[];
-  name?: string;
-  nodeType?: string;
-  status?: string;
+  accessProtocol?: string
+  category?: string
+  connectivityMethod?: string
+  description?: string
+  metadata?: number[]
+  name?: string
+  nodeType?: string
+  status?: string
 }

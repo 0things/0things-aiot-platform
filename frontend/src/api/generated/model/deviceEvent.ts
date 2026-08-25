@@ -7,10 +7,10 @@
  */
 
 export interface DeviceEvent {
-  data?: string;
-  deviceKey?: string;
-  deviceName?: string;
-  eventAt?: string;
-  eventType?: string;
-  id?: number;
+  data?: string
+  deviceKey?: string
+  deviceName?: string
+  eventAt?: string
+  eventType?: string
+  id?: number
 }

@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { OtaListUpgradeBatchesResponse } from './otaListUpgradeBatchesResponse';
+import type { OtaListUpgradeBatchesResponse } from './otaListUpgradeBatchesResponse'
 
 export interface ApiResponseOtaListUpgradeBatchesResponse {
-  code?: number;
-  data?: OtaListUpgradeBatchesResponse;
-  message?: string;
+  code?: number
+  data?: OtaListUpgradeBatchesResponse
+  message?: string
 }

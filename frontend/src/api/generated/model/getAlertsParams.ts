@@ -7,24 +7,24 @@
  */
 
 export type GetAlertsParams = {
-/**
- * 页码
- */
-page?: number;
-/**
- * 每页数量
- */
-pageSize?: number;
-/**
- * 状态
- */
-status?: string;
-/**
- * 严重程度
- */
-severity?: string;
-/**
- * 设备 Key
- */
-device_key?: string;
-};
+  /**
+   * 页码
+   */
+  page?: number
+  /**
+   * 每页数量
+   */
+  pageSize?: number
+  /**
+   * 状态
+   */
+  status?: string
+  /**
+   * 严重程度
+   */
+  severity?: string
+  /**
+   * 设备 Key
+   */
+  device_key?: string
+}

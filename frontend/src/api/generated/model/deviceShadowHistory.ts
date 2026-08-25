@@ -7,11 +7,11 @@
  */
 
 export interface DeviceShadowHistory {
-  createdAt?: string;
-  desired?: unknown;
-  deviceId?: number;
-  id?: number;
-  reported?: unknown;
-  source?: string;
-  version?: number;
+  createdAt?: string
+  desired?: unknown
+  deviceId?: number
+  id?: number
+  reported?: unknown
+  source?: string
+  version?: number
 }

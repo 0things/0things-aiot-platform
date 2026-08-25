@@ -7,5 +7,5 @@
  */
 
 export interface DeviceSuccessResponse {
-  success?: boolean;
+  success?: boolean
 }

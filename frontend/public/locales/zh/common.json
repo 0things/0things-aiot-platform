@@ -41,5 +41,11 @@
   "status": "状态",
   "role": "角色",
   "createdAt": "创建时间",
-  "updatedAt": "更新时间"
+  "updatedAt": "更新时间",
+  "organizations": "组织",
+  "switchOrg": "切换组织",
+  "switchOrgSuccess": "已切换到组织: {{name}}",
+  "switchOrgFailed": "切换组织失败",
+  "currentOrg": "当前组织",
+  "noOrganizations": "暂无组织"
 }

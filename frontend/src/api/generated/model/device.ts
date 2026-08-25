@@ -7,18 +7,18 @@
  */
 
 export interface Device {
-  createdAt?: string;
-  deletedAt?: string;
-  deviceKey?: string;
-  enabled?: boolean;
-  id?: number;
-  lastOfflineTime?: number;
-  lastOnlineTime?: number;
-  metadata?: string;
-  name?: string;
-  productId?: number;
-  productKey?: string;
-  productName?: string;
-  state?: string;
-  updatedAt?: string;
+  createdAt?: string
+  deletedAt?: string
+  deviceKey?: string
+  enabled?: boolean
+  id?: number
+  lastOfflineTime?: number
+  lastOnlineTime?: number
+  metadata?: string
+  name?: string
+  productId?: number
+  productKey?: string
+  productName?: string
+  state?: string
+  updatedAt?: string
 }

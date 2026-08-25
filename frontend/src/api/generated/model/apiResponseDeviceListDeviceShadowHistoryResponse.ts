@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DeviceListDeviceShadowHistoryResponse } from './deviceListDeviceShadowHistoryResponse';
+import type { DeviceListDeviceShadowHistoryResponse } from './deviceListDeviceShadowHistoryResponse'
 
 export interface ApiResponseDeviceListDeviceShadowHistoryResponse {
-  code?: number;
-  data?: DeviceListDeviceShadowHistoryResponse;
-  message?: string;
+  code?: number
+  data?: DeviceListDeviceShadowHistoryResponse
+  message?: string
 }

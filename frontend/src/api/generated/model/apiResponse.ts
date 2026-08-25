@@ -7,7 +7,7 @@
  */
 
 export interface ApiResponse {
-  code?: number;
-  data?: unknown;
-  message?: string;
+  code?: number
+  data?: unknown
+  message?: string
 }

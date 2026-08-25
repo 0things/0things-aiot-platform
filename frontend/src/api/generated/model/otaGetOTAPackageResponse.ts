@@ -5,8 +5,8 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { OtaOTAPackage } from './otaOTAPackage';
+import type { OtaOTAPackage } from './otaOTAPackage'
 
 export interface OtaGetOTAPackageResponse {
-  otaPackage?: OtaOTAPackage;
+  otaPackage?: OtaOTAPackage
 }

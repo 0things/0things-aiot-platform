@@ -5,8 +5,8 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { OtaUpgradeBatch } from './otaUpgradeBatch';
+import type { OtaUpgradeBatch } from './otaUpgradeBatch'
 
 export interface OtaListUpgradeBatchesResponse {
-  items?: OtaUpgradeBatch[];
+  items?: OtaUpgradeBatch[]
 }

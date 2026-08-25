@@ -7,8 +7,8 @@
  */
 
 export interface DeviceBatchUploadError {
-  deviceName?: string;
-  error?: string;
-  productKey?: string;
-  row?: number;
+  deviceName?: string
+  error?: string
+  productKey?: string
+  row?: number
 }

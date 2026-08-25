@@ -7,9 +7,9 @@
  */
 
 export interface DeviceMQTTParametersResponse {
-  clientId?: string;
-  mqttHostUrl?: string;
-  password?: string;
-  port?: number;
-  username?: string;
+  clientId?: string
+  mqttHostUrl?: string
+  password?: string
+  port?: number
+  username?: string
 }

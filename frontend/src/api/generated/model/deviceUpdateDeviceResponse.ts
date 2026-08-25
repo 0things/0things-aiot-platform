@@ -5,8 +5,8 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { Device } from './device';
+import type { Device } from './device'
 
 export interface DeviceUpdateDeviceResponse {
-  device?: Device;
+  device?: Device
 }

@@ -7,24 +7,24 @@
  */
 
 export type GetProductsParams = {
-/**
- * 页码
- */
-page?: number;
-/**
- * 每页数量
- */
-pageSize?: number;
-/**
- * 产品分类
- */
-category?: string;
-/**
- * 产品状态
- */
-status?: string;
-/**
- * 搜索关键字
- */
-searchText?: string;
-};
+  /**
+   * 页码
+   */
+  page?: number
+  /**
+   * 每页数量
+   */
+  pageSize?: number
+  /**
+   * 产品分类
+   */
+  category?: string
+  /**
+   * 产品状态
+   */
+  status?: string
+  /**
+   * 搜索关键字
+   */
+  searchText?: string
+}

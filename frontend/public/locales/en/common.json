@@ -41,5 +41,11 @@
   "status": "Status",
   "role": "Role",
   "createdAt": "Created At",
-  "updatedAt": "Updated At"
+  "updatedAt": "Updated At",
+  "organizations": "Organizations",
+  "switchOrg": "Switch Organization",
+  "switchOrgSuccess": "Switched to organization: {{name}}",
+  "switchOrgFailed": "Failed to switch organization",
+  "currentOrg": "Current Organization",
+  "noOrganizations": "No organizations"
 }

@@ -7,5 +7,5 @@
  */
 
 export interface DeviceSetDeviceEnabledRequest {
-  enabled?: boolean;
+  enabled?: boolean
 }

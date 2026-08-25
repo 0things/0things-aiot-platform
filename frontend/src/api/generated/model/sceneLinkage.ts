@@ -7,11 +7,11 @@
  */
 
 export interface SceneLinkage {
-  createdAt?: string;
-  description?: string;
-  enable?: number;
-  id?: number;
-  name?: string;
-  tenantId?: number;
-  updatedAt?: string;
+  createdAt?: string
+  description?: string
+  enable?: number
+  id?: number
+  name?: string
+  organizationId?: number
+  updatedAt?: string
 }

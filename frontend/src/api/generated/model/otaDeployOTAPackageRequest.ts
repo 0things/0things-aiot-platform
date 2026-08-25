@@ -7,5 +7,5 @@
  */
 
 export interface OtaDeployOTAPackageRequest {
-  deviceKeys: string[];
+  deviceKeys: string[]
 }

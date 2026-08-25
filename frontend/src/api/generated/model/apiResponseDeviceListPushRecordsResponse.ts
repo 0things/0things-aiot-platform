@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DeviceListPushRecordsResponse } from './deviceListPushRecordsResponse';
+import type { DeviceListPushRecordsResponse } from './deviceListPushRecordsResponse'
 
 export interface ApiResponseDeviceListPushRecordsResponse {
-  code?: number;
-  data?: DeviceListPushRecordsResponse;
-  message?: string;
+  code?: number
+  data?: DeviceListPushRecordsResponse
+  message?: string
 }

@@ -5,11 +5,11 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { Alert } from './alert';
+import type { Alert } from './alert'
 
 export interface AlertListAlertsResponse {
-  alerts?: Alert[];
-  page?: number;
-  pageSize?: number;
-  total?: number;
+  alerts?: Alert[]
+  page?: number
+  pageSize?: number
+  total?: number
 }

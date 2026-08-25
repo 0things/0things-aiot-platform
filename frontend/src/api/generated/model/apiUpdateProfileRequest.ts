@@ -7,6 +7,6 @@
  */
 
 export interface ApiUpdateProfileRequest {
-  email: string;
-  nickname?: string;
+  email: string
+  nickname?: string
 }

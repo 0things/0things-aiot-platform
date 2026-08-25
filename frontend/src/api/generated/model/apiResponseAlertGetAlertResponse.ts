@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { AlertGetAlertResponse } from './alertGetAlertResponse';
+import type { AlertGetAlertResponse } from './alertGetAlertResponse'
 
 export interface ApiResponseAlertGetAlertResponse {
-  code?: number;
-  data?: AlertGetAlertResponse;
-  message?: string;
+  code?: number
+  data?: AlertGetAlertResponse
+  message?: string
 }

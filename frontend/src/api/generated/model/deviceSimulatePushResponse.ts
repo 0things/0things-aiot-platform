@@ -7,8 +7,8 @@
  */
 
 export interface DeviceSimulatePushResponse {
-  message?: string;
-  pushRecordId?: string;
-  status?: string;
-  timestamp?: number;
+  message?: string
+  pushRecordId?: string
+  status?: string
+  timestamp?: number
 }

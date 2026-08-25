@@ -7,12 +7,12 @@
  */
 
 export type GetOtaPackagesParams = {
-/**
- * 页码
- */
-page?: number;
-/**
- * 每页数量
- */
-pageSize?: number;
-};
+  /**
+   * 页码
+   */
+  page?: number
+  /**
+   * 每页数量
+   */
+  pageSize?: number
+}

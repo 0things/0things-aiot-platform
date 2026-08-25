@@ -5,8 +5,8 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { Alert } from './alert';
+import type { Alert } from './alert'
 
 export interface AlertGetAlertResponse {
-  alert?: Alert;
+  alert?: Alert
 }

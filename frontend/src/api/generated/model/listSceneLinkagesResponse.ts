@@ -5,11 +5,11 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { SceneLinkage } from './sceneLinkage';
+import type { SceneLinkage } from './sceneLinkage'
 
 export interface ListSceneLinkagesResponse {
-  items?: SceneLinkage[];
-  page?: number;
-  pageSize?: number;
-  total?: number;
+  items?: SceneLinkage[]
+  page?: number
+  pageSize?: number
+  total?: number
 }

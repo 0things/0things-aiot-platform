@@ -7,19 +7,19 @@
  */
 
 export interface Product {
-  accessProtocol?: string;
-  category?: string;
-  connectivityMethod?: string;
-  createdAt?: string;
-  deletedAt?: string;
-  description?: string;
-  deviceCount?: number;
-  id?: number;
-  metadata?: string;
-  name?: string;
-  nodeType?: string;
-  productKey?: string;
-  status?: string;
-  tenantId?: number;
-  updatedAt?: string;
+  accessProtocol?: string
+  category?: string
+  connectivityMethod?: string
+  createdAt?: string
+  deletedAt?: string
+  description?: string
+  deviceCount?: number
+  id?: number
+  metadata?: string
+  name?: string
+  nodeType?: string
+  organizationId?: number
+  productKey?: string
+  status?: string
+  updatedAt?: string
 }

@@ -7,21 +7,21 @@
  */
 
 export interface Alert {
-  ackAt?: string;
-  ackBy?: string;
-  count?: number;
-  createdAt?: string;
-  deviceKey?: string;
-  id?: number;
-  lastRaisedAt?: string;
-  payload?: string;
-  raisedAt?: string;
-  resolvedAt?: string;
-  resolvedBy?: string;
-  ruleId?: number;
-  ruleName?: string;
-  severity?: string;
-  status?: string;
-  summary?: string;
-  updatedAt?: string;
+  ackAt?: string
+  ackBy?: string
+  count?: number
+  createdAt?: string
+  deviceKey?: string
+  id?: number
+  lastRaisedAt?: string
+  payload?: string
+  raisedAt?: string
+  resolvedAt?: string
+  resolvedBy?: string
+  ruleId?: number
+  ruleName?: string
+  severity?: string
+  status?: string
+  summary?: string
+  updatedAt?: string
 }

@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DeviceMockKafkaResponse } from './deviceMockKafkaResponse';
+import type { DeviceMockKafkaResponse } from './deviceMockKafkaResponse'
 
 export interface ApiResponseDeviceMockKafkaResponse {
-  code?: number;
-  data?: DeviceMockKafkaResponse;
-  message?: string;
+  code?: number
+  data?: DeviceMockKafkaResponse
+  message?: string
 }

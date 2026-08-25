@@ -7,15 +7,15 @@
  */
 
 export interface OtaOTAPackageRequest {
-  checksum?: string;
-  description?: string;
-  fileSize?: number;
-  fileUrl?: string;
-  packageName: string;
-  packageType?: string;
-  productId?: number;
-  releaseNotes?: string;
-  status?: string;
-  uploadType?: string;
-  version?: string;
+  checksum?: string
+  description?: string
+  fileSize?: number
+  fileUrl?: string
+  packageName: string
+  packageType?: string
+  productId?: number
+  releaseNotes?: string
+  status?: string
+  uploadType?: string
+  version?: string
 }

@@ -7,6 +7,6 @@
  */
 
 export interface DeviceMockKafkaRequest {
-  data?: string;
-  topic: string;
+  data?: string
+  topic: string
 }

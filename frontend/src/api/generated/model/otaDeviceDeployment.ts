@@ -7,14 +7,14 @@
  */
 
 export interface OtaDeviceDeployment {
-  createdAt?: string;
-  currentVersion?: string;
-  deviceId?: number;
-  deviceKey?: string;
-  deviceName?: string;
-  lastStatusChangeTime?: number;
-  productId?: number;
-  productKey?: string;
-  status?: string;
-  upgradeBatchId?: string;
+  createdAt?: string
+  currentVersion?: string
+  deviceId?: number
+  deviceKey?: string
+  deviceName?: string
+  lastStatusChangeTime?: string
+  productId?: number
+  productKey?: string
+  status?: string
+  upgradeBatchId?: string
 }

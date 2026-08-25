@@ -7,6 +7,6 @@
  */
 
 export interface OtaReportOTAStatusRequest {
-  deviceKey: string;
-  status: string;
+  deviceKey: string
+  status: string
 }

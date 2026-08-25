@@ -6,11 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type MessageParserExecuteProductMessageParserRequestMode = typeof MessageParserExecuteProductMessageParserRequestMode[keyof typeof MessageParserExecuteProductMessageParserRequestMode];
-
+export type MessageParserExecuteProductMessageParserRequestMode =
+  (typeof MessageParserExecuteProductMessageParserRequestMode)[keyof typeof MessageParserExecuteProductMessageParserRequestMode]
 
 export const MessageParserExecuteProductMessageParserRequestMode = {
   device_report: 'device_report',
   device_receive: 'device_receive',
   custom: 'custom',
-} as const;
+} as const

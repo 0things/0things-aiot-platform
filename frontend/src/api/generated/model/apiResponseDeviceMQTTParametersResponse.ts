@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DeviceMQTTParametersResponse } from './deviceMQTTParametersResponse';
+import type { DeviceMQTTParametersResponse } from './deviceMQTTParametersResponse'
 
 export interface ApiResponseDeviceMQTTParametersResponse {
-  code?: number;
-  data?: DeviceMQTTParametersResponse;
-  message?: string;
+  code?: number
+  data?: DeviceMQTTParametersResponse
+  message?: string
 }

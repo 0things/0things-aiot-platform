@@ -7,6 +7,6 @@
  */
 
 export interface ApiLoginRequest {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }

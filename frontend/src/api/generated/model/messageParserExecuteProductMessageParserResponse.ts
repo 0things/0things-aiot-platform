@@ -7,7 +7,7 @@
  */
 
 export interface MessageParserExecuteProductMessageParserResponse {
-  jsonOutput?: string;
-  mode?: string;
-  rawData?: string;
+  jsonOutput?: string
+  mode?: string
+  rawData?: string
 }
