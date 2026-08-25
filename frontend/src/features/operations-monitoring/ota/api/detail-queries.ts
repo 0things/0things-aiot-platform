@@ -29,8 +29,8 @@ interface OTAPackageDetail {
   verificationProgress: number
   description?: string
   releaseNotes?: string
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
 }
 
 export interface UpgradeBatch {
@@ -38,7 +38,7 @@ export interface UpgradeBatch {
   upgradeStrategy: string
   status: string
   targetDeviceCount: number
-  createdAt: Date
+  createdAt: string
 }
 
 interface DeviceDeployment {
@@ -51,7 +51,7 @@ interface DeviceDeployment {
   status: string
   upgradeBatchId: string
   lastStatusChangeTime: string | number
-  createdAt: Date
+  createdAt: string
 }
 
 interface DeviceDeploymentList {
@@ -87,8 +87,8 @@ export function useOTAPackageDetail(uuid: string) {
         verificationProgress: 100,
         description: data?.description,
         releaseNotes: data?.releaseNotes,
-        createdAt: data?.createdAt ? new Date(data.createdAt) : new Date(),
-        updatedAt: data?.updatedAt ? new Date(data.updatedAt) : new Date(),
+        createdAt: data?.createdAt ?? '',
+        updatedAt: data?.updatedAt ?? '',
       }
     },
     staleTime: 0, // No caching
@@ -154,8 +154,8 @@ export function useDeviceDeployments(
           currentVersion: d.currentVersion ?? '',
           status: d.status ?? '',
           upgradeBatchId: d.upgradeBatchId ?? '',
-          lastStatusChangeTime: d.lastStatusChangeTime ?? 0,
-          createdAt: d.createdAt ? new Date(d.createdAt) : new Date(),
+          lastStatusChangeTime: d.lastStatusChangeTime ?? '',
+          createdAt: d.createdAt ?? '',
         })),
         total: data.total || 0,
         page: data.page || page,
@@ -177,13 +177,13 @@ export function useUpgradeBatches(uuid: string) {
     queryFn: async () => {
       const data =
         (await getOtaPackagesIdBatches(uuid as unknown as number))?.data ?? {}
-        return (data.items || []).map((b: OtaUpgradeBatch) => ({
-          batchId: b.batchId ?? '',
-          upgradeStrategy: b.upgradeStrategy ?? '',
-          status: b.status ?? '',
-          targetDeviceCount: b.targetDeviceCount ?? 0,
-          createdAt: b.createdAt ? new Date(b.createdAt) : new Date(),
-        }))
+      return (data.items || []).map((b: OtaUpgradeBatch) => ({
+        batchId: b.batchId ?? '',
+        upgradeStrategy: b.upgradeStrategy ?? '',
+        status: b.status ?? '',
+        targetDeviceCount: b.targetDeviceCount ?? 0,
+        createdAt: b.createdAt ?? '',
+      }))
     },
     staleTime: 0, // No caching
     enabled: !!uuid, // Only run query if uuid is provided

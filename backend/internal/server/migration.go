@@ -65,6 +65,16 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 			return fmt.Errorf("drop batch_type column: %w", err)
 		}
 	}
+	// Rename last_status_change_time -> last_status_change_ts on the device
+	// upgrade status table while preserving existing data. Guarded so
+	// re-running migration is a no-op once the column is renamed.
+	if m.deviceDB.Migrator().HasColumn("ota_device_upgrade_status", "last_status_change_time") {
+		if err := m.deviceDB.Migrator().RenameColumn(
+			"ota_device_upgrade_status", "last_status_change_time", "last_status_change_ts",
+		); err != nil {
+			return fmt.Errorf("rename last_status_change_time -> last_status_change_ts: %w", err)
+		}
+	}
 	if err := m.deviceDB.AutoMigrate(
 		&model.Product{},
 		&model.ProductTSL{},

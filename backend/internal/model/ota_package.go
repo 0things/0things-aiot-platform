@@ -52,7 +52,7 @@ type DeviceUpgradeStatus struct {
 	UpgradeBatchID       string `gorm:"column:upgrade_batch_id"`
 	Status               string
 	CurrentVersion       string `gorm:"column:current_version"`
-	LastStatusChangeTime *int64 `gorm:"column:last_status_change_time"`
+	LastStatusChangeTime *int64 `gorm:"column:last_status_change_ts"`
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
 }
@@ -70,6 +70,6 @@ type DeviceDeployment struct {
 	CurrentVersion       string    `gorm:"column:current_version"`
 	UpgradeBatchID       string    `gorm:"column:upgrade_batch_id"`
 	Status               string    `gorm:"column:status"`
-	LastStatusChangeTime int64     `gorm:"column:last_status_change_time"`
+	LastStatusChangeTime int64     `gorm:"column:last_status_change_ts"`
 	CreatedAt            time.Time `gorm:"column:created_at"`
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func TestOTAResponseMapping(t *testing.T) {
-	now := time.Now().UTC().Truncate(time.Second)
+	now := time.Date(2026, time.August, 25, 8, 58, 57, 0, time.UTC)
 	pkg := otaPackageJSON(model.OTAPackage{ID: 3, PackageName: "firmware-1", ProductKey: "P001", ProductName: "传感器", CreatedAt: now, UpdatedAt: now})
 	require.EqualValues(t, 3, pkg.ID)
 	require.Equal(t, "firmware-1", pkg.PackageName)
@@ -23,5 +23,6 @@ func TestOTAResponseMapping(t *testing.T) {
 	})
 	require.EqualValues(t, 4, deployment.DeviceID)
 	require.Equal(t, "P001", deployment.ProductKey)
-	require.Equal(t, now, deployment.CreatedAt)
+	require.Equal(t, "2026-08-25 08:58:57", deployment.CreatedAt)
+	require.Equal(t, "1970-01-01 00:01:40", deployment.LastStatusChangeTime)
 }

@@ -33,7 +33,7 @@ func newDeviceUpgradeStatus(db *gorm.DB, opts ...gen.DOOption) deviceUpgradeStat
 	_deviceUpgradeStatus.UpgradeBatchID = field.NewString(tableName, "upgrade_batch_id")
 	_deviceUpgradeStatus.Status = field.NewString(tableName, "status")
 	_deviceUpgradeStatus.CurrentVersion = field.NewString(tableName, "current_version")
-	_deviceUpgradeStatus.LastStatusChangeTime = field.NewInt64(tableName, "last_status_change_time")
+	_deviceUpgradeStatus.LastStatusChangeTime = field.NewInt64(tableName, "last_status_change_ts")
 	_deviceUpgradeStatus.CreatedAt = field.NewTime(tableName, "created_at")
 	_deviceUpgradeStatus.UpdatedAt = field.NewTime(tableName, "updated_at")
 
@@ -77,7 +77,7 @@ func (d *deviceUpgradeStatus) updateTableName(table string) *deviceUpgradeStatus
 	d.UpgradeBatchID = field.NewString(table, "upgrade_batch_id")
 	d.Status = field.NewString(table, "status")
 	d.CurrentVersion = field.NewString(table, "current_version")
-	d.LastStatusChangeTime = field.NewInt64(table, "last_status_change_time")
+	d.LastStatusChangeTime = field.NewInt64(table, "last_status_change_ts")
 	d.CreatedAt = field.NewTime(table, "created_at")
 	d.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -115,7 +115,7 @@ func (d *deviceUpgradeStatus) fillFieldMap() {
 	d.fieldMap["upgrade_batch_id"] = d.UpgradeBatchID
 	d.fieldMap["status"] = d.Status
 	d.fieldMap["current_version"] = d.CurrentVersion
-	d.fieldMap["last_status_change_time"] = d.LastStatusChangeTime
+	d.fieldMap["last_status_change_ts"] = d.LastStatusChangeTime
 	d.fieldMap["created_at"] = d.CreatedAt
 	d.fieldMap["updated_at"] = d.UpdatedAt
 }

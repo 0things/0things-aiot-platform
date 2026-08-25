@@ -177,7 +177,7 @@ func (r *OTARepository) CreateBatchDeployments(ctx context.Context, packageID in
 			// 使新批次“接管”该设备的升级。
 			toUpdate = append(toUpdate, deviceID)
 		} else {
-			now := time.Now().UnixMilli()
+			now := time.Now().Unix()
 			toInsert = append(toInsert, model.DeviceUpgradeStatus{
 				DeviceID:             deviceID,
 				OTAPackageID:         pkgID,
@@ -194,7 +194,7 @@ func (r *OTARepository) CreateBatchDeployments(ctx context.Context, packageID in
 			Updates(map[string]interface{}{
 				"status":                  "pending",
 				"upgrade_batch_id":        batchID,
-				"last_status_change_time": time.Now().UnixMilli(),
+				"last_status_change_ts": time.Now().Unix(),
 			}).Error; err != nil {
 			return 0, err
 		}
@@ -209,7 +209,7 @@ func (r *OTARepository) CreateBatchDeployments(ctx context.Context, packageID in
 
 func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, size int, status string) ([]model.DeviceDeployment, int64, error) {
 	query := r.DB(ctx).Table("ota_device_upgrade_status dus").
-		Select("dus.device_id, d.device_key, d.name as device_name, d.product_id, p.product_key, dus.current_version, dus.upgrade_batch_id, dus.status, dus.last_status_change_time, dus.created_at").
+		Select("dus.device_id, d.device_key, d.name as device_name, d.product_id, p.product_key, dus.current_version, dus.upgrade_batch_id, dus.status, dus.last_status_change_ts, dus.created_at").
 		Joins("JOIN devices d ON d.id = dus.device_id").
 		Joins("JOIN products p ON p.id = d.product_id").
 		Where("dus.ota_package_id = ?", strconv.FormatInt(packageID, 10))
@@ -267,15 +267,15 @@ func (r *OTARepository) CreateDeployments(ctx context.Context, packageID int64, 
 			if status != "pending" {
 				toUpdate = append(toUpdate, deviceID)
 			}
-	} else {
-		now := time.Now().UnixMilli()
-		toInsert = append(toInsert, model.DeviceUpgradeStatus{
-			DeviceID:             deviceID,
-			OTAPackageID:         pkgID,
-			Status:               "pending",
-			LastStatusChangeTime: &now,
-		})
-	}
+		} else {
+			now := time.Now().Unix()
+			toInsert = append(toInsert, model.DeviceUpgradeStatus{
+				DeviceID:             deviceID,
+				OTAPackageID:         pkgID,
+				Status:               "pending",
+				LastStatusChangeTime: &now,
+			})
+		}
 	}
 
 	if len(toUpdate) > 0 {
@@ -300,7 +300,7 @@ func (r *OTARepository) DispatchPending(ctx context.Context, packageID int64) (i
 		Where("ota_package_id = ? AND status = ?", strconv.FormatInt(packageID, 10), "pending").
 		Updates(map[string]interface{}{
 			"status":                  "in_progress",
-			"last_status_change_time": time.Now().UnixMilli(),
+			"last_status_change_ts": time.Now().Unix(),
 		})
 	if res.Error != nil {
 		return 0, res.Error
@@ -312,7 +312,7 @@ func (r *OTARepository) DispatchPending(ctx context.Context, packageID int64) (i
 func (r *OTARepository) UpdateDeviceStatus(ctx context.Context, packageID, deviceID int64, status, currentVersion string) error {
 	updates := map[string]interface{}{
 		"status":                  status,
-		"last_status_change_time": time.Now().UnixMilli(),
+		"last_status_change_ts": time.Now().Unix(),
 	}
 	if currentVersion != "" {
 		updates["current_version"] = currentVersion

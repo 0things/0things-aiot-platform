@@ -1,6 +1,4 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { enUS, zhCN } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,8 +13,7 @@ import { RecentActivityTable } from './recent-activity-table'
 export function OTAAnalytics() {
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useOTAAnalytics()
-  const { t, i18n } = useTranslation('ota')
-  const locale = i18n.language?.startsWith('zh') ? zhCN : enUS
+  const { t } = useTranslation('ota')
 
   if (isError) {
     return (
@@ -25,9 +22,7 @@ export function OTAAnalytics() {
           <CardContent className='space-y-4 pt-6'>
             <div className='flex flex-col items-center gap-2 text-center'>
               <AlertTriangle className='h-10 w-10 text-destructive' />
-              <h3 className='text-lg font-semibold'>
-                {t('analytics.title')}
-              </h3>
+              <h3 className='text-lg font-semibold'>{t('analytics.title')}</h3>
               <p className='text-sm text-muted-foreground'>
                 {error instanceof Error
                   ? error.message
@@ -48,12 +43,7 @@ export function OTAAnalytics() {
     )
   }
 
-  const lastUpdated = data?.meta?.lastUpdatedAt
-    ? formatDistanceToNow(new Date(data.meta.lastUpdatedAt), {
-        addSuffix: true,
-        locale,
-      })
-    : null
+  const lastUpdated = data?.meta?.lastUpdatedAt || '-'
 
   return (
     <div className='flex flex-col gap-6'>
@@ -68,11 +58,9 @@ export function OTAAnalytics() {
           </p>
         </div>
         <div className='flex items-center gap-3'>
-          {lastUpdated && (
-            <span className='text-xs text-muted-foreground tabular-nums'>
-              {t('analytics.lastUpdated', { time: lastUpdated })}
-            </span>
-          )}
+          <span className='text-xs text-muted-foreground tabular-nums'>
+            {t('analytics.lastUpdated', { time: lastUpdated })}
+          </span>
           <Button
             variant='outline'
             size='sm'

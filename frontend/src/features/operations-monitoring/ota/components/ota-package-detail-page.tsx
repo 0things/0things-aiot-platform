@@ -50,7 +50,7 @@ interface DeviceDeployment {
   status: string
   upgradeBatchId: string
   lastStatusChangeTime: string | number
-  createdAt: Date
+  createdAt: string
 }
 
 function ErrorAlert({
@@ -121,9 +121,7 @@ function DeviceRow({ d }: { d: DeviceDeployment }) {
         </Badge>
       </TableCell>
       <TableCell className='text-xs text-muted-foreground sm:text-sm'>
-        {d.lastStatusChangeTime
-          ? new Date(d.lastStatusChangeTime).toLocaleString()
-          : t('packageDetail.notUpdated')}
+        {d.lastStatusChangeTime || '-'}
       </TableCell>
       <TableCell className='font-mono text-xs sm:text-sm'>
         {d.upgradeBatchId || '-'}
@@ -303,34 +301,11 @@ export function OTAPackageDetailPage() {
     const batchQ = batchIdFilter.trim().toLowerCase()
     return all.filter((d) => {
       if (nameQ && !d.deviceName.toLowerCase().includes(nameQ)) return false
-      if (batchQ && !d.upgradeBatchId.toLowerCase().includes(batchQ)) return false
+      if (batchQ && !d.upgradeBatchId.toLowerCase().includes(batchQ))
+        return false
       return true
     })
   }, [deploymentsQuery.data, deviceNameFilter, batchIdFilter])
-
-  const lastUpdated = useMemo(() => {
-    const times = [
-      statisticsQuery.dataUpdatedAt,
-      deploymentsQuery.dataUpdatedAt,
-    ]
-    const latest = Math.max(...times)
-    return latest > 0 ? new Date(latest) : new Date()
-  }, [statisticsQuery.dataUpdatedAt, deploymentsQuery.dataUpdatedAt])
-
-  const formatLastUpdated = () => {
-    const now = new Date()
-    const diff = now.getTime() - lastUpdated.getTime()
-    const seconds = Math.floor(diff / 1000)
-    const minutes = Math.floor(seconds / 60)
-    const hours = Math.floor(minutes / 60)
-
-    if (seconds < 60) return t('packageDetail.lastUpdated.justNow')
-    if (minutes < 60)
-      return t('packageDetail.lastUpdated.minutesAgo', { count: minutes })
-    if (hours < 24)
-      return t('packageDetail.lastUpdated.hoursAgo', { count: hours })
-    return lastUpdated.toLocaleTimeString()
-  }
 
   const handleBack = () => {
     navigate({
@@ -413,11 +388,6 @@ export function OTAPackageDetailPage() {
                     })}
                   </Badge>
                 </dd>
-              </div>
-              <div>
-                {t('packageDetail.lastUpdated.label', {
-                  time: formatLastUpdated(),
-                })}
               </div>
             </dl>
           )}
@@ -589,9 +559,7 @@ export function OTAPackageDetailPage() {
                           {b.targetDeviceCount}
                         </TableCell>
                         <TableCell className='text-xs sm:text-sm'>
-                          {b.createdAt
-                            ? new Date(b.createdAt).toLocaleString()
-                            : '-'}
+                          {b.createdAt || '-'}
                         </TableCell>
                       </TableRow>
                     ))

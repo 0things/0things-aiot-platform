@@ -12,8 +12,7 @@
       "version": "升级包版本号",
       "packageType": "包类型",
       "productName": "所属产品",
-      "moduleName": "模块名称",
-      "createdAt": "添加时间"
+      "moduleName": "模块名称"
     },
     "filters": {
       "allPackages": "全部产品",
@@ -227,7 +226,6 @@
       "success": "已创建升级批次，共 {{count}} 台设备",
       "failed": "批量升级失败"
     },
-    "notUpdated": "未更新",
     "pagination": "第 {{current}} 页，共 {{total}} 页",
     "previous": "上一页",
     "retry": "重试",

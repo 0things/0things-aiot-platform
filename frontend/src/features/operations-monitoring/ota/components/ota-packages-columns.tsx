@@ -1,6 +1,6 @@
+import { Link } from '@tanstack/react-router'
 import { type ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import { Link } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -58,7 +58,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
             params={{ id }}
             className='block'
           >
-            <LongText className='max-w-48 ps-3 font-mono text-sm cursor-pointer hover:text-primary hover:underline transition-colors'>
+            <LongText className='max-w-48 cursor-pointer ps-3 font-mono text-sm transition-colors hover:text-primary hover:underline'>
               {packageName}
             </LongText>
           </Link>
@@ -121,10 +121,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
     {
       accessorKey: 'status',
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={t('common:status')}
-        />
+        <DataTableColumnHeader column={column} title={t('common:status')} />
       ),
       cell: ({ row }) => {
         const status = row.getValue('status') as string
@@ -148,25 +145,17 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
     {
       accessorKey: 'createdAt',
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={t('packageList.columns.createdAt')}
-        />
+        <DataTableColumnHeader column={column} title={t('common:createdAt')} />
       ),
       cell: ({ row }) => {
-        const date = new Date(row.getValue('createdAt'))
-        const formatted = date.toISOString().slice(0, 19).replace('T', ' ')
-        return <div className='text-nowrap'>{formatted} UTC</div>
+        const value = row.getValue('createdAt') as string
+        return <div className='text-nowrap'>{value || '-'}</div>
       },
       enableSorting: false,
     },
     {
       id: 'actions',
-      header: () => (
-        <div className='text-center'>
-          {t('common:actions')}
-        </div>
-      ),
+      header: () => <div className='text-center'>{t('common:actions')}</div>,
       cell: DataTableRowActions,
       meta: {
         className: cn(

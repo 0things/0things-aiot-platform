@@ -6,14 +6,15 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
+	mock_service "aiot-backend/test/mocks/service"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	mock_service "aiot-backend/test/mocks/service"
 	"github.com/stretchr/testify/require"
-	"errors"
 )
 
 func newOTATestRouter(h *OTAHandler) *gin.Engine {
@@ -31,6 +32,22 @@ func newOTATestRouter(h *OTAHandler) *gin.Engine {
 	r.GET("/ota-packages/:uuid/batches", h.OTABatches)
 	r.GET("/ota-packages/:uuid/device-deployments", h.OTADeployments)
 	return r
+}
+
+func TestOTAPackageJSONFormatsTimesWithCarbon(t *testing.T) {
+	createdAt := time.Date(2026, time.August, 25, 9, 30, 0, 0, time.UTC)
+	releasedAt := createdAt.Add(time.Hour)
+
+	result := otaPackageJSON(model.OTAPackage{
+		CreatedAt:  createdAt,
+		UpdatedAt:  createdAt,
+		ReleasedAt: &releasedAt,
+	})
+
+	require.Equal(t, "2026-08-25 09:30:00", result.CreatedAt)
+	require.Equal(t, "2026-08-25 09:30:00", result.UpdatedAt)
+	require.NotNil(t, result.ReleasedAt)
+	require.Equal(t, "2026-08-25 10:30:00", *result.ReleasedAt)
 }
 
 func TestOTAHandler_ListOTA(t *testing.T) {

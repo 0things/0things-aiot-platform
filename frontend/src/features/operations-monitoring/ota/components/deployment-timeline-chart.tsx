@@ -72,10 +72,7 @@ export function DeploymentTimelineChart({
   const { t } = useTranslation('ota')
 
   const chartData: TimelineRow[] = data.map((item) => ({
-    date: new Date(item.date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    }),
+    date: item.date,
     deployments: item.deployments,
     successes: item.successes,
     failures: item.failures,
@@ -165,7 +162,10 @@ export function DeploymentTimelineChart({
                 axisLine={false}
                 allowDecimals={false}
               />
-              <Tooltip content={<TimelineTooltip t={t} />} cursor={{ stroke: 'var(--border)', strokeDasharray: '2 4' }} />
+              <Tooltip
+                content={<TimelineTooltip t={t} />}
+                cursor={{ stroke: 'var(--border)', strokeDasharray: '2 4' }}
+              />
               {series.map((s) => (
                 <Area
                   key={s.key}

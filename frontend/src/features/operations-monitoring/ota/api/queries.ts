@@ -1,17 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type {
-  OtaCreateOTAPackageRequest,
-  OtaOTAPackageRequest as OtaV1UpdateOTAPackageRequest,
-} from '@/api/generated/model'
-
-interface ApiError {
-  response?: {
-    data?: {
-      message?: string
-    }
-  }
-}
 import {
   deleteOtaPackagesId,
   getOtaPackages,
@@ -20,8 +8,20 @@ import {
   postOtaPackages,
   putOtaPackagesId,
 } from '@/api/generated'
+import type {
+  OtaCreateOTAPackageRequest,
+  OtaOTAPackageRequest as OtaV1UpdateOTAPackageRequest,
+} from '@/api/generated/model'
 import { orvalAxios } from '@/api/orval-mutator'
 import type { OTAPackage } from '../data/schema'
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string
+    }
+  }
+}
 
 type CreateOTAPackagePayload = Omit<OtaCreateOTAPackageRequest, 'productId'> & {
   product_key: string
@@ -60,15 +60,20 @@ export function useOTAPackages(filters?: {
   return useQuery<{ packages: OTAPackage[]; total: number }>({
     queryKey: otaPackageKeys.list(filters),
     queryFn: async () => {
-      const response = (await getOtaPackages({
-        page: filters?.page,
-        pageSize: filters?.pageSize,
-        productId: filters?.productId ? Number(filters.productId) : undefined,
-        status: filters?.status,
-        packageType: filters?.packageType,
-        uploadType: filters?.uploadType,
-        searchText: filters?.searchText,
-      } as never))?.data ?? {}
+      const response =
+        (
+          await getOtaPackages({
+            page: filters?.page,
+            pageSize: filters?.pageSize,
+            productId: filters?.productId
+              ? Number(filters.productId)
+              : undefined,
+            status: filters?.status,
+            packageType: filters?.packageType,
+            uploadType: filters?.uploadType,
+            searchText: filters?.searchText,
+          } as never)
+        )?.data ?? {}
 
       // Transform API response to match UI schema
       const packages: OTAPackage[] = (response.otaPackages || []).map(
@@ -77,7 +82,8 @@ export function useOTAPackages(filters?: {
           uuid: pkg.uuid || '',
           packageName: pkg.packageName || '',
           version: pkg.version || '',
-          packageType: (pkg.packageType || 'upgrade') as OTAPackage['packageType'],
+          packageType: (pkg.packageType ||
+            'upgrade') as OTAPackage['packageType'],
           productId: pkg.productId?.toString(),
           productName: pkg.productName || '',
           description: pkg.description,
@@ -90,8 +96,8 @@ export function useOTAPackages(filters?: {
           targetDeviceCount: 0,
           successCount: 0,
           failureCount: 0,
-          createdAt: pkg.createdAt || new Date().toISOString(),
-          updatedAt: pkg.updatedAt || new Date().toISOString(),
+          createdAt: pkg.createdAt || '',
+          updatedAt: pkg.updatedAt || '',
           deployedAt: pkg.releasedAt,
           createdBy: '',
         })
@@ -220,7 +226,9 @@ export function useDeleteOTAPackages() {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       // Delete packages in parallel
-      const deletePromises = ids.map((id) => deleteOtaPackagesId(id as unknown as number))
+      const deletePromises = ids.map((id) =>
+        deleteOtaPackagesId(id as unknown as number)
+      )
       await Promise.all(deletePromises)
       return { deletedCount: ids.length }
     },
@@ -250,7 +258,11 @@ export async function deployOtaPackage({
   id,
   deviceKeys,
 }: DeployOTAPackagePayload) {
-  return orvalAxios<{ code: number; message: string; data: { success: boolean } }>({
+  return orvalAxios<{
+    code: number
+    message: string
+    data: { success: boolean }
+  }>({
     method: 'POST',
     url: `/ota-packages/${id}/deploy`,
     data: { deviceKeys },

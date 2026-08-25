@@ -7,6 +7,7 @@ import (
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
+	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,28 +21,52 @@ func NewOTAHandler(h *Handler, svc service.OTAServiceInterface) *OTAHandler {
 }
 
 func otaPackageJSON(pkg model.OTAPackage) otaV1.OTAPackage {
+	createdAt := ""
+	updatedAt := ""
+	var releasedAt *string
+	if !pkg.CreatedAt.IsZero() {
+		createdAt = carbon.CreateFromStdTime(pkg.CreatedAt).ToDateTimeString()
+	}
+	if !pkg.UpdatedAt.IsZero() {
+		updatedAt = carbon.CreateFromStdTime(pkg.UpdatedAt).ToDateTimeString()
+	}
+	if pkg.ReleasedAt != nil && !pkg.ReleasedAt.IsZero() {
+		formatted := carbon.CreateFromStdTime(*pkg.ReleasedAt).ToDateTimeString()
+		releasedAt = &formatted
+	}
 	return otaV1.OTAPackage{
 		ID: pkg.ID, UUID: pkg.UUID, PackageName: pkg.PackageName, Version: pkg.Version,
 		ProductID: pkg.ProductID, ProductKey: pkg.ProductKey, ProductName: pkg.ProductName,
 		PackageType: pkg.PackageType, Status: pkg.Status, UploadType: pkg.UploadType, FileURL: pkg.FileURL,
 		FileSize: pkg.FileSize, Checksum: pkg.Checksum, Description: pkg.Description, ReleaseNotes: pkg.ReleaseNotes,
-		CreatedAt: pkg.CreatedAt, UpdatedAt: pkg.UpdatedAt, ReleasedAt: pkg.ReleasedAt,
+		CreatedAt: createdAt, UpdatedAt: updatedAt, ReleasedAt: releasedAt,
 	}
 }
 
 func otaBatchJSON(batch model.UpgradeBatch) otaV1.UpgradeBatch {
+	createdAt := ""
+	if !batch.CreatedAt.IsZero() {
+		createdAt = carbon.CreateFromStdTime(batch.CreatedAt).ToDateTimeString()
+	}
 	return otaV1.UpgradeBatch{
-		BatchID: batch.BatchID,
-		UpgradeStrategy: batch.UpgradeStrategy, Status: batch.Status, TargetDeviceCount: batch.TargetDeviceCount, CreatedAt: batch.CreatedAt,
+		BatchID:         batch.BatchID,
+		UpgradeStrategy: batch.UpgradeStrategy, Status: batch.Status, TargetDeviceCount: batch.TargetDeviceCount, CreatedAt: createdAt,
 	}
 }
 
 func otaDeploymentJSON(deployment model.DeviceDeployment) otaV1.DeviceDeployment {
+	lastStatusChangeTime := ""
+	if deployment.LastStatusChangeTime != 0 {
+		lastStatusChangeTime = carbon.CreateFromTimestamp(
+			deployment.LastStatusChangeTime,
+		).ToDateTimeString()
+	}
 	return otaV1.DeviceDeployment{
 		DeviceID: deployment.DeviceID, DeviceKey: deployment.DeviceKey, DeviceName: deployment.DeviceName,
 		ProductID: deployment.ProductID, ProductKey: deployment.ProductKey, CurrentVersion: deployment.CurrentVersion,
 		UpgradeBatchID: deployment.UpgradeBatchID, Status: deployment.Status,
-		LastStatusChangeTime: deployment.LastStatusChangeTime, CreatedAt: deployment.CreatedAt,
+		LastStatusChangeTime: lastStatusChangeTime,
+		CreatedAt:            carbon.CreateFromStdTime(deployment.CreatedAt).ToDateTimeString(),
 	}
 }
 

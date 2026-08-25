@@ -12,8 +12,7 @@
       "version": "Version",
       "packageType": "Package Type",
       "productName": "Product Name",
-      "moduleName": "Module Name",
-      "createdAt": "Created"
+      "moduleName": "Module Name"
     },
     "filters": {
       "allPackages": "All Packages",
@@ -227,7 +226,6 @@
       "success": "Upgrade batch created with {{count}} devices",
       "failed": "Batch upgrade failed"
     },
-    "notUpdated": "Not updated",
     "pagination": "Page {{current}} of {{total}}",
     "previous": "Previous",
     "retry": "Retry",

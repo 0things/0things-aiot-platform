@@ -1,5 +1,3 @@
-import { formatDistanceToNow } from 'date-fns'
-import { enUS, zhCN } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,7 +19,10 @@ interface RecentActivityTableProps {
 
 type StatusKey = OTARecentActivity['status']
 
-const STATUS_VARIANT: Record<StatusKey, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const STATUS_VARIANT: Record<
+  StatusKey,
+  'default' | 'secondary' | 'destructive' | 'outline'
+> = {
   success: 'default',
   failed: 'destructive',
   in_progress: 'secondary',
@@ -32,8 +33,7 @@ export function RecentActivityTable({
   data,
   isLoading,
 }: RecentActivityTableProps) {
-  const { t, i18n } = useTranslation('ota')
-  const locale = i18n.language?.startsWith('zh') ? zhCN : enUS
+  const { t } = useTranslation('ota')
 
   return (
     <Card>
@@ -48,29 +48,29 @@ export function RecentActivityTable({
             ))}
           </div>
         ) : data.length === 0 ? (
-          <div className='px-6 pb-6 pt-2 text-sm text-muted-foreground'>
+          <div className='px-6 pt-2 pb-6 text-sm text-muted-foreground'>
             {t('analytics.recentActivity.noData')}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow className='hover:bg-transparent'>
-                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
+                <TableHead className='text-xs tracking-wide text-muted-foreground uppercase'>
                   {t('analytics.recentActivity.packageName')}
                 </TableHead>
-                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
+                <TableHead className='text-xs tracking-wide text-muted-foreground uppercase'>
                   {t('analytics.recentActivity.version')}
                 </TableHead>
-                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
+                <TableHead className='text-xs tracking-wide text-muted-foreground uppercase'>
                   {t('analytics.recentActivity.action')}
                 </TableHead>
-                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
+                <TableHead className='text-xs tracking-wide text-muted-foreground uppercase'>
                   {t('analytics.recentActivity.productName')}
                 </TableHead>
-                <TableHead className='text-xs uppercase tracking-wide text-muted-foreground'>
+                <TableHead className='text-xs tracking-wide text-muted-foreground uppercase'>
                   {t('analytics.recentActivity.status')}
                 </TableHead>
-                <TableHead className='text-right text-xs uppercase tracking-wide text-muted-foreground'>
+                <TableHead className='text-right text-xs tracking-wide text-muted-foreground uppercase'>
                   {t('analytics.recentActivity.time')}
                 </TableHead>
               </TableRow>
@@ -78,7 +78,9 @@ export function RecentActivityTable({
             <TableBody>
               {data.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className='font-medium'>{item.packageName}</TableCell>
+                  <TableCell className='font-medium'>
+                    {item.packageName}
+                  </TableCell>
                   <TableCell className='font-mono text-xs text-muted-foreground'>
                     v{item.version}
                   </TableCell>
@@ -95,11 +97,8 @@ export function RecentActivityTable({
                       {t(`analytics.statuses.${item.status}` as const)}
                     </Badge>
                   </TableCell>
-                  <TableCell className='text-right font-mono text-xs tabular-nums text-muted-foreground'>
-                    {formatDistanceToNow(new Date(item.timestamp), {
-                      addSuffix: true,
-                      locale,
-                    })}
+                  <TableCell className='text-right font-mono text-xs text-muted-foreground tabular-nums'>
+                    {item.timestamp || '-'}
                   </TableCell>
                 </TableRow>
               ))}
