@@ -8,8 +8,6 @@
 
 export interface OtaUpgradeBatch {
   batchId?: string;
-  batchName?: string;
-  batchType?: string;
   createdAt?: string;
   status?: string;
   targetDeviceCount?: number;

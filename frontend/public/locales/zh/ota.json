@@ -48,6 +48,7 @@
       "deploy": "验证",
       "cancel": "取消部署",
       "viewDetails": "查看详情",
+      "bulkUpgrade": "批量升级",
       "bulkDelete": "批量删除"
     },
     "emptyState": {
@@ -169,7 +170,6 @@
     },
     "columns": {
       "batchId": "批次 ID",
-      "batchName": "批次名称",
       "type": "类型",
       "strategy": "策略",
       "devices": "设备数",
@@ -195,7 +195,8 @@
     },
     "strategies": {
       "immediate": "立即执行",
-      "scheduled": "定时执行"
+      "scheduled": "定时执行",
+      "static": "静态升级"
     },
     "errors": {
       "loadPackage": {
@@ -213,6 +214,19 @@
     },
     "emptyBatches": "暂无升级批次",
     "emptyDevices": "暂无设备",
+    "batchUpgrade": {
+      "title": "选择升级设备",
+      "description": "为升级包「{{packageName}}」选择需要升级的目标设备。",
+      "searchDevices": "搜索设备名称或 Key",
+      "selectAll": "全选",
+      "selected": "已选 {{count}} 台",
+      "selectAtLeastOne": "请至少选择一台设备",
+      "confirm": "开始升级",
+      "empty": "无可用设备",
+      "submitting": "提交中...",
+      "success": "已创建升级批次，共 {{count}} 台设备",
+      "failed": "批量升级失败"
+    },
     "notUpdated": "未更新",
     "pagination": "第 {{current}} 页，共 {{total}} 页",
     "previous": "上一页",

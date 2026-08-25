@@ -84,7 +84,7 @@ export function DeployPackageDialog() {
   }
 
   const handleDeploy = async () => {
-    if (!selectedPackage?.id) return
+    if (!selectedPackage?.uuid) return
     const deviceKeys =
       targetDevices === 'all'
         ? (allDevicesQuery.data ?? [])
@@ -98,7 +98,7 @@ export function DeployPackageDialog() {
 
     try {
       await deployPackage.mutateAsync({
-        id: selectedPackage.id,
+        id: selectedPackage.uuid,
         deviceKeys,
       })
 

@@ -13,22 +13,23 @@ import (
 	"github.com/golang/mock/gomock"
 	mock_service "aiot-backend/test/mocks/service"
 	"github.com/stretchr/testify/require"
+	"errors"
 )
 
 func newOTATestRouter(h *OTAHandler) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.GET("/ota-packages", h.ListOTA)
-	r.GET("/ota-packages/:id", h.GetOTA)
+	r.GET("/ota-packages/:uuid", h.GetOTA)
 	r.POST("/ota-packages", h.CreateOTA)
-	r.PUT("/ota-packages/:id", h.UpdateOTA)
-	r.DELETE("/ota-packages/:id", h.DeleteOTA)
-	r.POST("/ota-packages/:id/deploy", h.DeployOTA)
-	r.POST("/ota-packages/:id/dispatch", h.DispatchOTA)
-	r.POST("/ota-packages/:id/report", h.ReportOTAStatus)
-	r.GET("/ota-packages/:id/upgrade-statistics", h.OTAStats)
-	r.GET("/ota-packages/:id/batches", h.OTABatches)
-	r.GET("/ota-packages/:id/device-deployments", h.OTADeployments)
+	r.PUT("/ota-packages/:uuid", h.UpdateOTA)
+	r.DELETE("/ota-packages/:uuid", h.DeleteOTA)
+	r.POST("/ota-packages/:uuid/deploy", h.DeployOTA)
+	r.POST("/ota-packages/:uuid/dispatch", h.DispatchOTA)
+	r.POST("/ota-packages/:uuid/report", h.ReportOTAStatus)
+	r.GET("/ota-packages/:uuid/upgrade-statistics", h.OTAStats)
+	r.GET("/ota-packages/:uuid/batches", h.OTABatches)
+	r.GET("/ota-packages/:uuid/device-deployments", h.OTADeployments)
 	return r
 }
 
@@ -50,7 +51,7 @@ func TestOTAHandler_GetOTA(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mock := mock_service.NewMockOTAServiceInterface(ctrl)
-	mock.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.OTAPackage{ID: 1}, nil)
+	mock.EXPECT().Get(gomock.Any(), "1").Return(&model.OTAPackage{ID: 1}, nil)
 
 	r := newOTATestRouter(NewOTAHandler(&Handler{}, mock))
 	req := httptest.NewRequest(http.MethodGet, "/ota-packages/1", nil)
@@ -64,6 +65,7 @@ func TestOTAHandler_GetOTA_InvalidID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mock := mock_service.NewMockOTAServiceInterface(ctrl)
+	mock.EXPECT().Get(gomock.Any(), "abc").Return(nil, errors.New("not found"))
 
 	r := newOTATestRouter(NewOTAHandler(&Handler{}, mock))
 	req := httptest.NewRequest(http.MethodGet, "/ota-packages/abc", nil)
@@ -104,7 +106,7 @@ func TestOTAHandler_UpdateOTA(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mock := mock_service.NewMockOTAServiceInterface(ctrl)
-	mock.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.OTAPackage{ID: 1}, nil)
+	mock.EXPECT().Get(gomock.Any(), "1").Return(&model.OTAPackage{ID: 1}, nil)
 	mock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
 
 	body, _ := json.Marshal(map[string]any{"packageName": "p2"})
@@ -120,7 +122,7 @@ func TestOTAHandler_DeleteOTA(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mock := mock_service.NewMockOTAServiceInterface(ctrl)
-	mock.EXPECT().Delete(gomock.Any(), int64(1)).Return(nil)
+	mock.EXPECT().Delete(gomock.Any(), "1").Return(nil)
 
 	r := newOTATestRouter(NewOTAHandler(&Handler{}, mock))
 	req := httptest.NewRequest(http.MethodDelete, "/ota-packages/1", nil)
@@ -133,7 +135,7 @@ func TestOTAHandler_DeployOTA(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mock := mock_service.NewMockOTAServiceInterface(ctrl)
-	mock.EXPECT().Deploy(gomock.Any(), int64(1), gomock.Any()).Return(1, nil)
+	mock.EXPECT().Deploy(gomock.Any(), "1", gomock.Any()).Return(1, nil)
 
 	body, _ := json.Marshal(map[string]any{"deviceKeys": []string{"d1"}})
 	r := newOTATestRouter(NewOTAHandler(&Handler{}, mock))
@@ -162,7 +164,7 @@ func TestOTAHandler_DispatchOTA(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mock := mock_service.NewMockOTAServiceInterface(ctrl)
-	mock.EXPECT().Dispatch(gomock.Any(), int64(1)).Return(int64(1), nil)
+	mock.EXPECT().Dispatch(gomock.Any(), "1").Return(int64(1), nil)
 
 	r := newOTATestRouter(NewOTAHandler(&Handler{}, mock))
 	req := httptest.NewRequest(http.MethodPost, "/ota-packages/1/dispatch", nil)
@@ -175,7 +177,7 @@ func TestOTAHandler_ReportOTAStatus(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mock := mock_service.NewMockOTAServiceInterface(ctrl)
-	mock.EXPECT().ReportStatus(gomock.Any(), int64(1), "d1", "success").Return(nil)
+	mock.EXPECT().ReportStatus(gomock.Any(), "1", "d1", "success").Return(nil)
 
 	body, _ := json.Marshal(map[string]any{"deviceKey": "d1", "status": "success"})
 	r := newOTATestRouter(NewOTAHandler(&Handler{}, mock))

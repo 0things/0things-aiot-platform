@@ -67,7 +67,7 @@ export function EditPackageDialog() {
   }, [selectedPackage, openDialog, form])
 
   const onSubmit = async (data: EditPackageFormData) => {
-    if (!selectedPackage?.id) return
+    if (!selectedPackage?.uuid) return
 
     try {
       // Prepare update data
@@ -100,7 +100,7 @@ export function EditPackageDialog() {
       }
 
       await updatePackage.mutateAsync({
-        id: selectedPackage.id,
+        id: selectedPackage.uuid,
         data: updateData,
       })
 

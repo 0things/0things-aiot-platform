@@ -327,7 +327,7 @@ func TestIntegrationOTAService_Batches_Empty(t *testing.T) {
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
-	batches, err := svc.Batches(ctx2(), pkg.PackageName)
+	batches, err := svc.Batches(ctx2(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Empty(t, batches)
 }
@@ -342,7 +342,7 @@ func TestIntegrationOTAService_Deployments_Empty(t *testing.T) {
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
-	deployments, total, err := svc.Deployments(ctx2(), pkg.PackageName, 1, 10, "")
+	deployments, total, err := svc.Deployments(ctx2(), pkg.UUID, 1, 10, "")
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	assert.Empty(t, deployments)
@@ -352,7 +352,7 @@ func TestIntegrationOTAService_Delete_NotFound(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestOTATotalService(db)
 
-	err := svc.Delete(ctx2(), 999)
+	err := svc.Delete(ctx2(), "nonexistent-uuid")
 	assert.Error(t, err)
 }
 
@@ -596,7 +596,7 @@ func TestIntegrationOTAService_Get(t *testing.T) {
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
-	result, err := svc.Get(ctx2(), pkg.ID)
+	result, err := svc.Get(ctx2(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Equal(t, "fw-1", result.PackageName)
 }
@@ -703,7 +703,7 @@ func TestIntegrationOTAService_FindByName(t *testing.T) {
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
-	result, err := svc.Get(ctx2(), pkg.ID)
+	result, err := svc.Get(ctx2(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Equal(t, "fw-unique", result.PackageName)
 }
@@ -718,7 +718,7 @@ func TestIntegrationOTAService_Statistics_WithData(t *testing.T) {
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
-	stats, err := svc.Statistics(ctx2(), pkg.PackageName)
+	stats, err := svc.Statistics(ctx2(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Equal(t, "1", stats.PackageID)
 	assert.Equal(t, int64(0), stats.TotalTargetDevices)
@@ -737,7 +737,7 @@ func TestIntegrationOTAService_Update_Valid(t *testing.T) {
 	err = svc.Update(ctx2(), pkg)
 	require.NoError(t, err)
 
-	fetched, err := svc.Get(ctx2(), pkg.ID)
+	fetched, err := svc.Get(ctx2(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Equal(t, "2.1.0", fetched.Version)
 }
@@ -1233,7 +1233,7 @@ func TestIntegrationOTAService_Batches(t *testing.T) {
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
-	batches, err := svc.Batches(ctx2(), "fw-batches")
+	batches, err := svc.Batches(ctx2(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Empty(t, batches)
 }
@@ -1251,7 +1251,7 @@ func TestIntegrationOTAService_Deployments(t *testing.T) {
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
-	deployments, total, err := svc.Deployments(ctx2(), "fw-deploy", 1, 10, "")
+	deployments, total, err := svc.Deployments(ctx2(), pkg.UUID, 1, 10, "")
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	assert.Empty(t, deployments)
@@ -1268,22 +1268,22 @@ func TestIntegrationOTAService_Deploy(t *testing.T) {
 	require.NotZero(t, pkg.ID)
 
 	// Deploy to the seeded device D001 (device id=1) via device_key
-	count, err := svc.Deploy(ctx2(), pkg.ID, []string{"D001"})
+	count, err := svc.Deploy(ctx2(), pkg.UUID, []string{"D001"})
 	require.NoError(t, err)
 	assert.Equal(t, 1, count)
 
 	// Package should be marked deploying
-	got, err := svc.Get(ctx2(), pkg.ID)
+	got, err := svc.Get(ctx2(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Equal(t, "deploying", got.Status)
 
 	// Unknown key contributes nothing, no error
-	count, err = svc.Deploy(ctx2(), pkg.ID, []string{"UNKNOWN"})
+	count, err = svc.Deploy(ctx2(), pkg.UUID, []string{"UNKNOWN"})
 	require.NoError(t, err)
 	assert.Equal(t, 0, count)
 
 	// Deployments should show the seeded device
-	deployments, total, err := svc.Deployments(ctx2(), "fw-deploy", 1, 10, "")
+	deployments, total, err := svc.Deployments(ctx2(), pkg.UUID, 1, 10, "")
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, deployments, 1)

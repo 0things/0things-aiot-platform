@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -45,6 +46,25 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 			}
 		}
 	}
+	// Rename OTA batch/device-status tables to the ota_-prefixed names
+	// while preserving existing data. Only runs when the old table exists.
+	for _, rename := range []struct{ from, to string }{
+		{"upgrade_batches", "ota_upgrade_batches"},
+		{"device_upgrade_status", "ota_device_upgrade_status"},
+	} {
+		if m.deviceDB.Migrator().HasTable(rename.from) {
+			if err := m.deviceDB.Migrator().RenameTable(rename.from, rename.to); err != nil {
+				return fmt.Errorf("rename %s -> %s: %w", rename.from, rename.to, err)
+			}
+		}
+	}
+	// Drop the unused batch_type column from ota_upgrade_batches. Guarded so
+	// re-running migration is a no-op once the column is gone.
+	if m.deviceDB.Migrator().HasColumn("ota_upgrade_batches", "batch_type") {
+		if err := m.deviceDB.Exec("ALTER TABLE ota_upgrade_batches DROP COLUMN batch_type").Error; err != nil {
+			return fmt.Errorf("drop batch_type column: %w", err)
+		}
+	}
 	if err := m.deviceDB.AutoMigrate(
 		&model.Product{},
 		&model.ProductTSL{},
@@ -72,6 +92,10 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 	if !m.deviceDB.Migrator().HasTable(&model.DeviceEvent{}) {
 		return fmt.Errorf("device_events migration did not create the table")
 	}
+	// Backfill the uuid column for any existing OTA packages that lack one.
+	if err := m.backfillPackageUUIDs(); err != nil {
+		return fmt.Errorf("backfill package uuid: %w", err)
+	}
 	m.log.Info("AutoMigrate success")
 	fmt.Println("migration complete: device_events table is ready")
 	os.Exit(0)
@@ -79,5 +103,21 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 }
 func (m *MigrateServer) Stop(ctx context.Context) error {
 	m.log.Info("AutoMigrate stop")
+	return nil
+}
+
+// backfillPackageUUIDs assigns a generated uuid to every OTA package that does
+// not yet have one. Safe to re-run: rows with a non-empty uuid are skipped.
+func (m *MigrateServer) backfillPackageUUIDs() error {
+	var packages []model.OTAPackage
+	if err := m.deviceDB.Where("uuid IS NULL OR uuid = ?", "").Find(&packages).Error; err != nil {
+		return err
+	}
+	for _, pkg := range packages {
+		if err := m.deviceDB.Model(&model.OTAPackage{}).Where("id = ?", pkg.ID).
+			Update("uuid", uuid.NewString()).Error; err != nil {
+			return err
+		}
+	}
 	return nil
 }

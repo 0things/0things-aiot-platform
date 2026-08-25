@@ -52,6 +52,17 @@ func (r *OTARepository) FindByName(ctx context.Context, name string) (*model.OTA
 	return &pkg, nil
 }
 
+func (r *OTARepository) FindByUUID(ctx context.Context, uuid string) (*model.OTAPackage, error) {
+	var pkg model.OTAPackage
+	if err := r.selectWithProduct(ctx, r.DB(ctx).Model(&model.OTAPackage{})).Where("ota_packages.uuid = ?", uuid).First(&pkg).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return &pkg, nil
+}
+
 func (r *OTARepository) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) {
 	base := r.selectWithProduct(ctx, r.DB(ctx).Model(&model.OTAPackage{}))
 	var total int64
@@ -123,8 +134,81 @@ func (r *OTARepository) Batches(ctx context.Context, packageID int64) ([]model.U
 	return batches, err
 }
 
+// CreateBatch 持久化一个新的升级批次。
+func (r *OTARepository) CreateBatch(ctx context.Context, batch *model.UpgradeBatch) error {
+	return r.DB(ctx).Create(batch).Error
+}
+
+// CreateBatchDeployments 为静态升级批次创建设备升级记录。每条记录都会关联到
+// 指定的 upgrade_batch_id，状态初始为 pending。已存在的同设备+同包记录会更新为
+// pending 并关联到该批次，而非重复插入。返回受影响的设备数量。
+func (r *OTARepository) CreateBatchDeployments(ctx context.Context, packageID int64, batchID string, deviceIDs []int64) (int, error) {
+	if len(deviceIDs) == 0 {
+		return 0, nil
+	}
+	pkgID := strconv.FormatInt(packageID, 10)
+	db := r.DB(ctx)
+
+	seen := make(map[int64]struct{}, len(deviceIDs))
+	uniq := make([]int64, 0, len(deviceIDs))
+	for _, id := range deviceIDs {
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		uniq = append(uniq, id)
+	}
+	deviceIDs = uniq
+
+	var existing []model.DeviceUpgradeStatus
+	if err := db.Where("ota_package_id = ? AND device_id IN ?", pkgID, deviceIDs).Find(&existing).Error; err != nil {
+		return 0, err
+	}
+	existingStatus := make(map[int64]string, len(existing))
+	for _, e := range existing {
+		existingStatus[e.DeviceID] = e.Status
+	}
+
+	toInsert := make([]model.DeviceUpgradeStatus, 0, len(deviceIDs))
+	toUpdate := make([]int64, 0)
+	for _, deviceID := range deviceIDs {
+		if _, ok := existingStatus[deviceID]; ok {
+			// 已存在同设备+同包记录：重新关联到本批次并置为 pending，
+			// 使新批次“接管”该设备的升级。
+			toUpdate = append(toUpdate, deviceID)
+		} else {
+			now := time.Now().UnixMilli()
+			toInsert = append(toInsert, model.DeviceUpgradeStatus{
+				DeviceID:             deviceID,
+				OTAPackageID:         pkgID,
+				UpgradeBatchID:       batchID,
+				Status:               "pending",
+				LastStatusChangeTime: &now,
+			})
+		}
+	}
+
+	if len(toUpdate) > 0 {
+		if err := db.Model(&model.DeviceUpgradeStatus{}).
+			Where("ota_package_id = ? AND device_id IN ?", pkgID, toUpdate).
+			Updates(map[string]interface{}{
+				"status":                  "pending",
+				"upgrade_batch_id":        batchID,
+				"last_status_change_time": time.Now().UnixMilli(),
+			}).Error; err != nil {
+			return 0, err
+		}
+	}
+	if len(toInsert) > 0 {
+		if err := db.Create(&toInsert).Error; err != nil {
+			return 0, err
+		}
+	}
+	return len(deviceIDs), nil
+}
+
 func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, size int, status string) ([]model.DeviceDeployment, int64, error) {
-	query := r.DB(ctx).Table("device_upgrade_status dus").
+	query := r.DB(ctx).Table("ota_device_upgrade_status dus").
 		Select("dus.device_id, d.device_key, d.name as device_name, d.product_id, p.product_key, dus.current_version, dus.upgrade_batch_id, dus.status, dus.last_status_change_time, dus.created_at").
 		Joins("JOIN devices d ON d.id = dus.device_id").
 		Joins("JOIN products p ON p.id = d.product_id").
@@ -238,7 +322,27 @@ func (r *OTARepository) UpdateDeviceStatus(ctx context.Context, packageID, devic
 		Updates(updates).Error
 }
 
+// PendingPackageUUIDs 返回当前仍有 pending 设备升级记录的升级包 UUID 列表。
+func (r *OTARepository) PendingPackageUUIDs(ctx context.Context) ([]string, error) {
+	var rows []struct{ UUID string }
+	if err := r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
+		Select("DISTINCT p.uuid AS uuid").
+		Joins("JOIN ota_packages p ON p.id = CAST(ota_device_upgrade_status.ota_package_id AS INTEGER)").
+		Where("ota_device_upgrade_status.status = ?", "pending").
+		Find(&rows).Error; err != nil {
+		return nil, err
+	}
+	uuids := make([]string, 0, len(rows))
+	for _, row := range rows {
+		if row.UUID != "" {
+			uuids = append(uuids, row.UUID)
+		}
+	}
+	return uuids, nil
+}
+
 // PendingPackageIDs 返回当前仍有 pending 设备升级记录的升级包 ID 列表。
+// 保留给直接操作仓储的定时任务使用；业务层统一以 UUID 进行筛选。
 func (r *OTARepository) PendingPackageIDs(ctx context.Context) ([]int64, error) {
 	var ids []string
 	if err := r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).

@@ -37,6 +37,10 @@ type DeployOTAPackageRequest struct {
 	DeviceKeys []string `json:"deviceKeys" binding:"required"`
 }//@name OtaDeployOTAPackageRequest
 
+type BatchUpgradeRequest struct {
+	DeviceKeys []string `json:"deviceKeys" binding:"required"`
+}//@name OtaBatchUpgradeRequest
+
 type ReportOTAStatusRequest struct {
 	DeviceKey string `json:"deviceKey" binding:"required"`
 	Status    string `json:"status" binding:"required"`
@@ -48,6 +52,7 @@ type SuccessResponse struct {
 
 type OTAPackage struct {
 	ID           int64      `json:"id"`
+	UUID         string     `json:"uuid"`
 	PackageName  string     `json:"packageName"`
 	Version      string     `json:"version"`
 	ProductID    int64      `json:"productId"`
@@ -78,8 +83,6 @@ type UpgradeStatistics struct {
 
 type UpgradeBatch struct {
 	BatchID           string    `json:"batchId"`
-	BatchName         string    `json:"batchName"`
-	BatchType         string    `json:"batchType"`
 	UpgradeStrategy   string    `json:"upgradeStrategy"`
 	Status            string    `json:"status"`
 	TargetDeviceCount int32     `json:"targetDeviceCount"`
@@ -119,12 +122,12 @@ type GetUpgradeStatisticsResponse struct {
 	Statistics UpgradeStatistics `json:"statistics"`
 }//@name OtaGetUpgradeStatisticsResponse
 type ListUpgradeBatchesResponse struct {
-	Batches []UpgradeBatch `json:"batches"`
+	Items []UpgradeBatch `json:"items"`
 }//@name OtaListUpgradeBatchesResponse
 
 type ListDeviceDeploymentsResponse struct {
-	Deployments []DeviceDeployment `json:"deployments"`
-	Total       int64              `json:"total"`
-	Page        int                `json:"page"`
-	PageSize    int                `json:"pageSize"`
+	Items    []DeviceDeployment `json:"items"`
+	Total    int64              `json:"total"`
+	Page     int                `json:"page"`
+	PageSize int                `json:"pageSize"`
 }//@name OtaListDeviceDeploymentsResponse

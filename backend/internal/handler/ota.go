@@ -21,7 +21,7 @@ func NewOTAHandler(h *Handler, svc service.OTAServiceInterface) *OTAHandler {
 
 func otaPackageJSON(pkg model.OTAPackage) otaV1.OTAPackage {
 	return otaV1.OTAPackage{
-		ID: pkg.ID, PackageName: pkg.PackageName, Version: pkg.Version,
+		ID: pkg.ID, UUID: pkg.UUID, PackageName: pkg.PackageName, Version: pkg.Version,
 		ProductID: pkg.ProductID, ProductKey: pkg.ProductKey, ProductName: pkg.ProductName,
 		PackageType: pkg.PackageType, Status: pkg.Status, UploadType: pkg.UploadType, FileURL: pkg.FileURL,
 		FileSize: pkg.FileSize, Checksum: pkg.Checksum, Description: pkg.Description, ReleaseNotes: pkg.ReleaseNotes,
@@ -31,7 +31,7 @@ func otaPackageJSON(pkg model.OTAPackage) otaV1.OTAPackage {
 
 func otaBatchJSON(batch model.UpgradeBatch) otaV1.UpgradeBatch {
 	return otaV1.UpgradeBatch{
-		BatchID: batch.BatchID, BatchName: batch.BatchName, BatchType: batch.BatchType,
+		BatchID: batch.BatchID,
 		UpgradeStrategy: batch.UpgradeStrategy, Status: batch.Status, TargetDeviceCount: batch.TargetDeviceCount, CreatedAt: batch.CreatedAt,
 	}
 }
@@ -79,16 +79,12 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Success 200 {object} v1.ApiResponse[otaV1.GetOTAPackageResponse]
-// @Router /ota-packages/{id} [get]
+// @Router /ota-packages/{uuid} [get]
 func (h *OTAHandler) GetOTA(c *gin.Context) {
-	packageID, err := id(c)
-	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
-	pkg, err := h.svc.Get(c, packageID)
+	uuid := c.Param("uuid")
+	pkg, err := h.svc.Get(c, uuid)
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -132,22 +128,18 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Param request body otaV1.OTAPackageRequest true "params"
 // @Success 200 {object} v1.ApiResponse[otaV1.UpdateOTAPackageResponse]
-// @Router /ota-packages/{id} [put]
+// @Router /ota-packages/{uuid} [put]
 func (h *OTAHandler) UpdateOTA(c *gin.Context) {
-	packageID, err := id(c)
-	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
+	uuid := c.Param("uuid")
 	var req otaV1.OTAPackageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
-	pkg, err := h.svc.Get(c, packageID)
+	pkg, err := h.svc.Get(c, uuid)
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -200,15 +192,12 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
-// @Router /ota-packages/{id} [delete]
+// @Router /ota-packages/{uuid} [delete]
 func (h *OTAHandler) DeleteOTA(c *gin.Context) {
-	packageID, err := id(c)
-	if err == nil {
-		err = h.svc.Delete(c, packageID)
-	}
-	if err != nil {
+	uuid := c.Param("uuid")
+	if err := h.svc.Delete(c, uuid); err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
@@ -223,16 +212,12 @@ func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Param request body otaV1.DeployOTAPackageRequest true "目标设备 deviceKey 列表"
 // @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
-// @Router /ota-packages/{id}/deploy [post]
+// @Router /ota-packages/{uuid}/deploy [post]
 func (h *OTAHandler) DeployOTA(c *gin.Context) {
-	packageID, err := id(c)
-	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
+	uuid := c.Param("uuid")
 	var req otaV1.DeployOTAPackageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
@@ -242,12 +227,10 @@ func (h *OTAHandler) DeployOTA(c *gin.Context) {
 		v1.HandleError(c, http.StatusBadRequest, v1.ErrBadRequest, nil)
 		return
 	}
-	count, err := h.svc.Deploy(c, packageID, req.DeviceKeys)
-	if err != nil {
+	if _, err := h.svc.Deploy(c, uuid, req.DeviceKeys); err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
-	_ = count
 	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
 }
 
@@ -259,21 +242,52 @@ func (h *OTAHandler) DeployOTA(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
-// @Router /ota-packages/{id}/dispatch [post]
+// @Router /ota-packages/{uuid}/dispatch [post]
 func (h *OTAHandler) DispatchOTA(c *gin.Context) {
-	packageID, err := id(c)
-	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
-	affected, err := h.svc.Dispatch(c, packageID)
+	uuid := c.Param("uuid")
+	affected, err := h.svc.Dispatch(c, uuid)
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: affected > 0})
+}
+
+// BatchUpgradeOTA godoc
+// @Summary 批量升级 OTA 升级包
+// @Schemes
+// @Description 为指定升级包创建一个静态升级批次，并将所选设备加入该批次的升级（状态 pending），升级包状态置为 deploying
+// @Tags OTA 模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param uuid path string true "升级包 UUID"
+// @Param request body otaV1.BatchUpgradeRequest true "目标设备 deviceKey 列表"
+// @Success 200 {object} v1.ApiResponse[otaV1.UpgradeBatch]
+// @Router /ota-packages/{uuid}/batch-upgrade [post]
+func (h *OTAHandler) BatchUpgradeOTA(c *gin.Context) {
+	uuid := c.Param("uuid")
+	if uuid == "" {
+		v1.HandleError(c, http.StatusBadRequest, v1.ErrBadRequest, nil)
+		return
+	}
+	var req otaV1.BatchUpgradeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		return
+	}
+	if len(req.DeviceKeys) == 0 {
+		v1.HandleError(c, http.StatusBadRequest, v1.ErrBadRequest, nil)
+		return
+	}
+	batch, err := h.svc.BatchUpgrade(c, uuid, req.DeviceKeys)
+	if err != nil {
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		return
+	}
+	v1.HandleSuccess(c, otaBatchJSON(*batch))
 }
 
 // ReportOTAStatus godoc
@@ -284,22 +298,18 @@ func (h *OTAHandler) DispatchOTA(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Param request body otaV1.ReportOTAStatusRequest true "params"
 // @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
-// @Router /ota-packages/{id}/report [post]
+// @Router /ota-packages/{uuid}/report [post]
 func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
-	packageID, err := id(c)
-	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
+	uuid := c.Param("uuid")
 	var req otaV1.ReportOTAStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
-	if err := h.svc.ReportStatus(c, packageID, req.DeviceKey, req.Status); err != nil {
+	if err := h.svc.ReportStatus(c, uuid, req.DeviceKey, req.Status); err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
@@ -314,11 +324,11 @@ func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Success 200 {object} v1.ApiResponse[otaV1.GetUpgradeStatisticsResponse]
-// @Router /ota-packages/{id}/upgrade-statistics [get]
+// @Router /ota-packages/{uuid}/upgrade-statistics [get]
 func (h *OTAHandler) OTAStats(c *gin.Context) {
-	stats, err := h.svc.Statistics(c, c.Param("id"))
+	stats, err := h.svc.Statistics(c, c.Param("uuid"))
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -339,11 +349,11 @@ func (h *OTAHandler) OTAStats(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Success 200 {object} v1.ApiResponse[otaV1.ListUpgradeBatchesResponse]
-// @Router /ota-packages/{id}/batches [get]
+// @Router /ota-packages/{uuid}/batches [get]
 func (h *OTAHandler) OTABatches(c *gin.Context) {
-	batches, err := h.svc.Batches(c, c.Param("id"))
+	batches, err := h.svc.Batches(c, c.Param("uuid"))
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -352,7 +362,7 @@ func (h *OTAHandler) OTABatches(c *gin.Context) {
 	for i, batch := range batches {
 		items[i] = otaBatchJSON(batch)
 	}
-	v1.HandleSuccess(c, otaV1.ListUpgradeBatchesResponse{Batches: items})
+	v1.HandleSuccess(c, otaV1.ListUpgradeBatchesResponse{Items: items})
 }
 
 // OTADeployments godoc
@@ -363,15 +373,15 @@ func (h *OTAHandler) OTABatches(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "升级包 ID"
+// @Param uuid path string true "升级包 UUID"
 // @Param page query int false "页码"
 // @Param pageSize query int false "每页数量"
 // @Param status query string false "部署状态"
 // @Success 200 {object} v1.ApiResponse[otaV1.ListDeviceDeploymentsResponse]
-// @Router /ota-packages/{id}/device-deployments [get]
+// @Router /ota-packages/{uuid}/device-deployments [get]
 func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	pageNumber, pageSize := page(c, 100)
-	deployments, total, err := h.svc.Deployments(c, c.Param("id"), pageNumber, pageSize, c.Query("status"))
+	deployments, total, err := h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, c.Query("status"))
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -380,5 +390,5 @@ func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	for i, deployment := range deployments {
 		items[i] = otaDeploymentJSON(deployment)
 	}
-	v1.HandleSuccess(c, otaV1.ListDeviceDeploymentsResponse{Deployments: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, otaV1.ListDeviceDeploymentsResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }

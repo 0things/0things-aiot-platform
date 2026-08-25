@@ -37,7 +37,7 @@ export function OTAPackagesMultiDeleteDialog<TData>({
 
     const packages = selectedRows.map((row) => row.original as OTAPackage)
     const packageIds = packages
-      .map((pkg) => pkg.id)
+      .map((pkg) => pkg.uuid)
       .filter((id): id is string => id !== undefined)
 
     await deleteMultipleMutation.mutateAsync(packageIds, {

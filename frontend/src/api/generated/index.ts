@@ -66,6 +66,7 @@ import type {
   ApiResponseOtaListDeviceDeploymentsResponse,
   ApiResponseOtaListOTAPackagesResponse,
   ApiResponseOtaListUpgradeBatchesResponse,
+  ApiResponseOtaBatchUpgradeResponse,
   ApiResponseOtaSuccessResponse,
   ApiResponseOtaUpdateOTAPackageResponse,
   ApiResponseProductCreateProductResponse,
@@ -105,6 +106,7 @@ import type {
   MessageParserUpsertProductMessageParserRequest,
   OtaCreateOTAPackageRequest,
   OtaDeployOTAPackageRequest,
+  OtaBatchUpgradeRequest,
   OtaOTAPackageRequest,
   OtaReportOTAStatusRequest,
   PostDevicesBatchUploadBody,
@@ -3381,6 +3383,22 @@ export const postOtaPackagesIdDeploy = (
     }
 
 
+
+
+export const postOtaPackagesIdBatchUpgrade = (
+    id: string,
+    otaBatchUpgradeRequest: BodyType<OtaBatchUpgradeRequest>,
+  signal?: AbortSignal
+) => {
+
+
+      return orvalAxios<ApiResponseOtaBatchUpgradeResponse>(
+      {url: `/ota-packages/${id}/batch-upgrade`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: otaBatchUpgradeRequest, signal
+    },
+      );
+      }
 
 
 export const getPostOtaPackagesIdDeployMutationOptions = <TError = ErrorType<unknown>,

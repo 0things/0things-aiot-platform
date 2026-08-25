@@ -1389,7 +1389,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}": {
+        "/ota-packages/{uuid}": {
             "get": {
                 "security": [
                     {
@@ -1409,9 +1409,9 @@ const docTemplate = `{
                 "summary": "获取 OTA 升级包详情",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     }
@@ -1444,9 +1444,9 @@ const docTemplate = `{
                 "summary": "更新 OTA 升级包",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     },
@@ -1488,9 +1488,9 @@ const docTemplate = `{
                 "summary": "删除 OTA 升级包",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     }
@@ -1505,7 +1505,53 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/batches": {
+        "/ota-packages/{uuid}/batch-upgrade": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "为指定升级包创建一个静态升级批次，并将所选设备加入该批次的升级（状态 pending），升级包状态置为 deploying",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTA 模块"
+                ],
+                "summary": "批量升级 OTA 升级包",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "目标设备 deviceKey 列表",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OtaBatchUpgradeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-OtaUpgradeBatch"
+                        }
+                    }
+                }
+            }
+        },
+        "/ota-packages/{uuid}/batches": {
             "get": {
                 "security": [
                     {
@@ -1525,9 +1571,9 @@ const docTemplate = `{
                 "summary": "获取 OTA 升级批次列表",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     }
@@ -1542,7 +1588,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/deploy": {
+        "/ota-packages/{uuid}/deploy": {
             "post": {
                 "security": [
                     {
@@ -1562,9 +1608,9 @@ const docTemplate = `{
                 "summary": "部署 OTA 升级包",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     },
@@ -1588,7 +1634,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/device-deployments": {
+        "/ota-packages/{uuid}/device-deployments": {
             "get": {
                 "security": [
                     {
@@ -1608,9 +1654,9 @@ const docTemplate = `{
                 "summary": "获取 OTA 设备部署列表",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     },
@@ -1643,7 +1689,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/dispatch": {
+        "/ota-packages/{uuid}/dispatch": {
             "post": {
                 "security": [
                     {
@@ -1663,9 +1709,9 @@ const docTemplate = `{
                 "summary": "触发 OTA 升级包下发",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     }
@@ -1680,7 +1726,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/report": {
+        "/ota-packages/{uuid}/report": {
             "post": {
                 "security": [
                     {
@@ -1700,9 +1746,9 @@ const docTemplate = `{
                 "summary": "上报设备 OTA 升级结果",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     },
@@ -1726,7 +1772,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{id}/upgrade-statistics": {
+        "/ota-packages/{uuid}/upgrade-statistics": {
             "get": {
                 "security": [
                     {
@@ -1746,9 +1792,9 @@ const docTemplate = `{
                 "summary": "获取 OTA 升级统计",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "升级包 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "升级包 UUID",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     }
@@ -3368,6 +3414,20 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-OtaUpgradeBatch": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaUpgradeBatch"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-ProductCreateProductResponse": {
             "type": "object",
             "properties": {
@@ -4275,6 +4335,20 @@ const docTemplate = `{
                 }
             }
         },
+        "OtaBatchUpgradeRequest": {
+            "type": "object",
+            "required": [
+                "deviceKeys"
+            ],
+            "properties": {
+                "deviceKeys": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "OtaCreateOTAPackageRequest": {
             "type": "object",
             "required": [
@@ -4393,7 +4467,7 @@ const docTemplate = `{
         "OtaListDeviceDeploymentsResponse": {
             "type": "object",
             "properties": {
-                "deployments": {
+                "items": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/OtaDeviceDeployment"
@@ -4433,7 +4507,7 @@ const docTemplate = `{
         "OtaListUpgradeBatchesResponse": {
             "type": "object",
             "properties": {
-                "batches": {
+                "items": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/OtaUpgradeBatch"
@@ -4490,6 +4564,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "uploadType": {
+                    "type": "string"
+                },
+                "uuid": {
                     "type": "string"
                 },
                 "version": {
@@ -4575,12 +4652,6 @@ const docTemplate = `{
                 "batchId": {
                     "type": "string"
                 },
-                "batchName": {
-                    "type": "string"
-                },
-                "batchType": {
-                    "type": "string"
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -4657,14 +4728,14 @@ const docTemplate = `{
                 "nodeType": {
                     "type": "string"
                 },
+                "organizationId": {
+                    "type": "integer"
+                },
                 "productKey": {
                     "type": "string"
                 },
                 "status": {
                     "type": "string"
-                },
-                "organizationId": {
-                    "type": "integer"
                 },
                 "updatedAt": {
                     "type": "string"

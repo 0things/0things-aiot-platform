@@ -29,6 +29,7 @@ func setupOTARouter(mockService *mock_service.MockOTAServiceInterface) *gin.Engi
 	router.GET("/ota/packages/:id/stats", otaHandler.OTAStats)
 	router.GET("/ota/packages/:id/batches", otaHandler.OTABatches)
 	router.GET("/ota/packages/:id/deployments", otaHandler.OTADeployments)
+	router.POST("/ota/packages/:id/batch-upgrade", otaHandler.BatchUpgradeOTA)
 
 	return router
 }
@@ -100,4 +101,28 @@ func TestOTAHandler_Delete(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestOTAHandler_BatchUpgrade(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
+	router := setupOTARouter(mockService)
+
+	mockService.EXPECT().
+		BatchUpgrade(gomock.Any(), "firmware-1", []string{"D001", "D002"}).
+		Return(&model.UpgradeBatch{BatchID: "B-1-001", Status: "pending"}, nil)
+
+	body, _ := json.Marshal(map[string]any{
+		"deviceKeys": []string{"D001", "D002"},
+	})
+	req, _ := http.NewRequest("POST", "/ota/packages/firmware-1/batch-upgrade", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), "B-1-001")
 }

@@ -66,7 +66,7 @@ func (mr *MockOTAServiceInterfaceMockRecorder) Create(arg0, arg1, arg2 interface
 }
 
 // Delete mocks base method.
-func (m *MockOTAServiceInterface) Delete(arg0 context.Context, arg1 int64) error {
+func (m *MockOTAServiceInterface) Delete(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -80,7 +80,7 @@ func (mr *MockOTAServiceInterfaceMockRecorder) Delete(arg0, arg1 interface{}) *g
 }
 
 // Deploy mocks base method.
-func (m *MockOTAServiceInterface) Deploy(arg0 context.Context, arg1 int64, arg2 []string) (int, error) {
+func (m *MockOTAServiceInterface) Deploy(arg0 context.Context, arg1 string, arg2 []string) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Deploy", arg0, arg1, arg2)
 	ret0, _ := ret[0].(int)
@@ -92,6 +92,21 @@ func (m *MockOTAServiceInterface) Deploy(arg0 context.Context, arg1 int64, arg2 
 func (mr *MockOTAServiceInterfaceMockRecorder) Deploy(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deploy", reflect.TypeOf((*MockOTAServiceInterface)(nil).Deploy), arg0, arg1, arg2)
+}
+
+// BatchUpgrade mocks base method.
+func (m *MockOTAServiceInterface) BatchUpgrade(arg0 context.Context, arg1 string, arg2 []string) (*model.UpgradeBatch, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BatchUpgrade", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*model.UpgradeBatch)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BatchUpgrade indicates an expected call of BatchUpgrade.
+func (mr *MockOTAServiceInterfaceMockRecorder) BatchUpgrade(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchUpgrade", reflect.TypeOf((*MockOTAServiceInterface)(nil).BatchUpgrade), arg0, arg1, arg2)
 }
 
 // Deployments mocks base method.
@@ -111,7 +126,7 @@ func (mr *MockOTAServiceInterfaceMockRecorder) Deployments(arg0, arg1, arg2, arg
 }
 
 // Dispatch mocks base method.
-func (m *MockOTAServiceInterface) Dispatch(arg0 context.Context, arg1 int64) (int64, error) {
+func (m *MockOTAServiceInterface) Dispatch(arg0 context.Context, arg1 string) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Dispatch", arg0, arg1)
 	ret0, _ := ret[0].(int64)
@@ -141,7 +156,7 @@ func (mr *MockOTAServiceInterfaceMockRecorder) DispatchAll(arg0 interface{}) *go
 }
 
 // Get mocks base method.
-func (m *MockOTAServiceInterface) Get(arg0 context.Context, arg1 int64) (*model.OTAPackage, error) {
+func (m *MockOTAServiceInterface) Get(arg0 context.Context, arg1 string) (*model.OTAPackage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0, arg1)
 	ret0, _ := ret[0].(*model.OTAPackage)
@@ -172,7 +187,7 @@ func (mr *MockOTAServiceInterfaceMockRecorder) List(arg0, arg1, arg2 interface{}
 }
 
 // ReportStatus mocks base method.
-func (m *MockOTAServiceInterface) ReportStatus(arg0 context.Context, arg1 int64, arg2, arg3 string) error {
+func (m *MockOTAServiceInterface) ReportStatus(arg0 context.Context, arg1 string, arg2, arg3 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReportStatus", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)

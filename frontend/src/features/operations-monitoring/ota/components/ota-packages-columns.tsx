@@ -51,7 +51,7 @@ export function useOTAPackagesColumns(): ColumnDef<OTAPackage>[] {
       ),
       cell: ({ row }) => {
         const packageName = row.getValue('packageName') as string
-        const id = row.original.id as string
+        const id = row.original.uuid as string
         return (
           <Link
             to='/operations-monitoring/ota/packages/$id'

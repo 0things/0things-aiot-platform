@@ -1,5 +1,5 @@
 import { type Row } from '@tanstack/react-table'
-import { MoreHorizontal, Pencil, Trash2, Upload, Eye } from 'lucide-react'
+import { MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -25,9 +25,8 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 
   const canEdit = pkg.status === 'draft'
   const canDelete = pkg.status === 'draft'
-  const canDeploy = pkg.status === 'draft'
 
-  const handleAction = (action: 'edit' | 'delete' | 'deploy') => {
+  const handleAction = (action: 'edit' | 'delete') => {
     setSelectedPackage(pkg)
     setOpenDialog(action)
   }
@@ -48,7 +47,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           onSelect={() =>
             navigate({
               to: '/operations-monitoring/ota/packages/$id',
-              params: { id: pkg.id },
+              params: { id: pkg.uuid },
             })
           }
         >
@@ -63,14 +62,6 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           <Pencil className='me-2 h-4 w-4' />
           {t('common:edit')}
         </DropdownMenuItem>
-        <DropdownMenuItem
-          disabled={!canDeploy}
-          onSelect={() => canDeploy && handleAction('deploy')}
-        >
-          <Upload className='me-2 h-4 w-4' />
-          {t('packageList.actions.deploy')}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem
           disabled={!canDelete}
           onSelect={() => canDelete && handleAction('delete')}

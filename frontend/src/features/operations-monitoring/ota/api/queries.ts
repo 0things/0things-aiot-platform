@@ -74,6 +74,7 @@ export function useOTAPackages(filters?: {
       const packages: OTAPackage[] = (response.otaPackages || []).map(
         (pkg) => ({
           id: String(pkg.id || ''),
+          uuid: pkg.uuid || '',
           packageName: pkg.packageName || '',
           version: pkg.version || '',
           packageType: (pkg.packageType || 'upgrade') as OTAPackage['packageType'],
@@ -109,7 +110,7 @@ export function useOTAPackage(id: string) {
   return useQuery({
     queryKey: otaPackageKeys.detail(id),
     queryFn: async () => {
-      const response = await getOtaPackagesId(Number(id))
+      const response = await getOtaPackagesId(id as unknown as number)
       return response.data?.otaPackage
     },
     enabled: !!id,
@@ -171,7 +172,7 @@ export function useUpdateOTAPackage() {
       id: string
       data: OtaV1UpdateOTAPackageRequest
     }) => {
-      return putOtaPackagesId(Number(id), data as never)
+      return putOtaPackagesId(id as unknown as number, data as never)
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
@@ -196,7 +197,7 @@ export function useDeleteOTAPackage() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => deleteOtaPackagesId(Number(id)),
+    mutationFn: (id: string) => deleteOtaPackagesId(id as unknown as number),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: otaPackageKeys.lists() })
       toast.success('OTA package deleted successfully')
@@ -219,7 +220,7 @@ export function useDeleteOTAPackages() {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       // Delete packages in parallel
-      const deletePromises = ids.map((id) => deleteOtaPackagesId(Number(id)))
+      const deletePromises = ids.map((id) => deleteOtaPackagesId(id as unknown as number))
       await Promise.all(deletePromises)
       return { deletedCount: ids.length }
     },

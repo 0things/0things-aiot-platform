@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { type Table } from '@tanstack/react-table'
-import { Trash2 } from 'lucide-react'
+import { ArrowUpCircle, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -17,11 +18,31 @@ type DataTableBulkActionsProps<TData> = {
 export function DataTableBulkActions<TData>({
   table,
 }: DataTableBulkActionsProps<TData>) {
+  const { t } = useTranslation('ota')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   return (
     <>
       <BulkActionsToolbar table={table} entityName='package'>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant='default'
+              size='icon'
+              className='size-8'
+              aria-label={t('packageList.actions.bulkUpgrade')}
+              title={t('packageList.actions.bulkUpgrade')}
+            >
+              <ArrowUpCircle />
+              <span className='sr-only'>
+                {t('packageList.actions.bulkUpgrade')}
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t('packageList.actions.bulkUpgrade')}</p>
+          </TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

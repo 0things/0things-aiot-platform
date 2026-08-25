@@ -8,7 +8,7 @@
 import type { OtaDeviceDeployment } from './otaDeviceDeployment';
 
 export interface OtaListDeviceDeploymentsResponse {
-  deployments?: OtaDeviceDeployment[];
+  items?: OtaDeviceDeployment[];
   page?: number;
   pageSize?: number;
   total?: number;

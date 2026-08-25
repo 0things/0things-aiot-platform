@@ -1,9 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getOtaPackagesId,
   getOtaPackagesIdBatches,
   getOtaPackagesIdDeviceDeployments,
   getOtaPackagesIdUpgradeStatistics,
+  postOtaPackagesIdBatchUpgrade,
 } from '@/api/generated'
 import type {
   OtaOTAPackage,
@@ -14,6 +15,7 @@ import type {
 
 interface OTAPackageDetail {
   id: string
+  uuid: string
   packageName: string
   version?: string
   packageType?: string
@@ -31,10 +33,8 @@ interface OTAPackageDetail {
   updatedAt: Date
 }
 
-interface UpgradeBatch {
+export interface UpgradeBatch {
   batchId: string
-  batchName: string
-  batchType: string
   upgradeStrategy: string
   status: string
   targetDeviceCount: number
@@ -49,6 +49,7 @@ interface DeviceDeployment {
   productKey: string
   currentVersion: string
   status: string
+  upgradeBatchId: string
   lastStatusChangeTime: string | number
   createdAt: Date
 }
@@ -61,18 +62,19 @@ interface DeviceDeploymentList {
 }
 
 /**
- * Hook to fetch OTA package details by ID
- * Calls: GET /v1/ota-packages/{id}
+ * Hook to fetch OTA package details by UUID
+ * Calls: GET /v1/ota-packages/{uuid}
  */
-export function useOTAPackageDetail(id: string) {
+export function useOTAPackageDetail(uuid: string) {
   return useQuery({
-    queryKey: ['ota-package-detail', id],
+    queryKey: ['ota-package-detail', uuid],
     queryFn: async (): Promise<OTAPackageDetail> => {
-      const response = await getOtaPackagesId(Number(id))
+      const response = await getOtaPackagesId(uuid as unknown as number)
       const data = response.data?.otaPackage as OtaOTAPackage | undefined
       return {
-        id: data?.id?.toString() || id,
-        packageName: data?.packageName || id,
+        id: data?.id?.toString() || uuid,
+        uuid: data?.uuid || uuid,
+        packageName: data?.packageName || uuid,
         version: data?.version,
         packageType: data?.packageType,
         productId: data?.productId?.toString(),
@@ -95,18 +97,18 @@ export function useOTAPackageDetail(id: string) {
 
 /**
  * Hook to fetch upgrade statistics for an OTA package
- * Calls: GET /v1/ota-packages/{packageName}/upgrade-statistics
+ * Calls: GET /v1/ota-packages/{uuid}/upgrade-statistics
  */
-export function useUpgradeStatistics(packageName: string) {
+export function useUpgradeStatistics(uuid: string) {
   return useQuery({
-    queryKey: ['upgrade-statistics', packageName],
+    queryKey: ['upgrade-statistics', uuid],
     queryFn: async () => {
       const response = await getOtaPackagesIdUpgradeStatistics(
-        Number(packageName)
+        uuid as unknown as number
       )
       const data: OtaUpgradeStatistics = response.data?.statistics ?? {}
       return {
-        packageId: data.packageId || packageName,
+        packageId: data.packageId || uuid,
         totalTargetDevices: data.totalTargetDevices || 0,
         successfulUpgrades: data.successfulUpgrades || 0,
         failedUpgrades: data.failedUpgrades || 0,
@@ -116,7 +118,7 @@ export function useUpgradeStatistics(packageName: string) {
       }
     },
     staleTime: 0, // No caching
-    enabled: !!packageName, // Only run query if packageName is provided
+    enabled: !!uuid, // Only run query if uuid is provided
   })
 }
 
@@ -126,24 +128,24 @@ export function useUpgradeStatistics(packageName: string) {
  * Calls: GET /v1/ota-packages/{packageName}/device-deployments?page=X&pageSize=Y&status=Z
  */
 export function useDeviceDeployments(
-  packageName: string,
+  uuid: string,
   page = 1,
   pageSize = 100,
   status?: string
 ) {
   return useQuery<DeviceDeploymentList>({
-    queryKey: ['device-deployments', packageName, page, pageSize, status],
+    queryKey: ['device-deployments', uuid, page, pageSize, status],
     queryFn: async () => {
       const data =
         (
-          await getOtaPackagesIdDeviceDeployments(Number(packageName), {
+          await getOtaPackagesIdDeviceDeployments(uuid as unknown as number, {
             page,
             pageSize,
             status,
           })
         )?.data ?? {}
       return {
-        deployments: (data.deployments || []).map((d: OtaDeviceDeployment) => ({
+        deployments: (data.items || []).map((d: OtaDeviceDeployment) => ({
           deviceId: String(d.deviceId ?? ''),
           deviceKey: d.deviceKey ?? '',
           deviceName: d.deviceName ?? '',
@@ -151,6 +153,7 @@ export function useDeviceDeployments(
           productKey: d.productKey ?? '',
           currentVersion: d.currentVersion ?? '',
           status: d.status ?? '',
+          upgradeBatchId: d.upgradeBatchId ?? '',
           lastStatusChangeTime: d.lastStatusChangeTime ?? 0,
           createdAt: d.createdAt ? new Date(d.createdAt) : new Date(),
         })),
@@ -160,31 +163,57 @@ export function useDeviceDeployments(
       }
     },
     staleTime: 0, // No caching
-    enabled: !!packageName, // Only run query if packageName is provided
+    enabled: !!uuid, // Only run query if uuid is provided
   })
 }
 
 /**
  * Hook to fetch upgrade batches for an OTA package
- * Calls: GET /v1/ota-packages/{packageName}/batches
+ * Calls: GET /v1/ota-packages/{uuid}/batches
  */
-export function useUpgradeBatches(packageName: string) {
+export function useUpgradeBatches(uuid: string) {
   return useQuery<UpgradeBatch[]>({
-    queryKey: ['upgrade-batches', packageName],
+    queryKey: ['upgrade-batches', uuid],
     queryFn: async () => {
       const data =
-        (await getOtaPackagesIdBatches(Number(packageName)))?.data ?? {}
-      return (data.batches || []).map((b: OtaUpgradeBatch) => ({
-        batchId: b.batchId ?? '',
-        batchName: b.batchName ?? '',
-        batchType: b.batchType ?? '',
-        upgradeStrategy: b.upgradeStrategy ?? '',
-        status: b.status ?? '',
-        targetDeviceCount: b.targetDeviceCount ?? 0,
-        createdAt: b.createdAt ? new Date(b.createdAt) : new Date(),
-      }))
+        (await getOtaPackagesIdBatches(uuid as unknown as number))?.data ?? {}
+        return (data.items || []).map((b: OtaUpgradeBatch) => ({
+          batchId: b.batchId ?? '',
+          upgradeStrategy: b.upgradeStrategy ?? '',
+          status: b.status ?? '',
+          targetDeviceCount: b.targetDeviceCount ?? 0,
+          createdAt: b.createdAt ? new Date(b.createdAt) : new Date(),
+        }))
     },
     staleTime: 0, // No caching
-    enabled: !!packageName, // Only run query if packageName is provided
+    enabled: !!uuid, // Only run query if uuid is provided
+  })
+}
+
+/**
+ * Mutation to create a static upgrade batch for an OTA package and enqueue the
+ * selected devices for upgrade.
+ * Calls: POST /v1/ota-packages/{uuid}/batch-upgrade
+ */
+export function useBatchUpgrade(uuid: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (deviceKeys: string[]) => {
+      const response = await postOtaPackagesIdBatchUpgrade(uuid, {
+        deviceKeys,
+      })
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['upgrade-batches', uuid],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['device-deployments', uuid],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['upgrade-statistics', uuid],
+      })
+    },
   })
 }

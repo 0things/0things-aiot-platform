@@ -48,6 +48,7 @@
       "deploy": "Deploy",
       "cancel": "Cancel Deployment",
       "viewDetails": "View Details",
+      "bulkUpgrade": "Batch Upgrade",
       "bulkDelete": "Delete Selected"
     },
     "emptyState": {
@@ -169,7 +170,6 @@
     },
     "columns": {
       "batchId": "Batch ID",
-      "batchName": "Batch Name",
       "type": "Type",
       "strategy": "Strategy",
       "devices": "Devices",
@@ -195,7 +195,8 @@
     },
     "strategies": {
       "immediate": "Immediate",
-      "scheduled": "Scheduled"
+      "scheduled": "Scheduled",
+      "static": "Static"
     },
     "errors": {
       "loadPackage": {
@@ -213,6 +214,19 @@
     },
     "emptyBatches": "No batches found",
     "emptyDevices": "No devices found",
+    "batchUpgrade": {
+      "title": "Select Devices to Upgrade",
+      "description": "Select target devices to upgrade for package \"{{packageName}}\".",
+      "searchDevices": "Search by device name or key",
+      "selectAll": "Select all",
+      "selected": "Selected {{count}}",
+      "selectAtLeastOne": "Please select at least one device",
+      "confirm": "Start Upgrade",
+      "empty": "No devices available",
+      "submitting": "Submitting...",
+      "success": "Upgrade batch created with {{count}} devices",
+      "failed": "Batch upgrade failed"
+    },
     "notUpdated": "Not updated",
     "pagination": "Page {{current}} of {{total}}",
     "previous": "Previous",

@@ -397,7 +397,7 @@ func TestIntegrationOTAService_CRUD(t *testing.T) {
 	assert.NotNil(t, packages)
 
 	// Get not found
-	_, err = svc.Get(ctx(), 999)
+	_, err = svc.Get(ctx(), "nonexistent-uuid")
 	assert.Error(t, err)
 
 	// Create
@@ -411,7 +411,7 @@ func TestIntegrationOTAService_CRUD(t *testing.T) {
 	assert.Equal(t, int64(1), total)
 
 	// Get
-	pkg2, err := svc.Get(ctx(), pkg.ID)
+	pkg2, err := svc.Get(ctx(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Equal(t, "firmware-1", pkg2.PackageName)
 
@@ -421,7 +421,7 @@ func TestIntegrationOTAService_CRUD(t *testing.T) {
 	require.NoError(t, err)
 
 	// Delete
-	err = svc.Delete(ctx(), pkg.ID)
+	err = svc.Delete(ctx(), pkg.UUID)
 	require.NoError(t, err)
 }
 
@@ -436,12 +436,12 @@ func TestIntegrationOTAService_BatchesAndDeployments(t *testing.T) {
 	require.NoError(t, err)
 
 	// Batches
-	batches, err := svc.Batches(ctx(), pkg.PackageName)
+	batches, err := svc.Batches(ctx(), pkg.UUID)
 	require.NoError(t, err)
 	assert.NotNil(t, batches)
 
 	// Deployments
-	deployments, total, err := svc.Deployments(ctx(), pkg.PackageName, 1, 10, "")
+	deployments, total, err := svc.Deployments(ctx(), pkg.UUID, 1, 10, "")
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	assert.NotNil(t, deployments)

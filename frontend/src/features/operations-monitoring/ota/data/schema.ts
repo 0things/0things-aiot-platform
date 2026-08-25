@@ -23,6 +23,7 @@ export const otaPackageTypeEnum = z.enum([
 
 export const otaPackageSchema = z.object({
   id: z.string(),
+  uuid: z.string(),
   packageName: z.string(),
   version: z.string(),
   packageType: otaPackageTypeEnum,

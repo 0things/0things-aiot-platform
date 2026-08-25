@@ -8,6 +8,7 @@ import (
 
 type OTAPackage struct {
 	ID           int64  `gorm:"primaryKey"`
+	UUID         string `gorm:"column:uuid;type:varchar(64);uniqueIndex"`
 	PackageName  string `gorm:"column:package_name"`
 	Version      string
 	ProductID    int64  `gorm:"column:product_id"`
@@ -35,7 +36,6 @@ type UpgradeBatch struct {
 	BatchID           string `gorm:"column:batch_id"`
 	OTAPackageID      string `gorm:"column:ota_package_id"`
 	BatchName         string `gorm:"column:batch_name"`
-	BatchType         string `gorm:"column:batch_type"`
 	UpgradeStrategy   string `gorm:"column:upgrade_strategy"`
 	Status            string
 	TargetDeviceCount int32 `gorm:"column:target_device_count"`
@@ -43,7 +43,7 @@ type UpgradeBatch struct {
 	UpdatedAt         time.Time
 }
 
-func (UpgradeBatch) TableName() string { return "upgrade_batches" }
+func (UpgradeBatch) TableName() string { return "ota_upgrade_batches" }
 
 type DeviceUpgradeStatus struct {
 	ID                   int64  `gorm:"primaryKey"`
@@ -57,7 +57,7 @@ type DeviceUpgradeStatus struct {
 	UpdatedAt            time.Time
 }
 
-func (DeviceUpgradeStatus) TableName() string { return "device_upgrade_status" }
+func (DeviceUpgradeStatus) TableName() string { return "ota_device_upgrade_status" }
 
 // DeviceDeployment is the joined OTA deployment projection used by the
 // repository and service layers. It is not a persisted table model.

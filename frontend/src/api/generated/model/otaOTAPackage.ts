@@ -13,6 +13,7 @@ export interface OtaOTAPackage {
   fileSize?: number;
   fileUrl?: string;
   id?: number;
+  uuid?: string;
   packageName?: string;
   packageType?: string;
   productId?: number;

@@ -7,6 +7,4 @@
  */
 import type { OtaUpgradeBatch } from './otaUpgradeBatch';
 
-export interface OtaListUpgradeBatchesResponse {
-  items?: OtaUpgradeBatch[];
-}
+export type OtaBatchUpgradeResponse = OtaUpgradeBatch;

@@ -21,9 +21,9 @@ export function OTAPackagesDialogs() {
   const deleteMutation = useDeleteOTAPackage()
 
   const handleDelete = async () => {
-    if (!selectedPackage?.id) return
+    if (!selectedPackage?.uuid) return
 
-    await deleteMutation.mutateAsync(selectedPackage.id, {
+    await deleteMutation.mutateAsync(selectedPackage.uuid, {
       onSuccess: () => {
         setOpenDialog(null)
       },

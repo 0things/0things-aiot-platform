@@ -387,6 +387,15 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-OtaUpgradeBatch:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaUpgradeBatch'
+      message:
+        type: string
+    type: object
   ApiResponse-ProductCreateProductResponse:
     properties:
       code:
@@ -976,6 +985,15 @@ definitions:
     - language
     - script
     type: object
+  OtaBatchUpgradeRequest:
+    properties:
+      deviceKeys:
+        items:
+          type: string
+        type: array
+    required:
+    - deviceKeys
+    type: object
   OtaCreateOTAPackageRequest:
     properties:
       checksum:
@@ -1053,7 +1071,7 @@ definitions:
     type: object
   OtaListDeviceDeploymentsResponse:
     properties:
-      deployments:
+      items:
         items:
           $ref: '#/definitions/OtaDeviceDeployment'
         type: array
@@ -1079,7 +1097,7 @@ definitions:
     type: object
   OtaListUpgradeBatchesResponse:
     properties:
-      batches:
+      items:
         items:
           $ref: '#/definitions/OtaUpgradeBatch'
         type: array
@@ -1117,6 +1135,8 @@ definitions:
       updatedAt:
         type: string
       uploadType:
+        type: string
+      uuid:
         type: string
       version:
         type: string
@@ -1172,10 +1192,6 @@ definitions:
     properties:
       batchId:
         type: string
-      batchName:
-        type: string
-      batchType:
-        type: string
       createdAt:
         type: string
       status:
@@ -1226,12 +1242,12 @@ definitions:
         type: string
       nodeType:
         type: string
+      organizationId:
+        type: integer
       productKey:
         type: string
       status:
         type: string
-      organizationId:
-        type: integer
       updatedAt:
         type: string
     type: object
@@ -2289,17 +2305,17 @@ paths:
       summary: 创建 OTA 升级包
       tags:
       - OTA 模块
-  /ota-packages/{id}:
+  /ota-packages/{uuid}:
     delete:
       consumes:
       - application/json
       description: 通过升级包 ID 删除 OTA 升级包
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -2317,11 +2333,11 @@ paths:
       - application/json
       description: 通过升级包 ID 获取 OTA 升级包详情
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -2339,11 +2355,11 @@ paths:
       - application/json
       description: 通过升级包 ID 更新 OTA 升级包
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -2362,17 +2378,46 @@ paths:
       summary: 更新 OTA 升级包
       tags:
       - OTA 模块
-  /ota-packages/{id}/batches:
+  /ota-packages/{uuid}/batch-upgrade:
+    post:
+      consumes:
+      - application/json
+      description: 为指定升级包创建一个静态升级批次，并将所选设备加入该批次的升级（状态 pending），升级包状态置为 deploying
+      parameters:
+      - description: 升级包 UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: 目标设备 deviceKey 列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/OtaBatchUpgradeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-OtaUpgradeBatch'
+      security:
+      - Bearer: []
+      summary: 批量升级 OTA 升级包
+      tags:
+      - OTA 模块
+  /ota-packages/{uuid}/batches:
     get:
       consumes:
       - application/json
       description: 获取指定 OTA 升级包下的升级批次
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -2385,17 +2430,17 @@ paths:
       summary: 获取 OTA 升级批次列表
       tags:
       - OTA 模块
-  /ota-packages/{id}/deploy:
+  /ota-packages/{uuid}/deploy:
     post:
       consumes:
       - application/json
       description: 将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       - description: 目标设备 deviceKey 列表
         in: body
         name: request
@@ -2414,17 +2459,17 @@ paths:
       summary: 部署 OTA 升级包
       tags:
       - OTA 模块
-  /ota-packages/{id}/device-deployments:
+  /ota-packages/{uuid}/device-deployments:
     get:
       consumes:
       - application/json
       description: 分页获取指定升级包下的设备部署记录
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       - description: 页码
         in: query
         name: page
@@ -2449,17 +2494,17 @@ paths:
       summary: 获取 OTA 设备部署列表
       tags:
       - OTA 模块
-  /ota-packages/{id}/dispatch:
+  /ota-packages/{uuid}/dispatch:
     post:
       consumes:
       - application/json
       description: 将升级包下所有 pending 的设备升级记录推进为 in_progress；周期性下发任务会自动执行，此接口用于手动触发
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -2472,17 +2517,17 @@ paths:
       summary: 触发 OTA 升级包下发
       tags:
       - OTA 模块
-  /ota-packages/{id}/report:
+  /ota-packages/{uuid}/report:
     post:
       consumes:
       - application/json
       description: 设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -2501,17 +2546,17 @@ paths:
       summary: 上报设备 OTA 升级结果
       tags:
       - OTA 模块
-  /ota-packages/{id}/upgrade-statistics:
+  /ota-packages/{uuid}/upgrade-statistics:
     get:
       consumes:
       - application/json
       description: 获取指定 OTA 升级包的升级统计数据
       parameters:
-      - description: 升级包 ID
+      - description: 升级包 UUID
         in: path
-        name: id
+        name: uuid
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:

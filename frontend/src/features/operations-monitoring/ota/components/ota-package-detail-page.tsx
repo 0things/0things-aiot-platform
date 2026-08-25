@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { cn, getPageNumbers } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -31,7 +32,10 @@ import {
   useOTAPackageDetail,
   useUpgradeStatistics,
   useDeviceDeployments,
+  useUpgradeBatches,
+  type UpgradeBatch,
 } from '../api/detail-queries'
+import { BatchUpgradeDialog } from './batch-upgrade-dialog'
 
 /**
  * Type definitions for API response data
@@ -44,6 +48,7 @@ interface DeviceDeployment {
   productKey: string
   currentVersion: string
   status: string
+  upgradeBatchId: string
   lastStatusChangeTime: string | number
   createdAt: Date
 }
@@ -119,6 +124,9 @@ function DeviceRow({ d }: { d: DeviceDeployment }) {
         {d.lastStatusChangeTime
           ? new Date(d.lastStatusChangeTime).toLocaleString()
           : t('packageDetail.notUpdated')}
+      </TableCell>
+      <TableCell className='font-mono text-xs sm:text-sm'>
+        {d.upgradeBatchId || '-'}
       </TableCell>
     </TableRow>
   )
@@ -264,18 +272,41 @@ export function OTAPackageDetailPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [statusFilter, setStatusFilter] = useState<string>()
+  const [batchSearch, setBatchSearch] = useState('')
+  const [deviceNameFilter, setDeviceNameFilter] = useState('')
+  const [batchIdFilter, setBatchIdFilter] = useState('')
+  const [batchUpgradeOpen, setBatchUpgradeOpen] = useState(false)
 
   // Data fetching hooks
   const packageQuery = useOTAPackageDetail(params.id)
-  const packageName = packageQuery.data?.packageName
+  const packageUuid = params.id
 
-  const statisticsQuery = useUpgradeStatistics(packageName || '')
+  const statisticsQuery = useUpgradeStatistics(packageUuid)
   const deploymentsQuery = useDeviceDeployments(
-    packageName || '',
+    packageUuid,
     currentPage,
     pageSize,
     statusFilter
   )
+  const batchesQuery = useUpgradeBatches(packageUuid)
+
+  const batches = useMemo(() => {
+    const all = batchesQuery.data ?? []
+    const q = batchSearch.trim().toLowerCase()
+    if (!q) return all
+    return all.filter((b) => b.batchId.toLowerCase().includes(q))
+  }, [batchesQuery.data, batchSearch])
+
+  const filteredDeployments = useMemo(() => {
+    const all = deploymentsQuery.data?.deployments ?? []
+    const nameQ = deviceNameFilter.trim().toLowerCase()
+    const batchQ = batchIdFilter.trim().toLowerCase()
+    return all.filter((d) => {
+      if (nameQ && !d.deviceName.toLowerCase().includes(nameQ)) return false
+      if (batchQ && !d.upgradeBatchId.toLowerCase().includes(batchQ)) return false
+      return true
+    })
+  }, [deploymentsQuery.data, deviceNameFilter, batchIdFilter])
 
   const lastUpdated = useMemo(() => {
     const times = [
@@ -461,8 +492,11 @@ export function OTAPackageDetailPage() {
         </div>
 
         {/* Tabs section */}
-        <Tabs defaultValue='devices' className='w-full'>
+        <Tabs defaultValue='batches' className='w-full'>
           <TabsList>
+            <TabsTrigger value='batches'>
+              {t('packageDetail.tabs.batches')}
+            </TabsTrigger>
             <TabsTrigger value='devices'>
               {t('packageDetail.tabs.devices')}
             </TabsTrigger>
@@ -470,6 +504,102 @@ export function OTAPackageDetailPage() {
               {t('packageDetail.tabs.info')}
             </TabsTrigger>
           </TabsList>
+
+          {/* Batch Management Tab */}
+          <TabsContent value='batches' className='space-y-4'>
+            {batchesQuery.isError && (
+              <ErrorAlert
+                title={t('packageDetail.errors.loadBatches.title')}
+                message={t('packageDetail.errors.loadBatches.description')}
+                onRetry={() => {
+                  void batchesQuery.refetch()
+                }}
+              />
+            )}
+            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+              <Input
+                value={batchSearch}
+                onChange={(e) => setBatchSearch(e.target.value)}
+                placeholder={t('common:searchPlaceholder')}
+                className='sm:max-w-xs'
+              />
+              <Button
+                variant='default'
+                onClick={() => setBatchUpgradeOpen(true)}
+              >
+                {t('packageList.actions.bulkUpgrade')}
+              </Button>
+            </div>
+            <div className='overflow-x-auto rounded-lg border bg-card'>
+              <Table className='text-sm sm:text-base'>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('packageDetail.columns.batchId')}
+                    </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('packageDetail.columns.strategy')}
+                    </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('common:status')}
+                    </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('packageDetail.columns.devices')}
+                    </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('common:createdAt')}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {batchesQuery.isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className='py-8 text-center'>
+                        <Loader2 className='mx-auto h-4 w-4 animate-spin' />
+                      </TableCell>
+                    </TableRow>
+                  ) : batches.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className='py-8 text-center text-xs text-muted-foreground sm:text-sm'
+                      >
+                        {t('packageDetail.emptyBatches')}
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    batches.map((b: UpgradeBatch) => (
+                      <TableRow key={b.batchId}>
+                        <TableCell className='font-mono text-xs sm:text-sm'>
+                          {b.batchId}
+                        </TableCell>
+                        <TableCell className='text-xs sm:text-sm'>
+                          {b.upgradeStrategy
+                            ? t(`packageDetail.strategies.${b.upgradeStrategy}`)
+                            : '-'}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant='outline' className='capitalize'>
+                            {t(`packageDetail.statuses.${b.status}`, {
+                              defaultValue: b.status,
+                            })}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className='text-xs sm:text-sm'>
+                          {b.targetDeviceCount}
+                        </TableCell>
+                        <TableCell className='text-xs sm:text-sm'>
+                          {b.createdAt
+                            ? new Date(b.createdAt).toLocaleString()
+                            : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
 
           {/* Device List Tab */}
           <TabsContent value='devices' className='space-y-4'>
@@ -516,6 +646,18 @@ export function OTAPackageDetailPage() {
                   </SelectItem>
                 </SelectContent>
               </Select>
+              <Input
+                value={deviceNameFilter}
+                onChange={(e) => setDeviceNameFilter(e.target.value)}
+                placeholder={t('packageDetail.columns.device')}
+                className='w-full sm:w-[200px]'
+              />
+              <Input
+                value={batchIdFilter}
+                onChange={(e) => setBatchIdFilter(e.target.value)}
+                placeholder={t('packageDetail.columns.batchId')}
+                className='w-full sm:w-[200px]'
+              />
             </div>
 
             <div className='overflow-x-auto rounded-lg border bg-card'>
@@ -537,6 +679,9 @@ export function OTAPackageDetailPage() {
                     <TableHead className='text-xs sm:text-sm'>
                       {t('packageDetail.columns.lastUpdated')}
                     </TableHead>
+                    <TableHead className='text-xs sm:text-sm'>
+                      {t('packageDetail.columns.batchId')}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -546,7 +691,7 @@ export function OTAPackageDetailPage() {
                         <Loader2 className='mx-auto h-4 w-4 animate-spin' />
                       </TableCell>
                     </TableRow>
-                  ) : deploymentsQuery.data?.deployments?.length === 0 ? (
+                  ) : filteredDeployments.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}
@@ -556,7 +701,7 @@ export function OTAPackageDetailPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    deploymentsQuery.data?.deployments?.map((d) => (
+                    filteredDeployments.map((d) => (
                       <DeviceRow key={d.deviceId} d={d} />
                     ))
                   )}
@@ -650,20 +795,17 @@ export function OTAPackageDetailPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Actions */}
-                <div className='flex gap-2 pt-2'>
-                  <Button variant='outline' size='sm'>
-                    {t('common:edit')}
-                  </Button>
-                  <Button variant='outline' size='sm'>
-                    {t('common:download')}
-                  </Button>
-                </div>
               </div>
             )}
           </TabsContent>
         </Tabs>
+
+        <BatchUpgradeDialog
+          open={batchUpgradeOpen}
+          onOpenChange={setBatchUpgradeOpen}
+          productId={pkg?.productId}
+          packageUuid={pkg?.uuid ?? packageUuid}
+        />
       </div>
     </div>
   )

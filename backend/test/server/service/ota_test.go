@@ -38,9 +38,9 @@ func TestOTAService_Get(t *testing.T) {
 
 	expectedPackage := &model.OTAPackage{ID: 1, PackageName: "firmware-1"}
 
-	mockOTARepo.EXPECT().Get(ctx, int64(1)).Return(expectedPackage, nil)
+	mockOTARepo.EXPECT().Get(ctx, "1").Return(expectedPackage, nil)
 
-	pkg, err := mockOTARepo.Get(ctx, int64(1))
+	pkg, err := mockOTARepo.Get(ctx, "1")
 	assert.NoError(t, err)
 	assert.Equal(t, expectedPackage, pkg)
 }
@@ -67,9 +67,9 @@ func TestOTAService_Delete(t *testing.T) {
 	mockOTARepo := mock_service.NewMockOTAServiceInterface(ctrl)
 	ctx := context.Background()
 
-	mockOTARepo.EXPECT().Delete(ctx, int64(1)).Return(nil)
+	mockOTARepo.EXPECT().Delete(ctx, "1").Return(nil)
 
-	err := mockOTARepo.Delete(ctx, int64(1))
+	err := mockOTARepo.Delete(ctx, "1")
 	assert.NoError(t, err)
 }
 

@@ -176,3 +176,6 @@ export * from './sceneLinkageRequest';
 export * from './sceneLinkageSuccessResponse';
 export * from './updateSceneLinkageDetailResponse';
 export * from './updateSceneLinkageResponse';
+export * from './otaBatchUpgradeRequest';
+export * from './otaBatchUpgradeResponse';
+export * from './apiResponseOtaBatchUpgradeResponse';
