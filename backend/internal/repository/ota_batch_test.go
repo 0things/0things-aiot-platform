@@ -32,7 +32,7 @@ func TestOTABatchRepository(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 3, created)
 
-	// 再次提交相同设备到新批次：已存在记录应更新为 pending 并关联新批次，不重复插入
+	// 再次提交相同设备到新批次：为每个设备新增一条独立的批次记录
 	require.NoError(t, repo.CreateBatch(ctx, &model.UpgradeBatch{
 		BatchID: "B-1-002", OTAPackageID: "1", BatchName: "批量升级-2", Status: "pending",
 	}))
@@ -40,13 +40,13 @@ func TestOTABatchRepository(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 3, created2)
 
-	// 校验：每台设备仅一条记录，且 device 2/3 已关联到第二个批次
+	// 校验：device 2/3 各保留两条记录，分别属于两个批次；device 1/4 各一条
 	var records []model.DeviceUpgradeStatus
 	require.NoError(t, store.WithContext(ctx).Where("ota_package_id = ?", "1").Find(&records).Error)
-	require.Len(t, records, 4)
+	require.Len(t, records, 6)
 
-	var d2 model.DeviceUpgradeStatus
-	require.NoError(t, store.WithContext(ctx).Where("ota_package_id = ? AND device_id = ?", "1", 2).First(&d2).Error)
-	require.Equal(t, "B-1-002", d2.UpgradeBatchID)
-	require.Equal(t, "pending", d2.Status)
+	var d2 []model.DeviceUpgradeStatus
+	require.NoError(t, store.WithContext(ctx).Where("ota_package_id = ? AND device_id = ?", "1", 2).Find(&d2).Error)
+	require.Len(t, d2, 2)
+	require.ElementsMatch(t, []string{"B-1-001", "B-1-002"}, []string{d2[0].UpgradeBatchID, d2[1].UpgradeBatchID})
 }

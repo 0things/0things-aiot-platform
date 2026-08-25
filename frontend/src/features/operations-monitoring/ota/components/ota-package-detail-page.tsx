@@ -6,7 +6,7 @@ import {
   DoubleArrowRightIcon,
 } from '@radix-ui/react-icons'
 import { useParams, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Loader2, AlertCircle, RotateCw } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, RotateCw, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn, getPageNumbers } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -270,9 +270,12 @@ export function OTAPackageDetailPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [statusFilter, setStatusFilter] = useState<string>()
+  const [appliedStatusFilter, setAppliedStatusFilter] = useState<string>()
   const [batchSearch, setBatchSearch] = useState('')
   const [deviceNameFilter, setDeviceNameFilter] = useState('')
+  const [appliedDeviceNameFilter, setAppliedDeviceNameFilter] = useState('')
   const [batchIdFilter, setBatchIdFilter] = useState('')
+  const [deviceSearchKey, setDeviceSearchKey] = useState(0)
   const [batchUpgradeOpen, setBatchUpgradeOpen] = useState(false)
 
   // Data fetching hooks
@@ -284,7 +287,8 @@ export function OTAPackageDetailPage() {
     packageUuid,
     currentPage,
     pageSize,
-    statusFilter
+    appliedStatusFilter,
+    deviceSearchKey
   )
   const batchesQuery = useUpgradeBatches(packageUuid)
 
@@ -297,7 +301,7 @@ export function OTAPackageDetailPage() {
 
   const filteredDeployments = useMemo(() => {
     const all = deploymentsQuery.data?.deployments ?? []
-    const nameQ = deviceNameFilter.trim().toLowerCase()
+    const nameQ = appliedDeviceNameFilter.trim().toLowerCase()
     const batchQ = batchIdFilter.trim().toLowerCase()
     return all.filter((d) => {
       if (nameQ && !d.deviceName.toLowerCase().includes(nameQ)) return false
@@ -305,7 +309,14 @@ export function OTAPackageDetailPage() {
         return false
       return true
     })
-  }, [deploymentsQuery.data, deviceNameFilter, batchIdFilter])
+  }, [deploymentsQuery.data, appliedDeviceNameFilter, batchIdFilter])
+
+  const handleDeviceSearch = () => {
+    setAppliedDeviceNameFilter(deviceNameFilter)
+    setAppliedStatusFilter(statusFilter)
+    setCurrentPage(1)
+    setDeviceSearchKey((key) => key + 1)
+  }
 
   const handleBack = () => {
     navigate({
@@ -626,6 +637,14 @@ export function OTAPackageDetailPage() {
                 placeholder={t('packageDetail.columns.batchId')}
                 className='w-full sm:w-[200px]'
               />
+              <Button
+                type='button'
+                onClick={handleDeviceSearch}
+                className='w-full sm:w-auto'
+              >
+                <Search className='mr-2 h-4 w-4' />
+                {t('common:search')}
+              </Button>
             </div>
 
             <div className='overflow-x-auto rounded-lg border bg-card'>

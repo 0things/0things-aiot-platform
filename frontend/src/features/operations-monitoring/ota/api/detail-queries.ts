@@ -131,10 +131,11 @@ export function useDeviceDeployments(
   uuid: string,
   page = 1,
   pageSize = 100,
-  status?: string
+  status?: string,
+  refreshKey = 0
 ) {
   return useQuery<DeviceDeploymentList>({
-    queryKey: ['device-deployments', uuid, page, pageSize, status],
+    queryKey: ['device-deployments', uuid, page, pageSize, status, refreshKey],
     queryFn: async () => {
       const data =
         (

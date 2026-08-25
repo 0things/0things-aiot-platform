@@ -139,9 +139,8 @@ func (r *OTARepository) CreateBatch(ctx context.Context, batch *model.UpgradeBat
 	return r.DB(ctx).Create(batch).Error
 }
 
-// CreateBatchDeployments 为静态升级批次创建设备升级记录。每条记录都会关联到
-// 指定的 upgrade_batch_id，状态初始为 pending。已存在的同设备+同包记录会更新为
-// pending 并关联到该批次，而非重复插入。返回受影响的设备数量。
+// CreateBatchDeployments 为静态升级批次创建设备升级记录。每个设备在每个批次
+// 中都有独立记录，状态初始为 pending。返回受影响的设备数量。
 func (r *OTARepository) CreateBatchDeployments(ctx context.Context, packageID int64, batchID string, deviceIDs []int64) (int, error) {
 	if len(deviceIDs) == 0 {
 		return 0, nil
@@ -160,49 +159,20 @@ func (r *OTARepository) CreateBatchDeployments(ctx context.Context, packageID in
 	}
 	deviceIDs = uniq
 
-	var existing []model.DeviceUpgradeStatus
-	if err := db.Where("ota_package_id = ? AND device_id IN ?", pkgID, deviceIDs).Find(&existing).Error; err != nil {
-		return 0, err
-	}
-	existingStatus := make(map[int64]string, len(existing))
-	for _, e := range existing {
-		existingStatus[e.DeviceID] = e.Status
-	}
-
 	toInsert := make([]model.DeviceUpgradeStatus, 0, len(deviceIDs))
-	toUpdate := make([]int64, 0)
 	for _, deviceID := range deviceIDs {
-		if _, ok := existingStatus[deviceID]; ok {
-			// 已存在同设备+同包记录：重新关联到本批次并置为 pending，
-			// 使新批次“接管”该设备的升级。
-			toUpdate = append(toUpdate, deviceID)
-		} else {
-			now := time.Now().Unix()
-			toInsert = append(toInsert, model.DeviceUpgradeStatus{
-				DeviceID:             deviceID,
-				OTAPackageID:         pkgID,
-				UpgradeBatchID:       batchID,
-				Status:               "pending",
-				LastStatusChangeTime: &now,
-			})
-		}
+		now := time.Now().Unix()
+		toInsert = append(toInsert, model.DeviceUpgradeStatus{
+			DeviceID:             deviceID,
+			OTAPackageID:         pkgID,
+			UpgradeBatchID:       batchID,
+			Status:               "pending",
+			LastStatusChangeTime: &now,
+		})
 	}
 
-	if len(toUpdate) > 0 {
-		if err := db.Model(&model.DeviceUpgradeStatus{}).
-			Where("ota_package_id = ? AND device_id IN ?", pkgID, toUpdate).
-			Updates(map[string]interface{}{
-				"status":                  "pending",
-				"upgrade_batch_id":        batchID,
-				"last_status_change_ts": time.Now().Unix(),
-			}).Error; err != nil {
-			return 0, err
-		}
-	}
-	if len(toInsert) > 0 {
-		if err := db.Create(&toInsert).Error; err != nil {
-			return 0, err
-		}
+	if err := db.Create(&toInsert).Error; err != nil {
+		return 0, err
 	}
 	return len(deviceIDs), nil
 }
@@ -221,7 +191,8 @@ func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, 
 		return nil, 0, err
 	}
 	var deployments []model.DeviceDeployment
-	if err := query.Offset((page - 1) * size).Limit(size).Find(&deployments).Error; err != nil {
+	if err := query.Order("dus.created_at DESC, dus.id DESC").
+		Offset((page - 1) * size).Limit(size).Find(&deployments).Error; err != nil {
 		return nil, 0, err
 	}
 	return deployments, total, nil
@@ -299,7 +270,7 @@ func (r *OTARepository) DispatchPending(ctx context.Context, packageID int64) (i
 	res := r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
 		Where("ota_package_id = ? AND status = ?", strconv.FormatInt(packageID, 10), "pending").
 		Updates(map[string]interface{}{
-			"status":                  "in_progress",
+			"status":                "in_progress",
 			"last_status_change_ts": time.Now().Unix(),
 		})
 	if res.Error != nil {
@@ -310,15 +281,21 @@ func (r *OTARepository) DispatchPending(ctx context.Context, packageID int64) (i
 
 // UpdateDeviceStatus 更新单台设备的升级状态（及可选的当前版本）。
 func (r *OTARepository) UpdateDeviceStatus(ctx context.Context, packageID, deviceID int64, status, currentVersion string) error {
+	var deployment model.DeviceUpgradeStatus
+	if err := r.DB(ctx).
+		Where("ota_package_id = ? AND device_id = ?", strconv.FormatInt(packageID, 10), deviceID).
+		Order("id DESC").First(&deployment).Error; err != nil {
+		return err
+	}
 	updates := map[string]interface{}{
-		"status":                  status,
+		"status":                status,
 		"last_status_change_ts": time.Now().Unix(),
 	}
 	if currentVersion != "" {
 		updates["current_version"] = currentVersion
 	}
 	return r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
-		Where("ota_package_id = ? AND device_id = ?", strconv.FormatInt(packageID, 10), deviceID).
+		Where("id = ?", deployment.ID).
 		Updates(updates).Error
 }
 
