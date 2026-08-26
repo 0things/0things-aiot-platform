@@ -74,8 +74,8 @@
       "packageTypePlaceholder": "选择包类型",
       "productName": "所属产品",
       "productNamePlaceholder": "选择产品",
-      "description": "描述",
-      "descriptionPlaceholder": "描述此升级包含的内容...",
+      "description": "升级包说明",
+      "descriptionPlaceholder": "描述此升级包的更新内容、变更日志或注意事项...",
       "uploadMethod": "上传方式",
       "uploadBinaryFile": "上传二进制文件",
       "useExternalUrl": "使用外部URL",
@@ -232,14 +232,12 @@
     "sections": {
       "basicInformation": "基本信息",
       "fileInformation": "文件信息",
-      "descriptionAndNotes": "描述与说明"
+      "descriptionAndNotes": "升级包说明"
     },
     "fields": {
-      "checksum": "校验和（SHA256）",
-      "releaseNotes": "发布说明"
+      "checksum": "校验和（SHA256）"
     },
-    "emptyDescription": "暂无描述",
-    "emptyReleaseNotes": "暂无发布说明"
+    "emptyDescription": "暂无说明"
   },
   "analytics": {
     "title": "升级分析",

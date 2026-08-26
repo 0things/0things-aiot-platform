@@ -216,6 +216,7 @@ export function CreatePackageDialog() {
                     <FormLabel>{t('packageForm.fields.description')}</FormLabel>
                     <FormControl>
                       <Textarea
+                        rows={3}
                         placeholder={t(
                           'packageForm.fields.descriptionPlaceholder'
                         )}

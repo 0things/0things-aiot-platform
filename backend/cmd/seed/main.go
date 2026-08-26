@@ -448,6 +448,11 @@ func main() {
 		checksum := fmt.Sprintf("%016x%016x", rand.Int63(), rand.Int63())
 		fileURL := fmt.Sprintf("https://static.0things.com/firmware/%s/%s-%s.bin", seed.pkgType, seed.name, seed.version)
 
+		fullDesc := seed.desc
+		if seed.releaseNotes != "" {
+			fullDesc = fmt.Sprintf("%s\n\n更新说明：\n%s", seed.desc, seed.releaseNotes)
+		}
+
 		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO ota_packages (
 			id, uuid, package_name, version, product_id, organization_id, package_type, status,
 			upload_type, file_url, file_size, checksum, description, release_notes,
@@ -465,7 +470,7 @@ func main() {
 			fileURL,
 			fileSize,
 			checksum,
-			seed.desc,
+			fullDesc,
 			seed.releaseNotes,
 			releasedAt,
 			createdAt,

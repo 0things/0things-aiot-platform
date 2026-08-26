@@ -75,7 +75,7 @@
       "productName": "Product Name",
       "productNamePlaceholder": "Select product",
       "description": "Description",
-      "descriptionPlaceholder": "Describe what this upgrade includes...",
+      "descriptionPlaceholder": "Describe what this upgrade includes, changelog, or notes...",
       "uploadMethod": "Upload Method",
       "uploadBinaryFile": "Upload binary file",
       "useExternalUrl": "Use external URL",
@@ -232,14 +232,12 @@
     "sections": {
       "basicInformation": "Basic Information",
       "fileInformation": "File Information",
-      "descriptionAndNotes": "Description & Notes"
+      "descriptionAndNotes": "Description"
     },
     "fields": {
-      "checksum": "Checksum (SHA256)",
-      "releaseNotes": "Release Notes"
+      "checksum": "Checksum (SHA256)"
     },
-    "emptyDescription": "No description provided",
-    "emptyReleaseNotes": "No release notes provided"
+    "emptyDescription": "No description provided"
   },
   "analytics": {
     "title": "Upgrade Analytics",

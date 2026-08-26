@@ -755,31 +755,14 @@ export function OTAPackageDetailPage() {
                       {t('packageDetail.sections.descriptionAndNotes')}
                     </h3>
                   </div>
-                  <div className='space-y-4 p-6'>
-                    <div>
-                      <label className='mb-2 block text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
-                        {t('packageForm.fields.description')}
-                      </label>
-                      <p className='text-sm leading-relaxed'>
-                        {pkg?.description || (
-                          <span className='text-muted-foreground italic'>
-                            {t('packageDetail.emptyDescription')}
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <label className='mb-2 block text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
-                        {t('packageDetail.fields.releaseNotes')}
-                      </label>
-                      <p className='max-h-48 overflow-y-auto rounded bg-muted p-3 text-sm leading-relaxed whitespace-pre-wrap'>
-                        {pkg?.releaseNotes || (
-                          <span className='text-muted-foreground italic'>
-                            {t('packageDetail.emptyReleaseNotes')}
-                          </span>
-                        )}
-                      </p>
-                    </div>
+                  <div className='p-6'>
+                    <p className='text-sm leading-relaxed whitespace-pre-wrap'>
+                      {pkg?.description || (
+                        <span className='text-muted-foreground italic'>
+                          {t('packageDetail.emptyDescription')}
+                        </span>
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>
