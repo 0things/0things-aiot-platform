@@ -1409,7 +1409,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-OtaCreateOTAPackageResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaOTAPackage"
                         }
                     }
                 }
@@ -1446,7 +1446,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-OtaGetOTAPackageResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaOTAPackage"
                         }
                     }
                 }
@@ -1490,7 +1490,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-OtaUpdateOTAPackageResponse"
+                            "$ref": "#/definitions/ApiResponse-OtaOTAPackage"
                         }
                     }
                 }
@@ -3263,34 +3263,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-OtaCreateOTAPackageResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/OtaCreateOTAPackageResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-OtaGetOTAPackageResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/OtaGetOTAPackageResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "ApiResponse-OtaGetUpgradeStatisticsResponse": {
             "type": "object",
             "properties": {
@@ -3347,6 +3319,20 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-OtaOTAPackage": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/OtaOTAPackage"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-OtaSuccessResponse": {
             "type": "object",
             "properties": {
@@ -3355,20 +3341,6 @@ const docTemplate = `{
                 },
                 "data": {
                     "$ref": "#/definitions/OtaSuccessResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-OtaUpdateOTAPackageResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/OtaUpdateOTAPackageResponse"
                 },
                 "message": {
                     "type": "string"
@@ -4363,14 +4335,6 @@ const docTemplate = `{
                 }
             }
         },
-        "OtaCreateOTAPackageResponse": {
-            "type": "object",
-            "properties": {
-                "otaPackage": {
-                    "$ref": "#/definitions/OtaOTAPackage"
-                }
-            }
-        },
         "OtaDeviceDeployment": {
             "type": "object",
             "properties": {
@@ -4403,14 +4367,6 @@ const docTemplate = `{
                 },
                 "upgradeBatchId": {
                     "type": "string"
-                }
-            }
-        },
-        "OtaGetOTAPackageResponse": {
-            "type": "object",
-            "properties": {
-                "otaPackage": {
-                    "$ref": "#/definitions/OtaOTAPackage"
                 }
             }
         },
@@ -4593,14 +4549,6 @@ const docTemplate = `{
             "properties": {
                 "success": {
                     "type": "boolean"
-                }
-            }
-        },
-        "OtaUpdateOTAPackageResponse": {
-            "type": "object",
-            "properties": {
-                "otaPackage": {
-                    "$ref": "#/definitions/OtaOTAPackage"
                 }
             }
         },

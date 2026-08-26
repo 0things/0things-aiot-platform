@@ -327,24 +327,6 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-OtaCreateOTAPackageResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/OtaCreateOTAPackageResponse'
-      message:
-        type: string
-    type: object
-  ApiResponse-OtaGetOTAPackageResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/OtaGetOTAPackageResponse'
-      message:
-        type: string
-    type: object
   ApiResponse-OtaGetUpgradeStatisticsResponse:
     properties:
       code:
@@ -381,21 +363,21 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-OtaOTAPackage:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/OtaOTAPackage'
+      message:
+        type: string
+    type: object
   ApiResponse-OtaSuccessResponse:
     properties:
       code:
         type: integer
       data:
         $ref: '#/definitions/OtaSuccessResponse'
-      message:
-        type: string
-    type: object
-  ApiResponse-OtaUpdateOTAPackageResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/OtaUpdateOTAPackageResponse'
       message:
         type: string
     type: object
@@ -1041,11 +1023,6 @@ definitions:
     - packageName
     - product_key
     type: object
-  OtaCreateOTAPackageResponse:
-    properties:
-      otaPackage:
-        $ref: '#/definitions/OtaOTAPackage'
-    type: object
   OtaDeviceDeployment:
     properties:
       createdAt:
@@ -1068,11 +1045,6 @@ definitions:
         type: string
       upgradeBatchId:
         type: string
-    type: object
-  OtaGetOTAPackageResponse:
-    properties:
-      otaPackage:
-        $ref: '#/definitions/OtaOTAPackage'
     type: object
   OtaGetUpgradeStatisticsResponse:
     properties:
@@ -1192,11 +1164,6 @@ definitions:
     properties:
       success:
         type: boolean
-    type: object
-  OtaUpdateOTAPackageResponse:
-    properties:
-      otaPackage:
-        $ref: '#/definitions/OtaOTAPackage'
     type: object
   OtaUpgradeBatch:
     properties:
@@ -2324,7 +2291,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse-OtaCreateOTAPackageResponse'
+            $ref: '#/definitions/ApiResponse-OtaOTAPackage'
       security:
       - Bearer: []
       summary: 创建 OTA 升级包
@@ -2369,7 +2336,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse-OtaGetOTAPackageResponse'
+            $ref: '#/definitions/ApiResponse-OtaOTAPackage'
       security:
       - Bearer: []
       summary: 获取 OTA 升级包详情
@@ -2397,7 +2364,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse-OtaUpdateOTAPackageResponse'
+            $ref: '#/definitions/ApiResponse-OtaOTAPackage'
       security:
       - Bearer: []
       summary: 更新 OTA 升级包

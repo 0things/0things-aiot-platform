@@ -101,15 +101,6 @@ type ListOTAPackagesResponse struct {
 	PageSize    int          `json:"pageSize"`
 } //@name OtaListOTAPackagesResponse
 
-type GetOTAPackageResponse struct {
-	OTAPackage OTAPackage `json:"otaPackage"`
-} //@name OtaGetOTAPackageResponse
-type CreateOTAPackageResponse struct {
-	OTAPackage OTAPackage `json:"otaPackage"`
-} //@name OtaCreateOTAPackageResponse
-type UpdateOTAPackageResponse struct {
-	OTAPackage OTAPackage `json:"otaPackage"`
-} //@name OtaUpdateOTAPackageResponse
 type GetUpgradeStatisticsResponse struct {
 	Statistics UpgradeStatistics `json:"statistics"`
 } //@name OtaGetUpgradeStatisticsResponse

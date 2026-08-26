@@ -115,7 +115,7 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param uuid path string true "升级包 UUID"
-// @Success 200 {object} v1.ApiResponse[otaV1.GetOTAPackageResponse]
+// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage]
 // @Router /ota-packages/{uuid} [get]
 func (h *OTAHandler) GetOTA(c *gin.Context) {
 	uuid := c.Param("uuid")
@@ -124,7 +124,7 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
-	v1.HandleSuccess(c, otaV1.GetOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
+	v1.HandleSuccess(c, otaPackageJSON(*pkg))
 }
 
 // CreateOTA godoc
@@ -136,7 +136,7 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param request body otaV1.CreateOTAPackageRequest true "params"
-// @Success 200 {object} v1.ApiResponse[otaV1.CreateOTAPackageResponse]
+// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage]
 // @Router /ota-packages [post]
 func (h *OTAHandler) CreateOTA(c *gin.Context) {
 	var req otaV1.CreateOTAPackageRequest
@@ -152,7 +152,7 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
-	v1.HandleSuccess(c, otaV1.CreateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
+	v1.HandleSuccess(c, otaPackageJSON(*pkg))
 }
 
 // UpdateOTA godoc
@@ -165,7 +165,7 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 // @Security Bearer
 // @Param uuid path string true "升级包 UUID"
 // @Param request body otaV1.OTAPackageRequest true "params"
-// @Success 200 {object} v1.ApiResponse[otaV1.UpdateOTAPackageResponse]
+// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage]
 // @Router /ota-packages/{uuid} [put]
 func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 	uuid := c.Param("uuid")
@@ -216,7 +216,7 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
-	v1.HandleSuccess(c, otaV1.UpdateOTAPackageResponse{OTAPackage: otaPackageJSON(*pkg)})
+	v1.HandleSuccess(c, otaPackageJSON(*pkg))
 }
 
 // DeleteOTA godoc

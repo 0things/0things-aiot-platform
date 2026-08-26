@@ -7,7 +7,6 @@ import {
   postOtaPackagesUuidBatchUpgrade,
 } from '@/api/generated'
 import type {
-  OtaOTAPackage,
   OtaUpgradeStatistics,
   OtaDeviceDeployment,
   OtaUpgradeBatch,
@@ -70,7 +69,7 @@ export function useOTAPackageDetail(uuid: string) {
     queryKey: ['ota-package-detail', uuid],
     queryFn: async (): Promise<OTAPackageDetail> => {
       const response = await getOtaPackagesUuid(uuid)
-      const data = response.data?.otaPackage as OtaOTAPackage | undefined
+      const data = response.data
       return {
         id: data?.id?.toString() || uuid,
         uuid: data?.uuid || uuid,

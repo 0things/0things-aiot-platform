@@ -57,14 +57,12 @@ import type {
   ApiResponseListSceneLinkagesResponse,
   ApiResponseMessageParserExecuteProductMessageParserResponse,
   ApiResponseMessageParserProductMessageParser,
-  ApiResponseOtaCreateOTAPackageResponse,
-  ApiResponseOtaGetOTAPackageResponse,
   ApiResponseOtaGetUpgradeStatisticsResponse,
   ApiResponseOtaListDeviceDeploymentsResponse,
   ApiResponseOtaListOTAPackagesResponse,
   ApiResponseOtaListUpgradeBatchesResponse,
+  ApiResponseOtaOTAPackage,
   ApiResponseOtaSuccessResponse,
-  ApiResponseOtaUpdateOTAPackageResponse,
   ApiResponseOtaUpgradeBatch,
   ApiResponseProductCreateProductResponse,
   ApiResponseProductGetProductByKeyResponse,
@@ -4011,7 +4009,7 @@ export const postOtaPackages = (
   otaCreateOTAPackageRequest: BodyType<OtaCreateOTAPackageRequest>,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseOtaCreateOTAPackageResponse>({
+  return orvalAxios<ApiResponseOtaOTAPackage>({
     url: `/ota-packages`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -4093,7 +4091,7 @@ export const usePostOtaPackages = <
  * @summary 获取 OTA 升级包详情
  */
 export const getOtaPackagesUuid = (uuid: string, signal?: AbortSignal) => {
-  return orvalAxios<ApiResponseOtaGetOTAPackageResponse>({
+  return orvalAxios<ApiResponseOtaOTAPackage>({
     url: `/ota-packages/${uuid}`,
     method: 'GET',
     signal,
@@ -4255,7 +4253,7 @@ export const putOtaPackagesUuid = (
   otaOTAPackageRequest: BodyType<OtaOTAPackageRequest>,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseOtaUpdateOTAPackageResponse>({
+  return orvalAxios<ApiResponseOtaOTAPackage>({
     url: `/ota-packages/${uuid}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },

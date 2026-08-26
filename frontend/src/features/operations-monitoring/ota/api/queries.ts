@@ -116,7 +116,7 @@ export function useOTAPackage(id: string) {
     queryKey: otaPackageKeys.detail(id),
     queryFn: async () => {
       const response = await getOtaPackagesUuid(id)
-      return response.data?.otaPackage
+      return response.data
     },
     enabled: !!id,
   })
