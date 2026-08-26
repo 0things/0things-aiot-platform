@@ -1,8 +1,8 @@
 package job
 
 import (
-	"context"
 	"aiot-backend/internal/repository"
+	"context"
 	"time"
 )
 
@@ -26,9 +26,12 @@ type userJob struct {
 }
 
 func (t userJob) KafkaConsumer(ctx context.Context) error {
-	// do something
 	for {
-		t.logger.Info("KafkaConsumer")
-		time.Sleep(time.Second * 5)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(5 * time.Second):
+			t.logger.Info("KafkaConsumer")
+		}
 	}
 }

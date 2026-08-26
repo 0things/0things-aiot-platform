@@ -27,14 +27,12 @@ func newDeviceSvc(t *testing.T) (*DeviceService, *gorm.DB, context.Context) {
 	require.NoError(t, db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"}).Error)
 
 	iotDB := &repository.IoTDB{DB: db}
-	kafkaSvc := &KafkaService{enabled: false}
 	svc := NewDeviceService(
 		repository.NewDeviceRepository(iotDB, &repository.IoTRedis{}),
 		repository.NewProductRepository(iotDB),
 		repository.NewDeviceTagRepository(iotDB),
 		repository.NewDeviceShadowRepository(iotDB),
 		repository.NewPushRecordRepository(iotDB),
-		kafkaSvc,
 	)
 	return svc, db, context.Background()
 }

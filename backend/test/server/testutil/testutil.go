@@ -12,6 +12,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type testKafkaService struct{}
+
+func (testKafkaService) Produce(context.Context, string, []byte, []byte) error              { return nil }
+func (testKafkaService) ProduceJSON(context.Context, string, string, any) error             { return nil }
+func (testKafkaService) ProduceAsync(context.Context, string, []byte, []byte, func(error))  {}
+func (testKafkaService) ProduceJSONAsync(context.Context, string, string, any, func(error)) {}
+func (testKafkaService) Flush(context.Context) error                                        { return nil }
+func (testKafkaService) Close()                                                             {}
+
 func SetupTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
@@ -65,7 +74,7 @@ func NewTestRepositories(db *gorm.DB) (*repository.DeviceRepository, *repository
 
 func NewTestDeviceService(db *gorm.DB) *service.DeviceService {
 	deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo := NewTestRepositories(db)
-	return service.NewDeviceService(deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo, nil)
+	return service.NewDeviceService(deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo)
 }
 
 func NewTestProductService(db *gorm.DB) *service.ProductService {
@@ -77,7 +86,7 @@ func NewTestOTATotalService(db *gorm.DB) *service.OTAService {
 	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
-	return service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	return service.NewOTAService(otaRepo, productRepo, deviceRepo, testKafkaService{})
 }
 
 func NewTestSceneLinkageService(db *gorm.DB) *service.SceneLinkageService {

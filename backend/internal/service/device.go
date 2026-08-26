@@ -51,7 +51,6 @@ type DeviceService struct {
 	tags        *repository.DeviceTagRepository
 	shadows     *repository.DeviceShadowRepository
 	pushRecords *repository.PushRecordRepository
-	kafka       KafkaServiceInterface
 }
 
 type BatchUploadError struct {
@@ -83,7 +82,6 @@ func NewDeviceService(
 	tags *repository.DeviceTagRepository,
 	shadows *repository.DeviceShadowRepository,
 	pushRecords *repository.PushRecordRepository,
-	kafka KafkaServiceInterface,
 ) *DeviceService {
 	return &DeviceService{
 		repo:        repo,
@@ -91,7 +89,6 @@ func NewDeviceService(
 		tags:        tags,
 		shadows:     shadows,
 		pushRecords: pushRecords,
-		kafka:       kafka,
 	}
 }
 

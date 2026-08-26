@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { getDevices } from '@/api/generated'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -17,12 +16,13 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useBatchUpgrade } from '../api/detail-queries'
+import { getAllEnabledDevices } from '../api/device-queries'
 import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
 
 export function DeployPackageDialog() {
   const { t } = useTranslation('ota')
   const { openDialog, setOpenDialog, selectedPackage } = useOTAPackagesContext()
-  const batchUpgrade = useBatchUpgrade(selectedPackage?.uuid || '')
+  const batchUpgrade = useBatchUpgrade(selectedPackage?.uuid)
   const [targetDevices, setTargetDevices] = useState<'all' | 'specific'>('all')
   const [selectedDeviceKeys, setSelectedDeviceKeys] = useState<string[]>([])
   const [isDeploying, setIsDeploying] = useState(false)
@@ -33,15 +33,7 @@ export function DeployPackageDialog() {
 
   const devicesQuery = useQuery({
     queryKey: ['ota-deploy-devices', productId],
-    queryFn: async () => {
-      const response = await getDevices({
-        productId: Number(productId),
-        page: 1,
-        pageSize: 1000,
-        enabled: true,
-      })
-      return response.data?.devices || []
-    },
+    queryFn: () => getAllEnabledDevices(productId!),
     enabled: !!productId && openDialog === 'deploy',
   })
 

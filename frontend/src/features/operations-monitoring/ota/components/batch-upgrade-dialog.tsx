@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { getDevices } from '@/api/generated'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -16,12 +15,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { useBatchUpgrade } from '../api/detail-queries'
-
-interface DeviceItem {
-  id?: number
-  deviceKey?: string
-  name?: string
-}
+import { getAllEnabledDevices } from '../api/device-queries'
 
 interface BatchUpgradeDialogProps {
   open: boolean
@@ -39,19 +33,11 @@ export function BatchUpgradeDialog({
   const { t } = useTranslation('ota')
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [search, setSearch] = useState('')
-  const batchUpgrade = useBatchUpgrade(packageUuid || '')
+  const batchUpgrade = useBatchUpgrade(packageUuid)
 
   const devicesQuery = useQuery({
     queryKey: ['batch-upgrade-devices', productId],
-    queryFn: async () => {
-      const response = await getDevices({
-        productId: Number(productId),
-        page: 1,
-        pageSize: 200,
-        enabled: true,
-      })
-      return (response.data?.devices ?? []) as DeviceItem[]
-    },
+    queryFn: () => getAllEnabledDevices(productId!),
     enabled: open && !!productId,
   })
 

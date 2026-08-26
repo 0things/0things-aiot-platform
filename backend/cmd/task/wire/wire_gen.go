@@ -27,10 +27,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	taskTask := task.NewTask(transaction, logger, sidSid)
 	userRepository := repository.NewUserRepository(repositoryRepository)
 	userTask := task.NewUserTask(taskTask, userRepository)
-	iotDB := repository.NewIoTDB(viperViper, logger)
-	otaRepository := repository.NewOTARepository(iotDB)
-	otaTask := task.NewOTATask(taskTask, otaRepository)
-	taskServer := server.NewTaskServer(logger, userTask, otaTask)
+	taskServer := server.NewTaskServer(logger, userTask)
 	appApp := newApp(taskServer)
 	return appApp, func() {
 	}, nil
@@ -40,7 +37,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewIoTDB, repository.NewOTARepository)
 
-var taskSet = wire.NewSet(task.NewTask, task.NewUserTask, task.NewOTATask)
+var taskSet = wire.NewSet(task.NewTask, task.NewUserTask)
 
 var serverSet = wire.NewSet(server.NewTaskServer)
 

@@ -4314,9 +4314,6 @@
                 "product_key": {
                     "type": "string"
                 },
-                "releaseNotes": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -4355,7 +4352,13 @@
                 "productKey": {
                     "type": "string"
                 },
+                "progress": {
+                    "type": "integer"
+                },
                 "status": {
+                    "type": "string"
+                },
+                "targetVersion": {
                     "type": "string"
                 },
                 "upgradeBatchId": {
@@ -4458,9 +4461,6 @@
                 "productName": {
                     "type": "string"
                 },
-                "releaseNotes": {
-                    "type": "string"
-                },
                 "releasedAt": {
                     "type": "string"
                 },
@@ -4508,9 +4508,6 @@
                 "productId": {
                     "type": "integer"
                 },
-                "releaseNotes": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -4529,10 +4526,19 @@
                 "status"
             ],
             "properties": {
+                "batchId": {
+                    "type": "string"
+                },
                 "deviceKey": {
                     "type": "string"
                 },
+                "progress": {
+                    "type": "integer"
+                },
                 "status": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }

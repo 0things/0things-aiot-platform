@@ -7,26 +7,25 @@ import (
 )
 
 type OTAPackage struct {
-	ID           int64  `gorm:"primaryKey"`
-	UUID         string `gorm:"column:uuid;type:varchar(64);uniqueIndex"`
-	PackageName  string `gorm:"column:package_name"`
-	Version      string
-	ProductID    int64  `gorm:"column:product_id"`
-	OrganizationID     int64  `gorm:"column:organization_id;not null;default:1"`
-	ProductKey   string `gorm:"column:product_key;->" json:"productKey,omitempty"`
-	ProductName  string `gorm:"column:product_name;->" json:"productName,omitempty"`
-	PackageType  string `gorm:"column:package_type"`
-	Status       string
-	UploadType   string `gorm:"column:upload_type"`
-	FileURL      string `gorm:"column:file_url"`
-	FileSize     int64  `gorm:"column:file_size"`
-	Checksum     string
-	Description  string
-	ReleaseNotes string         `gorm:"column:release_notes"`
-	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	ReleasedAt   *time.Time `gorm:"column:released_at"`
+	ID             int64  `gorm:"primaryKey"`
+	UUID           string `gorm:"column:uuid;type:varchar(64);uniqueIndex"`
+	PackageName    string `gorm:"column:package_name"`
+	Version        string
+	ProductID      int64  `gorm:"column:product_id"`
+	OrganizationID int64  `gorm:"column:organization_id;not null;default:1"`
+	ProductKey     string `gorm:"column:product_key;->" json:"productKey,omitempty"`
+	ProductName    string `gorm:"column:product_name;->" json:"productName,omitempty"`
+	PackageType    string `gorm:"column:package_type"`
+	Status         string
+	UploadType     string `gorm:"column:upload_type"`
+	FileURL        string `gorm:"column:file_url"`
+	FileSize       int64  `gorm:"column:file_size"`
+	Checksum       string
+	Description    string
+	DeletedAt      gorm.DeletedAt `gorm:"column:deleted_at"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	ReleasedAt     *time.Time `gorm:"column:released_at"`
 }
 
 func (OTAPackage) TableName() string { return "ota_packages" }
@@ -47,10 +46,18 @@ func (UpgradeBatch) TableName() string { return "ota_upgrade_batches" }
 
 type DeviceUpgradeStatus struct {
 	ID                   int64  `gorm:"primaryKey"`
-	DeviceID             int64  `gorm:"column:device_id"`
+	DeviceID             int64  `gorm:"column:device_id;uniqueIndex:ux_ota_batch_device"`
 	OTAPackageID         string `gorm:"column:ota_package_id"`
-	UpgradeBatchID       string `gorm:"column:upgrade_batch_id"`
-	Status               string
+	UpgradeBatchID       string `gorm:"column:upgrade_batch_id;uniqueIndex:ux_ota_batch_device;index:idx_ota_batch_status"`
+	Status               string `gorm:"index:idx_ota_batch_status"`
+	TargetVersion        string `gorm:"column:target_version"`
+	Progress             int32  `gorm:"column:progress"`
+	DispatchAttempts     int32  `gorm:"column:dispatch_attempts"`
+	LastDispatchError    string `gorm:"column:last_dispatch_error"`
+	FirstProgressAt      *int64 `gorm:"column:first_progress_at"`
+	LastReportAt         *int64 `gorm:"column:last_report_at"`
+	TimeoutSeconds       int32  `gorm:"column:timeout_seconds"`
+	MaxRetries           int32  `gorm:"column:max_retries"`
 	CurrentVersion       string `gorm:"column:current_version"`
 	LastStatusChangeTime *int64 `gorm:"column:last_status_change_ts"`
 	CreatedAt            time.Time
@@ -68,6 +75,8 @@ type DeviceDeployment struct {
 	ProductID            int64     `gorm:"column:product_id"`
 	ProductKey           string    `gorm:"column:product_key"`
 	CurrentVersion       string    `gorm:"column:current_version"`
+	TargetVersion        string    `gorm:"column:target_version"`
+	Progress             int32     `gorm:"column:progress"`
 	UpgradeBatchID       string    `gorm:"column:upgrade_batch_id"`
 	Status               string    `gorm:"column:status"`
 	LastStatusChangeTime int64     `gorm:"column:last_status_change_ts"`

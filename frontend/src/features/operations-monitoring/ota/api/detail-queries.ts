@@ -27,7 +27,6 @@ interface OTAPackageDetail {
   verificationStatus: string
   verificationProgress: number
   description?: string
-  releaseNotes?: string
   createdAt: string
   updatedAt: string
 }
@@ -85,7 +84,6 @@ export function useOTAPackageDetail(uuid: string) {
         verificationStatus: 'completed',
         verificationProgress: 100,
         description: data?.description,
-        releaseNotes: data?.releaseNotes,
         createdAt: data?.createdAt ?? '',
         updatedAt: data?.updatedAt ?? '',
       }
@@ -192,10 +190,11 @@ export function useUpgradeBatches(uuid: string) {
  * selected devices for upgrade.
  * Calls: POST /v1/ota-packages/{uuid}/batch-upgrade
  */
-export function useBatchUpgrade(uuid: string) {
+export function useBatchUpgrade(uuid?: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (deviceKeys: string[]) => {
+      if (!uuid) throw new Error('OTA package is required')
       const response = await postOtaPackagesUuidBatchUpgrade(uuid, {
         deviceKeys,
       })

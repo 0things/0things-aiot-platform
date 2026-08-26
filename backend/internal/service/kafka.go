@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"aiot-backend/pkg/log"
 	"github.com/spf13/viper"
@@ -58,8 +59,11 @@ func NewKafkaService(config *viper.Viper, logger *log.Logger) (*KafkaService, fu
 		return nil, nil, fmt.Errorf("failed to create kafka client: %w", err)
 	}
 
-	// Ping brokers to verify connectivity (warning only, franz-go reconnects automatically)
-	if err := client.Ping(context.Background()); err != nil {
+	// 探活设置有限超时。franz-go 会在后台继续重连，不能因 Kafka 不可达阻塞 HTTP 启动。
+	pingCtx, cancelPing := context.WithTimeout(context.Background(), 5*time.Second)
+	err = client.Ping(pingCtx)
+	cancelPing()
+	if err != nil {
 		logger.Warn("Failed to ping Kafka brokers (will retry in background)", zap.Error(err), zap.Strings("brokers", brokers))
 	} else {
 		logger.Info("Kafka producer client initialized successfully", zap.Strings("brokers", brokers))
@@ -192,4 +196,3 @@ func (s *KafkaService) Close() {
 		s.logger.Info("Kafka producer client closed")
 	}
 }
-

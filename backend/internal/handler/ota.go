@@ -48,7 +48,7 @@ func otaPackageJSON(pkg model.OTAPackage) otaV1.OTAPackage {
 		ID: pkg.ID, UUID: pkg.UUID, PackageName: pkg.PackageName, Version: pkg.Version,
 		ProductID: pkg.ProductID, ProductKey: pkg.ProductKey, ProductName: pkg.ProductName,
 		PackageType: pkg.PackageType, Status: pkg.Status, UploadType: pkg.UploadType, FileURL: pkg.FileURL,
-		FileSize: pkg.FileSize, Checksum: pkg.Checksum, Description: pkg.Description, ReleaseNotes: pkg.ReleaseNotes,
+		FileSize: pkg.FileSize, Checksum: pkg.Checksum, Description: pkg.Description,
 		CreatedAt: createdAt, UpdatedAt: updatedAt, ReleasedAt: releasedAt,
 	}
 }
@@ -74,6 +74,7 @@ func otaDeploymentJSON(deployment model.DeviceDeployment) otaV1.DeviceDeployment
 	return otaV1.DeviceDeployment{
 		DeviceID: deployment.DeviceID, DeviceKey: deployment.DeviceKey, DeviceName: deployment.DeviceName,
 		ProductID: deployment.ProductID, ProductKey: deployment.ProductKey, CurrentVersion: deployment.CurrentVersion,
+		TargetVersion: deployment.TargetVersion, Progress: deployment.Progress,
 		UpgradeBatchID: deployment.UpgradeBatchID, Status: deployment.Status,
 		LastStatusChangeTime: lastStatusChangeTime,
 		CreatedAt:            carbon.CreateFromStdTime(deployment.CreatedAt).ToDateTimeString(),
@@ -144,7 +145,7 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
-	pkg := &model.OTAPackage{PackageName: req.PackageName, Version: req.Version, PackageType: req.PackageType, Status: req.Status, UploadType: req.UploadType, FileURL: req.FileURL, FileSize: req.FileSize, Checksum: req.Checksum, Description: req.Description, ReleaseNotes: req.ReleaseNotes}
+	pkg := &model.OTAPackage{PackageName: req.PackageName, Version: req.Version, PackageType: req.PackageType, Status: req.Status, UploadType: req.UploadType, FileURL: req.FileURL, FileSize: req.FileSize, Checksum: req.Checksum, Description: req.Description}
 	if pkg.Status == "" {
 		pkg.Status = "draft"
 	}
@@ -209,9 +210,6 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 	if req.Description != "" {
 		pkg.Description = req.Description
 	}
-	if req.ReleaseNotes != "" {
-		pkg.ReleaseNotes = req.ReleaseNotes
-	}
 	if err := h.svc.Update(c, pkg); err != nil {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
@@ -274,6 +272,22 @@ func (h *OTAHandler) BatchUpgradeOTA(c *gin.Context) {
 	v1.HandleSuccess(c, otaBatchJSON(*batch))
 }
 
+func (h *OTAHandler) CancelBatch(c *gin.Context) {
+	if err := h.svc.CancelBatch(c, c.Param("uuid"), c.Param("batchId")); err != nil {
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
+		return
+	}
+	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
+}
+
+func (h *OTAHandler) RetryBatch(c *gin.Context) {
+	if err := h.svc.RetryBatch(c, c.Param("uuid"), c.Param("batchId")); err != nil {
+		v1.HandleError(c, otaErrorStatus(err), err, nil)
+		return
+	}
+	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
+}
+
 // ReportOTAStatus godoc
 // @Summary 上报设备 OTA 升级结果
 // @Schemes
@@ -293,7 +307,30 @@ func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
-	if err := h.svc.ReportStatus(c, uuid, req.DeviceKey, req.Status); err != nil {
+	var err error
+	if req.BatchID != "" {
+		// 带批次上报时先校验批次属于当前 OTA 包，避免跨包更新设备任务。
+		batches, batchErr := h.svc.Batches(c, uuid)
+		if batchErr != nil {
+			v1.HandleError(c, otaErrorStatus(batchErr), batchErr, nil)
+			return
+		}
+		validBatch := false
+		for _, batch := range batches {
+			if batch.BatchID == req.BatchID {
+				validBatch = true
+				break
+			}
+		}
+		if !validBatch {
+			v1.HandleError(c, http.StatusNotFound, errors.New("upgrade batch not found"), nil)
+			return
+		}
+		err = h.svc.ReportBatchDevice(c, req.BatchID, req.DeviceKey, req.Status, req.Version, req.Progress)
+	} else {
+		err = h.svc.ReportStatus(c, uuid, req.DeviceKey, req.Status)
+	}
+	if err != nil {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
@@ -312,7 +349,13 @@ func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 // @Success 200 {object} v1.ApiResponse[otaV1.GetUpgradeStatisticsResponse]
 // @Router /ota-packages/{uuid}/upgrade-statistics [get]
 func (h *OTAHandler) OTAStats(c *gin.Context) {
-	stats, err := h.svc.Statistics(c, c.Param("uuid"))
+	var stats service.UpgradeStatistics
+	var err error
+	if batchID := c.Query("batchId"); batchID != "" {
+		stats, err = h.svc.Statistics(c, c.Param("uuid"), batchID)
+	} else {
+		stats, err = h.svc.Statistics(c, c.Param("uuid"))
+	}
 	if err != nil {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
@@ -365,7 +408,15 @@ func (h *OTAHandler) OTABatches(c *gin.Context) {
 // @Router /ota-packages/{uuid}/device-deployments [get]
 func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	pageNumber, pageSize := page(c, 100)
-	deployments, total, err := h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, c.Query("status"))
+	var deployments []model.DeviceDeployment
+	var total int64
+	var err error
+	// batchId 为空时保持历史行为，查询整个 OTA 包的设备记录。
+	if batchID := c.Query("batchId"); batchID != "" {
+		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, c.Query("status"), batchID)
+	} else {
+		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, c.Query("status"))
+	}
 	if err != nil {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return

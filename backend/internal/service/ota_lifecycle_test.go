@@ -11,6 +11,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type testKafkaService struct{}
+
+func (testKafkaService) Produce(context.Context, string, []byte, []byte) error              { return nil }
+func (testKafkaService) ProduceJSON(context.Context, string, string, any) error             { return nil }
+func (testKafkaService) ProduceAsync(context.Context, string, []byte, []byte, func(error))  {}
+func (testKafkaService) ProduceJSONAsync(context.Context, string, string, any, func(error)) {}
+func (testKafkaService) Flush(context.Context) error                                        { return nil }
+func (testKafkaService) Close()                                                             {}
+
 func newOTATestDB(t *testing.T) *gorm.DB {
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
@@ -31,7 +40,7 @@ func newOTAServiceForTest(t *testing.T) (*OTAService, *gorm.DB) {
 	repo := repository.NewOTARepository(iotDB)
 	productRepo := repository.NewProductRepository(iotDB)
 	deviceRepo := repository.NewDeviceRepository(iotDB, &repository.IoTRedis{})
-	return NewOTAService(repo, productRepo, deviceRepo), db
+	return NewOTAService(repo, productRepo, deviceRepo, testKafkaService{}), db
 }
 
 func seedOTAProductAndDevices(t *testing.T, db *gorm.DB) (int64, []string) {
@@ -102,4 +111,18 @@ func TestOTAService_ReportStatusPartial(t *testing.T) {
 	require.NoError(t, svc.ReportStatus(ctx, pkg.UUID, "D2", "failed"))
 	got, _ := svc.Get(ctx, pkg.UUID)
 	require.Equal(t, "partial", got.Status)
+}
+
+func TestOTAService_CancelBatch(t *testing.T) {
+	ctx := context.Background()
+	svc, db := newOTAServiceForTest(t)
+	_, keys := seedOTAProductAndDevices(t, db)
+	pkg := &model.OTAPackage{PackageName: "fw-cancel", Version: "1.0.0", ProductID: 1, Status: "draft"}
+	require.NoError(t, svc.Create(ctx, pkg, "P001"))
+	batch, err := svc.BatchUpgrade(ctx, pkg.UUID, keys)
+	require.NoError(t, err)
+	require.NoError(t, svc.CancelBatch(ctx, pkg.UUID, batch.BatchID))
+	var count int64
+	require.NoError(t, db.Model(&model.DeviceUpgradeStatus{}).Where("upgrade_batch_id = ? AND status = ?", batch.BatchID, "cancelled").Count(&count).Error)
+	require.EqualValues(t, len(keys), count)
 }

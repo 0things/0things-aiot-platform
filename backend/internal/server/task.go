@@ -1,10 +1,10 @@
 package server
 
 import (
-	"context"
-	"github.com/go-co-op/gocron"
 	"aiot-backend/internal/task"
 	"aiot-backend/pkg/log"
+	"context"
+	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
 	"time"
 )
@@ -13,18 +13,15 @@ type TaskServer struct {
 	log       *log.Logger
 	scheduler *gocron.Scheduler
 	userTask  task.UserTask
-	otaTask   task.OTATask
 }
 
 func NewTaskServer(
 	log *log.Logger,
 	userTask task.UserTask,
-	otaTask task.OTATask,
 ) *TaskServer {
 	return &TaskServer{
 		log:      log,
 		userTask: userTask,
-		otaTask:  otaTask,
 	}
 }
 func (t *TaskServer) Start(ctx context.Context) error {
@@ -46,15 +43,6 @@ func (t *TaskServer) Start(ctx context.Context) error {
 	})
 	if err != nil {
 		t.log.Error("CheckUser error", zap.Error(err))
-	}
-
-	_, err = t.scheduler.CronWithSeconds("0/5 * * * * *").Do(func() {
-		if err := t.otaTask.DispatchPending(ctx); err != nil {
-			t.log.Error("OTA dispatch error", zap.Error(err))
-		}
-	})
-	if err != nil {
-		t.log.Error("OTA dispatch schedule error", zap.Error(err))
 	}
 
 	t.scheduler.StartBlocking()

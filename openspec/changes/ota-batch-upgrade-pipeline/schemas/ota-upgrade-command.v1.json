@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ota.upgrade.command.v1",
+  "type": "object",
+  "required": ["batch_id", "package_id", "product_key", "device_key", "target_version", "module", "url", "size", "checksum"],
+  "properties": {
+    "batch_id": {"type": "string", "minLength": 1},
+    "package_id": {"type": "integer"},
+    "product_key": {"type": "string", "minLength": 1},
+    "device_key": {"type": "string", "minLength": 1},
+    "device_name": {"type": "string"},
+    "target_version": {"type": "string", "minLength": 1},
+    "module": {"const": "default"},
+    "url": {"type": "string", "format": "uri"},
+    "size": {"type": "integer", "minimum": 0},
+    "checksum": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

@@ -39,6 +39,12 @@ data:
     device:
       # Used by the mock endpoint and the iotEvent consumer.
       brokers: []
+  mqtt:
+    # OTA 传输开发使用的本地 MQTT Broker 示例配置。
+    broker: tcp://127.0.0.1:1883
+    client_id: aiot-ota-backend
+    username: ""
+    password: ""
   mongo:
     uri: mongodb://username:password@localhost:27017
 log:

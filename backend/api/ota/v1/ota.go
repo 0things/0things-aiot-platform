@@ -12,7 +12,6 @@ type OTAPackageRequest struct {
 	FileSize     int64  `json:"fileSize"`
 	Checksum     string `json:"checksum"`
 	Description  string `json:"description"`
-	ReleaseNotes string `json:"releaseNotes"`
 } //@name OtaOTAPackageRequest
 
 type CreateOTAPackageRequest struct {
@@ -26,7 +25,6 @@ type CreateOTAPackageRequest struct {
 	FileSize     int64  `json:"fileSize"`
 	Checksum     string `json:"checksum"`
 	Description  string `json:"description"`
-	ReleaseNotes string `json:"releaseNotes"`
 } //@name OtaCreateOTAPackageRequest
 
 type BatchUpgradeRequest struct {
@@ -34,8 +32,11 @@ type BatchUpgradeRequest struct {
 } //@name OtaBatchUpgradeRequest
 
 type ReportOTAStatusRequest struct {
+	BatchID   string `json:"batchId"`
 	DeviceKey string `json:"deviceKey" binding:"required"`
 	Status    string `json:"status" binding:"required"`
+	Version   string `json:"version"`
+	Progress  int32  `json:"progress"`
 } //@name OtaReportOTAStatusRequest
 
 type SuccessResponse struct {
@@ -57,7 +58,6 @@ type OTAPackage struct {
 	FileSize     int64   `json:"fileSize"`
 	Checksum     string  `json:"checksum"`
 	Description  string  `json:"description"`
-	ReleaseNotes string  `json:"releaseNotes"`
 	CreatedAt    string  `json:"createdAt"`
 	UpdatedAt    string  `json:"updatedAt"`
 	ReleasedAt   *string `json:"releasedAt,omitempty"`
@@ -88,6 +88,8 @@ type DeviceDeployment struct {
 	ProductID            int64  `json:"productId"`
 	ProductKey           string `json:"productKey"`
 	CurrentVersion       string `json:"currentVersion"`
+	TargetVersion        string `json:"targetVersion"`
+	Progress             int32  `json:"progress"`
 	UpgradeBatchID       string `json:"upgradeBatchId"`
 	Status               string `json:"status"`
 	LastStatusChangeTime string `json:"lastStatusChangeTime"`

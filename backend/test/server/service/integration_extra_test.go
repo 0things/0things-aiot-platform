@@ -1192,7 +1192,7 @@ func TestIntegrationOTAService_Create(t *testing.T) {
 	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
-	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", OrganizationID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
@@ -1205,7 +1205,7 @@ func TestIntegrationOTAService_Create_ProductNotFound(t *testing.T) {
 	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
-	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0", OrganizationID: 1}
 	err := svc.Create(ctx2(), pkg, "NONEXIST")
@@ -1218,7 +1218,7 @@ func TestIntegrationOTAService_Batches(t *testing.T) {
 	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
-	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	// Create a package first
 	pkg := &model.OTAPackage{PackageName: "fw-batches", Version: "1.0", OrganizationID: 1}
@@ -1236,7 +1236,7 @@ func TestIntegrationOTAService_Deployments(t *testing.T) {
 	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
 	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
 	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
-	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	// Create a package first
 	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", OrganizationID: 1}
@@ -1280,5 +1280,5 @@ func TestIntegrationOTAService_BatchUpgrade(t *testing.T) {
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, deployments, 1)
 	assert.Equal(t, "D001", deployments[0].DeviceKey)
-	assert.Equal(t, "pending", deployments[0].Status)
+	assert.Equal(t, "sent", deployments[0].Status)
 }

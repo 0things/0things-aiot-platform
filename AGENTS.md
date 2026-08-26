@@ -40,6 +40,8 @@ cd frontend && pnpm dev
 
 沿用既有格式：TypeScript 使用 2 空格缩进、单引号、不加分号；Go 使用 `gofmt`。React 组件使用 `PascalCase`，Hook 文件沿用现有 `use-*.ts` 命名，特性目录使用 kebab-case，Go 文件使用小写下划线。UI 文案需要同时维护中英文资源，跨 namespace 使用 `namespace:key`（例如 `common:createdAt`），不要硬编码特定语言。优先复用现有 shadcn 组件和 Lucide 图标，再考虑新增依赖。
 
+涉及业务逻辑、状态流转、外部依赖、异常处理或非直观行为的修改，必须补充必要的中文注释；简单自解释代码不添加冗余注释。注释应说明业务意图或关键约束，不要逐行翻译代码。
+
 ## 测试指南
 
 提交前先运行最小范围的检查，再跑整个包的构建。Go 测试以 `*_test.go` 文件名放在被测包旁边；服务级测试沿用 `test/server` 的现有约定。前端目前没有专用测试脚本，已有集成测试文件仍需按项目配置执行，并在本地浏览器验证可见流程。前端至少执行受影响文件的 Prettier 检查，条件允许时执行 `pnpm build`、`pnpm lint` 和 `pnpm format:check`；后端条件允许时执行 `make test` 和 `make build`。
@@ -48,8 +50,6 @@ cd frontend && pnpm dev
 
 提交说明使用简洁的 Conventional Commit 主题，例如 `fix: preserve OTA batch history` 或 `chore: update project configuration`。每次提交只关注一个主题；用户明确要求“全部提交”时才合并无关改动。PR 应说明受影响的服务或路由、描述行为变更、关联相关 Issue，并附带改动前后的截图（针对可见的前端变更）。切勿提交凭据、`config/local.yml`、`.env.local`、本地工具目录、覆盖率/构建产物或生成文件，除非本次提交的目的就是重新生成这些文件。推送后需核对远程分支和提交哈希。
 
-
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
 Tradeoff: These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 

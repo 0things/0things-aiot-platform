@@ -4321,9 +4321,6 @@ const docTemplate = `{
                 "product_key": {
                     "type": "string"
                 },
-                "releaseNotes": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -4362,7 +4359,13 @@ const docTemplate = `{
                 "productKey": {
                     "type": "string"
                 },
+                "progress": {
+                    "type": "integer"
+                },
                 "status": {
+                    "type": "string"
+                },
+                "targetVersion": {
                     "type": "string"
                 },
                 "upgradeBatchId": {
@@ -4465,9 +4468,6 @@ const docTemplate = `{
                 "productName": {
                     "type": "string"
                 },
-                "releaseNotes": {
-                    "type": "string"
-                },
                 "releasedAt": {
                     "type": "string"
                 },
@@ -4515,9 +4515,6 @@ const docTemplate = `{
                 "productId": {
                     "type": "integer"
                 },
-                "releaseNotes": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -4536,10 +4533,19 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "batchId": {
+                    "type": "string"
+                },
                 "deviceKey": {
                     "type": "string"
                 },
+                "progress": {
+                    "type": "integer"
+                },
                 "status": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }

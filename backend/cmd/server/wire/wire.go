@@ -51,6 +51,8 @@ var serviceSet = wire.NewSet(
 	service.NewProductTSLService,
 	service.NewProductMessageParserService,
 	service.NewDeviceService,
+	service.NewKafkaService,
+	service.NewMQTTService,
 	service.NewSceneLinkageService,
 	service.NewSceneLinkageDetailService,
 	service.NewOTAService,
@@ -60,6 +62,8 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)),
 	wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)),
 	wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)),
+	wire.Bind(new(service.KafkaServiceInterface), new(*service.KafkaService)),
+	wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)),
 	wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)),
 	wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)),
 	wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)),
@@ -85,6 +89,7 @@ var jobSet = wire.NewSet(
 	job.NewJob,
 	job.NewUserJob,
 	job.NewDeviceEventConsumer,
+	job.NewOTACommandConsumer,
 )
 var serverSet = wire.NewSet(
 	server.NewHTTPServer,

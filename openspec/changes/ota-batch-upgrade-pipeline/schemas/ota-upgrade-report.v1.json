@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ota.upgrade.report.v1",
+  "type": "object",
+  "required": ["batch_id", "device_key", "status"],
+  "properties": {
+    "batch_id": {"type": "string", "minLength": 1},
+    "device_key": {"type": "string", "minLength": 1},
+    "status": {"enum": ["in_progress", "success", "failed", "timeout"]},
+    "version": {"type": "string"},
+    "progress": {"type": "integer", "minimum": 0, "maximum": 100},
+    "desc": {"type": "string"}
+  },
+  "additionalProperties": false
+}

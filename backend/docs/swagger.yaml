@@ -1011,8 +1011,6 @@ definitions:
         type: string
       product_key:
         type: string
-      releaseNotes:
-        type: string
       status:
         type: string
       uploadType:
@@ -1041,7 +1039,11 @@ definitions:
         type: integer
       productKey:
         type: string
+      progress:
+        type: integer
       status:
+        type: string
+      targetVersion:
         type: string
       upgradeBatchId:
         type: string
@@ -1108,8 +1110,6 @@ definitions:
         type: string
       productName:
         type: string
-      releaseNotes:
-        type: string
       releasedAt:
         type: string
       status:
@@ -1139,8 +1139,6 @@ definitions:
         type: string
       productId:
         type: integer
-      releaseNotes:
-        type: string
       status:
         type: string
       uploadType:
@@ -1152,9 +1150,15 @@ definitions:
     type: object
   OtaReportOTAStatusRequest:
     properties:
+      batchId:
+        type: string
       deviceKey:
         type: string
+      progress:
+        type: integer
       status:
+        type: string
+      version:
         type: string
     required:
     - deviceKey
