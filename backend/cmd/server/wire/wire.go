@@ -15,6 +15,7 @@ import (
 	"aiot-backend/pkg/log"
 	"aiot-backend/pkg/server/http"
 	"aiot-backend/pkg/sid"
+
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )

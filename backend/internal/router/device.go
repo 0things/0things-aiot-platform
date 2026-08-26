@@ -31,5 +31,4 @@ func InitDeviceRouter(deps RouterDeps, r *gin.RouterGroup) {
 	r.DELETE("/devices/:id/push-records", device.ClearPushRecords)
 	r.POST("/devices/batch/upload", device.BatchUpload)
 	r.GET("/devices/batch/template", device.BatchTemplate)
-	r.POST("/devices/mock-kafka", device.MockKafka)
 }

@@ -46,7 +46,7 @@ func seedOTAProductAndDevices(t *testing.T, db *gorm.DB) (int64, []string) {
 	return product.ID, []string{"D1", "D2"}
 }
 
-func TestOTAService_DeployAndDispatch(t *testing.T) {
+func TestOTAService_BatchUpgradeAndReportStatus(t *testing.T) {
 	ctx := context.Background()
 	svc, db := newOTAServiceForTest(t)
 	_, keys := seedOTAProductAndDevices(t, db)
@@ -54,10 +54,10 @@ func TestOTAService_DeployAndDispatch(t *testing.T) {
 	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0.0", ProductID: 1, Status: "draft"}
 	require.NoError(t, svc.Create(ctx, pkg, "P001"))
 
-	// Deploy creates pending records and marks package deploying.
-	count, err := svc.Deploy(ctx, pkg.UUID, keys)
+	// BatchUpgrade creates batch and records, and marks package deploying.
+	batch, err := svc.BatchUpgrade(ctx, pkg.UUID, keys)
 	require.NoError(t, err)
-	require.Equal(t, 2, count)
+	require.EqualValues(t, 2, batch.TargetDeviceCount)
 	got, _ := svc.Get(ctx, pkg.UUID)
 	require.Equal(t, "deploying", got.Status)
 
@@ -65,16 +65,6 @@ func TestOTAService_DeployAndDispatch(t *testing.T) {
 	pending, err := svc.repo.PendingPackageIDs(ctx)
 	require.NoError(t, err)
 	require.Contains(t, pending, pkg.ID)
-
-	// Dispatch moves pending -> in_progress.
-	affected, err := svc.Dispatch(ctx, pkg.UUID)
-	require.NoError(t, err)
-	require.EqualValues(t, 2, affected)
-
-	stats, err := svc.repo.Statistics(ctx, pkg.ID)
-	require.NoError(t, err)
-	require.EqualValues(t, 0, stats.Pending)
-	require.EqualValues(t, 2, stats.InProgress)
 }
 
 func TestOTAService_ReportStatusAggregation(t *testing.T) {
@@ -84,12 +74,10 @@ func TestOTAService_ReportStatusAggregation(t *testing.T) {
 
 	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0.0", ProductID: 1, Status: "draft"}
 	require.NoError(t, svc.Create(ctx, pkg, "P001"))
-	_, err := svc.Deploy(ctx, pkg.UUID, keys)
-	require.NoError(t, err)
-	_, err = svc.Dispatch(ctx, pkg.UUID)
+	_, err := svc.BatchUpgrade(ctx, pkg.UUID, keys)
 	require.NoError(t, err)
 
-	// One success, one still in progress -> package stays deploying.
+	// One success, one still pending -> package stays deploying.
 	require.NoError(t, svc.ReportStatus(ctx, pkg.UUID, "D1", "success"))
 	got, _ := svc.Get(ctx, pkg.UUID)
 	require.Equal(t, "deploying", got.Status)
@@ -107,39 +95,11 @@ func TestOTAService_ReportStatusPartial(t *testing.T) {
 
 	pkg := &model.OTAPackage{PackageName: "fw-3", Version: "1.0.0", ProductID: 1, Status: "draft"}
 	require.NoError(t, svc.Create(ctx, pkg, "P001"))
-	_, err := svc.Deploy(ctx, pkg.UUID, keys)
-	require.NoError(t, err)
-	_, err = svc.Dispatch(ctx, pkg.UUID)
+	_, err := svc.BatchUpgrade(ctx, pkg.UUID, keys)
 	require.NoError(t, err)
 
 	require.NoError(t, svc.ReportStatus(ctx, pkg.UUID, "D1", "success"))
 	require.NoError(t, svc.ReportStatus(ctx, pkg.UUID, "D2", "failed"))
 	got, _ := svc.Get(ctx, pkg.UUID)
 	require.Equal(t, "partial", got.Status)
-}
-
-func TestOTAService_DispatchAll(t *testing.T) {
-	ctx := context.Background()
-	svc, db := newOTAServiceForTest(t)
-	_, keys := seedOTAProductAndDevices(t, db)
-
-	pkg1 := &model.OTAPackage{PackageName: "fw-a", Version: "1.0.0", ProductID: 1, Status: "draft"}
-	pkg2 := &model.OTAPackage{PackageName: "fw-b", Version: "1.0.0", ProductID: 1, Status: "draft"}
-	require.NoError(t, svc.Create(ctx, pkg1, "P001"))
-	require.NoError(t, svc.Create(ctx, pkg2, "P001"))
-	_, err := svc.Deploy(ctx, pkg1.UUID, keys)
-	require.NoError(t, err)
-	_, err = svc.Deploy(ctx, pkg2.UUID, keys)
-	require.NoError(t, err)
-
-	total, err := svc.DispatchAll(ctx)
-	require.NoError(t, err)
-	require.EqualValues(t, 4, total)
-
-	stats1, err := svc.repo.Statistics(ctx, pkg1.ID)
-	require.NoError(t, err)
-	require.EqualValues(t, 2, stats1.InProgress)
-	stats2, err := svc.repo.Statistics(ctx, pkg2.ID)
-	require.NoError(t, err)
-	require.EqualValues(t, 2, stats2.InProgress)
 }

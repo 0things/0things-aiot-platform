@@ -51,7 +51,6 @@ func setupDeviceRouterFull(mockService *mock_service.MockDeviceServiceInterface)
 	router.DELETE("/devices/:id/push-records", deviceHandler.ClearPushRecords)
 	router.GET("/devices/batch-template", deviceHandler.BatchTemplate)
 	router.POST("/devices/batch-upload", deviceHandler.BatchUpload)
-	router.POST("/devices/mock-kafka", deviceHandler.MockKafka)
 
 	return router
 }

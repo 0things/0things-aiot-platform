@@ -201,15 +201,6 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-DeviceMockKafkaResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/DeviceMockKafkaResponse'
-      message:
-        type: string
-    type: object
   ApiResponse-DeviceRestoreDeviceResponse:
     properties:
       code:
@@ -767,22 +758,6 @@ definitions:
       username:
         type: string
     type: object
-  DeviceMockKafkaRequest:
-    properties:
-      data:
-        type: string
-      topic:
-        type: string
-    required:
-    - topic
-    type: object
-  DeviceMockKafkaResponse:
-    properties:
-      message:
-        type: string
-      success:
-        type: boolean
-    type: object
   DevicePushRecord:
     properties:
       createdAt:
@@ -1070,15 +1045,6 @@ definitions:
     properties:
       otaPackage:
         $ref: '#/definitions/OtaOTAPackage'
-    type: object
-  OtaDeployOTAPackageRequest:
-    properties:
-      deviceKeys:
-        items:
-          type: string
-        type: array
-    required:
-    - deviceKeys
     type: object
   OtaDeviceDeployment:
     properties:
@@ -2231,30 +2197,6 @@ paths:
       summary: 通过 deviceKey 获取设备
       tags:
       - 设备模块
-  /devices/mock-kafka:
-    post:
-      consumes:
-      - application/json
-      description: 向指定 Kafka topic 发送一条测试消息
-      parameters:
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/DeviceMockKafkaRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-DeviceMockKafkaResponse'
-      security:
-      - Bearer: []
-      summary: 模拟向 Kafka 发送消息
-      tags:
-      - 设备模块
   /devices/push-records/{pushRecordId}:
     get:
       consumes:
@@ -2513,35 +2455,6 @@ paths:
       summary: 获取 OTA 升级批次列表
       tags:
       - OTA 模块
-  /ota-packages/{uuid}/deploy:
-    post:
-      consumes:
-      - application/json
-      description: 将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying
-      parameters:
-      - description: 升级包 UUID
-        in: path
-        name: uuid
-        required: true
-        type: string
-      - description: 目标设备 deviceKey 列表
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/OtaDeployOTAPackageRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-OtaSuccessResponse'
-      security:
-      - Bearer: []
-      summary: 部署 OTA 升级包
-      tags:
-      - OTA 模块
   /ota-packages/{uuid}/device-deployments:
     get:
       consumes:
@@ -2575,29 +2488,6 @@ paths:
       security:
       - Bearer: []
       summary: 获取 OTA 设备部署列表
-      tags:
-      - OTA 模块
-  /ota-packages/{uuid}/dispatch:
-    post:
-      consumes:
-      - application/json
-      description: 将升级包下所有 pending 的设备升级记录推进为 in_progress；周期性下发任务会自动执行，此接口用于手动触发
-      parameters:
-      - description: 升级包 UUID
-        in: path
-        name: uuid
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-OtaSuccessResponse'
-      security:
-      - Bearer: []
-      summary: 触发 OTA 升级包下发
       tags:
       - OTA 模块
   /ota-packages/{uuid}/report:

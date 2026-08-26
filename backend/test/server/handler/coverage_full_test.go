@@ -91,7 +91,6 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 	r.GET("/devices/:id/push-records/:pushRecordId", dh.PushRecord)
 	r.DELETE("/devices/:id/push-records", dh.ClearPushRecords)
 	r.GET("/devices/batch-template", dh.BatchTemplate)
-	r.POST("/devices/mock-kafka", dh.MockKafka)
 
 	r.POST("/products", ph.Create)
 	r.GET("/products/:id", ph.Get)
@@ -290,26 +289,6 @@ func TestCoverage_Device_BatchTemplate_Error(t *testing.T) {
 	cr.device.EXPECT().BatchTemplate().Return(nil, errors.New("gen error"))
 	w := cr.do("GET", "/devices/batch-template", nil)
 	assert.True(t, w.Code >= 400, "expected error status code")
-}
-
-func TestCoverage_Device_MockKafka_InvalidJSON(t *testing.T) {
-	cr := newCoverageRouters(t)
-	w := cr.doRaw("POST", "/devices/mock-kafka", []byte("bad"))
-	assert.True(t, w.Code >= 400, "expected error status code")
-}
-
-func TestCoverage_Device_MockKafka_Error(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.device.EXPECT().MockKafka(gomock.Any(), gomock.Any(), "topic", "data").Return(errors.New("kafka not initialized"))
-	w := cr.do("POST", "/devices/mock-kafka", map[string]any{"topic": "topic", "data": "data"})
-	assert.True(t, w.Code >= 400, "expected error status code")
-}
-
-func TestCoverage_Device_MockKafka_Success(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.device.EXPECT().MockKafka(gomock.Any(), gomock.Any(), "topic", "data").Return(nil)
-	w := cr.do("POST", "/devices/mock-kafka", map[string]any{"topic": "topic", "data": "data"})
-	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 // --- Product Handler Tests ---

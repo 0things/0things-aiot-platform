@@ -31,7 +31,6 @@ func setupDeviceRouterRemaining(mockService *mock_service.MockDeviceServiceInter
 	router.DELETE("/devices/:id/shadow/desired", deviceHandler.ClearDesired)
 	router.GET("/devices/:id/shadow/history", deviceHandler.History)
 	router.POST("/devices/batch-upload", deviceHandler.BatchUpload)
-	router.POST("/devices/mock-kafka", deviceHandler.MockKafka)
 	router.GET("/devices/:id/push-records", deviceHandler.PushRecords)
 	router.GET("/devices/:id/push-records/:pushRecordId", deviceHandler.PushRecord)
 
@@ -175,28 +174,6 @@ func TestDeviceHandler_BatchUploadWithErrors(t *testing.T) {
 
 	req, _ := http.NewRequest("POST", "/devices/batch-upload", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestDeviceHandler_MockKafka(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	router := setupDeviceRouterRemaining(mockService)
-
-	mockService.EXPECT().MockKafka(gomock.Any(), gomock.Any(), "test-topic", `{"key":"value"}`).Return(nil)
-
-	body, _ := json.Marshal(map[string]interface{}{
-		"topic": "test-topic",
-		"data":  `{"key":"value"}`,
-	})
-	req, _ := http.NewRequest("POST", "/devices/mock-kafka", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

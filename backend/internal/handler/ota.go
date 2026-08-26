@@ -9,6 +9,7 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
+
 	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
 )
@@ -236,57 +237,6 @@ func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 		return
 	}
 	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
-}
-
-// DeployOTA godoc
-// @Summary 部署 OTA 升级包
-// @Schemes
-// @Description 将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying
-// @Tags OTA 模块
-// @Accept json
-// @Produce json
-// @Security Bearer
-// @Param uuid path string true "升级包 UUID"
-// @Param request body otaV1.DeployOTAPackageRequest true "目标设备 deviceKey 列表"
-// @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
-// @Router /ota-packages/{uuid}/deploy [post]
-func (h *OTAHandler) DeployOTA(c *gin.Context) {
-	uuid := c.Param("uuid")
-	var req otaV1.DeployOTAPackageRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
-	if len(req.DeviceKeys) == 0 {
-		v1.HandleError(c, http.StatusBadRequest, v1.ErrBadRequest, nil)
-		return
-	}
-	if _, err := h.svc.Deploy(c, uuid, req.DeviceKeys); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
-	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
-}
-
-// DispatchOTA godoc
-// @Summary 触发 OTA 升级包下发
-// @Schemes
-// @Description 将升级包下所有 pending 的设备升级记录推进为 in_progress；周期性下发任务会自动执行，此接口用于手动触发
-// @Tags OTA 模块
-// @Accept json
-// @Produce json
-// @Security Bearer
-// @Param uuid path string true "升级包 UUID"
-// @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
-// @Router /ota-packages/{uuid}/dispatch [post]
-func (h *OTAHandler) DispatchOTA(c *gin.Context) {
-	uuid := c.Param("uuid")
-	affected, err := h.svc.Dispatch(c, uuid)
-	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
-	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: affected > 0})
 }
 
 // BatchUpgradeOTA godoc

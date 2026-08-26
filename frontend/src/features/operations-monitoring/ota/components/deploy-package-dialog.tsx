@@ -16,13 +16,13 @@ import {
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useDeployOTAPackage } from '../api/queries'
+import { useBatchUpgrade } from '../api/detail-queries'
 import { useOTAPackagesContext } from '../hooks/use-ota-packages-context'
 
 export function DeployPackageDialog() {
   const { t } = useTranslation('ota')
   const { openDialog, setOpenDialog, selectedPackage } = useOTAPackagesContext()
-  const deployPackage = useDeployOTAPackage()
+  const batchUpgrade = useBatchUpgrade(selectedPackage?.uuid || '')
   const [targetDevices, setTargetDevices] = useState<'all' | 'specific'>('all')
   const [selectedDeviceKeys, setSelectedDeviceKeys] = useState<string[]>([])
   const [isDeploying, setIsDeploying] = useState(false)
@@ -31,36 +31,25 @@ export function DeployPackageDialog() {
     ? String(selectedPackage.productId)
     : undefined
 
-  const allDevicesQuery = useQuery({
-    queryKey: ['ota-deploy-all-devices', productId],
+  const devicesQuery = useQuery({
+    queryKey: ['ota-deploy-devices', productId],
     queryFn: async () => {
       const response = await getDevices({
         productId: Number(productId),
         page: 1,
-        pageSize: 200,
-        enabled: true,
-      })
-      return (response.data?.devices ?? [])
-        .map((d) => d.deviceKey)
-        .filter((k): k is string => !!k)
-    },
-    enabled: !!productId && openDialog === 'deploy',
-  })
-
-  const specificDevicesQuery = useQuery({
-    queryKey: ['ota-deploy-specific-devices', productId],
-    queryFn: async () => {
-      const response = await getDevices({
-        productId: Number(productId),
-        page: 1,
-        pageSize: 200,
+        pageSize: 1000,
         enabled: true,
       })
       return response.data?.devices || []
     },
-    enabled:
-      !!productId && openDialog === 'deploy' && targetDevices === 'specific',
+    enabled: !!productId && openDialog === 'deploy',
   })
+
+  const allDeviceKeys = useMemo(() => {
+    return (devicesQuery.data ?? [])
+      .map((d) => d.deviceKey)
+      .filter((k): k is string => !!k)
+  }, [devicesQuery.data])
 
   const handleClose = () => {
     setTargetDevices('all')
@@ -70,10 +59,10 @@ export function DeployPackageDialog() {
 
   const estimatedDeviceCount = useMemo(() => {
     if (targetDevices === 'all') {
-      return allDevicesQuery.data?.length ?? 0
+      return allDeviceKeys.length
     }
     return selectedDeviceKeys.length
-  }, [allDevicesQuery.data, selectedDeviceKeys.length, targetDevices])
+  }, [allDeviceKeys.length, selectedDeviceKeys.length, targetDevices])
 
   const toggleDeviceSelection = (deviceKey: string, checked: boolean) => {
     setSelectedDeviceKeys((current) => {
@@ -87,21 +76,20 @@ export function DeployPackageDialog() {
   const handleDeploy = async () => {
     if (!selectedPackage?.uuid) return
     const deviceKeys =
-      targetDevices === 'all'
-        ? (allDevicesQuery.data ?? [])
-        : selectedDeviceKeys
+      targetDevices === 'all' ? allDeviceKeys : selectedDeviceKeys
     if (deviceKeys.length === 0) {
-      toast.error('Select at least one device')
+      toast.error(
+        t('deviceManagement:selectDevice', {
+          defaultValue: 'Select at least one device',
+        })
+      )
       return
     }
 
     setIsDeploying(true)
 
     try {
-      await deployPackage.mutateAsync({
-        id: selectedPackage.uuid,
-        deviceKeys,
-      })
+      await batchUpgrade.mutateAsync(deviceKeys)
 
       toast.success(t('notifications.deploymentStarted'))
       setOpenDialog(null)
@@ -161,18 +149,18 @@ export function DeployPackageDialog() {
               <div className='rounded-lg border'>
                 <ScrollArea className='h-56'>
                   <div className='space-y-2 p-3'>
-                    {specificDevicesQuery.isLoading && (
+                    {devicesQuery.isLoading && (
                       <div className='text-sm text-muted-foreground'>
                         Loading devices...
                       </div>
                     )}
-                    {!specificDevicesQuery.isLoading &&
-                      specificDevicesQuery.data?.length === 0 && (
+                    {!devicesQuery.isLoading &&
+                      devicesQuery.data?.length === 0 && (
                         <div className='text-sm text-muted-foreground'>
                           No enabled devices available for this product.
                         </div>
                       )}
-                    {specificDevicesQuery.data?.map((device) => {
+                    {devicesQuery.data?.map((device) => {
                       const deviceKey = device.deviceKey ?? ''
                       const checked = selectedDeviceKeys.includes(deviceKey)
                       return (

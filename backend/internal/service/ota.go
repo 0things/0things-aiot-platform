@@ -16,10 +16,7 @@ type OTAServiceInterface interface {
 	Create(ctx context.Context, pkg *model.OTAPackage, productKey string) error
 	Update(ctx context.Context, pkg *model.OTAPackage) error
 	Delete(ctx context.Context, uuid string) error
-	Deploy(ctx context.Context, uuid string, deviceKeys []string) (int, error)
 	BatchUpgrade(ctx context.Context, uuid string, deviceKeys []string) (*model.UpgradeBatch, error)
-	Dispatch(ctx context.Context, uuid string) (int64, error)
-	DispatchAll(ctx context.Context) (int64, error)
 	ReportStatus(ctx context.Context, uuid string, deviceKey string, status string) error
 	Statistics(ctx context.Context, uuid string) (UpgradeStatistics, error)
 	Batches(ctx context.Context, uuid string) ([]model.UpgradeBatch, error)
@@ -83,34 +80,6 @@ func (s *OTAService) Delete(ctx context.Context, uuid string) error {
 	return s.repo.Delete(ctx, pkg.ID)
 }
 
-func (s *OTAService) Deploy(ctx context.Context, uuid string, deviceKeys []string) (int, error) {
-	pkg, err := s.repo.FindByUUID(ctx, uuid)
-	if err != nil {
-		return 0, err
-	}
-	devices, err := s.deviceRepo.FindByKeys(ctx, deviceKeys)
-	if err != nil {
-		return 0, err
-	}
-	deviceIDs := make([]int64, 0, len(devices))
-	for _, d := range devices {
-		deviceIDs = append(deviceIDs, d.ID)
-	}
-	count, err := s.repo.CreateDeployments(ctx, pkg.ID, deviceIDs)
-	if err != nil {
-		return 0, err
-	}
-	pkg, err = s.repo.Find(ctx, pkg.ID)
-	if err != nil {
-		return count, err
-	}
-	pkg.Status = "deploying"
-	if err := s.repo.Save(ctx, pkg); err != nil {
-		return count, err
-	}
-	return count, nil
-}
-
 // BatchUpgrade 为指定升级包创建静态升级批次，并将所选设备加入该批次的升级
 // （每条设备记录状态为 pending，并关联 upgrade_batch_id）。升级包状态置为
 // deploying。返回创建好的批次。
@@ -154,47 +123,6 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 		return batch, err
 	}
 	return batch, nil
-}
-
-// Dispatch 将指定升级包下所有 pending 的设备升级记录推进为 in_progress（下发命令），
-// 并确保升级包处于 deploying 状态。返回受影响的设备数量。
-func (s *OTAService) Dispatch(ctx context.Context, uuid string) (int64, error) {
-	pkg, err := s.repo.FindByUUID(ctx, uuid)
-	if err != nil {
-		return 0, err
-	}
-	affected, err := s.repo.DispatchPending(ctx, pkg.ID)
-	if err != nil {
-		return 0, err
-	}
-	pkg, err = s.repo.Find(ctx, pkg.ID)
-	if err != nil {
-		return affected, err
-	}
-	if pkg.Status != "deploying" {
-		pkg.Status = "deploying"
-		if err := s.repo.Save(ctx, pkg); err != nil {
-			return affected, err
-		}
-	}
-	return affected, nil
-}
-
-// DispatchAll 扫描所有仍有 pending 记录的升级包并批量下发。返回受影响设备总数。
-func (s *OTAService) DispatchAll(ctx context.Context) (int64, error) {
-	uuids, err := s.repo.PendingPackageUUIDs(ctx)
-	if err != nil {
-		return 0, err
-	}
-	var total int64
-	for _, uuid := range uuids {
-		n, err := s.Dispatch(ctx, uuid)
-		if err != nil {
-			return total, err
-		}
-		total += n
-	}
-	return total, nil
 }
 
 // ReportStatus 上报某台设备对指定升级包的升级结果（in_progress/success/failed），

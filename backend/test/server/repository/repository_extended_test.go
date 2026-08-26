@@ -10,6 +10,7 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/assert"
@@ -792,10 +793,10 @@ func TestOTARepository_FindByName_NotFound_SQLite(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestOTARepository_CreateDeployments(t *testing.T) {
+func TestOTARepository_CreateBatchDeployments(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.OTAPackage{}, &model.DeviceUpgradeStatus{}))
+	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.OTAPackage{}, &model.DeviceUpgradeStatus{}, &model.UpgradeBatch{}))
 
 	iotDB := &repository.IoTDB{DB: db}
 	otaRepo := repository.NewOTARepository(iotDB)
@@ -815,46 +816,24 @@ func TestOTARepository_CreateDeployments(t *testing.T) {
 	}
 
 	// 空输入
-	n, err := otaRepo.CreateDeployments(ctx, pkg.ID, nil)
+	n, err := otaRepo.CreateBatchDeployments(ctx, pkg.ID, "batch-1", nil)
 	require.NoError(t, err)
 	assert.Equal(t, 0, n)
 
 	// 批量插入 3 台设备
 	deviceIDs := []int64{1, 2, 3}
-	n, err = otaRepo.CreateDeployments(ctx, pkg.ID, deviceIDs)
+	n, err = otaRepo.CreateBatchDeployments(ctx, pkg.ID, "batch-1", deviceIDs)
 	require.NoError(t, err)
 	assert.Equal(t, 3, n)
 	rows := readRows()
 	assert.Len(t, rows, 3)
 	for _, r := range rows {
 		assert.Equal(t, "pending", r.Status)
-	}
-
-	// 幂等：再次部署同批设备不重复插入
-	n, err = otaRepo.CreateDeployments(ctx, pkg.ID, deviceIDs)
-	require.NoError(t, err)
-	assert.Equal(t, 3, n)
-	assert.Len(t, readRows(), 3)
-
-	// 已存在且非 pending 的记录应被更新为 pending，而非新增
-	require.NoError(t, db.Create(&model.DeviceUpgradeStatus{
-		DeviceID:     4,
-		OTAPackageID: pkgID,
-		Status:       "success",
-	}).Error)
-	n, err = otaRepo.CreateDeployments(ctx, pkg.ID, []int64{4})
-	require.NoError(t, err)
-	assert.Equal(t, 1, n)
-	updated := readRows()
-	require.Len(t, updated, 4)
-	for _, r := range updated {
-		if r.DeviceID == 4 {
-			assert.Equal(t, "pending", r.Status)
-		}
+		assert.Equal(t, "batch-1", r.UpgradeBatchID)
 	}
 
 	// 入参重复设备 ID 只处理一次
-	n, err = otaRepo.CreateDeployments(ctx, pkg.ID, []int64{5, 5, 5})
+	n, err = otaRepo.CreateBatchDeployments(ctx, pkg.ID, "batch-2", []int64{5, 5, 5})
 	require.NoError(t, err)
 	assert.Equal(t, 1, n)
 }

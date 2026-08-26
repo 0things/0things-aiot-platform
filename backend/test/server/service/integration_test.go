@@ -8,6 +8,7 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 	"aiot-backend/test/server/testutil"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -331,15 +332,6 @@ func TestIntegrationDeviceService_Telemetry_NoRedis(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	_, err := svc.Telemetry(ctx(), "D001")
-	assert.Error(t, err)
-}
-
-func TestIntegrationDeviceService_MockKafka_NoBrokers(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	err := svc.MockKafka(ctx(), []string{}, "test-topic", `{"key":"value"}`)
 	assert.Error(t, err)
 }
 

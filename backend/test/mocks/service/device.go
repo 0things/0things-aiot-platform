@@ -204,20 +204,6 @@ func (mr *MockDeviceServiceInterfaceMockRecorder) MQTT(ctx, key interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MQTT", reflect.TypeOf((*MockDeviceServiceInterface)(nil).MQTT), ctx, key)
 }
 
-// MockKafka mocks base method.
-func (m *MockDeviceServiceInterface) MockKafka(ctx context.Context, brokers []string, topic, data string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MockKafka", ctx, brokers, topic, data)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// MockKafka indicates an expected call of MockKafka.
-func (mr *MockDeviceServiceInterfaceMockRecorder) MockKafka(ctx, brokers, topic, data interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MockKafka", reflect.TypeOf((*MockDeviceServiceInterface)(nil).MockKafka), ctx, brokers, topic, data)
-}
-
 // MutateShadow mocks base method.
 func (m *MockDeviceServiceInterface) MutateShadow(ctx context.Context, key string, version int64, source string, desired, reported *map[string]any, clear bool) (*model.DeviceShadow, error) {
 	m.ctrl.T.Helper()

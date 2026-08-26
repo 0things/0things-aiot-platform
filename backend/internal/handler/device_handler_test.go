@@ -34,7 +34,6 @@ func mountDevice(r *gin.Engine, h *DeviceHandler) {
 	g.GET("/key/:deviceKey", h.GetDeviceByKey)
 	g.GET("/batch/template", h.BatchTemplate)
 	g.POST("/batch/upload", h.BatchUpload)
-	g.POST("/mock-kafka", h.MockKafka)
 	g.GET("/statistics", h.Stats)
 	g.GET("/:id", h.GetDevice)
 	g.PUT("/:id", h.UpdateDevice)
@@ -402,18 +401,6 @@ func TestDeviceHandler_BatchUpload_NoFile(t *testing.T) {
 	w := doDeviceReq(h, http.MethodPost, "/devices/batch/upload", []byte(``), nil)
 	if w.Code == http.StatusOK {
 		t.Fatalf("expected error")
-	}
-}
-
-func TestDeviceHandler_MockKafka(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	cfg := viper.New()
-	cfg.Set("data.kafka.device.brokers", []string{"localhost:9092"})
-	h, m := newTestDeviceHandler(t, ctrl, cfg)
-	m.EXPECT().MockKafka(gomock.Any(), []string{"localhost:9092"}, "t", "d").Return(nil)
-	w := doDeviceReq(h, http.MethodPost, "/devices/mock-kafka", []byte(`{"topic":"t","data":"d"}`), nil)
-	if w.Code != http.StatusOK {
-		t.Fatalf("got %d", w.Code)
 	}
 }
 

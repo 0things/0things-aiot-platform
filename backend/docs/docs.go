@@ -365,45 +365,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/mock-kafka": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "向指定 Kafka topic 发送一条测试消息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备模块"
-                ],
-                "summary": "模拟向 Kafka 发送消息",
-                "parameters": [
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/DeviceMockKafkaRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-DeviceMockKafkaResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/devices/push-records/{pushRecordId}": {
             "get": {
                 "security": [
@@ -1653,52 +1614,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/ota-packages/{uuid}/deploy": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OTA 模块"
-                ],
-                "summary": "部署 OTA 升级包",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "升级包 UUID",
-                        "name": "uuid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "目标设备 deviceKey 列表",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/OtaDeployOTAPackageRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/ota-packages/{uuid}/device-deployments": {
             "get": {
                 "security": [
@@ -1749,43 +1664,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/ota-packages/{uuid}/dispatch": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "将升级包下所有 pending 的设备升级记录推进为 in_progress；周期性下发任务会自动执行，此接口用于手动触发",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OTA 模块"
-                ],
-                "summary": "触发 OTA 升级包下发",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "升级包 UUID",
-                        "name": "uuid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
                         }
                     }
                 }
@@ -3189,20 +3067,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-DeviceMockKafkaResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/DeviceMockKafkaResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "ApiResponse-DeviceRestoreDeviceResponse": {
             "type": "object",
             "properties": {
@@ -4067,31 +3931,6 @@ const docTemplate = `{
                 }
             }
         },
-        "DeviceMockKafkaRequest": {
-            "type": "object",
-            "required": [
-                "topic"
-            ],
-            "properties": {
-                "data": {
-                    "type": "string"
-                },
-                "topic": {
-                    "type": "string"
-                }
-            }
-        },
-        "DeviceMockKafkaResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
         "DevicePushRecord": {
             "type": "object",
             "properties": {
@@ -4529,20 +4368,6 @@ const docTemplate = `{
             "properties": {
                 "otaPackage": {
                     "$ref": "#/definitions/OtaOTAPackage"
-                }
-            }
-        },
-        "OtaDeployOTAPackageRequest": {
-            "type": "object",
-            "required": [
-                "deviceKeys"
-            ],
-            "properties": {
-                "deviceKeys": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },

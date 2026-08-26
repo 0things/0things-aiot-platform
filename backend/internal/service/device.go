@@ -15,7 +15,6 @@ import (
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
 
-	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -44,7 +43,6 @@ type DeviceServiceInterface interface {
 	ClearPushRecords(ctx context.Context, deviceKey string, before *time.Time) (int64, error)
 	BatchTemplate() ([]byte, error)
 	BatchCreate(ctx context.Context, content []byte) (int, []BatchUploadError, error)
-	MockKafka(ctx context.Context, brokers []string, topic, data string) error
 }
 
 type DeviceService struct {
@@ -53,6 +51,7 @@ type DeviceService struct {
 	tags        *repository.DeviceTagRepository
 	shadows     *repository.DeviceShadowRepository
 	pushRecords *repository.PushRecordRepository
+	kafka       KafkaServiceInterface
 }
 
 type BatchUploadError struct {
@@ -84,8 +83,16 @@ func NewDeviceService(
 	tags *repository.DeviceTagRepository,
 	shadows *repository.DeviceShadowRepository,
 	pushRecords *repository.PushRecordRepository,
+	kafka KafkaServiceInterface,
 ) *DeviceService {
-	return &DeviceService{repo: repo, products: products, tags: tags, shadows: shadows, pushRecords: pushRecords}
+	return &DeviceService{
+		repo:        repo,
+		products:    products,
+		tags:        tags,
+		shadows:     shadows,
+		pushRecords: pushRecords,
+		kafka:       kafka,
+	}
 }
 
 func normalizeDeviceMetadata(value string) (string, error) {
@@ -394,17 +401,6 @@ func (s *DeviceService) BatchCreate(ctx context.Context, content []byte) (int, [
 		}
 	}
 	return success, errs, nil
-}
-func (s *DeviceService) MockKafka(ctx context.Context, brokers []string, topic, data string) error {
-	if len(brokers) == 0 {
-		return errors.New("kafka producer not initialized")
-	}
-	c, err := kgo.NewClient(kgo.SeedBrokers(brokers...))
-	if err != nil {
-		return err
-	}
-	defer c.Close()
-	return c.ProduceSync(ctx, &kgo.Record{Topic: topic, Value: []byte(data)}).FirstErr()
 }
 func (s *DeviceService) RestoreDevice(ctx context.Context, id int64) (*model.Device, error) {
 	if err := s.repo.Restore(ctx, id); err != nil {

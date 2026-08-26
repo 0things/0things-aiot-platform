@@ -65,7 +65,7 @@ func NewTestRepositories(db *gorm.DB) (*repository.DeviceRepository, *repository
 
 func NewTestDeviceService(db *gorm.DB) *service.DeviceService {
 	deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo := NewTestRepositories(db)
-	return service.NewDeviceService(deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo)
+	return service.NewDeviceService(deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo, nil)
 }
 
 func NewTestProductService(db *gorm.DB) *service.ProductService {

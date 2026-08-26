@@ -11,6 +11,7 @@ import (
 	"aiot-backend/internal/service"
 	"aiot-backend/internal/tenant"
 	"aiot-backend/test/server/testutil"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/xuri/excelize/v2"
@@ -889,15 +890,6 @@ func TestIntegrationDeviceService_BatchCreate_EmptyRow(t *testing.T) {
 	assert.Empty(t, errs)
 }
 
-func TestExtraDeviceService_MockKafka_NoBrokers(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestDeviceService(db)
-
-	err := svc.MockKafka(ctx2(), nil, "topic", "data")
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "not initialized")
-}
-
 func TestIntegrationProductTSLService_Upsert_Create(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
@@ -1257,7 +1249,7 @@ func TestIntegrationOTAService_Deployments(t *testing.T) {
 	assert.Empty(t, deployments)
 }
 
-func TestIntegrationOTAService_Deploy(t *testing.T) {
+func TestIntegrationOTAService_BatchUpgrade(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestOTATotalService(db)
@@ -1267,20 +1259,20 @@ func TestIntegrationOTAService_Deploy(t *testing.T) {
 	require.NoError(t, svc.Create(ctx2(), pkg, "P001"))
 	require.NotZero(t, pkg.ID)
 
-	// Deploy to the seeded device D001 (device id=1) via device_key
-	count, err := svc.Deploy(ctx2(), pkg.UUID, []string{"D001"})
+	// Batch upgrade the seeded device D001 (device id=1) via device_key
+	batch, err := svc.BatchUpgrade(ctx2(), pkg.UUID, []string{"D001"})
 	require.NoError(t, err)
-	assert.Equal(t, 1, count)
+	assert.NotNil(t, batch)
+	assert.Equal(t, int32(1), batch.TargetDeviceCount)
 
 	// Package should be marked deploying
 	got, err := svc.Get(ctx2(), pkg.UUID)
 	require.NoError(t, err)
 	assert.Equal(t, "deploying", got.Status)
 
-	// Unknown key contributes nothing, no error
-	count, err = svc.Deploy(ctx2(), pkg.UUID, []string{"UNKNOWN"})
-	require.NoError(t, err)
-	assert.Equal(t, 0, count)
+	// Unknown key returns error
+	_, err = svc.BatchUpgrade(ctx2(), pkg.UUID, []string{"UNKNOWN"})
+	assert.Error(t, err)
 
 	// Deployments should show the seeded device
 	deployments, total, err := svc.Deployments(ctx2(), pkg.UUID, 1, 10, "")

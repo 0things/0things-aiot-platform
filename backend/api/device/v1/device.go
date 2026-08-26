@@ -49,11 +49,6 @@ type SimulatePushRequest struct {
 	Payload string `json:"payload"`
 } //@name DeviceSimulatePushRequest
 
-type MockKafkaRequest struct {
-	Topic string `json:"topic" binding:"required"`
-	Data  string `json:"data"`
-} //@name DeviceMockKafkaRequest
-
 type Device struct {
 	ID              int64      `json:"id"`
 	DeviceKey       string     `json:"deviceKey"`
@@ -212,8 +207,3 @@ type BatchUploadDevicesResponse struct {
 	FailureCount int                `json:"failureCount"`
 	Errors       []BatchUploadError `json:"errors"`
 } //@name DeviceBatchUploadDevicesResponse
-
-type MockKafkaResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-} //@name DeviceMockKafkaResponse

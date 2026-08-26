@@ -43,7 +43,6 @@ import type {
   ApiResponseDeviceListDevicesResponse,
   ApiResponseDeviceListPushRecordsResponse,
   ApiResponseDeviceMQTTParametersResponse,
-  ApiResponseDeviceMockKafkaResponse,
   ApiResponseDeviceRestoreDeviceResponse,
   ApiResponseDeviceSetDeviceEnabledResponse,
   ApiResponseDeviceShadow,
@@ -86,7 +85,6 @@ import type {
   DeviceClearDesiredShadowRequest,
   DeviceCreateDeviceRequest,
   DeviceDeleteDeviceTagsRequest,
-  DeviceMockKafkaRequest,
   DeviceSetDeviceEnabledRequest,
   DeviceSetDeviceTagsRequest,
   DeviceSimulatePushRequest,
@@ -104,7 +102,6 @@ import type {
   MessageParserUpsertProductMessageParserRequest,
   OtaBatchUpgradeRequest,
   OtaCreateOTAPackageRequest,
-  OtaDeployOTAPackageRequest,
   OtaOTAPackageRequest,
   OtaReportOTAStatusRequest,
   PostDevicesBatchUploadBody,
@@ -1139,94 +1136,6 @@ export function useGetDevicesKeyDeviceKey<
   > & { queryKey: DataTag<QueryKey, TData, TError> }
 
   return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * 向指定 Kafka topic 发送一条测试消息
- * @summary 模拟向 Kafka 发送消息
- */
-export const postDevicesMockKafka = (
-  deviceMockKafkaRequest: BodyType<DeviceMockKafkaRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseDeviceMockKafkaResponse>({
-    url: `/devices/mock-kafka`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: deviceMockKafkaRequest,
-    signal,
-  })
-}
-
-export const getPostDevicesMockKafkaMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postDevicesMockKafka>>,
-    TError,
-    { data: BodyType<DeviceMockKafkaRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postDevicesMockKafka>>,
-  TError,
-  { data: BodyType<DeviceMockKafkaRequest> },
-  TContext
-> => {
-  const mutationKey = ['postDevicesMockKafka']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postDevicesMockKafka>>,
-    { data: BodyType<DeviceMockKafkaRequest> }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return postDevicesMockKafka(data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PostDevicesMockKafkaMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postDevicesMockKafka>>
->
-export type PostDevicesMockKafkaMutationBody = BodyType<DeviceMockKafkaRequest>
-export type PostDevicesMockKafkaMutationError = ErrorType<unknown>
-
-/**
- * @summary 模拟向 Kafka 发送消息
- */
-export const usePostDevicesMockKafka = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postDevicesMockKafka>>,
-      TError,
-      { data: BodyType<DeviceMockKafkaRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postDevicesMockKafka>>,
-  TError,
-  { data: BodyType<DeviceMockKafkaRequest> },
-  TContext
-> => {
-  return useMutation(
-    getPostDevicesMockKafkaMutationOptions(options),
-    queryClient
-  )
 }
 
 /**
@@ -4759,96 +4668,6 @@ export function useGetOtaPackagesUuidBatches<
 }
 
 /**
- * 将升级包部署到指定设备，为每个目标设备创建设备升级记录（状态 pending），并将包状态置为 deploying
- * @summary 部署 OTA 升级包
- */
-export const postOtaPackagesUuidDeploy = (
-  uuid: string,
-  otaDeployOTAPackageRequest: BodyType<OtaDeployOTAPackageRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseOtaSuccessResponse>({
-    url: `/ota-packages/${uuid}/deploy`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: otaDeployOTAPackageRequest,
-    signal,
-  })
-}
-
-export const getPostOtaPackagesUuidDeployMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postOtaPackagesUuidDeploy>>,
-    TError,
-    { uuid: string; data: BodyType<OtaDeployOTAPackageRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postOtaPackagesUuidDeploy>>,
-  TError,
-  { uuid: string; data: BodyType<OtaDeployOTAPackageRequest> },
-  TContext
-> => {
-  const mutationKey = ['postOtaPackagesUuidDeploy']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postOtaPackagesUuidDeploy>>,
-    { uuid: string; data: BodyType<OtaDeployOTAPackageRequest> }
-  > = (props) => {
-    const { uuid, data } = props ?? {}
-
-    return postOtaPackagesUuidDeploy(uuid, data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PostOtaPackagesUuidDeployMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postOtaPackagesUuidDeploy>>
->
-export type PostOtaPackagesUuidDeployMutationBody =
-  BodyType<OtaDeployOTAPackageRequest>
-export type PostOtaPackagesUuidDeployMutationError = ErrorType<unknown>
-
-/**
- * @summary 部署 OTA 升级包
- */
-export const usePostOtaPackagesUuidDeploy = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postOtaPackagesUuidDeploy>>,
-      TError,
-      { uuid: string; data: BodyType<OtaDeployOTAPackageRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postOtaPackagesUuidDeploy>>,
-  TError,
-  { uuid: string; data: BodyType<OtaDeployOTAPackageRequest> },
-  TContext
-> => {
-  return useMutation(
-    getPostOtaPackagesUuidDeployMutationOptions(options),
-    queryClient
-  )
-}
-
-/**
  * 分页获取指定升级包下的设备部署记录
  * @summary 获取 OTA 设备部署列表
  */
@@ -5026,92 +4845,6 @@ export function useGetOtaPackagesUuidDeviceDeployments<
   > & { queryKey: DataTag<QueryKey, TData, TError> }
 
   return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * 将升级包下所有 pending 的设备升级记录推进为 in_progress；周期性下发任务会自动执行，此接口用于手动触发
- * @summary 触发 OTA 升级包下发
- */
-export const postOtaPackagesUuidDispatch = (
-  uuid: string,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseOtaSuccessResponse>({
-    url: `/ota-packages/${uuid}/dispatch`,
-    method: 'POST',
-    signal,
-  })
-}
-
-export const getPostOtaPackagesUuidDispatchMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postOtaPackagesUuidDispatch>>,
-    TError,
-    { uuid: string },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postOtaPackagesUuidDispatch>>,
-  TError,
-  { uuid: string },
-  TContext
-> => {
-  const mutationKey = ['postOtaPackagesUuidDispatch']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postOtaPackagesUuidDispatch>>,
-    { uuid: string }
-  > = (props) => {
-    const { uuid } = props ?? {}
-
-    return postOtaPackagesUuidDispatch(uuid)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PostOtaPackagesUuidDispatchMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postOtaPackagesUuidDispatch>>
->
-
-export type PostOtaPackagesUuidDispatchMutationError = ErrorType<unknown>
-
-/**
- * @summary 触发 OTA 升级包下发
- */
-export const usePostOtaPackagesUuidDispatch = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postOtaPackagesUuidDispatch>>,
-      TError,
-      { uuid: string },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postOtaPackagesUuidDispatch>>,
-  TError,
-  { uuid: string },
-  TContext
-> => {
-  return useMutation(
-    getPostOtaPackagesUuidDispatchMutationOptions(options),
-    queryClient
-  )
 }
 
 /**

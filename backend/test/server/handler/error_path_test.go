@@ -426,45 +426,6 @@ func TestDeviceHandler_ClearPushRecords_WithBeforeTime(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func TestDeviceHandler_MockKafka_InvalidJSON(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/mock-kafka", deviceHandler.MockKafka)
-
-	req, _ := http.NewRequest("POST", "/devices/mock-kafka", bytes.NewBufferString("invalid"))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-}
-
-func TestDeviceHandler_MockKafka_Success(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	config.Set("data.kafka.device.brokers", []string{"localhost:9092"})
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/mock-kafka", deviceHandler.MockKafka)
-
-	mockService.EXPECT().MockKafka(gomock.Any(), gomock.Any(), "test-topic", `{"key":"value"}`).Return(nil)
-	body, _ := json.Marshal(map[string]interface{}{"topic": "test-topic", "data": `{"key":"value"}`})
-	req, _ := http.NewRequest("POST", "/devices/mock-kafka", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
 func TestDeviceHandler_SimulatePush_InvalidJSON(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

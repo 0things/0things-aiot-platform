@@ -753,26 +753,3 @@ func (h *DeviceHandler) BatchUpload(c *gin.Context) {
 	}
 	v1.HandleSuccess(c, deviceV1.BatchUploadDevicesResponse{SuccessCount: n, FailureCount: len(items), Errors: items})
 }
-// MockKafka godoc
-// @Summary 模拟向 Kafka 发送消息
-// @Schemes
-// @Description 向指定 Kafka topic 发送一条测试消息
-// @Tags 设备模块
-// @Accept json
-// @Produce json
-// @Security Bearer
-// @Param request body deviceV1.MockKafkaRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.MockKafkaResponse]
-// @Router /devices/mock-kafka [post]
-func (h *DeviceHandler) MockKafka(c *gin.Context) {
-	var req deviceV1.MockKafkaRequest
-	e := c.ShouldBindJSON(&req)
-	if e == nil {
-		e = h.svc.MockKafka(c, h.config.GetStringSlice("data.kafka.device.brokers"), req.Topic, req.Data)
-	}
-	if e != nil {
-		deviceError(c, e)
-		return
-	}
-	v1.HandleSuccess(c, deviceV1.MockKafkaResponse{Success: true, Message: "Message sent successfully to topic: " + req.Topic})
-}

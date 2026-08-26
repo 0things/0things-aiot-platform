@@ -1,0 +1,92 @@
+0things Community License
+Version 1.0, 2026
+
+Copyright (c) 2026 0things and contributors.
+
+This license is based on the Mozilla Public License 2.0 (MPL-2.0). Except for
+the additional conditions in this file, the copyright, patent, source-code,
+notice, disclaimer, limitation-of-liability, and other terms of the MPL-2.0
+apply to the Original Work. The MPL-2.0 is available at:
+
+https://www.mozilla.org/MPL/2.0/
+
+## 1. Definitions
+
+“Software” means the Original Work made available by 0things under this file.
+“You” means the individual or legal entity exercising rights under this file.
+“Your Organization” means You and entities that control, are controlled by, or
+are under common control with You.
+“Authorized Personnel” means employees and individual contractors acting solely
+for Your Organization and subject to obligations protecting the Software.
+“Commercial Use” means any use, distribution, hosting, operation, integration,
+or provision of the Software or a derivative work for commercial advantage,
+monetary compensation, or the benefit of an external customer or business.
+“External Party” means any person or organization outside Your Organization.
+
+## 2. Permitted Noncommercial Use
+
+Subject to the MPL-2.0 and this file, You may use, reproduce, modify, and
+redistribute the Software in Source Code Form for:
+
+- personal study, experimentation, and hobby projects;
+- education, academic research, public research, or nonprofit activities; and
+- internal operations of Your Organization by Authorized Personnel, provided
+  that no External Party receives access to operate the Software.
+
+You may process data supplied by an External Party for internal purposes and
+return reports or other non-interactive results, provided that the External
+Party does not receive credentials, interfaces, controls, repeatable automated
+access, or practical ability to operate or configure the Software.
+
+## 3. Commercial Use Requires Separate Permission
+
+Without prior written commercial authorization from the copyright holder, You
+may not:
+
+- sell, rent, sublicense, or commercially license the Software;
+- provide the Software as a hosted, managed, or SaaS service to an External
+  Party;
+- deploy, configure, operate, customize, or maintain the Software for an
+  External Party where that party can use its substantive functionality;
+- embed the Software or a derivative work in a product or service made
+  available to an External Party;
+- provide white-label, OEM, reseller, or customer-specific distributions; or
+- remove or obscure 0things copyright, attribution, license, or branding
+  notices included with the Software.
+
+These restrictions apply whether the offering is paid or free and whether the
+Software is provided directly, through an API, Web UI, CLI, plugin, agent,
+proxy, workflow, or another interface.
+
+## 4. MPL-2.0 File-Level Obligations
+
+The MPL-2.0 file-level copyleft requirements remain applicable. When You
+distribute a modified Covered File in Source Code Form, You must make that
+file available under this license, retain the required notices, and clearly
+mark material changes. Larger works may contain separate files under their own
+terms only where permitted by the MPL-2.0.
+
+## 5. Contributions
+
+Unless You and the copyright holder agree otherwise in writing before
+submission, a contribution intentionally submitted for inclusion in the
+Software is provided under this license. Contributors retain their applicable
+rights and grant the patent rights required by the MPL-2.0.
+
+## 6. Third-Party Components and Trademarks
+
+This license does not change the license of third-party software, generated
+files, bundled assets, or any file carrying a separate copyright or license
+notice. Those terms continue to govern the relevant component. This license
+does not grant rights to use the 0things name, logos, trademarks, or service
+marks except as necessary to describe the origin of the Software and preserve
+required notices.
+
+## 7. No Warranty and Limitation of Liability
+
+The MPL-2.0 warranty disclaimer and limitation-of-liability provisions apply
+to the Software. The Software is provided “as is” and without warranties to
+the maximum extent permitted by law.
+
+For commercial authorization, contact the copyright holder before using the
+Software in a way restricted by Section 3.
