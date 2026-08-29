@@ -3,9 +3,11 @@ package repository
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
+
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
@@ -31,6 +33,9 @@ func (r *ProductRepository) Find(ctx context.Context, id int64) (*model.Product,
 		}
 		return nil, err
 	}
+	if err := r.fillProtocols(ctx, product); err != nil {
+		return nil, err
+	}
 	return product, nil
 }
 
@@ -43,15 +48,51 @@ func (r *ProductRepository) FindByKey(ctx context.Context, key string) (*model.P
 		}
 		return nil, err
 	}
+	if err := r.fillProtocols(ctx, product); err != nil {
+		return nil, err
+	}
 	return product, nil
 }
 
+// fillProtocols 为产品详情补充协议组合，产品列表不加载该关联以避免额外查询。
+func (r *ProductRepository) fillProtocols(ctx context.Context, product *model.Product) error {
+	return r.db.WithContext(ctx).Where("product_id = ?", product.ID).Order("id").Find(&product.Protocols).Error
+}
+
 func (r *ProductRepository) Create(ctx context.Context, product *model.Product) error {
-	return useIoTQuery(r.db).Product.WithContext(ctx).Create(product)
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(product).Error; err != nil {
+			return err
+		}
+		for i := range product.Protocols {
+			product.Protocols[i].ProductID = product.ID
+			if err := tx.Create(&product.Protocols[i]).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (r *ProductRepository) Save(ctx context.Context, product *model.Product) error {
-	return useIoTQuery(r.db).Product.WithContext(ctx).Save(product)
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(product).Error; err != nil {
+			return err
+		}
+		if product.Protocols == nil {
+			return nil
+		}
+		if err := tx.Where("product_id = ?", product.ID).Delete(&model.ProductProtocol{}).Error; err != nil {
+			return err
+		}
+		for i := range product.Protocols {
+			product.Protocols[i].ProductID = product.ID
+			if err := tx.Create(&product.Protocols[i]).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (r *ProductRepository) CountDevices(ctx context.Context, productID int64) (int64, error) {
@@ -68,7 +109,9 @@ func (r *ProductRepository) List(ctx context.Context, page, size int, category, 
 	q := useIoTQuery(r.db)
 	products := q.Product.WithContext(ctx).Where(q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
 	if category != "" {
-		products = products.Where(q.Product.Category.Eq(category))
+		if catID, err := strconv.ParseInt(category, 10, 64); err == nil {
+			products = products.Where(q.Product.CategoryID.Eq(catID))
+		}
 	}
 	if status != "" {
 		products = products.Where(q.Product.Status.Eq(status))

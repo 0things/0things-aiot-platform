@@ -110,17 +110,17 @@ export const productsColumns: ColumnDef<Product>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: 'category',
+    accessorKey: 'categoryId',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Category' />
     ),
     cell: ({ row }) => (
       <Badge variant='secondary' className='capitalize'>
-        {row.getValue('category')}
+        {row.original.categoryId ? `ID: ${row.original.categoryId}` : '-'}
       </Badge>
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+      return value.includes(String(row.getValue(id)))
     },
     enableSorting: false,
   },

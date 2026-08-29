@@ -11,14 +11,6 @@ import type {
 } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
   Form,
   FormControl,
   FormField,
@@ -27,22 +19,30 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/select-dropdown'
-import { useCreateProduct, useUpdateProduct } from '../api/queries'
+import { useProductCategories } from '../api/categories'
+import { useCreateProduct, useProduct, useUpdateProduct } from '../api/queries'
 import {
-  categories,
   connectivityMethods,
   directGatewayProtocols,
   gatewaySubProtocols,
   nodeTypes,
-  statuses,
 } from '../data/data'
+import { applicationProtocols, protocolLabels } from '../data/protocols'
 import {
   type Product,
   productFormSchema,
   type ProductFormData,
 } from '../data/schema'
+import { CategoryCascader } from './category-cascader'
 
 type ProductActionDialogProps = {
   currentRow?: Product
@@ -61,6 +61,16 @@ export function ProductsActionDialog({
   // Create and update mutations
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
+  const productQuery = useProduct(currentRow?.productKey || '')
+  const categoryQuery = useProductCategories()
+  const [applicationProtocol, setApplicationProtocol] = React.useState('json')
+
+  React.useEffect(() => {
+    if (!isEdit || !productQuery.data?.product) return
+    setApplicationProtocol(
+      productQuery.data.product.protocols?.[0]?.applicationProtocol || 'json'
+    )
+  }, [isEdit, productQuery.data])
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
@@ -68,8 +78,7 @@ export function ProductsActionDialog({
       ? {
           name: currentRow.name,
           description: currentRow.description || '',
-          category: currentRow.category || '',
-          status: currentRow.status,
+          categoryId: currentRow.categoryId?.toString() || '',
           nodeType:
             (currentRow as Product & { nodeType?: string }).nodeType ||
             'direct',
@@ -79,17 +88,14 @@ export function ProductsActionDialog({
           accessProtocol:
             (currentRow as Product & { accessProtocol?: string })
               .accessProtocol || 'http',
-          metadata: currentRow.metadata || '',
         }
       : {
           name: '',
           description: '',
-          category: '',
-          status: 'active',
+          categoryId: '',
           nodeType: 'direct',
           connectivityMethod: undefined,
           accessProtocol: 'http',
-          metadata: '',
         },
   })
 
@@ -115,6 +121,26 @@ export function ProductsActionDialog({
 
   const onSubmit = async (values: ProductFormData) => {
     try {
+      const protocols =
+        values.accessProtocol === 'default'
+          ? [
+              { transportProtocol: 'http', applicationProtocol: 'json' },
+              { transportProtocol: 'mqtt', applicationProtocol: 'json' },
+            ]
+          : [
+              {
+                transportProtocol:
+                  values.accessProtocol === 'jt808' ||
+                  values.accessProtocol === 'jt1078'
+                    ? 'tcp'
+                    : values.accessProtocol,
+                applicationProtocol:
+                  values.accessProtocol === 'jt808' ||
+                  values.accessProtocol === 'jt1078'
+                    ? values.accessProtocol
+                    : applicationProtocol,
+              },
+            ]
       if (isEdit && currentRow) {
         // Update existing product
         await updateProduct.mutateAsync({
@@ -122,9 +148,7 @@ export function ProductsActionDialog({
           data: {
             name: values.name,
             description: values.description || undefined,
-            category: values.category,
-            status: values.status,
-            metadata: values.metadata || undefined,
+            ...(values.categoryId && { categoryId: Number(values.categoryId) }),
             ...(values.nodeType && { nodeType: values.nodeType }),
             ...(values.connectivityMethod && {
               connectivityMethod: values.connectivityMethod,
@@ -132,6 +156,7 @@ export function ProductsActionDialog({
             ...(values.accessProtocol && {
               accessProtocol: values.accessProtocol,
             }),
+            protocols,
           } as unknown as ProductV1UpdateProductRequest,
         })
         toast.success('Product updated successfully!')
@@ -140,9 +165,7 @@ export function ProductsActionDialog({
         await createProduct.mutateAsync({
           name: values.name,
           description: values.description || undefined,
-          category: values.category,
-          status: values.status,
-          metadata: values.metadata || undefined,
+          ...(values.categoryId && { categoryId: Number(values.categoryId) }),
           ...(values.nodeType && { nodeType: values.nodeType }),
           ...(values.connectivityMethod && {
             connectivityMethod: values.connectivityMethod,
@@ -150,6 +173,7 @@ export function ProductsActionDialog({
           ...(values.accessProtocol && {
             accessProtocol: values.accessProtocol,
           }),
+          protocols,
         } as unknown as ProductV1CreateProductRequest)
         toast.success('Product created successfully!')
       }
@@ -172,218 +196,179 @@ export function ProductsActionDialog({
   const isSubmitting = createProduct.isPending || updateProduct.isPending
 
   return (
-    <Dialog
+    <Sheet
       open={open}
       onOpenChange={(state) => {
         form.reset()
         onOpenChange(state)
       }}
     >
-      <DialogContent className='sm:max-w-lg'>
-        <DialogHeader className='text-start'>
-          <DialogTitle>
-            {isEdit ? 'Edit Product' : 'Create New Product'}
-          </DialogTitle>
-          <DialogDescription>
+      <SheetContent className='flex flex-col'>
+        <SheetHeader className='text-start'>
+          <SheetTitle>
             {isEdit
-              ? 'Update the product details here. '
-              : 'Add a new product to your inventory. '}
-            Click save when you&apos;re done.
-          </DialogDescription>
-        </DialogHeader>
-        <div className='h-105 w-[calc(100%+0.75rem)] overflow-y-auto py-1 pe-3'>
-          <Form {...form}>
-            <form
-              id='product-form'
-              onSubmit={form.handleSubmit(onSubmit)}
-              className='space-y-4 px-0.5'
-            >
-              <FormField
-                control={form.control}
-                name='name'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 text-end'>Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='Smart Sensor X1'
-                        className='col-span-4'
-                        autoComplete='off'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='nodeType'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 text-end'>
-                      {t('productDetail.info.fields.nodeType')}
-                    </FormLabel>
-                    <SelectDropdown
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                      placeholder='Select node type'
-                      className='col-span-4'
-                      items={nodeTypes.map(({ value }) => ({
-                        label: t(`productDetail.nodeTypes.${value}`),
-                        value,
-                      }))}
+              ? t('productDetail.actions.edit')
+              : t('productDetail.actions.create')}
+          </SheetTitle>
+        </SheetHeader>
+        <Form {...form}>
+          <form
+            id='product-form'
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='flex-1 space-y-6 overflow-y-auto px-4'
+          >
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('productDetail.info.fields.name')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Smart Sensor X1'
+                      className='w-full'
+                      autoComplete='off'
+                      {...field}
                     />
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              {showConnectivityMethod && (
-                <FormField
-                  control={form.control}
-                  name='connectivityMethod'
-                  render={({ field }) => (
-                    <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                      <FormLabel className='col-span-2 text-end'>
-                        {t('productDetail.info.fields.connectivityMethod')}
-                      </FormLabel>
-                      <SelectDropdown
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                        placeholder='Select connectivity method'
-                        className='col-span-4'
-                        items={connectivityMethods.map(({ value }) => ({
-                          label: t(
-                            `productDetail.connectivityMethods.${value}`
-                          ),
-                          value,
-                        }))}
-                      />
-                      <FormMessage className='col-span-4 col-start-3' />
-                    </FormItem>
-                  )}
-                />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
+            <FormField
+              control={form.control}
+              name='nodeType'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t('productDetail.info.fields.nodeType')}
+                  </FormLabel>
+                  <SelectDropdown
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                    placeholder='Select node type'
+                    className='w-full'
+                    items={nodeTypes.map(({ value }) => ({
+                      label: t(`productDetail.nodeTypes.${value}`),
+                      value,
+                    }))}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {showConnectivityMethod && (
               <FormField
                 control={form.control}
-                name='accessProtocol'
+                name='connectivityMethod'
                 render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 text-end'>
-                      {nodeType === 'gateway-sub'
-                        ? t('productDetail.info.fields.gatewayAccessProtocol')
-                        : t('productDetail.info.fields.accessProtocol')}
+                  <FormItem>
+                    <FormLabel>
+                      {t('productDetail.info.fields.connectivityMethod')}
                     </FormLabel>
                     <SelectDropdown
                       defaultValue={field.value}
                       onValueChange={field.onChange}
-                      placeholder='Select access protocol'
-                      className='col-span-4'
-                      items={accessProtocolOptions.map(({ value }) => ({
-                        label: t(`productDetail.accessProtocols.${value}`),
+                      placeholder='Select connectivity method'
+                      className='w-full'
+                      items={connectivityMethods.map(({ value }) => ({
+                        label: t(`productDetail.connectivityMethods.${value}`),
                         value,
                       }))}
                     />
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name='category'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 text-end'>
-                      Category
-                    </FormLabel>
-                    <SelectDropdown
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                      placeholder='Select a category'
-                      className='col-span-4'
-                      items={categories.map(({ label, value }) => ({
-                        label,
-                        value,
-                      }))}
+            )}
+            <FormField
+              control={form.control}
+              name='accessProtocol'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {nodeType === 'gateway-sub'
+                      ? t('productDetail.info.fields.gatewayAccessProtocol')
+                      : t('productDetail.info.fields.accessProtocol')}
+                  </FormLabel>
+                  <SelectDropdown
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                    placeholder='Select access protocol'
+                    className='w-full'
+                    items={accessProtocolOptions.map(({ value }) => ({
+                      label:
+                        protocolLabels[value as keyof typeof protocolLabels],
+                      value,
+                    }))}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className='grid gap-2'>
+              <FormLabel>{t('productDetail.protocols.application')}</FormLabel>
+              <SelectDropdown
+                defaultValue={applicationProtocol}
+                onValueChange={setApplicationProtocol}
+                isControlled
+                className='w-full'
+                items={applicationProtocols.map((protocol) => ({
+                  label: protocolLabels[protocol],
+                  value: protocol,
+                }))}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name='categoryId'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t('productDetail.info.fields.category')}
+                  </FormLabel>
+                  <CategoryCascader
+                    nodes={categoryQuery.data ?? []}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder='Select a category'
+                    isLoading={categoryQuery.isLoading}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='description'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t('productDetail.info.fields.description')}
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='Product description...'
+                      className='w-full resize-none'
+                      rows={3}
+                      {...field}
                     />
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='status'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 text-end'>
-                      Status
-                    </FormLabel>
-                    <SelectDropdown
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                      placeholder='Select status'
-                      className='col-span-4'
-                      items={statuses.map(({ label, value }) => ({
-                        label,
-                        value,
-                      }))}
-                    />
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='description'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-start space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 pt-2 text-end'>
-                      Description
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder='Product description...'
-                        className='col-span-4 resize-none'
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='metadata'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-start space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 pt-2 text-end'>
-                      Metadata
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder='{"key": "value"}'
-                        className='col-span-4 resize-none font-mono text-sm'
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </div>
-        <DialogFooter>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+        <SheetFooter>
           <Button type='submit' form='product-form' disabled={isSubmitting}>
             {isSubmitting && (
               <span className='mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent' />
             )}
-            Save changes
+            {t('productDetail.actions.save')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   )
 }

@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"fmt"
-
 	productV1 "aiot-backend/api/product/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,17 +15,23 @@ func productJSON(product model.Product, count int64) productV1.Product {
 		ProductKey:         product.ProductKey,
 		Name:               product.Name,
 		Description:        product.Description,
-		Category:           product.Category,
+		CategoryID:         product.CategoryID,
 		Status:             product.Status,
-		Metadata:           fmt.Sprint(raw(product.Metadata)),
 		DeviceCount:        int32(count),
 		NodeType:           product.NodeType,
 		ConnectivityMethod: product.ConnectivityMethod,
 		AccessProtocol:     product.AccessProtocol,
-		OrganizationID:           product.OrganizationID,
-		CreatedAt:          product.CreatedAt,
-		UpdatedAt:          product.UpdatedAt,
-		DeletedAt:          deletedAt(product.DeletedAt),
+		Protocols: func() []productV1.ProductProtocolInput {
+			items := make([]productV1.ProductProtocolInput, len(product.Protocols))
+			for i, protocol := range product.Protocols {
+				items[i] = productV1.ProductProtocolInput{TransportProtocol: protocol.TransportProtocol, ApplicationProtocol: protocol.ApplicationProtocol}
+			}
+			return items
+		}(),
+		OrganizationID: product.OrganizationID,
+		CreatedAt:      product.CreatedAt,
+		UpdatedAt:      product.UpdatedAt,
+		DeletedAt:      deletedAt(product.DeletedAt),
 	}
 }
 
@@ -56,7 +61,18 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	product, err := h.svc.Create(c, &model.Product{Name: req.Name, Description: req.Description, Category: req.Category, Status: req.Status, Metadata: string(req.Metadata), NodeType: req.NodeType, ConnectivityMethod: req.ConnectivityMethod, AccessProtocol: req.AccessProtocol})
+	protocols := make([]model.ProductProtocol, len(req.Protocols))
+	for i, item := range req.Protocols {
+		protocols[i] = model.ProductProtocol{TransportProtocol: item.TransportProtocol, ApplicationProtocol: item.ApplicationProtocol}
+	}
+	if req.AccessProtocol == "default" {
+		// default 是快捷组合，统一展开为 HTTP 和 MQTT 两个通用 JSON 接入端点。
+		protocols = []model.ProductProtocol{
+			{TransportProtocol: "http", ApplicationProtocol: "json"},
+			{TransportProtocol: "mqtt", ApplicationProtocol: "json"},
+		}
+	}
+	product, err := h.svc.Create(c, &model.Product{Name: req.Name, Description: req.Description, CategoryID: req.CategoryID, Status: req.Status, NodeType: req.NodeType, ConnectivityMethod: req.ConnectivityMethod, AccessProtocol: req.AccessProtocol, Protocols: protocols})
 	if err != nil {
 		deviceError(c, err)
 		return
@@ -65,31 +81,6 @@ func (h *ProductHandler) Create(c *gin.Context) {
 }
 
 // Get godoc
-// @Summary 通过 ID 获取产品
-// @Schemes
-// @Description 通过产品 ID 获取产品详情
-// @Tags 产品模块
-// @Accept json
-// @Produce json
-// @Security Bearer
-// @Param id path int true "产品 ID"
-// @Success 200 {object} v1.ApiResponse[productV1.GetProductResponse]
-// @Router /products/{id} [get]
-func (h *ProductHandler) Get(c *gin.Context) {
-	productID, err := id(c)
-	if err != nil {
-		deviceError(c, err)
-		return
-	}
-	product, err := h.svc.Get(c, productID)
-	if err != nil {
-		deviceError(c, err)
-		return
-	}
-	v1.HandleSuccess(c, productV1.GetProductResponse{Product: productJSON(*product, 0)})
-}
-
-// GetByKey godoc
 // @Summary 通过 productKey 获取产品
 // @Schemes
 // @Description 通过产品 Key 获取产品详情
@@ -98,15 +89,15 @@ func (h *ProductHandler) Get(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param productKey path string true "产品 Key"
-// @Success 200 {object} v1.ApiResponse[productV1.GetProductByKeyResponse]
-// @Router /products/key/{productKey} [get]
-func (h *ProductHandler) GetByKey(c *gin.Context) {
+// @Success 200 {object} v1.ApiResponse[productV1.GetProductResponse]
+// @Router /products/{productKey} [get]
+func (h *ProductHandler) Get(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
 	if err != nil {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, productV1.GetProductByKeyResponse{Product: productJSON(*product, 0)})
+	v1.HandleSuccess(c, productV1.GetProductResponse{Product: productJSON(*product, 0)})
 }
 
 // List godoc
@@ -149,7 +140,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 // @Param productKey path string true "产品 Key"
 // @Param request body productV1.UpdateProductRequest true "params"
 // @Success 200 {object} v1.ApiResponse[productV1.UpdateProductResponse]
-// @Router /products/key/{productKey} [put]
+// @Router /products/{productKey} [put]
 func (h *ProductHandler) Update(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
 	if err != nil {
@@ -167,14 +158,11 @@ func (h *ProductHandler) Update(c *gin.Context) {
 	if req.Description != "" {
 		product.Description = req.Description
 	}
-	if req.Category != "" {
-		product.Category = req.Category
+	if req.CategoryID != nil {
+		product.CategoryID = req.CategoryID
 	}
 	if req.Status != "" {
 		product.Status = req.Status
-	}
-	if len(req.Metadata) > 0 {
-		product.Metadata = string(req.Metadata)
 	}
 	if req.NodeType != "" {
 		product.NodeType = req.NodeType
@@ -184,6 +172,19 @@ func (h *ProductHandler) Update(c *gin.Context) {
 	}
 	if req.AccessProtocol != "" {
 		product.AccessProtocol = req.AccessProtocol
+	}
+	if req.Protocols != nil {
+		product.Protocols = make([]model.ProductProtocol, len(req.Protocols))
+		for i, item := range req.Protocols {
+			product.Protocols[i] = model.ProductProtocol{TransportProtocol: item.TransportProtocol, ApplicationProtocol: item.ApplicationProtocol}
+		}
+	}
+	if req.AccessProtocol == "default" {
+		// default 是快捷组合，统一展开为 HTTP 和 MQTT 两个通用 JSON 接入端点。
+		product.Protocols = []model.ProductProtocol{
+			{TransportProtocol: "http", ApplicationProtocol: "json"},
+			{TransportProtocol: "mqtt", ApplicationProtocol: "json"},
+		}
 	}
 	if err = h.svc.Save(c, product); err != nil {
 		deviceError(c, err)
@@ -195,19 +196,16 @@ func (h *ProductHandler) Update(c *gin.Context) {
 // Delete godoc
 // @Summary 删除产品
 // @Schemes
-// @Description 通过产品 ID 软删除产品
+// @Description 通过产品 Key 软删除产品
 // @Tags 产品模块
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "产品 ID"
+// @Param productKey path string true "产品 Key"
 // @Success 200 {object} v1.ApiResponse[productV1.SuccessResponse]
-// @Router /products/{id} [delete]
+// @Router /products/{productKey} [delete]
 func (h *ProductHandler) Delete(c *gin.Context) {
-	productID, err := id(c)
-	if err == nil {
-		err = h.svc.Delete(c, productID)
-	}
+	err := h.svc.DeleteByKey(c, c.Param("productKey"))
 	if err != nil {
 		deviceError(c, err)
 		return
@@ -215,26 +213,12 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 	v1.HandleSuccess(c, productV1.SuccessResponse{Success: true})
 }
 
-// Restore godoc
-// @Summary 恢复已删除的产品
-// @Schemes
-// @Description 通过产品 ID 恢复软删除的产品
-// @Tags 产品模块
-// @Accept json
-// @Produce json
-// @Security Bearer
-// @Param id path int true "产品 ID"
-// @Success 200 {object} v1.ApiResponse[productV1.RestoreProductResponse]
-// @Router /products/{id}/restore [post]
+// Restore 保留旧调用兼容，产品恢复路由不再注册。
 func (h *ProductHandler) Restore(c *gin.Context) {
-	productID, err := id(c)
-	if err == nil {
-		var product *model.Product
-		product, err = h.svc.Restore(c, productID)
-		if err == nil {
-			v1.HandleSuccess(c, productV1.RestoreProductResponse{Product: productJSON(*product, 0)})
-			return
-		}
+	product, err := h.svc.RestoreByKey(c, c.Param("productKey"))
+	if err != nil {
+		deviceError(c, err)
+		return
 	}
-	deviceError(c, err)
+	v1.HandleSuccess(c, productV1.RestoreProductResponse{Product: productJSON(*product, 0)})
 }

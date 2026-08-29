@@ -28,7 +28,7 @@ export function ProductsDeleteDialog({
     if (value.trim() !== currentRow.productKey) return
 
     try {
-      await deleteProduct.mutateAsync(currentRow.id)
+      await deleteProduct.mutateAsync(currentRow.productKey)
       toast.success('Product deleted successfully!')
       setValue('')
       onOpenChange(false)

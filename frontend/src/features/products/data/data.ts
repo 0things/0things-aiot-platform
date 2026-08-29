@@ -1,3 +1,4 @@
+import { protocolLabels } from './protocols'
 import type { ProductStatus } from './schema'
 
 export const productStatusStyles = new Map<ProductStatus, string>([
@@ -91,40 +92,43 @@ export const connectivityMethods = [
 
 // Access protocols for direct and gateway devices
 export const directGatewayProtocols = [
+  { value: 'default', label: protocolLabels.default },
   {
     value: 'http',
-    label: 'HTTP',
+    label: protocolLabels.http,
   },
   {
     value: 'mqtt',
-    label: 'MQTT',
+    label: protocolLabels.mqtt,
   },
-  {
-    value: 'other',
-    label: '其他',
-  },
+  { value: 'coap', label: protocolLabels.coap },
+  { value: 'tcp', label: protocolLabels.tcp },
+  { value: 'udp', label: protocolLabels.udp },
+  { value: 'gb28181', label: protocolLabels.gb28181 },
 ]
 
 // Access protocols for gateway sub-devices
 export const gatewaySubProtocols = [
   {
     value: 'custom',
-    label: '自定义',
+    label: protocolLabels.custom,
   },
   {
     value: 'modbus',
-    label: 'Modbus',
+    label: protocolLabels.modbus,
   },
   {
     value: 'opc-ua',
-    label: 'OPC UA',
+    label: protocolLabels['opc-ua'],
   },
   {
     value: 'zigbee',
-    label: 'ZigBee',
+    label: protocolLabels.zigbee,
   },
   {
     value: 'ble',
-    label: 'BLE',
+    label: protocolLabels.ble,
   },
+  { value: 'jt808', label: protocolLabels.jt808 },
+  { value: 'jt1078', label: protocolLabels.jt1078 },
 ]

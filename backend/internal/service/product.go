@@ -8,6 +8,7 @@ import (
 	"errors"
 	"strings"
 
+	"aiot-backend/internal/enum"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
@@ -18,9 +19,14 @@ type ProductServiceInterface interface {
 	Get(ctx context.Context, id int64) (*model.Product, error)
 	GetByKey(ctx context.Context, key string) (*model.Product, error)
 	Save(ctx context.Context, product *model.Product) error
+	// Deprecated: 外部删除接口统一使用 productKey，保留供旧测试兼容。
 	Delete(ctx context.Context, id int64) error
+	DeleteByKey(ctx context.Context, key string) error
 	List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error)
+	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
 	Restore(ctx context.Context, id int64) (*model.Product, error)
+	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
+	RestoreByKey(ctx context.Context, key string) (*model.Product, error)
 }
 
 type ProductService struct {
@@ -67,7 +73,10 @@ func (s *ProductService) Create(ctx context.Context, product *model.Product) (*m
 		product.ProductKey = productKey()
 	}
 	if product.Status == "" {
-		product.Status = "active"
+		product.Status = string(enum.ProductStatusActive)
+	}
+	if product.Status != string(enum.ProductStatusActive) && product.Status != string(enum.ProductStatusInactive) && product.Status != string(enum.ProductStatusArchived) {
+		return nil, errors.New("invalid product status")
 	}
 	if product.NodeType == "" {
 		product.NodeType = "direct"
@@ -88,6 +97,9 @@ func (s *ProductService) GetByKey(ctx context.Context, key string) (*model.Produ
 }
 
 func (s *ProductService) Save(ctx context.Context, product *model.Product) error {
+	if product.Status != string(enum.ProductStatusActive) && product.Status != string(enum.ProductStatusInactive) && product.Status != string(enum.ProductStatusArchived) {
+		return errors.New("invalid product status")
+	}
 	var err error
 	if product.Metadata, err = normalizeProductMetadata(product.Metadata); err != nil {
 		return err
@@ -95,17 +107,33 @@ func (s *ProductService) Save(ctx context.Context, product *model.Product) error
 	return s.repo.Save(ctx, product)
 }
 
-func (s *ProductService) Delete(ctx context.Context, id int64) error {
-	count, err := s.repo.CountDevices(ctx, id)
+func (s *ProductService) DeleteByKey(ctx context.Context, key string) error {
+	product, err := s.GetByKey(ctx, key)
+	if err != nil {
+		return err
+	}
+	count, err := s.repo.CountDevices(ctx, product.ID)
 	if err != nil {
 		return err
 	}
 	if count > 0 {
 		return errors.New("product has devices")
 	}
+	return s.repo.Delete(ctx, product)
+}
+
+// Deprecated: 外部删除接口统一使用 productKey。
+func (s *ProductService) Delete(ctx context.Context, id int64) error {
 	product, err := s.Get(ctx, id)
 	if err != nil {
 		return err
+	}
+	count, err := s.repo.CountDevices(ctx, id)
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return errors.New("product has devices")
 	}
 	return s.repo.Delete(ctx, product)
 }
@@ -114,9 +142,19 @@ func (s *ProductService) List(ctx context.Context, page, size int, category, sta
 	return s.repo.List(ctx, page, size, category, status, search)
 }
 
+// Deprecated: 产品恢复接口已下线。
 func (s *ProductService) Restore(ctx context.Context, id int64) (*model.Product, error) {
 	if err := s.repo.Restore(ctx, id); err != nil {
 		return nil, err
 	}
 	return s.Get(ctx, id)
+}
+
+// Deprecated: 产品恢复接口已下线。
+func (s *ProductService) RestoreByKey(ctx context.Context, key string) (*model.Product, error) {
+	product, err := s.GetByKey(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+	return s.Restore(ctx, product.ID)
 }

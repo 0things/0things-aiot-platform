@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { protocolLabels } from './protocols'
 
 // Product status schema
 const productStatusSchema = z.union([
@@ -28,9 +29,13 @@ export type ConnectivityMethod = z.infer<typeof connectivityMethodSchema>
 // Access protocol schemas - different protocols for different node types
 // For direct and gateway devices
 const directGatewayProtocolSchema = z.union([
+  z.literal('default'),
   z.literal('http'),
   z.literal('mqtt'),
-  z.literal('other'),
+  z.literal('coap'),
+  z.literal('tcp'),
+  z.literal('udp'),
+  z.literal('gb28181'),
 ])
 
 // For gateway sub-devices
@@ -40,6 +45,8 @@ const gatewaySubProtocolSchema = z.union([
   z.literal('opc-ua'),
   z.literal('zigbee'),
   z.literal('ble'),
+  z.literal('jt808'),
+  z.literal('jt1078'),
 ])
 
 // Combined access protocol schema (union of all protocols)
@@ -57,12 +64,11 @@ export const productSchema = z.object({
   productKey: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  category: z.string(),
+  categoryId: z.number().optional(),
   status: productStatusSchema,
   nodeType: nodeTypeSchema.optional(),
   connectivityMethod: connectivityMethodSchema.optional(),
   accessProtocol: accessProtocolSchema.optional(),
-  metadata: z.string().optional(),
   deviceCount: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -75,12 +81,10 @@ export const productFormSchema = z
   .object({
     name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
     description: z.string().max(500, 'Description too long').optional(),
-    category: z.string().min(1, 'Category is required'),
-    status: productStatusSchema,
+    categoryId: z.string().min(1, 'Category is required'),
     nodeType: nodeTypeSchema,
     connectivityMethod: connectivityMethodSchema.optional(),
     accessProtocol: accessProtocolSchema,
-    metadata: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     // Connectivity method is required for direct and gateway devices
@@ -99,28 +103,36 @@ export const productFormSchema = z
     if (data.nodeType === 'direct' || data.nodeType === 'gateway') {
       // Direct and gateway devices should use http, mqtt, or other
       if (
+        data.accessProtocol !== 'default' &&
         data.accessProtocol !== 'http' &&
         data.accessProtocol !== 'mqtt' &&
-        data.accessProtocol !== 'other'
+        data.accessProtocol !== 'coap' &&
+        data.accessProtocol !== 'tcp' &&
+        data.accessProtocol !== 'udp' &&
+        data.accessProtocol !== 'gb28181'
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
-            'Direct and gateway devices must use HTTP, MQTT, or Other protocol',
+            'Direct and gateway devices must use a supported transport protocol',
           path: ['accessProtocol'],
         })
       }
     } else if (data.nodeType === 'gateway-sub') {
       // Gateway sub-devices should use gateway protocols
       if (
+        data.accessProtocol === 'default' ||
         data.accessProtocol === 'http' ||
         data.accessProtocol === 'mqtt' ||
-        data.accessProtocol === 'other'
+        data.accessProtocol === 'coap' ||
+        data.accessProtocol === 'tcp' ||
+        data.accessProtocol === 'udp' ||
+        data.accessProtocol === 'gb28181'
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
-            'Gateway sub-devices must use gateway protocols (Custom, Modbus, OPC UA, ZigBee, BLE)',
+            'Gateway sub-devices must use gateway protocols (Custom, Modbus, OPC UA, ZigBee, BLE, JT808, JT1078)',
           path: ['accessProtocol'],
         })
       }
@@ -143,13 +155,5 @@ export const connectivityMethodLabels: Record<ConnectivityMethod, string> = {
   other: '其他',
 }
 
-export const accessProtocolLabels: Record<AccessProtocol, string> = {
-  http: 'HTTP',
-  mqtt: 'MQTT',
-  other: '其他',
-  custom: '自定义',
-  modbus: 'Modbus',
-  'opc-ua': 'OPC UA',
-  zigbee: 'ZigBee',
-  ble: 'BLE',
-}
+export const accessProtocolLabels: Record<AccessProtocol, string> =
+  protocolLabels as unknown as Record<AccessProtocol, string>

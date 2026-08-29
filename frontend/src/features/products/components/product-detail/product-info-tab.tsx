@@ -3,6 +3,9 @@ import type { Product as ProductV1Product } from '@/api/generated/model'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useProductCategories, type CategoryNode } from '../../api/categories'
+import { accessProtocolLabels } from '../../data/schema'
+import { ProductProtocolsCard } from './product-protocols-card'
 
 interface ProductInfoTabProps {
   product: ProductV1Product
@@ -10,6 +13,22 @@ interface ProductInfoTabProps {
 
 export function ProductInfoTab({ product }: ProductInfoTabProps) {
   const { t } = useTranslation('deviceManagement')
+  const categoryQuery = useProductCategories()
+
+  const getCategoryName = () => {
+    if (!product.categoryId) return '-'
+    const findName = (nodes: CategoryNode[]): string | undefined => {
+      for (const node of nodes) {
+        if (node.id === product.categoryId) return node.name
+        if (node.children?.length) {
+          const matched = findName(node.children)
+          if (matched) return matched
+        }
+      }
+      return undefined
+    }
+    return findName(categoryQuery.data || []) || `ID: ${product.categoryId}`
+  }
 
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return '-'
@@ -42,9 +61,11 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
       product as ProductV1Product & { accessProtocol?: string }
     ).accessProtocol
     if (!accessProtocol) return '-'
-    return t(`productDetail.accessProtocols.${accessProtocol}`, {
-      defaultValue: '-',
-    })
+    return (
+      accessProtocolLabels[
+        accessProtocol as keyof typeof accessProtocolLabels
+      ] || accessProtocol
+    )
   }
 
   // Check if should show connectivity method (only for direct and gateway)
@@ -85,7 +106,7 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
                 {t('productDetail.info.fields.category')}
               </p>
               <Badge variant='secondary' className='capitalize'>
-                {product.category || '-'}
+                {getCategoryName()}
               </Badge>
             </div>
 
@@ -146,6 +167,11 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
           </p>
         </CardContent>
       </Card>
+
+      <ProductProtocolsCard
+        protocols={product.protocols ?? []}
+        productKey={product.productKey ?? ''}
+      />
     </div>
   )
 }

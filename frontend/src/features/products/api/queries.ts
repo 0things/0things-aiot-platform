@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  deleteProductsId,
+  deleteProductsProductKey,
   getProducts,
-  getProductsKeyProductKey,
+  getProductsProductKey,
   postProducts,
-  putProductsKeyProductKey,
+  putProductsProductKey,
 } from '@/api/generated'
 import type {
   ProductCreateProductRequest as ProductV1CreateProductRequest,
@@ -81,7 +81,7 @@ export function useProduct(productKey: string) {
   return useQuery({
     queryKey: productKeys.detail(productKey),
     queryFn: async () => {
-      const res = await getProductsKeyProductKey(productKey)
+      const res = await getProductsProductKey(productKey)
       return (res?.data ?? res) as unknown as ProductV1GetProductByKeyResponse
     },
     enabled: !!productKey,
@@ -122,7 +122,7 @@ export function useUpdateProduct() {
       productKey: string
       data: ProductV1UpdateProductRequest
     }) => {
-      const res = await putProductsKeyProductKey(productKey, data as never)
+      const res = await putProductsProductKey(productKey, data as never)
       return (res?.data ?? res) as unknown as ProductV1UpdateProductResponse
     },
     onSuccess: (response) => {
@@ -145,7 +145,7 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => deleteProductsId(Number(id)),
+    mutationFn: (productKey: string) => deleteProductsProductKey(productKey),
     onSuccess: () => {
       // Invalidate all product lists to refetch
       queryClient.invalidateQueries({ queryKey: productKeys.lists() })

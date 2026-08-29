@@ -21,10 +21,9 @@ import {
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
-  deleteProductsIdTsl,
-  getProductsIdTsl,
-  getProductsKeyProductKey,
-  postProductsIdTsl,
+  deleteProductsProductKeyTsl,
+  getProductsProductKeyTsl,
+  postProductsProductKeyTsl,
 } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -434,10 +433,7 @@ export function FeatureDefinitionTab({
     queryKey: ['product-tsl', productKey],
     queryFn: async () => {
       try {
-        const product = await getProductsKeyProductKey(productKey)
-        const id = product.data?.product?.id
-        if (id === undefined) return null
-        const response = await getProductsIdTsl(id)
+        const response = await getProductsProductKeyTsl(productKey)
         // Parse the TSL string from API into TSLModel
         if (response.data?.productTsl?.tsl) {
           return JSON.parse(response.data.productTsl.tsl) as TSLModel
@@ -458,10 +454,7 @@ export function FeatureDefinitionTab({
   const saveTSLMutation = useMutation({
     mutationFn: async (tsl: TSLModel) => {
       const tslJsonString = JSON.stringify(tsl)
-      const product = await getProductsKeyProductKey(productKey)
-      if (product.data?.product?.id === undefined)
-        throw new Error('Product not found')
-      return postProductsIdTsl(product.data.product.id, { tsl: tslJsonString })
+      return postProductsProductKeyTsl(productKey, { tsl: tslJsonString })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product-tsl', productKey] })
@@ -475,10 +468,7 @@ export function FeatureDefinitionTab({
   // Mutation for deleting TSL
   const deleteTSLMutation = useMutation({
     mutationFn: async () => {
-      const product = await getProductsKeyProductKey(productKey)
-      if (product.data?.product?.id === undefined)
-        throw new Error('Product not found')
-      return deleteProductsIdTsl(product.data.product.id)
+      return deleteProductsProductKeyTsl(productKey)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product-tsl', productKey] })
