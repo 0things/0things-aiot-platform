@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import type { Product as ProductV1Product } from '@/api/generated/model'
+import type { ProductListItem as ProductV1Product } from '@/api/generated/model'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -91,11 +91,11 @@ export function ProductsTable() {
       name: product.name || '',
       description: product.description || '',
       categoryId: product.categoryId,
+      categoryName: product.categoryName,
       status: product.status || '',
       nodeType: product.nodeType,
       connectivityMethod: product.connectivityMethod,
       accessProtocol: product.accessProtocol,
-      deviceCount: product.deviceCount || 0,
       createdAt: product.createdAt || '',
       updatedAt: product.updatedAt || '',
     })) as Product[]

@@ -24,29 +24,29 @@ func setupDeviceRouterFull(mockService *mock_service.MockDeviceServiceInterface)
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 
 	router.POST("/devices", deviceHandler.CreateDevice)
-	router.GET("/devices/:id", deviceHandler.GetDevice)
+	router.GET("/devices/:deviceKey", deviceHandler.GetDevice)
 	router.GET("/devices/key/:deviceKey", deviceHandler.GetDeviceByKey)
 	router.GET("/devices", deviceHandler.ListDevices)
-	router.PUT("/devices/:id", deviceHandler.UpdateDevice)
-	router.DELETE("/devices/:id", deviceHandler.DeleteDevice)
-	router.POST("/devices/:id/activate", deviceHandler.Activate)
-	router.PUT("/devices/:id/enabled", deviceHandler.Enabled)
+	router.PUT("/devices/:deviceKey", deviceHandler.UpdateDevice)
+	router.DELETE("/devices/:deviceKey", deviceHandler.DeleteDevice)
+	router.POST("/devices/:deviceKey/activate", deviceHandler.Activate)
+	router.POST("/devices/:deviceKey/enabled", deviceHandler.Enabled)
 	router.GET("/devices/stats", deviceHandler.Stats)
-	router.GET("/devices/:id/telemetry", deviceHandler.Telemetry)
-	router.POST("/devices/:id/restore", deviceHandler.Restore)
-	router.GET("/devices/:id/tags", deviceHandler.GetTags)
-	router.PUT("/devices/:id/tags", deviceHandler.PutTags)
-	router.POST("/devices/:id/tags", deviceHandler.PostTags)
-	router.DELETE("/devices/:id/tags", deviceHandler.DeleteTags)
-	router.GET("/devices/:id/shadow", deviceHandler.GetShadow)
-	router.PUT("/devices/:id/shadow/desired", deviceHandler.Desired)
-	router.PUT("/devices/:id/shadow/reported", deviceHandler.Reported)
-	router.DELETE("/devices/:id/shadow/desired", deviceHandler.ClearDesired)
-	router.GET("/devices/:id/shadow/history", deviceHandler.History)
-	router.POST("/devices/:id/simulate-push", deviceHandler.SimulatePush)
-	router.GET("/devices/:id/push-records", deviceHandler.PushRecords)
-	router.GET("/devices/:id/push-records/:pushRecordId", deviceHandler.PushRecord)
-	router.DELETE("/devices/:id/push-records", deviceHandler.ClearPushRecords)
+	router.GET("/devices/:deviceKey/telemetry", deviceHandler.Telemetry)
+	router.POST("/devices/:deviceKey/restore", deviceHandler.Restore)
+	router.GET("/devices/:deviceKey/tags", deviceHandler.GetTags)
+	router.PUT("/devices/:deviceKey/tags", deviceHandler.PutTags)
+	router.POST("/devices/:deviceKey/tags", deviceHandler.PostTags)
+	router.DELETE("/devices/:deviceKey/tags", deviceHandler.DeleteTags)
+	router.GET("/devices/:deviceKey/shadow", deviceHandler.GetShadow)
+	router.PUT("/devices/:deviceKey/shadow/desired", deviceHandler.Desired)
+	router.PUT("/devices/:deviceKey/shadow/reported", deviceHandler.Reported)
+	router.DELETE("/devices/:deviceKey/shadow/desired", deviceHandler.ClearDesired)
+	router.GET("/devices/:deviceKey/shadow/history", deviceHandler.History)
+	router.POST("/devices/:deviceKey/simulate-push", deviceHandler.SimulatePush)
+	router.GET("/devices/:deviceKey/push-records", deviceHandler.PushRecords)
+	router.GET("/devices/:deviceKey/push-records/:pushRecordId", deviceHandler.PushRecord)
+	router.DELETE("/devices/:deviceKey/push-records", deviceHandler.ClearPushRecords)
 	router.GET("/devices/batch-template", deviceHandler.BatchTemplate)
 	router.POST("/devices/batch-upload", deviceHandler.BatchUpload)
 
@@ -78,7 +78,7 @@ func TestDeviceHandler_UpdateDevice(t *testing.T) {
 	router := setupDeviceRouterFull(mockService)
 
 	device := &model.Device{ID: 1, Name: "Updated Device"}
-	mockService.EXPECT().UpdateDevice(gomock.Any(), int64(1), "Updated Device", "", "").Return(device, nil)
+	mockService.EXPECT().UpdateDeviceByKey(gomock.Any(), "1", "Updated Device", "", "").Return(device, nil)
 
 	body, _ := json.Marshal(map[string]string{"name": "Updated Device"})
 	req, _ := http.NewRequest("PUT", "/devices/1", bytes.NewBuffer(body))
@@ -98,7 +98,7 @@ func TestDeviceHandler_Activate(t *testing.T) {
 	router := setupDeviceRouterFull(mockService)
 
 	device := &model.Device{ID: 1, Name: "Activated Device"}
-	mockService.EXPECT().Activate(gomock.Any(), int64(1)).Return(device, nil)
+	mockService.EXPECT().ActivateByKey(gomock.Any(), "1").Return(device, nil)
 
 	req, _ := http.NewRequest("POST", "/devices/1/activate", nil)
 	w := httptest.NewRecorder()
@@ -115,10 +115,10 @@ func TestDeviceHandler_Enabled(t *testing.T) {
 	router := setupDeviceRouterFull(mockService)
 
 	device := &model.Device{ID: 1, Name: "Enabled Device", Enabled: true}
-	mockService.EXPECT().SetEnabled(gomock.Any(), int64(1), true).Return(device, nil)
+	mockService.EXPECT().SetEnabledByKey(gomock.Any(), "1", true).Return(device, nil)
 
 	body, _ := json.Marshal(map[string]bool{"enabled": true})
-	req, _ := http.NewRequest("PUT", "/devices/1/enabled", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/devices/1/enabled", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
@@ -330,7 +330,7 @@ func TestDeviceHandler_Restore(t *testing.T) {
 	router := setupDeviceRouterFull(mockService)
 
 	device := &model.Device{ID: 1, Name: "Restored Device"}
-	mockService.EXPECT().RestoreDevice(gomock.Any(), int64(1)).Return(device, nil)
+	mockService.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(device, nil)
 
 	req, _ := http.NewRequest("POST", "/devices/1/restore", nil)
 	w := httptest.NewRecorder()

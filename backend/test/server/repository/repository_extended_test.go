@@ -425,6 +425,7 @@ func TestProductRepository_Find(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "product_key", "name", "status", "created_at", "updated_at"}).
 		AddRow(1, "P001", "Test Product", "active", time.Now(), time.Now())
 	mock.ExpectQuery("SELECT .+ FROM `products`").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT .+ FROM `product_protocols`").WillReturnRows(sqlmock.NewRows([]string{"id", "product_id", "transport_protocol", "application_protocol"}))
 
 	product, err := productRepo.Find(ctx, 1)
 	assert.NoError(t, err)
@@ -438,6 +439,7 @@ func TestProductRepository_FindByKey(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "product_key", "name", "status", "created_at", "updated_at"}).
 		AddRow(1, "P001", "Test Product", "active", time.Now(), time.Now())
 	mock.ExpectQuery("SELECT .+ FROM `products`").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT .+ FROM `product_protocols`").WillReturnRows(sqlmock.NewRows([]string{"id", "product_id", "transport_protocol", "application_protocol"}))
 
 	product, err := productRepo.FindByKey(ctx, "P001")
 	assert.NoError(t, err)
@@ -655,7 +657,7 @@ func setupSQLiteProductRepo(t *testing.T) (*repository.ProductRepository, *repos
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.Device{}))
+	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.Device{}, &model.Category{}, &model.ProductProtocol{}))
 	iotDB := &repository.IoTDB{DB: db}
 	repo := repository.NewRepository(nil, db)
 	productRepo := repository.NewProductRepository(iotDB)
@@ -1147,8 +1149,11 @@ func TestDeviceShadowRepository_GetShadow_NotFound_SQLite(t *testing.T) {
 	shadowRepo := setupSQLiteShadowRepo(t)
 	ctx := context.Background()
 
-	_, err := shadowRepo.GetShadow(ctx, 999)
-	assert.Error(t, err)
+	shadow, err := shadowRepo.GetShadow(ctx, 999)
+	assert.NoError(t, err)
+	assert.NotNil(t, shadow)
+	assert.Equal(t, int64(999), shadow.DeviceID)
+	assert.Equal(t, int64(0), shadow.Version)
 }
 
 func TestDeviceShadowRepository_ListShadowHistory_SQLite(t *testing.T) {

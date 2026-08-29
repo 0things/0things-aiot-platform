@@ -35,25 +35,25 @@ func mountDevice(r *gin.Engine, h *DeviceHandler) {
 	g.GET("/batch/template", h.BatchTemplate)
 	g.POST("/batch/upload", h.BatchUpload)
 	g.GET("/statistics", h.Stats)
-	g.GET("/:id", h.GetDevice)
-	g.PUT("/:id", h.UpdateDevice)
-	g.DELETE("/:id", h.DeleteDevice)
-	g.POST("/:id/activate", h.Activate)
-	g.POST("/:id/enabled", h.Enabled)
-	g.GET("/:id/telemetry", h.Telemetry)
-	g.POST("/:id/restore", h.Restore)
-	g.GET("/:id/tags", h.GetTags)
-	g.PUT("/:id/tags", h.PutTags)
-	g.POST("/:id/tags", h.PostTags)
-	g.DELETE("/:id/tags", h.DeleteTags)
-	g.GET("/:id/shadow", h.GetShadow)
-	g.PUT("/:id/shadow/desired", h.Desired)
-	g.PUT("/:id/shadow/reported", h.Reported)
-	g.DELETE("/:id/shadow/desired", h.ClearDesired)
-	g.GET("/:id/shadow/history", h.History)
-	g.POST("/:id/simulate-push", h.SimulatePush)
-	g.GET("/:id/push-records", h.PushRecords)
-	g.DELETE("/:id/push-records", h.ClearPushRecords)
+	g.GET("/:deviceKey", h.GetDevice)
+	g.PUT("/:deviceKey", h.UpdateDevice)
+	g.DELETE("/:deviceKey", h.DeleteDevice)
+	g.POST("/:deviceKey/activate", h.Activate)
+	g.POST("/:deviceKey/enabled", h.Enabled)
+	g.GET("/:deviceKey/telemetry", h.Telemetry)
+	g.POST("/:deviceKey/restore", h.Restore)
+	g.GET("/:deviceKey/tags", h.GetTags)
+	g.PUT("/:deviceKey/tags", h.PutTags)
+	g.POST("/:deviceKey/tags", h.PostTags)
+	g.DELETE("/:deviceKey/tags", h.DeleteTags)
+	g.GET("/:deviceKey/shadow", h.GetShadow)
+	g.PUT("/:deviceKey/shadow/desired", h.Desired)
+	g.PUT("/:deviceKey/shadow/reported", h.Reported)
+	g.DELETE("/:deviceKey/shadow/desired", h.ClearDesired)
+	g.GET("/:deviceKey/shadow/history", h.History)
+	g.POST("/:deviceKey/simulate-push", h.SimulatePush)
+	g.GET("/:deviceKey/push-records", h.PushRecords)
+	g.DELETE("/:deviceKey/push-records", h.ClearPushRecords)
 	r.GET("/devices/push-records/:pushRecordId", h.PushRecord)
 }
 
@@ -104,19 +104,10 @@ func TestDeviceHandler_CreateDevice_BindError(t *testing.T) {
 func TestDeviceHandler_GetDevice(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().Device(gomock.Any(), int64(1)).Return(sampleDevice(), nil)
+	m.EXPECT().DeviceByKey(gomock.Any(), "1").Return(sampleDevice(), nil)
 	w := doDeviceReq(h, http.MethodGet, "/devices/1", nil, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
-	}
-}
-
-func TestDeviceHandler_GetDevice_InvalidID(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	h, _ := newTestDeviceHandler(t, ctrl, viper.New())
-	w := doDeviceReq(h, http.MethodGet, "/devices/abc", nil, nil)
-	if w.Code == http.StatusOK {
-		t.Fatalf("expected error")
 	}
 }
 
@@ -144,7 +135,7 @@ func TestDeviceHandler_ListDevices(t *testing.T) {
 func TestDeviceHandler_UpdateDevice(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().UpdateDevice(gomock.Any(), int64(1), "n", "", "").Return(sampleDevice(), nil)
+	m.EXPECT().UpdateDeviceByKey(gomock.Any(), "1", "n", "", "").Return(sampleDevice(), nil)
 	w := doDeviceReq(h, http.MethodPut, "/devices/1", []byte(`{"name":"n"}`), nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
@@ -154,7 +145,7 @@ func TestDeviceHandler_UpdateDevice(t *testing.T) {
 func TestDeviceHandler_DeleteDevice(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().DeleteDevice(gomock.Any(), int64(1)).Return(nil)
+	m.EXPECT().DeleteDeviceByKey(gomock.Any(), "1").Return(nil)
 	w := doDeviceReq(h, http.MethodDelete, "/devices/1", nil, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
@@ -164,7 +155,7 @@ func TestDeviceHandler_DeleteDevice(t *testing.T) {
 func TestDeviceHandler_Activate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().Activate(gomock.Any(), int64(1)).Return(sampleDevice(), nil)
+	m.EXPECT().ActivateByKey(gomock.Any(), "1").Return(sampleDevice(), nil)
 	w := doDeviceReq(h, http.MethodPost, "/devices/1/activate", nil, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
@@ -174,7 +165,7 @@ func TestDeviceHandler_Activate(t *testing.T) {
 func TestDeviceHandler_Enabled(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().SetEnabled(gomock.Any(), int64(1), true).Return(sampleDevice(), nil)
+	m.EXPECT().SetEnabledByKey(gomock.Any(), "1", true).Return(sampleDevice(), nil)
 	w := doDeviceReq(h, http.MethodPost, "/devices/1/enabled", []byte(`{"enabled":true}`), nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
@@ -204,7 +195,7 @@ func TestDeviceHandler_Telemetry(t *testing.T) {
 func TestDeviceHandler_Restore(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().RestoreDevice(gomock.Any(), int64(1)).Return(sampleDevice(), nil)
+	m.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(sampleDevice(), nil)
 	w := doDeviceReq(h, http.MethodPost, "/devices/1/restore", nil, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
@@ -396,7 +387,7 @@ func TestDeviceHandler_BatchUpload_NoFile(t *testing.T) {
 func TestDeviceHandler_ServiceError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().Device(gomock.Any(), int64(1)).Return(nil, repository.ErrNotFound)
+	m.EXPECT().DeviceByKey(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
 	w := doDeviceReq(h, http.MethodGet, "/devices/1", nil, nil)
 	if w.Code == http.StatusOK {
 		t.Fatalf("expected error")

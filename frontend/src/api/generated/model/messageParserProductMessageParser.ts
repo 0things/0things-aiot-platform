@@ -7,8 +7,8 @@
  */
 
 export interface MessageParserProductMessageParser {
-  isDefault?: boolean;
-  language?: string;
-  productKey?: string;
-  script?: string;
+  isDefault?: boolean
+  language?: string
+  productKey?: string
+  script?: string
 }

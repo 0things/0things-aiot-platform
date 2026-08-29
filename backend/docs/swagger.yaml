@@ -462,6 +462,42 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceGroup'
+      message:
+        type: string
+    type: object
+  ApiResponse-aiot-backend_api_device_group_v1_DeviceGroupDevicesResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceGroupDevicesResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-aiot-backend_api_device_group_v1_ListDeviceGroupsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_device_group_v1.ListDeviceGroupsResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_device_group_v1.PreviewResponse'
+      message:
+        type: string
+    type: object
   ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints:
     properties:
       code:
@@ -490,6 +526,15 @@ definitions:
         items:
           $ref: '#/definitions/aiot-backend_api_category_v1.Category'
         type: array
+      message:
+        type: string
+    type: object
+  ApiResponse-map_string_bool:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/map_string_bool'
       message:
         type: string
     type: object
@@ -1234,6 +1279,43 @@ definitions:
       product:
         $ref: '#/definitions/Product'
     type: object
+  ProductListItem:
+    properties:
+      accessProtocol:
+        type: string
+      categoryId:
+        type: integer
+      categoryName:
+        type: string
+      connectivityMethod:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      deviceCount:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      nodeType:
+        type: string
+      organizationId:
+        type: integer
+      productKey:
+        type: string
+      protocols:
+        items:
+          $ref: '#/definitions/aiot-backend_api_product_v1.ProductProtocolInput'
+        type: array
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   ProductListProductsResponse:
     properties:
       page:
@@ -1242,7 +1324,7 @@ definitions:
         type: integer
       products:
         items:
-          $ref: '#/definitions/Product'
+          $ref: '#/definitions/ProductListItem'
         type: array
       total:
         type: integer
@@ -1390,6 +1472,102 @@ definitions:
       sort:
         type: integer
     type: object
+  aiot-backend_api_device_group_v1.CreateDeviceGroupRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      rule:
+        type: string
+      type:
+        type: string
+    required:
+    - name
+    - type
+    type: object
+  aiot-backend_api_device_group_v1.DeviceGroup:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      groupUuid:
+        type: string
+      name:
+        type: string
+      rule:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  aiot-backend_api_device_group_v1.DeviceGroupDevicesResponse:
+    properties:
+      devices:
+        items:
+          $ref: '#/definitions/Device'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  aiot-backend_api_device_group_v1.DeviceKeysRequest:
+    properties:
+      deviceKeys:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - deviceKeys
+    type: object
+  aiot-backend_api_device_group_v1.ListDeviceGroupsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceGroup'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  aiot-backend_api_device_group_v1.PreviewRequest:
+    properties:
+      rule:
+        type: string
+    required:
+    - rule
+    type: object
+  aiot-backend_api_device_group_v1.PreviewResponse:
+    properties:
+      devices:
+        items:
+          $ref: '#/definitions/Device'
+        type: array
+      total:
+        type: integer
+    type: object
+  aiot-backend_api_device_group_v1.UpdateDeviceGroupRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      rule:
+        type: string
+    required:
+    - name
+    type: object
   aiot-backend_api_product_v1.ProductProtocolInput:
     properties:
       applicationProtocol:
@@ -1444,6 +1622,10 @@ definitions:
         type: string
       telemetryTopic:
         type: string
+    type: object
+  map_string_bool:
+    additionalProperties:
+      type: boolean
     type: object
 host: localhost:8000
 info:
@@ -1540,6 +1722,234 @@ paths:
       summary: 获取设备事件列表
       tags:
       - 事件管理
+  /device-groups:
+    get:
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 分组名称
+        in: query
+        name: search
+        type: string
+      - description: 分组类型
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_ListDeviceGroupsResponse'
+      summary: 查询设备分组
+      tags:
+      - 设备分组
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分组参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aiot-backend_api_device_group_v1.CreateDeviceGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup'
+      summary: 创建设备分组
+      tags:
+      - 设备分组
+  /device-groups/{groupUuid}:
+    delete:
+      parameters:
+      - description: 分组 UUID
+        in: path
+        name: groupUuid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-map_string_bool'
+      summary: 删除设备分组
+      tags:
+      - 设备分组
+    get:
+      parameters:
+      - description: 分组 UUID
+        in: path
+        name: groupUuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup'
+      summary: 查询设备分组详情
+      tags:
+      - 设备分组
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分组 UUID
+        in: path
+        name: groupUuid
+        required: true
+        type: string
+      - description: 分组参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aiot-backend_api_device_group_v1.UpdateDeviceGroupRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup'
+      summary: 更新设备分组
+      tags:
+      - 设备分组
+  /device-groups/{groupUuid}/devices:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分组 UUID
+        in: path
+        name: groupUuid
+        required: true
+        type: string
+      - description: 设备 Key 列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceKeysRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-map_string_bool'
+      summary: 移除分组设备
+      tags:
+      - 设备分组
+    get:
+      parameters:
+      - description: 分组 UUID
+        in: path
+        name: groupUuid
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 产品 Key
+        in: query
+        name: productKey
+        type: string
+      - description: 设备 Key 或名称
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroupDevicesResponse'
+      summary: 查询分组设备
+      tags:
+      - 设备分组
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分组 UUID
+        in: path
+        name: groupUuid
+        required: true
+        type: string
+      - description: 设备 Key 列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceKeysRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-map_string_bool'
+      summary: 添加分组设备
+      tags:
+      - 设备分组
+  /device-groups/{groupUuid}/preview:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分组 UUID
+        in: path
+        name: groupUuid
+        required: true
+        type: string
+      - description: 动态规则
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aiot-backend_api_device_group_v1.PreviewRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse'
+      summary: 预览已保存动态规则
+      tags:
+      - 设备分组
+  /device-groups/preview:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 动态规则
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aiot-backend_api_device_group_v1.PreviewRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse'
+      summary: 预览未保存动态规则
+      tags:
+      - 设备分组
   /device-statistics:
     get:
       consumes:

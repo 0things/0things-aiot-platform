@@ -7,8 +7,8 @@
  */
 
 export type GetOtaPackagesUuidUpgradeStatisticsParams = {
-/**
- * 批次 ID
- */
-batchId?: string;
-};
+  /**
+   * 批次 ID
+   */
+  batchId?: string
+}

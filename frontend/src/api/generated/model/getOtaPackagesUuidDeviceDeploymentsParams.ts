@@ -7,16 +7,16 @@
  */
 
 export type GetOtaPackagesUuidDeviceDeploymentsParams = {
-/**
- * 页码
- */
-page?: number;
-/**
- * 每页数量
- */
-pageSize?: number;
-/**
- * 部署状态
- */
-status?: string;
-};
+  /**
+   * 页码
+   */
+  page?: number
+  /**
+   * 每页数量
+   */
+  pageSize?: number
+  /**
+   * 部署状态
+   */
+  status?: string
+}

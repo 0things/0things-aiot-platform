@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DeviceBatchUploadDevicesResponse } from './deviceBatchUploadDevicesResponse';
+import type { DeviceBatchUploadDevicesResponse } from './deviceBatchUploadDevicesResponse'
 
 export interface ApiResponseDeviceBatchUploadDevicesResponse {
-  code?: number;
-  data?: DeviceBatchUploadDevicesResponse;
-  message?: string;
+  code?: number
+  data?: DeviceBatchUploadDevicesResponse
+  message?: string
 }

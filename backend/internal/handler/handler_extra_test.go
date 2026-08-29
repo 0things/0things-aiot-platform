@@ -134,7 +134,7 @@ func TestProductHandler_CRUD(t *testing.T) {
 	h := NewProductHandler(baseHandler(t), m)
 
 	m.EXPECT().Create(gomock.Any(), gomock.Any()).Return(&model.Product{ID: 1}, nil)
-	c, w := hctx(http.MethodPost, "/products", []byte(`{"name":"p"}`), nil, nil)
+	c, w := hctx(http.MethodPost, "/products", []byte(`{"name":"p","categoryId":1}`), nil, nil)
 	h.Create(c)
 	if w.Code != http.StatusOK {
 		t.Fatalf("Create got %d", w.Code)
@@ -147,7 +147,7 @@ func TestProductHandler_CRUD(t *testing.T) {
 		t.Fatalf("Get got %d", w.Code)
 	}
 
-	m.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]model.Product{}, int64(0), nil)
+	m.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, int64(0), nil)
 	c, w = hctx(http.MethodGet, "/products", nil, nil, nil)
 	h.List(c)
 	if w.Code != http.StatusOK {

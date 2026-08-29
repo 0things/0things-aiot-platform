@@ -5,10 +5,7 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -21,12 +18,21 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
-
+  UseQueryResult,
+} from '@tanstack/react-query'
+import { orvalAxios } from '../orval-mutator'
+import type { ErrorType, BodyType } from '../orval-mutator'
 import type {
+  AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest,
+  AiotBackendApiDeviceGroupV1DeviceKeysRequest,
+  AiotBackendApiDeviceGroupV1PreviewRequest,
+  AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest,
   ApiLoginRequest,
   ApiRegisterRequest,
+  ApiResponseAiotBackendApiDeviceGroupV1DeviceGroup,
+  ApiResponseAiotBackendApiDeviceGroupV1DeviceGroupDevicesResponse,
+  ApiResponseAiotBackendApiDeviceGroupV1ListDeviceGroupsResponse,
+  ApiResponseAiotBackendApiDeviceGroupV1PreviewResponse,
   ApiResponseAiotBackendApiProtocolV1DeviceEndpoints,
   ApiResponseApiGetProfileResponseData,
   ApiResponseApiLoginResponseData,
@@ -57,6 +63,7 @@ import type {
   ApiResponseGetSceneLinkageDetailResponse,
   ApiResponseGetSceneLinkageResponse,
   ApiResponseListSceneLinkagesResponse,
+  ApiResponseMapStringBool,
   ApiResponseMessageParserExecuteProductMessageParserResponse,
   ApiResponseMessageParserProductMessageParser,
   ApiResponseOtaGetUpgradeStatisticsResponse,
@@ -90,6 +97,8 @@ import type {
   DeviceUpdateDeviceRequest,
   DeviceUpdateReportedShadowRequest,
   GetDeviceEventsParams,
+  GetDeviceGroupsGroupUuidDevicesParams,
+  GetDeviceGroupsParams,
   GetDevicesDeviceKeyPushRecordsParams,
   GetDevicesParams,
   GetOtaPackagesParams,
@@ -109,5041 +118,8731 @@ import type {
   ProductTslUpsertProductTSLRequest,
   ProductUpdateProductRequest,
   SceneLinkageDetailRequest,
-  SceneLinkageRequest
-} from './model';
+  SceneLinkageRequest,
+} from './model'
 
-import { orvalAxios } from '../orval-mutator';
-import type { ErrorType , BodyType } from '../orval-mutator';
-const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
-  const result = { queryKey } as T & { queryKey: K };
+const withQueryKey = <T extends object, K>(
+  query: T,
+  queryKey: K
+): T & { queryKey: K } => {
+  const result = { queryKey } as T & { queryKey: K }
   for (const key of Object.keys(query)) {
     // The explicit queryKey always wins, matching the previous
     // `{ ...query, queryKey }` spread where it was set last.
-    if (key === 'queryKey') continue;
+    if (key === 'queryKey') continue
     Object.defineProperty(result, key, {
       enumerable: true,
       configurable: true,
       get: () => (query as Record<string, unknown>)[key],
-    });
+    })
   }
-  return result;
-};
+  return result
+}
 
 /**
  * @summary 切换组织
  */
 export const postAuthSwitchOrg = (
-    apiSwitchOrgRequest: BodyType<ApiSwitchOrgRequest>,
- signal?: AbortSignal
+  apiSwitchOrgRequest: BodyType<ApiSwitchOrgRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseApiSwitchOrgResponseData>({
+    url: `/auth/switch-org`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: apiSwitchOrgRequest,
+    signal,
+  })
+}
 
+export const getPostAuthSwitchOrgMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postAuthSwitchOrg>>,
+    TError,
+    { data: BodyType<ApiSwitchOrgRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postAuthSwitchOrg>>,
+  TError,
+  { data: BodyType<ApiSwitchOrgRequest> },
+  TContext
+> => {
+  const mutationKey = ['postAuthSwitchOrg']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseApiSwitchOrgResponseData>(
-      {url: `/auth/switch-org`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: apiSwitchOrgRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postAuthSwitchOrg>>,
+    { data: BodyType<ApiSwitchOrgRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postAuthSwitchOrg(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostAuthSwitchOrgMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postAuthSwitchOrg>>
+>
+export type PostAuthSwitchOrgMutationBody = BodyType<ApiSwitchOrgRequest>
+export type PostAuthSwitchOrgMutationError = ErrorType<unknown>
 
-export const getPostAuthSwitchOrgMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthSwitchOrg>>, TError,{data: BodyType<ApiSwitchOrgRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postAuthSwitchOrg>>, TError,{data: BodyType<ApiSwitchOrgRequest>}, TContext> => {
-
-const mutationKey = ['postAuthSwitchOrg'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAuthSwitchOrg>>, {data: BodyType<ApiSwitchOrgRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postAuthSwitchOrg(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostAuthSwitchOrgMutationResult = NonNullable<Awaited<ReturnType<typeof postAuthSwitchOrg>>>
-    export type PostAuthSwitchOrgMutationBody = BodyType<ApiSwitchOrgRequest>
-    export type PostAuthSwitchOrgMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 切换组织
  */
-export const usePostAuthSwitchOrg = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthSwitchOrg>>, TError,{data: BodyType<ApiSwitchOrgRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postAuthSwitchOrg>>,
-        TError,
-        {data: BodyType<ApiSwitchOrgRequest>},
-        TContext
-      > => {
-      return useMutation(getPostAuthSwitchOrgMutationOptions(options), queryClient);
-    }
+export const usePostAuthSwitchOrg = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postAuthSwitchOrg>>,
+      TError,
+      { data: BodyType<ApiSwitchOrgRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postAuthSwitchOrg>>,
+  TError,
+  { data: BodyType<ApiSwitchOrgRequest> },
+  TContext
+> => {
+  return useMutation(getPostAuthSwitchOrgMutationOptions(options), queryClient)
+}
 
 /**
  * @summary 获取产品分类树
  */
-export const getCategoriesTree = (
-
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<ApiResponseArrayAiotBackendApiCategoryV1Category>(
-      {url: `/categories/tree`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetCategoriesTreeQueryKey = () => {
-    return [
-    `/categories/tree`
-    ] as const;
-    }
-
-
-export const getGetCategoriesTreeQueryOptions = <TData = Awaited<ReturnType<typeof getCategoriesTree>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesTree>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetCategoriesTreeQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCategoriesTree>>> = ({ signal }) => getCategoriesTree(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCategoriesTree>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getCategoriesTree = (signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseArrayAiotBackendApiCategoryV1Category>({
+    url: `/categories/tree`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetCategoriesTreeQueryResult = NonNullable<Awaited<ReturnType<typeof getCategoriesTree>>>
+export const getGetCategoriesTreeQueryKey = () => {
+  return [`/categories/tree`] as const
+}
+
+export const getGetCategoriesTreeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCategoriesTree>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getCategoriesTree>>,
+      TError,
+      TData
+    >
+  >
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetCategoriesTreeQueryKey()
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCategoriesTree>>
+  > = ({ signal }) => getCategoriesTree(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCategoriesTree>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCategoriesTreeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCategoriesTree>>
+>
 export type GetCategoriesTreeQueryError = ErrorType<unknown>
 
-
-export function useGetCategoriesTree<TData = Awaited<ReturnType<typeof getCategoriesTree>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesTree>>, TError, TData>> & Pick<
+export function useGetCategoriesTree<
+  TData = Awaited<ReturnType<typeof getCategoriesTree>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCategoriesTree>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getCategoriesTree>>,
           TError,
           Awaited<ReturnType<typeof getCategoriesTree>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetCategoriesTree<TData = Awaited<ReturnType<typeof getCategoriesTree>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesTree>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetCategoriesTree<
+  TData = Awaited<ReturnType<typeof getCategoriesTree>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCategoriesTree>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getCategoriesTree>>,
           TError,
           Awaited<ReturnType<typeof getCategoriesTree>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetCategoriesTree<TData = Awaited<ReturnType<typeof getCategoriesTree>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesTree>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetCategoriesTree<
+  TData = Awaited<ReturnType<typeof getCategoriesTree>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCategoriesTree>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取产品分类树
  */
 
-export function useGetCategoriesTree<TData = Awaited<ReturnType<typeof getCategoriesTree>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesTree>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
+export function useGetCategoriesTree<
+  TData = Awaited<ReturnType<typeof getCategoriesTree>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCategoriesTree>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
   const queryOptions = getGetCategoriesTreeQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选
  * @summary 获取设备事件列表
  */
 export const getDeviceEvents = (
-    params?: GetDeviceEventsParams,
- signal?: AbortSignal
+  params?: GetDeviceEventsParams,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseDeviceEventListDeviceEventsResponse>(
-      {url: `/device-events`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDeviceEventsQueryKey = (params?: GetDeviceEventsParams,) => {
-    return [
-    `/device-events`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetDeviceEventsQueryOptions = <TData = Awaited<ReturnType<typeof getDeviceEvents>>, TError = ErrorType<unknown>>(params?: GetDeviceEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceEvents>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDeviceEventsQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDeviceEvents>>> = ({ signal }) => getDeviceEvents(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDeviceEvents>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseDeviceEventListDeviceEventsResponse>({
+    url: `/device-events`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
-export type GetDeviceEventsQueryResult = NonNullable<Awaited<ReturnType<typeof getDeviceEvents>>>
+export const getGetDeviceEventsQueryKey = (params?: GetDeviceEventsParams) => {
+  return [`/device-events`, ...(params ? [params] : [])] as const
+}
+
+export const getGetDeviceEventsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDeviceEvents>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDeviceEventsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceEvents>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetDeviceEventsQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDeviceEvents>>> = ({
+    signal,
+  }) => getDeviceEvents(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDeviceEvents>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDeviceEventsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDeviceEvents>>
+>
 export type GetDeviceEventsQueryError = ErrorType<unknown>
 
-
-export function useGetDeviceEvents<TData = Awaited<ReturnType<typeof getDeviceEvents>>, TError = ErrorType<unknown>>(
- params: undefined |  GetDeviceEventsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceEvents>>, TError, TData>> & Pick<
+export function useGetDeviceEvents<
+  TData = Awaited<ReturnType<typeof getDeviceEvents>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetDeviceEventsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceEvents>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDeviceEvents>>,
           TError,
           Awaited<ReturnType<typeof getDeviceEvents>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDeviceEvents<TData = Awaited<ReturnType<typeof getDeviceEvents>>, TError = ErrorType<unknown>>(
- params?: GetDeviceEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceEvents>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceEvents<
+  TData = Awaited<ReturnType<typeof getDeviceEvents>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDeviceEventsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceEvents>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDeviceEvents>>,
           TError,
           Awaited<ReturnType<typeof getDeviceEvents>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDeviceEvents<TData = Awaited<ReturnType<typeof getDeviceEvents>>, TError = ErrorType<unknown>>(
- params?: GetDeviceEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceEvents>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceEvents<
+  TData = Awaited<ReturnType<typeof getDeviceEvents>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDeviceEventsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceEvents>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备事件列表
  */
 
-export function useGetDeviceEvents<TData = Awaited<ReturnType<typeof getDeviceEvents>>, TError = ErrorType<unknown>>(
- params?: GetDeviceEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceEvents>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDeviceEvents<
+  TData = Awaited<ReturnType<typeof getDeviceEvents>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDeviceEventsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceEvents>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDeviceEventsQueryOptions(params, options)
 
-  const queryOptions = getGetDeviceEventsQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
 
+/**
+ * @summary 查询设备分组
+ */
+export const getDeviceGroups = (
+  params?: GetDeviceGroupsParams,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1ListDeviceGroupsResponse>(
+    { url: `/device-groups`, method: 'GET', params, signal }
+  )
+}
 
+export const getGetDeviceGroupsQueryKey = (params?: GetDeviceGroupsParams) => {
+  return [`/device-groups`, ...(params ? [params] : [])] as const
+}
 
+export const getGetDeviceGroupsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDeviceGroups>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDeviceGroupsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroups>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
 
+  const queryKey = queryOptions?.queryKey ?? getGetDeviceGroupsQueryKey(params)
 
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDeviceGroups>>> = ({
+    signal,
+  }) => getDeviceGroups(params, signal)
 
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDeviceGroups>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDeviceGroupsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDeviceGroups>>
+>
+export type GetDeviceGroupsQueryError = ErrorType<unknown>
+
+export function useGetDeviceGroups<
+  TData = Awaited<ReturnType<typeof getDeviceGroups>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetDeviceGroupsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroups>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDeviceGroups>>,
+          TError,
+          Awaited<ReturnType<typeof getDeviceGroups>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceGroups<
+  TData = Awaited<ReturnType<typeof getDeviceGroups>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDeviceGroupsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroups>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDeviceGroups>>,
+          TError,
+          Awaited<ReturnType<typeof getDeviceGroups>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceGroups<
+  TData = Awaited<ReturnType<typeof getDeviceGroups>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDeviceGroupsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroups>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary 查询设备分组
+ */
+
+export function useGetDeviceGroups<
+  TData = Awaited<ReturnType<typeof getDeviceGroups>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDeviceGroupsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroups>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDeviceGroupsQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * @summary 创建设备分组
+ */
+export const postDeviceGroups = (
+  aiotBackendApiDeviceGroupV1CreateDeviceGroupRequest: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1DeviceGroup>({
+    url: `/device-groups`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: aiotBackendApiDeviceGroupV1CreateDeviceGroupRequest,
+    signal,
+  })
+}
+
+export const getPostDeviceGroupsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDeviceGroups>>,
+    TError,
+    { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDeviceGroups>>,
+  TError,
+  { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> },
+  TContext
+> => {
+  const mutationKey = ['postDeviceGroups']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDeviceGroups>>,
+    { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postDeviceGroups(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostDeviceGroupsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDeviceGroups>>
+>
+export type PostDeviceGroupsMutationBody =
+  BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest>
+export type PostDeviceGroupsMutationError = ErrorType<unknown>
+
+/**
+ * @summary 创建设备分组
+ */
+export const usePostDeviceGroups = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDeviceGroups>>,
+      TError,
+      { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDeviceGroups>>,
+  TError,
+  { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> },
+  TContext
+> => {
+  return useMutation(getPostDeviceGroupsMutationOptions(options), queryClient)
+}
+
+/**
+ * @summary 预览未保存动态规则
+ */
+export const postDeviceGroupsPreview = (
+  aiotBackendApiDeviceGroupV1PreviewRequest: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1PreviewResponse>({
+    url: `/device-groups/preview`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: aiotBackendApiDeviceGroupV1PreviewRequest,
+    signal,
+  })
+}
+
+export const getPostDeviceGroupsPreviewMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
+    TError,
+    { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
+  TError,
+  { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> },
+  TContext
+> => {
+  const mutationKey = ['postDeviceGroupsPreview']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
+    { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postDeviceGroupsPreview(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostDeviceGroupsPreviewMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDeviceGroupsPreview>>
+>
+export type PostDeviceGroupsPreviewMutationBody =
+  BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+export type PostDeviceGroupsPreviewMutationError = ErrorType<unknown>
+
+/**
+ * @summary 预览未保存动态规则
+ */
+export const usePostDeviceGroupsPreview = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
+      TError,
+      { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
+  TError,
+  { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPostDeviceGroupsPreviewMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
+ * @summary 查询设备分组详情
+ */
+export const getDeviceGroupsGroupUuid = (
+  groupUuid: string,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1DeviceGroup>({
+    url: `/device-groups/${groupUuid}`,
+    method: 'GET',
+    signal,
+  })
+}
+
+export const getGetDeviceGroupsGroupUuidQueryKey = (groupUuid: string) => {
+  return [`/device-groups/${groupUuid}`] as const
+}
+
+export const getGetDeviceGroupsGroupUuidQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDeviceGroupsGroupUuidQueryKey(groupUuid)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>
+  > = ({ signal }) => getDeviceGroupsGroupUuid(groupUuid, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: groupUuid !== null && groupUuid !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDeviceGroupsGroupUuidQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>
+>
+export type GetDeviceGroupsGroupUuidQueryError = ErrorType<unknown>
+
+export function useGetDeviceGroupsGroupUuid<
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+          TError,
+          Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceGroupsGroupUuid<
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+          TError,
+          Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceGroupsGroupUuid<
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary 查询设备分组详情
+ */
+
+export function useGetDeviceGroupsGroupUuid<
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuid>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDeviceGroupsGroupUuidQueryOptions(
+    groupUuid,
+    options
+  )
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * @summary 更新设备分组
+ */
+export const putDeviceGroupsGroupUuid = (
+  groupUuid: string,
+  aiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1DeviceGroup>({
+    url: `/device-groups/${groupUuid}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: aiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest,
+    signal,
+  })
+}
+
+export const getPutDeviceGroupsGroupUuidMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putDeviceGroupsGroupUuid>>,
+    TError,
+    {
+      groupUuid: string
+      data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+    },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putDeviceGroupsGroupUuid>>,
+  TError,
+  {
+    groupUuid: string
+    data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+  },
+  TContext
+> => {
+  const mutationKey = ['putDeviceGroupsGroupUuid']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putDeviceGroupsGroupUuid>>,
+    {
+      groupUuid: string
+      data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+    }
+  > = (props) => {
+    const { groupUuid, data } = props ?? {}
+
+    return putDeviceGroupsGroupUuid(groupUuid, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutDeviceGroupsGroupUuidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putDeviceGroupsGroupUuid>>
+>
+export type PutDeviceGroupsGroupUuidMutationBody =
+  BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+export type PutDeviceGroupsGroupUuidMutationError = ErrorType<unknown>
+
+/**
+ * @summary 更新设备分组
+ */
+export const usePutDeviceGroupsGroupUuid = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putDeviceGroupsGroupUuid>>,
+      TError,
+      {
+        groupUuid: string
+        data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+      },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putDeviceGroupsGroupUuid>>,
+  TError,
+  {
+    groupUuid: string
+    data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+  },
+  TContext
+> => {
+  return useMutation(
+    getPutDeviceGroupsGroupUuidMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
+ * @summary 删除设备分组
+ */
+export const deleteDeviceGroupsGroupUuid = (
+  groupUuid: string,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseMapStringBool>({
+    url: `/device-groups/${groupUuid}`,
+    method: 'DELETE',
+    signal,
+  })
+}
+
+export const getDeleteDeviceGroupsGroupUuidMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuid>>,
+    TError,
+    { groupUuid: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuid>>,
+  TError,
+  { groupUuid: string },
+  TContext
+> => {
+  const mutationKey = ['deleteDeviceGroupsGroupUuid']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuid>>,
+    { groupUuid: string }
+  > = (props) => {
+    const { groupUuid } = props ?? {}
+
+    return deleteDeviceGroupsGroupUuid(groupUuid)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteDeviceGroupsGroupUuidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuid>>
+>
+
+export type DeleteDeviceGroupsGroupUuidMutationError = ErrorType<unknown>
+
+/**
+ * @summary 删除设备分组
+ */
+export const useDeleteDeviceGroupsGroupUuid = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuid>>,
+      TError,
+      { groupUuid: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuid>>,
+  TError,
+  { groupUuid: string },
+  TContext
+> => {
+  return useMutation(
+    getDeleteDeviceGroupsGroupUuidMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
+ * @summary 查询分组设备
+ */
+export const getDeviceGroupsGroupUuidDevices = (
+  groupUuid: string,
+  params?: GetDeviceGroupsGroupUuidDevicesParams,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1DeviceGroupDevicesResponse>(
+    {
+      url: `/device-groups/${groupUuid}/devices`,
+      method: 'GET',
+      params,
+      signal,
+    }
+  )
+}
+
+export const getGetDeviceGroupsGroupUuidDevicesQueryKey = (
+  groupUuid: string,
+  params?: GetDeviceGroupsGroupUuidDevicesParams
+) => {
+  return [
+    `/device-groups/${groupUuid}/devices`,
+    ...(params ? [params] : []),
+  ] as const
+}
+
+export const getGetDeviceGroupsGroupUuidDevicesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  params?: GetDeviceGroupsGroupUuidDevicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetDeviceGroupsGroupUuidDevicesQueryKey(groupUuid, params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>
+  > = ({ signal }) => getDeviceGroupsGroupUuidDevices(groupUuid, params, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: groupUuid !== null && groupUuid !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDeviceGroupsGroupUuidDevicesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>
+>
+export type GetDeviceGroupsGroupUuidDevicesQueryError = ErrorType<unknown>
+
+export function useGetDeviceGroupsGroupUuidDevices<
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  params: undefined | GetDeviceGroupsGroupUuidDevicesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+          TError,
+          Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceGroupsGroupUuidDevices<
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  params?: GetDeviceGroupsGroupUuidDevicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+          TError,
+          Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceGroupsGroupUuidDevices<
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  params?: GetDeviceGroupsGroupUuidDevicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary 查询分组设备
+ */
+
+export function useGetDeviceGroupsGroupUuidDevices<
+  TData = Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  groupUuid: string,
+  params?: GetDeviceGroupsGroupUuidDevicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceGroupsGroupUuidDevices>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDeviceGroupsGroupUuidDevicesQueryOptions(
+    groupUuid,
+    params,
+    options
+  )
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * @summary 添加分组设备
+ */
+export const postDeviceGroupsGroupUuidDevices = (
+  groupUuid: string,
+  aiotBackendApiDeviceGroupV1DeviceKeysRequest: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseMapStringBool>({
+    url: `/device-groups/${groupUuid}/devices`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: aiotBackendApiDeviceGroupV1DeviceKeysRequest,
+    signal,
+  })
+}
+
+export const getPostDeviceGroupsGroupUuidDevicesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
+    TError,
+    {
+      groupUuid: string
+      data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+    },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
+  TError,
+  {
+    groupUuid: string
+    data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+  },
+  TContext
+> => {
+  const mutationKey = ['postDeviceGroupsGroupUuidDevices']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
+    {
+      groupUuid: string
+      data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+    }
+  > = (props) => {
+    const { groupUuid, data } = props ?? {}
+
+    return postDeviceGroupsGroupUuidDevices(groupUuid, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostDeviceGroupsGroupUuidDevicesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>
+>
+export type PostDeviceGroupsGroupUuidDevicesMutationBody =
+  BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+export type PostDeviceGroupsGroupUuidDevicesMutationError = ErrorType<unknown>
+
+/**
+ * @summary 添加分组设备
+ */
+export const usePostDeviceGroupsGroupUuidDevices = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
+      TError,
+      {
+        groupUuid: string
+        data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+      },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
+  TError,
+  {
+    groupUuid: string
+    data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+  },
+  TContext
+> => {
+  return useMutation(
+    getPostDeviceGroupsGroupUuidDevicesMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
+ * @summary 移除分组设备
+ */
+export const deleteDeviceGroupsGroupUuidDevices = (
+  groupUuid: string,
+  aiotBackendApiDeviceGroupV1DeviceKeysRequest: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseMapStringBool>({
+    url: `/device-groups/${groupUuid}/devices`,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    data: aiotBackendApiDeviceGroupV1DeviceKeysRequest,
+    signal,
+  })
+}
+
+export const getDeleteDeviceGroupsGroupUuidDevicesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
+    TError,
+    {
+      groupUuid: string
+      data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+    },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
+  TError,
+  {
+    groupUuid: string
+    data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+  },
+  TContext
+> => {
+  const mutationKey = ['deleteDeviceGroupsGroupUuidDevices']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
+    {
+      groupUuid: string
+      data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+    }
+  > = (props) => {
+    const { groupUuid, data } = props ?? {}
+
+    return deleteDeviceGroupsGroupUuidDevices(groupUuid, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteDeviceGroupsGroupUuidDevicesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>
+>
+export type DeleteDeviceGroupsGroupUuidDevicesMutationBody =
+  BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+export type DeleteDeviceGroupsGroupUuidDevicesMutationError = ErrorType<unknown>
+
+/**
+ * @summary 移除分组设备
+ */
+export const useDeleteDeviceGroupsGroupUuidDevices = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
+      TError,
+      {
+        groupUuid: string
+        data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+      },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
+  TError,
+  {
+    groupUuid: string
+    data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+  },
+  TContext
+> => {
+  return useMutation(
+    getDeleteDeviceGroupsGroupUuidDevicesMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
+ * @summary 预览已保存动态规则
+ */
+export const postDeviceGroupsGroupUuidPreview = (
+  groupUuid: string,
+  aiotBackendApiDeviceGroupV1PreviewRequest: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1PreviewResponse>({
+    url: `/device-groups/${groupUuid}/preview`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: aiotBackendApiDeviceGroupV1PreviewRequest,
+    signal,
+  })
+}
+
+export const getPostDeviceGroupsGroupUuidPreviewMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
+    TError,
+    {
+      groupUuid: string
+      data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+    },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
+  TError,
+  {
+    groupUuid: string
+    data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+  },
+  TContext
+> => {
+  const mutationKey = ['postDeviceGroupsGroupUuidPreview']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
+    {
+      groupUuid: string
+      data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+    }
+  > = (props) => {
+    const { groupUuid, data } = props ?? {}
+
+    return postDeviceGroupsGroupUuidPreview(groupUuid, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostDeviceGroupsGroupUuidPreviewMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>
+>
+export type PostDeviceGroupsGroupUuidPreviewMutationBody =
+  BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+export type PostDeviceGroupsGroupUuidPreviewMutationError = ErrorType<unknown>
+
+/**
+ * @summary 预览已保存动态规则
+ */
+export const usePostDeviceGroupsGroupUuidPreview = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
+      TError,
+      {
+        groupUuid: string
+        data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+      },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
+  TError,
+  {
+    groupUuid: string
+    data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+  },
+  TContext
+> => {
+  return useMutation(
+    getPostDeviceGroupsGroupUuidPreviewMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 获取设备统计信息（总数、已激活、在线、离线、未激活）
  * @summary 设备统计
  */
-export const getDeviceStatistics = (
-
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<ApiResponseDeviceStatisticsResponse>(
-      {url: `/device-statistics`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDeviceStatisticsQueryKey = () => {
-    return [
-    `/device-statistics`
-    ] as const;
-    }
-
-
-export const getGetDeviceStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof getDeviceStatistics>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceStatistics>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDeviceStatisticsQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDeviceStatistics>>> = ({ signal }) => getDeviceStatistics(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDeviceStatistics>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getDeviceStatistics = (signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseDeviceStatisticsResponse>({
+    url: `/device-statistics`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetDeviceStatisticsQueryResult = NonNullable<Awaited<ReturnType<typeof getDeviceStatistics>>>
+export const getGetDeviceStatisticsQueryKey = () => {
+  return [`/device-statistics`] as const
+}
+
+export const getGetDeviceStatisticsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDeviceStatistics>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getDeviceStatistics>>,
+      TError,
+      TData
+    >
+  >
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetDeviceStatisticsQueryKey()
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDeviceStatistics>>
+  > = ({ signal }) => getDeviceStatistics(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDeviceStatistics>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDeviceStatisticsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDeviceStatistics>>
+>
 export type GetDeviceStatisticsQueryError = ErrorType<unknown>
 
-
-export function useGetDeviceStatistics<TData = Awaited<ReturnType<typeof getDeviceStatistics>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceStatistics>>, TError, TData>> & Pick<
+export function useGetDeviceStatistics<
+  TData = Awaited<ReturnType<typeof getDeviceStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceStatistics>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDeviceStatistics>>,
           TError,
           Awaited<ReturnType<typeof getDeviceStatistics>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDeviceStatistics<TData = Awaited<ReturnType<typeof getDeviceStatistics>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceStatistics>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceStatistics<
+  TData = Awaited<ReturnType<typeof getDeviceStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceStatistics>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDeviceStatistics>>,
           TError,
           Awaited<ReturnType<typeof getDeviceStatistics>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDeviceStatistics<TData = Awaited<ReturnType<typeof getDeviceStatistics>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceStatistics>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDeviceStatistics<
+  TData = Awaited<ReturnType<typeof getDeviceStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceStatistics>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 设备统计
  */
 
-export function useGetDeviceStatistics<TData = Awaited<ReturnType<typeof getDeviceStatistics>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDeviceStatistics>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
+export function useGetDeviceStatistics<
+  TData = Awaited<ReturnType<typeof getDeviceStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDeviceStatistics>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
   const queryOptions = getGetDeviceStatisticsQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 分页获取设备列表，支持按 productId、states、enabled、searchText 过滤
  * @summary 获取设备列表
  */
-export const getDevices = (
-    params?: GetDevicesParams,
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<ApiResponseDeviceListDevicesResponse>(
-      {url: `/devices`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesQueryKey = (params?: GetDevicesParams,) => {
-    return [
-    `/devices`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetDevicesQueryOptions = <TData = Awaited<ReturnType<typeof getDevices>>, TError = ErrorType<unknown>>(params?: GetDevicesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevices>>> = ({ signal }) => getDevices(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getDevices = (params?: GetDevicesParams, signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseDeviceListDevicesResponse>({
+    url: `/devices`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
-export type GetDevicesQueryResult = NonNullable<Awaited<ReturnType<typeof getDevices>>>
+export const getGetDevicesQueryKey = (params?: GetDevicesParams) => {
+  return [`/devices`, ...(params ? [params] : [])] as const
+}
+
+export const getGetDevicesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDevicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetDevicesQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevices>>> = ({
+    signal,
+  }) => getDevices(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevices>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevices>>
+>
 export type GetDevicesQueryError = ErrorType<unknown>
 
-
-export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = ErrorType<unknown>>(
- params: undefined |  GetDevicesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>> & Pick<
+export function useGetDevices<
+  TData = Awaited<ReturnType<typeof getDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetDevicesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevices>>,
           TError,
           Awaited<ReturnType<typeof getDevices>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = ErrorType<unknown>>(
- params?: GetDevicesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevices<
+  TData = Awaited<ReturnType<typeof getDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDevicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevices>>,
           TError,
           Awaited<ReturnType<typeof getDevices>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = ErrorType<unknown>>(
- params?: GetDevicesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevices<
+  TData = Awaited<ReturnType<typeof getDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDevicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备列表
  */
 
-export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = ErrorType<unknown>>(
- params?: GetDevicesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevices<
+  TData = Awaited<ReturnType<typeof getDevices>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetDevicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesQueryOptions(params, options)
 
-  const queryOptions = getGetDevicesQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 创建一个新的设备
  * @summary 创建设备
  */
 export const postDevices = (
-    deviceCreateDeviceRequest: BodyType<DeviceCreateDeviceRequest>,
- signal?: AbortSignal
+  deviceCreateDeviceRequest: BodyType<DeviceCreateDeviceRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceCreateDeviceResponse>({
+    url: `/devices`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceCreateDeviceRequest,
+    signal,
+  })
+}
 
+export const getPostDevicesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDevices>>,
+    TError,
+    { data: BodyType<DeviceCreateDeviceRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDevices>>,
+  TError,
+  { data: BodyType<DeviceCreateDeviceRequest> },
+  TContext
+> => {
+  const mutationKey = ['postDevices']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceCreateDeviceResponse>(
-      {url: `/devices`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceCreateDeviceRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDevices>>,
+    { data: BodyType<DeviceCreateDeviceRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postDevices(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostDevicesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDevices>>
+>
+export type PostDevicesMutationBody = BodyType<DeviceCreateDeviceRequest>
+export type PostDevicesMutationError = ErrorType<unknown>
 
-export const getPostDevicesMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: BodyType<DeviceCreateDeviceRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: BodyType<DeviceCreateDeviceRequest>}, TContext> => {
-
-const mutationKey = ['postDevices'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDevices>>, {data: BodyType<DeviceCreateDeviceRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postDevices(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostDevicesMutationResult = NonNullable<Awaited<ReturnType<typeof postDevices>>>
-    export type PostDevicesMutationBody = BodyType<DeviceCreateDeviceRequest>
-    export type PostDevicesMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 创建设备
  */
-export const usePostDevices = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: BodyType<DeviceCreateDeviceRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postDevices>>,
-        TError,
-        {data: BodyType<DeviceCreateDeviceRequest>},
-        TContext
-      > => {
-      return useMutation(getPostDevicesMutationOptions(options), queryClient);
-    }
+export const usePostDevices = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDevices>>,
+      TError,
+      { data: BodyType<DeviceCreateDeviceRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDevices>>,
+  TError,
+  { data: BodyType<DeviceCreateDeviceRequest> },
+  TContext
+> => {
+  return useMutation(getPostDevicesMutationOptions(options), queryClient)
+}
 
 /**
  * 下载设备批量导入的 Excel 模板
  * @summary 下载设备批量导入模板
  */
-export const getDevicesBatchTemplate = (
-
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<Blob>(
-      {url: `/devices/batch/template`, method: 'GET',
-        responseType: 'blob', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesBatchTemplateQueryKey = () => {
-    return [
-    `/devices/batch/template`
-    ] as const;
-    }
-
-
-export const getGetDevicesBatchTemplateQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesBatchTemplateQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesBatchTemplate>>> = ({ signal }) => getDevicesBatchTemplate(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getDevicesBatchTemplate = (signal?: AbortSignal) => {
+  return orvalAxios<Blob>({
+    url: `/devices/batch/template`,
+    method: 'GET',
+    responseType: 'blob',
+    signal,
+  })
 }
 
-export type GetDevicesBatchTemplateQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesBatchTemplate>>>
+export const getGetDevicesBatchTemplateQueryKey = () => {
+  return [`/devices/batch/template`] as const
+}
+
+export const getGetDevicesBatchTemplateQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+      TError,
+      TData
+    >
+  >
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDevicesBatchTemplateQueryKey()
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesBatchTemplate>>
+  > = ({ signal }) => getDevicesBatchTemplate(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesBatchTemplateQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesBatchTemplate>>
+>
 export type GetDevicesBatchTemplateQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesBatchTemplate<TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError, TData>> & Pick<
+export function useGetDevicesBatchTemplate<
+  TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
           TError,
           Awaited<ReturnType<typeof getDevicesBatchTemplate>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesBatchTemplate<TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesBatchTemplate<
+  TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
           TError,
           Awaited<ReturnType<typeof getDevicesBatchTemplate>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesBatchTemplate<TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesBatchTemplate<
+  TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 下载设备批量导入模板
  */
 
-export function useGetDevicesBatchTemplate<TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesBatchTemplate>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
+export function useGetDevicesBatchTemplate<
+  TData = Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesBatchTemplate>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
   const queryOptions = getGetDevicesBatchTemplateQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 通过 Excel 文件批量导入设备
  * @summary 批量上传设备
  */
 export const postDevicesBatchUpload = (
-    postDevicesBatchUploadBody?: BodyType<PostDevicesBatchUploadBody>,
- signal?: AbortSignal
+  postDevicesBatchUploadBody?: BodyType<PostDevicesBatchUploadBody>,
+  signal?: AbortSignal
 ) => {
+  const formData = new FormData()
+  if (postDevicesBatchUploadBody?.file !== undefined) {
+    formData.append(`file`, postDevicesBatchUploadBody.file)
+  }
 
-      const formData = new FormData();
-if(postDevicesBatchUploadBody?.file !== undefined) {
- formData.append(`file`, postDevicesBatchUploadBody.file);
- }
+  return orvalAxios<ApiResponseDeviceBatchUploadDevicesResponse>({
+    url: `/devices/batch/upload`,
+    method: 'POST',
+    headers: { 'Content-Type': 'multipart/form-data' },
+    data: formData,
+    signal,
+  })
+}
 
-      return orvalAxios<ApiResponseDeviceBatchUploadDevicesResponse>(
-      {url: `/devices/batch/upload`, method: 'POST',
-      headers: {'Content-Type': 'multipart/form-data', },
-       data: formData, signal
-    },
-      );
-    }
+export const getPostDevicesBatchUploadMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDevicesBatchUpload>>,
+    TError,
+    { data?: BodyType<PostDevicesBatchUploadBody> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDevicesBatchUpload>>,
+  TError,
+  { data?: BodyType<PostDevicesBatchUploadBody> },
+  TContext
+> => {
+  const mutationKey = ['postDevicesBatchUpload']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDevicesBatchUpload>>,
+    { data?: BodyType<PostDevicesBatchUploadBody> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postDevicesBatchUpload(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
-export const getPostDevicesBatchUploadMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesBatchUpload>>, TError,{data?: BodyType<PostDevicesBatchUploadBody>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postDevicesBatchUpload>>, TError,{data?: BodyType<PostDevicesBatchUploadBody>}, TContext> => {
+export type PostDevicesBatchUploadMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDevicesBatchUpload>>
+>
+export type PostDevicesBatchUploadMutationBody =
+  BodyType<PostDevicesBatchUploadBody> | undefined
+export type PostDevicesBatchUploadMutationError = ErrorType<unknown>
 
-const mutationKey = ['postDevicesBatchUpload'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDevicesBatchUpload>>, {data?: BodyType<PostDevicesBatchUploadBody>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postDevicesBatchUpload(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostDevicesBatchUploadMutationResult = NonNullable<Awaited<ReturnType<typeof postDevicesBatchUpload>>>
-    export type PostDevicesBatchUploadMutationBody = BodyType<PostDevicesBatchUploadBody> | undefined
-    export type PostDevicesBatchUploadMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 批量上传设备
  */
-export const usePostDevicesBatchUpload = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesBatchUpload>>, TError,{data?: BodyType<PostDevicesBatchUploadBody>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postDevicesBatchUpload>>,
-        TError,
-        {data?: BodyType<PostDevicesBatchUploadBody>},
-        TContext
-      > => {
-      return useMutation(getPostDevicesBatchUploadMutationOptions(options), queryClient);
-    }
+export const usePostDevicesBatchUpload = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDevicesBatchUpload>>,
+      TError,
+      { data?: BodyType<PostDevicesBatchUploadBody> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDevicesBatchUpload>>,
+  TError,
+  { data?: BodyType<PostDevicesBatchUploadBody> },
+  TContext
+> => {
+  return useMutation(
+    getPostDevicesBatchUploadMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过推送记录 ID 获取单个下行推送记录
  * @summary 获取设备下行推送记录
  */
 export const getDevicesPushRecordsPushRecordId = (
-    pushRecordId: number,
- signal?: AbortSignal
+  pushRecordId: number,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseDeviceGetPushRecordResponse>(
-      {url: `/devices/push-records/${pushRecordId}`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesPushRecordsPushRecordIdQueryKey = (pushRecordId: number,) => {
-    return [
-    `/devices/push-records/${pushRecordId}`
-    ] as const;
-    }
-
-
-export const getGetDevicesPushRecordsPushRecordIdQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError = ErrorType<unknown>>(pushRecordId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesPushRecordsPushRecordIdQueryKey(pushRecordId);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>> = ({ signal }) => getDevicesPushRecordsPushRecordId(pushRecordId, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: pushRecordId !== null && pushRecordId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseDeviceGetPushRecordResponse>({
+    url: `/devices/push-records/${pushRecordId}`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetDevicesPushRecordsPushRecordIdQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>>
+export const getGetDevicesPushRecordsPushRecordIdQueryKey = (
+  pushRecordId: number
+) => {
+  return [`/devices/push-records/${pushRecordId}`] as const
+}
+
+export const getGetDevicesPushRecordsPushRecordIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+  TError = ErrorType<unknown>,
+>(
+  pushRecordId: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetDevicesPushRecordsPushRecordIdQueryKey(pushRecordId)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>
+  > = ({ signal }) => getDevicesPushRecordsPushRecordId(pushRecordId, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: pushRecordId !== null && pushRecordId !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesPushRecordsPushRecordIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>
+>
 export type GetDevicesPushRecordsPushRecordIdQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesPushRecordsPushRecordId<TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError = ErrorType<unknown>>(
- pushRecordId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError, TData>> & Pick<
+export function useGetDevicesPushRecordsPushRecordId<
+  TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+  TError = ErrorType<unknown>,
+>(
+  pushRecordId: number,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
           TError,
           Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesPushRecordsPushRecordId<TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError = ErrorType<unknown>>(
- pushRecordId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesPushRecordsPushRecordId<
+  TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+  TError = ErrorType<unknown>,
+>(
+  pushRecordId: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
           TError,
           Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesPushRecordsPushRecordId<TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError = ErrorType<unknown>>(
- pushRecordId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesPushRecordsPushRecordId<
+  TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+  TError = ErrorType<unknown>,
+>(
+  pushRecordId: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备下行推送记录
  */
 
-export function useGetDevicesPushRecordsPushRecordId<TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError = ErrorType<unknown>>(
- pushRecordId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevicesPushRecordsPushRecordId<
+  TData = Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+  TError = ErrorType<unknown>,
+>(
+  pushRecordId: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesPushRecordsPushRecordId>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesPushRecordsPushRecordIdQueryOptions(
+    pushRecordId,
+    options
+  )
 
-  const queryOptions = getGetDevicesPushRecordsPushRecordIdQueryOptions(pushRecordId,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 通过设备 Key 获取设备详情
  * @summary 通过 deviceKey 获取设备
  */
 export const getDevicesDeviceKey = (
-    deviceKey: string,
- signal?: AbortSignal
+  deviceKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseDeviceGetDeviceResponse>(
-      {url: `/devices/${deviceKey}`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesDeviceKeyQueryKey = (deviceKey: string,) => {
-    return [
-    `/devices/${deviceKey}`
-    ] as const;
-    }
-
-
-export const getGetDevicesDeviceKeyQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyQueryKey(deviceKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKey>>> = ({ signal }) => getDevicesDeviceKey(deviceKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseDeviceGetDeviceResponse>({
+    url: `/devices/${deviceKey}`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetDevicesDeviceKeyQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKey>>>
+export const getGetDevicesDeviceKeyQueryKey = (deviceKey: string) => {
+  return [`/devices/${deviceKey}`] as const
+}
+
+export const getGetDevicesDeviceKeyQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDevicesDeviceKeyQueryKey(deviceKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKey>>
+  > = ({ signal }) => getDevicesDeviceKey(deviceKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKey>>
+>
 export type GetDevicesDeviceKeyQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesDeviceKey<TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError = ErrorType<unknown>>(
- deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKey<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKey>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKey>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKey<TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKey<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKey>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKey>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKey<TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKey<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 通过 deviceKey 获取设备
  */
 
-export function useGetDevicesDeviceKey<TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKey>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevicesDeviceKey<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKey>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyQueryOptions(deviceKey, options)
 
-  const queryOptions = getGetDevicesDeviceKeyQueryOptions(deviceKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 通过设备 Key 更新设备
  * @summary 更新设备
  */
 export const putDevicesDeviceKey = (
-    deviceKey: string,
-    deviceUpdateDeviceRequest: BodyType<DeviceUpdateDeviceRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceUpdateDeviceRequest: BodyType<DeviceUpdateDeviceRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceUpdateDeviceResponse>({
+    url: `/devices/${deviceKey}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceUpdateDeviceRequest,
+    signal,
+  })
+}
 
+export const getPutDevicesDeviceKeyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putDevicesDeviceKey>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceUpdateDeviceRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putDevicesDeviceKey>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceUpdateDeviceRequest> },
+  TContext
+> => {
+  const mutationKey = ['putDevicesDeviceKey']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceUpdateDeviceResponse>(
-      {url: `/devices/${deviceKey}`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceUpdateDeviceRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putDevicesDeviceKey>>,
+    { deviceKey: string; data: BodyType<DeviceUpdateDeviceRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return putDevicesDeviceKey(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutDevicesDeviceKeyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putDevicesDeviceKey>>
+>
+export type PutDevicesDeviceKeyMutationBody =
+  BodyType<DeviceUpdateDeviceRequest>
+export type PutDevicesDeviceKeyMutationError = ErrorType<unknown>
 
-export const getPutDevicesDeviceKeyMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKey>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateDeviceRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKey>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateDeviceRequest>}, TContext> => {
-
-const mutationKey = ['putDevicesDeviceKey'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putDevicesDeviceKey>>, {deviceKey: string;data: BodyType<DeviceUpdateDeviceRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  putDevicesDeviceKey(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutDevicesDeviceKeyMutationResult = NonNullable<Awaited<ReturnType<typeof putDevicesDeviceKey>>>
-    export type PutDevicesDeviceKeyMutationBody = BodyType<DeviceUpdateDeviceRequest>
-    export type PutDevicesDeviceKeyMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 更新设备
  */
-export const usePutDevicesDeviceKey = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKey>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateDeviceRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putDevicesDeviceKey>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceUpdateDeviceRequest>},
-        TContext
-      > => {
-      return useMutation(getPutDevicesDeviceKeyMutationOptions(options), queryClient);
-    }
+export const usePutDevicesDeviceKey = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putDevicesDeviceKey>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceUpdateDeviceRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putDevicesDeviceKey>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceUpdateDeviceRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPutDevicesDeviceKeyMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过设备 Key 软删除设备
  * @summary 删除设备
  */
 export const deleteDevicesDeviceKey = (
-    deviceKey: string,
- signal?: AbortSignal
+  deviceKey: string,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceSuccessResponse>({
+    url: `/devices/${deviceKey}`,
+    method: 'DELETE',
+    signal,
+  })
+}
 
+export const getDeleteDevicesDeviceKeyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDevicesDeviceKey>>,
+    TError,
+    { deviceKey: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKey>>,
+  TError,
+  { deviceKey: string },
+  TContext
+> => {
+  const mutationKey = ['deleteDevicesDeviceKey']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceSuccessResponse>(
-      {url: `/devices/${deviceKey}`, method: 'DELETE', signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteDevicesDeviceKey>>,
+    { deviceKey: string }
+  > = (props) => {
+    const { deviceKey } = props ?? {}
 
+    return deleteDevicesDeviceKey(deviceKey)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type DeleteDevicesDeviceKeyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKey>>
+>
 
-export const getDeleteDevicesDeviceKeyMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKey>>, TError,{deviceKey: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKey>>, TError,{deviceKey: string}, TContext> => {
+export type DeleteDevicesDeviceKeyMutationError = ErrorType<unknown>
 
-const mutationKey = ['deleteDevicesDeviceKey'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDevicesDeviceKey>>, {deviceKey: string}> = (props) => {
-          const {deviceKey} = props ?? {};
-
-          return  deleteDevicesDeviceKey(deviceKey,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteDevicesDeviceKeyMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDevicesDeviceKey>>>
-
-    export type DeleteDevicesDeviceKeyMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 删除设备
  */
-export const useDeleteDevicesDeviceKey = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKey>>, TError,{deviceKey: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteDevicesDeviceKey>>,
-        TError,
-        {deviceKey: string},
-        TContext
-      > => {
-      return useMutation(getDeleteDevicesDeviceKeyMutationOptions(options), queryClient);
-    }
+export const useDeleteDevicesDeviceKey = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteDevicesDeviceKey>>,
+      TError,
+      { deviceKey: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKey>>,
+  TError,
+  { deviceKey: string },
+  TContext
+> => {
+  return useMutation(
+    getDeleteDevicesDeviceKeyMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过设备 Key 激活设备
  * @summary 激活设备
  */
 export const postDevicesDeviceKeyActivate = (
-    deviceKey: string,
- signal?: AbortSignal
+  deviceKey: string,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceActivateDeviceResponse>({
+    url: `/devices/${deviceKey}/activate`,
+    method: 'POST',
+    signal,
+  })
+}
 
+export const getPostDevicesDeviceKeyActivateMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>,
+    TError,
+    { deviceKey: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>,
+  TError,
+  { deviceKey: string },
+  TContext
+> => {
+  const mutationKey = ['postDevicesDeviceKeyActivate']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceActivateDeviceResponse>(
-      {url: `/devices/${deviceKey}/activate`, method: 'POST', signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>,
+    { deviceKey: string }
+  > = (props) => {
+    const { deviceKey } = props ?? {}
 
+    return postDevicesDeviceKeyActivate(deviceKey)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostDevicesDeviceKeyActivateMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>
+>
 
-export const getPostDevicesDeviceKeyActivateMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>, TError,{deviceKey: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>, TError,{deviceKey: string}, TContext> => {
+export type PostDevicesDeviceKeyActivateMutationError = ErrorType<unknown>
 
-const mutationKey = ['postDevicesDeviceKeyActivate'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>, {deviceKey: string}> = (props) => {
-          const {deviceKey} = props ?? {};
-
-          return  postDevicesDeviceKeyActivate(deviceKey,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostDevicesDeviceKeyActivateMutationResult = NonNullable<Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>>
-
-    export type PostDevicesDeviceKeyActivateMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 激活设备
  */
-export const usePostDevicesDeviceKeyActivate = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>, TError,{deviceKey: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>,
-        TError,
-        {deviceKey: string},
-        TContext
-      > => {
-      return useMutation(getPostDevicesDeviceKeyActivateMutationOptions(options), queryClient);
-    }
+export const usePostDevicesDeviceKeyActivate = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>,
+      TError,
+      { deviceKey: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyActivate>>,
+  TError,
+  { deviceKey: string },
+  TContext
+> => {
+  return useMutation(
+    getPostDevicesDeviceKeyActivateMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过设备 Key 启用或禁用设备
  * @summary 设置设备启用/禁用
  */
 export const postDevicesDeviceKeyEnabled = (
-    deviceKey: string,
-    deviceSetDeviceEnabledRequest: BodyType<DeviceSetDeviceEnabledRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceSetDeviceEnabledRequest: BodyType<DeviceSetDeviceEnabledRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceSetDeviceEnabledResponse>({
+    url: `/devices/${deviceKey}/enabled`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceSetDeviceEnabledRequest,
+    signal,
+  })
+}
 
+export const getPostDevicesDeviceKeyEnabledMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceSetDeviceEnabledRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceSetDeviceEnabledRequest> },
+  TContext
+> => {
+  const mutationKey = ['postDevicesDeviceKeyEnabled']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceSetDeviceEnabledResponse>(
-      {url: `/devices/${deviceKey}/enabled`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceSetDeviceEnabledRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>,
+    { deviceKey: string; data: BodyType<DeviceSetDeviceEnabledRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return postDevicesDeviceKeyEnabled(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostDevicesDeviceKeyEnabledMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>
+>
+export type PostDevicesDeviceKeyEnabledMutationBody =
+  BodyType<DeviceSetDeviceEnabledRequest>
+export type PostDevicesDeviceKeyEnabledMutationError = ErrorType<unknown>
 
-export const getPostDevicesDeviceKeyEnabledMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceEnabledRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceEnabledRequest>}, TContext> => {
-
-const mutationKey = ['postDevicesDeviceKeyEnabled'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>, {deviceKey: string;data: BodyType<DeviceSetDeviceEnabledRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  postDevicesDeviceKeyEnabled(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostDevicesDeviceKeyEnabledMutationResult = NonNullable<Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>>
-    export type PostDevicesDeviceKeyEnabledMutationBody = BodyType<DeviceSetDeviceEnabledRequest>
-    export type PostDevicesDeviceKeyEnabledMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 设置设备启用/禁用
  */
-export const usePostDevicesDeviceKeyEnabled = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceEnabledRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceSetDeviceEnabledRequest>},
-        TContext
-      > => {
-      return useMutation(getPostDevicesDeviceKeyEnabledMutationOptions(options), queryClient);
-    }
+export const usePostDevicesDeviceKeyEnabled = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceSetDeviceEnabledRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyEnabled>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceSetDeviceEnabledRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPostDevicesDeviceKeyEnabledMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * @summary 获取设备连接数据
  */
 export const getDevicesDeviceKeyEndpoints = (
-    deviceKey: string,
- signal?: AbortSignal
+  deviceKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseAiotBackendApiProtocolV1DeviceEndpoints>(
-      {url: `/devices/${deviceKey}/endpoints`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesDeviceKeyEndpointsQueryKey = (deviceKey: string,) => {
-    return [
-    `/devices/${deviceKey}/endpoints`
-    ] as const;
-    }
-
-
-export const getGetDevicesDeviceKeyEndpointsQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyEndpointsQueryKey(deviceKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>> = ({ signal }) => getDevicesDeviceKeyEndpoints(deviceKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseAiotBackendApiProtocolV1DeviceEndpoints>({
+    url: `/devices/${deviceKey}/endpoints`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetDevicesDeviceKeyEndpointsQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>>
+export const getGetDevicesDeviceKeyEndpointsQueryKey = (deviceKey: string) => {
+  return [`/devices/${deviceKey}/endpoints`] as const
+}
+
+export const getGetDevicesDeviceKeyEndpointsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDevicesDeviceKeyEndpointsQueryKey(deviceKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>
+  > = ({ signal }) => getDevicesDeviceKeyEndpoints(deviceKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyEndpointsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>
+>
 export type GetDevicesDeviceKeyEndpointsQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesDeviceKeyEndpoints<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError = ErrorType<unknown>>(
- deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKeyEndpoints<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyEndpoints<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyEndpoints<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyEndpoints<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyEndpoints<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备连接数据
  */
 
-export function useGetDevicesDeviceKeyEndpoints<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevicesDeviceKeyEndpoints<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyEndpoints>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyEndpointsQueryOptions(
+    deviceKey,
+    options
+  )
 
-  const queryOptions = getGetDevicesDeviceKeyEndpointsQueryOptions(deviceKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 分页获取设备的下行推送记录
  * @summary 获取设备下行推送记录列表
  */
 export const getDevicesDeviceKeyPushRecords = (
-    deviceKey: string,
-    params?: GetDevicesDeviceKeyPushRecordsParams,
- signal?: AbortSignal
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyPushRecordsParams,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseDeviceListPushRecordsResponse>(
-      {url: `/devices/${deviceKey}/push-records`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesDeviceKeyPushRecordsQueryKey = (deviceKey: string,
-    params?: GetDevicesDeviceKeyPushRecordsParams,) => {
-    return [
-    `/devices/${deviceKey}/push-records`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetDevicesDeviceKeyPushRecordsQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError = ErrorType<unknown>>(deviceKey: string,
-    params?: GetDevicesDeviceKeyPushRecordsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyPushRecordsQueryKey(deviceKey,params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>> = ({ signal }) => getDevicesDeviceKeyPushRecords(deviceKey,params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseDeviceListPushRecordsResponse>({
+    url: `/devices/${deviceKey}/push-records`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
-export type GetDevicesDeviceKeyPushRecordsQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>>
+export const getGetDevicesDeviceKeyPushRecordsQueryKey = (
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyPushRecordsParams
+) => {
+  return [
+    `/devices/${deviceKey}/push-records`,
+    ...(params ? [params] : []),
+  ] as const
+}
+
+export const getGetDevicesDeviceKeyPushRecordsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyPushRecordsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetDevicesDeviceKeyPushRecordsQueryKey(deviceKey, params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>
+  > = ({ signal }) => getDevicesDeviceKeyPushRecords(deviceKey, params, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyPushRecordsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>
+>
 export type GetDevicesDeviceKeyPushRecordsQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesDeviceKeyPushRecords<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError = ErrorType<unknown>>(
- deviceKey: string,
-    params: undefined |  GetDevicesDeviceKeyPushRecordsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKeyPushRecords<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params: undefined | GetDevicesDeviceKeyPushRecordsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyPushRecords<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError = ErrorType<unknown>>(
- deviceKey: string,
-    params?: GetDevicesDeviceKeyPushRecordsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyPushRecords<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyPushRecordsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyPushRecords<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError = ErrorType<unknown>>(
- deviceKey: string,
-    params?: GetDevicesDeviceKeyPushRecordsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyPushRecords<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyPushRecordsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备下行推送记录列表
  */
 
-export function useGetDevicesDeviceKeyPushRecords<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError = ErrorType<unknown>>(
- deviceKey: string,
-    params?: GetDevicesDeviceKeyPushRecordsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevicesDeviceKeyPushRecords<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyPushRecordsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyPushRecords>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyPushRecordsQueryOptions(
+    deviceKey,
+    params,
+    options
+  )
 
-  const queryOptions = getGetDevicesDeviceKeyPushRecordsQueryOptions(deviceKey,params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 清理设备指定时间戳之前的下行推送记录
  * @summary 清理设备下行推送记录
  */
 export const deleteDevicesDeviceKeyPushRecords = (
-    deviceKey: string,
-    params?: DeleteDevicesDeviceKeyPushRecordsParams,
- signal?: AbortSignal
+  deviceKey: string,
+  params?: DeleteDevicesDeviceKeyPushRecordsParams,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceClearPushRecordsResponse>({
+    url: `/devices/${deviceKey}/push-records`,
+    method: 'DELETE',
+    params,
+    signal,
+  })
+}
 
+export const getDeleteDevicesDeviceKeyPushRecordsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>,
+    TError,
+    { deviceKey: string; params?: DeleteDevicesDeviceKeyPushRecordsParams },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>,
+  TError,
+  { deviceKey: string; params?: DeleteDevicesDeviceKeyPushRecordsParams },
+  TContext
+> => {
+  const mutationKey = ['deleteDevicesDeviceKeyPushRecords']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceClearPushRecordsResponse>(
-      {url: `/devices/${deviceKey}/push-records`, method: 'DELETE',
-        params, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>,
+    { deviceKey: string; params?: DeleteDevicesDeviceKeyPushRecordsParams }
+  > = (props) => {
+    const { deviceKey, params } = props ?? {}
 
+    return deleteDevicesDeviceKeyPushRecords(deviceKey, params)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type DeleteDevicesDeviceKeyPushRecordsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>
+>
 
-export const getDeleteDevicesDeviceKeyPushRecordsMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>, TError,{deviceKey: string;params?: DeleteDevicesDeviceKeyPushRecordsParams}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>, TError,{deviceKey: string;params?: DeleteDevicesDeviceKeyPushRecordsParams}, TContext> => {
+export type DeleteDevicesDeviceKeyPushRecordsMutationError = ErrorType<unknown>
 
-const mutationKey = ['deleteDevicesDeviceKeyPushRecords'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>, {deviceKey: string;params?: DeleteDevicesDeviceKeyPushRecordsParams}> = (props) => {
-          const {deviceKey,params} = props ?? {};
-
-          return  deleteDevicesDeviceKeyPushRecords(deviceKey,params,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteDevicesDeviceKeyPushRecordsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>>
-
-    export type DeleteDevicesDeviceKeyPushRecordsMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 清理设备下行推送记录
  */
-export const useDeleteDevicesDeviceKeyPushRecords = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>, TError,{deviceKey: string;params?: DeleteDevicesDeviceKeyPushRecordsParams}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>,
-        TError,
-        {deviceKey: string;params?: DeleteDevicesDeviceKeyPushRecordsParams},
-        TContext
-      > => {
-      return useMutation(getDeleteDevicesDeviceKeyPushRecordsMutationOptions(options), queryClient);
-    }
+export const useDeleteDevicesDeviceKeyPushRecords = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>,
+      TError,
+      { deviceKey: string; params?: DeleteDevicesDeviceKeyPushRecordsParams },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyPushRecords>>,
+  TError,
+  { deviceKey: string; params?: DeleteDevicesDeviceKeyPushRecordsParams },
+  TContext
+> => {
+  return useMutation(
+    getDeleteDevicesDeviceKeyPushRecordsMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 获取设备影子（Desired、Reported、Delta、Metadata、Version）
  * @summary 获取设备影子
  */
 export const getDevicesDeviceKeyShadow = (
-    deviceKey: string,
- signal?: AbortSignal
+  deviceKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseDeviceShadow>(
-      {url: `/devices/${deviceKey}/shadow`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesDeviceKeyShadowQueryKey = (deviceKey: string,) => {
-    return [
-    `/devices/${deviceKey}/shadow`
-    ] as const;
-    }
-
-
-export const getGetDevicesDeviceKeyShadowQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyShadowQueryKey(deviceKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>> = ({ signal }) => getDevicesDeviceKeyShadow(deviceKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseDeviceShadow>({
+    url: `/devices/${deviceKey}/shadow`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetDevicesDeviceKeyShadowQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>>
+export const getGetDevicesDeviceKeyShadowQueryKey = (deviceKey: string) => {
+  return [`/devices/${deviceKey}/shadow`] as const
+}
+
+export const getGetDevicesDeviceKeyShadowQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDevicesDeviceKeyShadowQueryKey(deviceKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>
+  > = ({ signal }) => getDevicesDeviceKeyShadow(deviceKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyShadowQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>
+>
 export type GetDevicesDeviceKeyShadowQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesDeviceKeyShadow<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError = ErrorType<unknown>>(
- deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKeyShadow<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyShadow<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyShadow<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyShadow<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyShadow<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备影子
  */
 
-export function useGetDevicesDeviceKeyShadow<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevicesDeviceKeyShadow<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadow>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyShadowQueryOptions(
+    deviceKey,
+    options
+  )
 
-  const queryOptions = getGetDevicesDeviceKeyShadowQueryOptions(deviceKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 由应用侧更新设备的 Desired 影子
  * @summary 更新设备影子期望值
  */
 export const putDevicesDeviceKeyShadowDesired = (
-    deviceKey: string,
-    deviceUpdateDesiredShadowRequest: BodyType<DeviceUpdateDesiredShadowRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceUpdateDesiredShadowRequest: BodyType<DeviceUpdateDesiredShadowRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceShadow>({
+    url: `/devices/${deviceKey}/shadow/desired`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceUpdateDesiredShadowRequest,
+    signal,
+  })
+}
 
+export const getPutDevicesDeviceKeyShadowDesiredMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceUpdateDesiredShadowRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceUpdateDesiredShadowRequest> },
+  TContext
+> => {
+  const mutationKey = ['putDevicesDeviceKeyShadowDesired']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceShadow>(
-      {url: `/devices/${deviceKey}/shadow/desired`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceUpdateDesiredShadowRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>,
+    { deviceKey: string; data: BodyType<DeviceUpdateDesiredShadowRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return putDevicesDeviceKeyShadowDesired(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutDevicesDeviceKeyShadowDesiredMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>
+>
+export type PutDevicesDeviceKeyShadowDesiredMutationBody =
+  BodyType<DeviceUpdateDesiredShadowRequest>
+export type PutDevicesDeviceKeyShadowDesiredMutationError = ErrorType<unknown>
 
-export const getPutDevicesDeviceKeyShadowDesiredMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateDesiredShadowRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateDesiredShadowRequest>}, TContext> => {
-
-const mutationKey = ['putDevicesDeviceKeyShadowDesired'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>, {deviceKey: string;data: BodyType<DeviceUpdateDesiredShadowRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  putDevicesDeviceKeyShadowDesired(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutDevicesDeviceKeyShadowDesiredMutationResult = NonNullable<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>>
-    export type PutDevicesDeviceKeyShadowDesiredMutationBody = BodyType<DeviceUpdateDesiredShadowRequest>
-    export type PutDevicesDeviceKeyShadowDesiredMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 更新设备影子期望值
  */
-export const usePutDevicesDeviceKeyShadowDesired = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateDesiredShadowRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceUpdateDesiredShadowRequest>},
-        TContext
-      > => {
-      return useMutation(getPutDevicesDeviceKeyShadowDesiredMutationOptions(options), queryClient);
-    }
+export const usePutDevicesDeviceKeyShadowDesired = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceUpdateDesiredShadowRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowDesired>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceUpdateDesiredShadowRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPutDevicesDeviceKeyShadowDesiredMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 清空设备影子的 Desired 部分
  * @summary 清空设备影子期望值
  */
 export const deleteDevicesDeviceKeyShadowDesired = (
-    deviceKey: string,
-    deviceClearDesiredShadowRequest: BodyType<DeviceClearDesiredShadowRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceClearDesiredShadowRequest: BodyType<DeviceClearDesiredShadowRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceShadow>({
+    url: `/devices/${deviceKey}/shadow/desired`,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceClearDesiredShadowRequest,
+    signal,
+  })
+}
 
+export const getDeleteDevicesDeviceKeyShadowDesiredMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceClearDesiredShadowRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceClearDesiredShadowRequest> },
+  TContext
+> => {
+  const mutationKey = ['deleteDevicesDeviceKeyShadowDesired']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceShadow>(
-      {url: `/devices/${deviceKey}/shadow/desired`, method: 'DELETE',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceClearDesiredShadowRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>,
+    { deviceKey: string; data: BodyType<DeviceClearDesiredShadowRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return deleteDevicesDeviceKeyShadowDesired(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type DeleteDevicesDeviceKeyShadowDesiredMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>
+>
+export type DeleteDevicesDeviceKeyShadowDesiredMutationBody =
+  BodyType<DeviceClearDesiredShadowRequest>
+export type DeleteDevicesDeviceKeyShadowDesiredMutationError =
+  ErrorType<unknown>
 
-export const getDeleteDevicesDeviceKeyShadowDesiredMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>, TError,{deviceKey: string;data: BodyType<DeviceClearDesiredShadowRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>, TError,{deviceKey: string;data: BodyType<DeviceClearDesiredShadowRequest>}, TContext> => {
-
-const mutationKey = ['deleteDevicesDeviceKeyShadowDesired'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>, {deviceKey: string;data: BodyType<DeviceClearDesiredShadowRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  deleteDevicesDeviceKeyShadowDesired(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteDevicesDeviceKeyShadowDesiredMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>>
-    export type DeleteDevicesDeviceKeyShadowDesiredMutationBody = BodyType<DeviceClearDesiredShadowRequest>
-    export type DeleteDevicesDeviceKeyShadowDesiredMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 清空设备影子期望值
  */
-export const useDeleteDevicesDeviceKeyShadowDesired = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>, TError,{deviceKey: string;data: BodyType<DeviceClearDesiredShadowRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceClearDesiredShadowRequest>},
-        TContext
-      > => {
-      return useMutation(getDeleteDevicesDeviceKeyShadowDesiredMutationOptions(options), queryClient);
-    }
+export const useDeleteDevicesDeviceKeyShadowDesired = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceClearDesiredShadowRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyShadowDesired>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceClearDesiredShadowRequest> },
+  TContext
+> => {
+  return useMutation(
+    getDeleteDevicesDeviceKeyShadowDesiredMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 获取设备影子的变更历史记录
  * @summary 获取设备影子历史
  */
 export const getDevicesDeviceKeyShadowHistory = (
-    deviceKey: string,
- signal?: AbortSignal
+  deviceKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseDeviceListDeviceShadowHistoryResponse>(
-      {url: `/devices/${deviceKey}/shadow/history`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesDeviceKeyShadowHistoryQueryKey = (deviceKey: string,) => {
-    return [
-    `/devices/${deviceKey}/shadow/history`
-    ] as const;
-    }
-
-
-export const getGetDevicesDeviceKeyShadowHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyShadowHistoryQueryKey(deviceKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>> = ({ signal }) => getDevicesDeviceKeyShadowHistory(deviceKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseDeviceListDeviceShadowHistoryResponse>({
+    url: `/devices/${deviceKey}/shadow/history`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetDevicesDeviceKeyShadowHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>>
+export const getGetDevicesDeviceKeyShadowHistoryQueryKey = (
+  deviceKey: string
+) => {
+  return [`/devices/${deviceKey}/shadow/history`] as const
+}
+
+export const getGetDevicesDeviceKeyShadowHistoryQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetDevicesDeviceKeyShadowHistoryQueryKey(deviceKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>
+  > = ({ signal }) => getDevicesDeviceKeyShadowHistory(deviceKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyShadowHistoryQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>
+>
 export type GetDevicesDeviceKeyShadowHistoryQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesDeviceKeyShadowHistory<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError = ErrorType<unknown>>(
- deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKeyShadowHistory<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyShadowHistory<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyShadowHistory<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyShadowHistory<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyShadowHistory<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备影子历史
  */
 
-export function useGetDevicesDeviceKeyShadowHistory<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevicesDeviceKeyShadowHistory<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyShadowHistory>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyShadowHistoryQueryOptions(
+    deviceKey,
+    options
+  )
 
-  const queryOptions = getGetDevicesDeviceKeyShadowHistoryQueryOptions(deviceKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 由设备侧更新 Reported 影子
  * @summary 更新设备影子上报值
  */
 export const putDevicesDeviceKeyShadowReported = (
-    deviceKey: string,
-    deviceUpdateReportedShadowRequest: BodyType<DeviceUpdateReportedShadowRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceUpdateReportedShadowRequest: BodyType<DeviceUpdateReportedShadowRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceShadow>({
+    url: `/devices/${deviceKey}/shadow/reported`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceUpdateReportedShadowRequest,
+    signal,
+  })
+}
 
+export const getPutDevicesDeviceKeyShadowReportedMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> },
+  TContext
+> => {
+  const mutationKey = ['putDevicesDeviceKeyShadowReported']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceShadow>(
-      {url: `/devices/${deviceKey}/shadow/reported`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceUpdateReportedShadowRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
+    { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return putDevicesDeviceKeyShadowReported(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutDevicesDeviceKeyShadowReportedMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>
+>
+export type PutDevicesDeviceKeyShadowReportedMutationBody =
+  BodyType<DeviceUpdateReportedShadowRequest>
+export type PutDevicesDeviceKeyShadowReportedMutationError = ErrorType<unknown>
 
-export const getPutDevicesDeviceKeyShadowReportedMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateReportedShadowRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateReportedShadowRequest>}, TContext> => {
-
-const mutationKey = ['putDevicesDeviceKeyShadowReported'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>, {deviceKey: string;data: BodyType<DeviceUpdateReportedShadowRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  putDevicesDeviceKeyShadowReported(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutDevicesDeviceKeyShadowReportedMutationResult = NonNullable<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>>
-    export type PutDevicesDeviceKeyShadowReportedMutationBody = BodyType<DeviceUpdateReportedShadowRequest>
-    export type PutDevicesDeviceKeyShadowReportedMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 更新设备影子上报值
  */
-export const usePutDevicesDeviceKeyShadowReported = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>, TError,{deviceKey: string;data: BodyType<DeviceUpdateReportedShadowRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceUpdateReportedShadowRequest>},
-        TContext
-      > => {
-      return useMutation(getPutDevicesDeviceKeyShadowReportedMutationOptions(options), queryClient);
-    }
+export const usePutDevicesDeviceKeyShadowReported = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPutDevicesDeviceKeyShadowReportedMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 模拟服务端向设备发起一次下行推送
  * @summary 模拟下行推送
  */
 export const postDevicesDeviceKeySimulatePush = (
-    deviceKey: string,
-    deviceSimulatePushRequest: BodyType<DeviceSimulatePushRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceSimulatePushRequest: BodyType<DeviceSimulatePushRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceSimulatePushResponse>({
+    url: `/devices/${deviceKey}/simulate-push`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceSimulatePushRequest,
+    signal,
+  })
+}
 
+export const getPostDevicesDeviceKeySimulatePushMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceSimulatePushRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceSimulatePushRequest> },
+  TContext
+> => {
+  const mutationKey = ['postDevicesDeviceKeySimulatePush']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceSimulatePushResponse>(
-      {url: `/devices/${deviceKey}/simulate-push`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceSimulatePushRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>,
+    { deviceKey: string; data: BodyType<DeviceSimulatePushRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return postDevicesDeviceKeySimulatePush(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostDevicesDeviceKeySimulatePushMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>
+>
+export type PostDevicesDeviceKeySimulatePushMutationBody =
+  BodyType<DeviceSimulatePushRequest>
+export type PostDevicesDeviceKeySimulatePushMutationError = ErrorType<unknown>
 
-export const getPostDevicesDeviceKeySimulatePushMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>, TError,{deviceKey: string;data: BodyType<DeviceSimulatePushRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>, TError,{deviceKey: string;data: BodyType<DeviceSimulatePushRequest>}, TContext> => {
-
-const mutationKey = ['postDevicesDeviceKeySimulatePush'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>, {deviceKey: string;data: BodyType<DeviceSimulatePushRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  postDevicesDeviceKeySimulatePush(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostDevicesDeviceKeySimulatePushMutationResult = NonNullable<Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>>
-    export type PostDevicesDeviceKeySimulatePushMutationBody = BodyType<DeviceSimulatePushRequest>
-    export type PostDevicesDeviceKeySimulatePushMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 模拟下行推送
  */
-export const usePostDevicesDeviceKeySimulatePush = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>, TError,{deviceKey: string;data: BodyType<DeviceSimulatePushRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceSimulatePushRequest>},
-        TContext
-      > => {
-      return useMutation(getPostDevicesDeviceKeySimulatePushMutationOptions(options), queryClient);
-    }
+export const usePostDevicesDeviceKeySimulatePush = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceSimulatePushRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDevicesDeviceKeySimulatePush>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceSimulatePushRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPostDevicesDeviceKeySimulatePushMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 获取设备的所有标签
  * @summary 获取设备标签
  */
 export const getDevicesDeviceKeyTags = (
-    deviceKey: string,
- signal?: AbortSignal
+  deviceKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>(
-      {url: `/devices/${deviceKey}/tags`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesDeviceKeyTagsQueryKey = (deviceKey: string,) => {
-    return [
-    `/devices/${deviceKey}/tags`
-    ] as const;
-    }
-
-
-export const getGetDevicesDeviceKeyTagsQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyTagsQueryKey(deviceKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>> = ({ signal }) => getDevicesDeviceKeyTags(deviceKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>({
+    url: `/devices/${deviceKey}/tags`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetDevicesDeviceKeyTagsQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>>
+export const getGetDevicesDeviceKeyTagsQueryKey = (deviceKey: string) => {
+  return [`/devices/${deviceKey}/tags`] as const
+}
+
+export const getGetDevicesDeviceKeyTagsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDevicesDeviceKeyTagsQueryKey(deviceKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>
+  > = ({ signal }) => getDevicesDeviceKeyTags(deviceKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyTagsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>
+>
 export type GetDevicesDeviceKeyTagsQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesDeviceKeyTags<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError = ErrorType<unknown>>(
- deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKeyTags<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyTags<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyTags<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyTags<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyTags<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备标签
  */
 
-export function useGetDevicesDeviceKeyTags<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevicesDeviceKeyTags<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTags>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyTagsQueryOptions(
+    deviceKey,
+    options
+  )
 
-  const queryOptions = getGetDevicesDeviceKeyTagsQueryOptions(deviceKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 覆盖式设置设备的标签集合（PUT 语义）
  * @summary 全量覆盖设置设备标签
  */
 export const putDevicesDeviceKeyTags = (
-    deviceKey: string,
-    deviceSetDeviceTagsRequest: BodyType<DeviceSetDeviceTagsRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceSetDeviceTagsRequest: BodyType<DeviceSetDeviceTagsRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>({
+    url: `/devices/${deviceKey}/tags`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceSetDeviceTagsRequest,
+    signal,
+  })
+}
 
+export const getPutDevicesDeviceKeyTagsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> },
+  TContext
+> => {
+  const mutationKey = ['putDevicesDeviceKeyTags']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>(
-      {url: `/devices/${deviceKey}/tags`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceSetDeviceTagsRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>,
+    { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return putDevicesDeviceKeyTags(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutDevicesDeviceKeyTagsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>
+>
+export type PutDevicesDeviceKeyTagsMutationBody =
+  BodyType<DeviceSetDeviceTagsRequest>
+export type PutDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
 
-export const getPutDevicesDeviceKeyTagsMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>}, TContext> => {
-
-const mutationKey = ['putDevicesDeviceKeyTags'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>, {deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  putDevicesDeviceKeyTags(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutDevicesDeviceKeyTagsMutationResult = NonNullable<Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>>
-    export type PutDevicesDeviceKeyTagsMutationBody = BodyType<DeviceSetDeviceTagsRequest>
-    export type PutDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 全量覆盖设置设备标签
  */
-export const usePutDevicesDeviceKeyTags = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>},
-        TContext
-      > => {
-      return useMutation(getPutDevicesDeviceKeyTagsMutationOptions(options), queryClient);
-    }
+export const usePutDevicesDeviceKeyTags = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putDevicesDeviceKeyTags>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPutDevicesDeviceKeyTagsMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 增量式添加设备的标签（POST 语义，保留已存在的标签）
  * @summary 增量添加设备标签
  */
 export const postDevicesDeviceKeyTags = (
-    deviceKey: string,
-    deviceSetDeviceTagsRequest: BodyType<DeviceSetDeviceTagsRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceSetDeviceTagsRequest: BodyType<DeviceSetDeviceTagsRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>({
+    url: `/devices/${deviceKey}/tags`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceSetDeviceTagsRequest,
+    signal,
+  })
+}
 
+export const getPostDevicesDeviceKeyTagsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> },
+  TContext
+> => {
+  const mutationKey = ['postDevicesDeviceKeyTags']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceListDeviceTagsResponse>(
-      {url: `/devices/${deviceKey}/tags`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceSetDeviceTagsRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>,
+    { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return postDevicesDeviceKeyTags(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostDevicesDeviceKeyTagsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>
+>
+export type PostDevicesDeviceKeyTagsMutationBody =
+  BodyType<DeviceSetDeviceTagsRequest>
+export type PostDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
 
-export const getPostDevicesDeviceKeyTagsMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>}, TContext> => {
-
-const mutationKey = ['postDevicesDeviceKeyTags'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>, {deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  postDevicesDeviceKeyTags(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostDevicesDeviceKeyTagsMutationResult = NonNullable<Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>>
-    export type PostDevicesDeviceKeyTagsMutationBody = BodyType<DeviceSetDeviceTagsRequest>
-    export type PostDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 增量添加设备标签
  */
-export const usePostDevicesDeviceKeyTags = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceSetDeviceTagsRequest>},
-        TContext
-      > => {
-      return useMutation(getPostDevicesDeviceKeyTagsMutationOptions(options), queryClient);
-    }
+export const usePostDevicesDeviceKeyTags = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postDevicesDeviceKeyTags>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceSetDeviceTagsRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPostDevicesDeviceKeyTagsMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 删除设备指定的标签键
  * @summary 删除设备标签
  */
 export const deleteDevicesDeviceKeyTags = (
-    deviceKey: string,
-    deviceDeleteDeviceTagsRequest: BodyType<DeviceDeleteDeviceTagsRequest>,
- signal?: AbortSignal
+  deviceKey: string,
+  deviceDeleteDeviceTagsRequest: BodyType<DeviceDeleteDeviceTagsRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseDeviceSuccessResponse>({
+    url: `/devices/${deviceKey}/tags`,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    data: deviceDeleteDeviceTagsRequest,
+    signal,
+  })
+}
 
+export const getDeleteDevicesDeviceKeyTagsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>,
+    TError,
+    { deviceKey: string; data: BodyType<DeviceDeleteDeviceTagsRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceDeleteDeviceTagsRequest> },
+  TContext
+> => {
+  const mutationKey = ['deleteDevicesDeviceKeyTags']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseDeviceSuccessResponse>(
-      {url: `/devices/${deviceKey}/tags`, method: 'DELETE',
-      headers: {'Content-Type': 'application/json', },
-      data: deviceDeleteDeviceTagsRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>,
+    { deviceKey: string; data: BodyType<DeviceDeleteDeviceTagsRequest> }
+  > = (props) => {
+    const { deviceKey, data } = props ?? {}
 
+    return deleteDevicesDeviceKeyTags(deviceKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type DeleteDevicesDeviceKeyTagsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>
+>
+export type DeleteDevicesDeviceKeyTagsMutationBody =
+  BodyType<DeviceDeleteDeviceTagsRequest>
+export type DeleteDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
 
-export const getDeleteDevicesDeviceKeyTagsMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceDeleteDeviceTagsRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceDeleteDeviceTagsRequest>}, TContext> => {
-
-const mutationKey = ['deleteDevicesDeviceKeyTags'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>, {deviceKey: string;data: BodyType<DeviceDeleteDeviceTagsRequest>}> = (props) => {
-          const {deviceKey,data} = props ?? {};
-
-          return  deleteDevicesDeviceKeyTags(deviceKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteDevicesDeviceKeyTagsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>>
-    export type DeleteDevicesDeviceKeyTagsMutationBody = BodyType<DeviceDeleteDeviceTagsRequest>
-    export type DeleteDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 删除设备标签
  */
-export const useDeleteDevicesDeviceKeyTags = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>, TError,{deviceKey: string;data: BodyType<DeviceDeleteDeviceTagsRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>,
-        TError,
-        {deviceKey: string;data: BodyType<DeviceDeleteDeviceTagsRequest>},
-        TContext
-      > => {
-      return useMutation(getDeleteDevicesDeviceKeyTagsMutationOptions(options), queryClient);
-    }
+export const useDeleteDevicesDeviceKeyTags = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>,
+      TError,
+      { deviceKey: string; data: BodyType<DeviceDeleteDeviceTagsRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteDevicesDeviceKeyTags>>,
+  TError,
+  { deviceKey: string; data: BodyType<DeviceDeleteDeviceTagsRequest> },
+  TContext
+> => {
+  return useMutation(
+    getDeleteDevicesDeviceKeyTagsMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 获取设备的遥测（Telemetry）数据
  * @summary 获取设备遥测数据
  */
 export const getDevicesDeviceKeyTelemetry = (
-    deviceKey: string,
- signal?: AbortSignal
+  deviceKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseDeviceTelemetryResponse>(
-      {url: `/devices/${deviceKey}/telemetry`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetDevicesDeviceKeyTelemetryQueryKey = (deviceKey: string,) => {
-    return [
-    `/devices/${deviceKey}/telemetry`
-    ] as const;
-    }
-
-
-export const getGetDevicesDeviceKeyTelemetryQueryOptions = <TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError = ErrorType<unknown>>(deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesDeviceKeyTelemetryQueryKey(deviceKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>> = ({ signal }) => getDevicesDeviceKeyTelemetry(deviceKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: deviceKey !== null && deviceKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseDeviceTelemetryResponse>({
+    url: `/devices/${deviceKey}/telemetry`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetDevicesDeviceKeyTelemetryQueryResult = NonNullable<Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>>
+export const getGetDevicesDeviceKeyTelemetryQueryKey = (deviceKey: string) => {
+  return [`/devices/${deviceKey}/telemetry`] as const
+}
+
+export const getGetDevicesDeviceKeyTelemetryQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetDevicesDeviceKeyTelemetryQueryKey(deviceKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>
+  > = ({ signal }) => getDevicesDeviceKeyTelemetry(deviceKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyTelemetryQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>
+>
 export type GetDevicesDeviceKeyTelemetryQueryError = ErrorType<unknown>
 
-
-export function useGetDevicesDeviceKeyTelemetry<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError = ErrorType<unknown>>(
- deviceKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError, TData>> & Pick<
+export function useGetDevicesDeviceKeyTelemetry<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyTelemetry<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyTelemetry<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
           TError,
           Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevicesDeviceKeyTelemetry<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyTelemetry<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取设备遥测数据
  */
 
-export function useGetDevicesDeviceKeyTelemetry<TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError = ErrorType<unknown>>(
- deviceKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetDevicesDeviceKeyTelemetry<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetry>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyTelemetryQueryOptions(
+    deviceKey,
+    options
+  )
 
-  const queryOptions = getGetDevicesDeviceKeyTelemetryQueryOptions(deviceKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 上传受支持的 OTA 文件到 Cloudflare R2，并返回创建 OTA 升级包所需的文件元数据
  * @summary 上传 OTA 升级文件
  */
 export const postFilesOta = (
-    postFilesOtaBody?: BodyType<PostFilesOtaBody>,
- signal?: AbortSignal
+  postFilesOtaBody?: BodyType<PostFilesOtaBody>,
+  signal?: AbortSignal
 ) => {
+  const formData = new FormData()
+  if (postFilesOtaBody?.file !== undefined) {
+    formData.append(`file`, postFilesOtaBody.file)
+  }
 
-      const formData = new FormData();
-if(postFilesOtaBody?.file !== undefined) {
- formData.append(`file`, postFilesOtaBody.file);
- }
+  return orvalAxios<ApiResponseFileUploadOTAFileResponse>({
+    url: `/files/ota`,
+    method: 'POST',
+    headers: { 'Content-Type': 'multipart/form-data' },
+    data: formData,
+    signal,
+  })
+}
 
-      return orvalAxios<ApiResponseFileUploadOTAFileResponse>(
-      {url: `/files/ota`, method: 'POST',
-      headers: {'Content-Type': 'multipart/form-data', },
-       data: formData, signal
-    },
-      );
-    }
+export const getPostFilesOtaMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postFilesOta>>,
+    TError,
+    { data?: BodyType<PostFilesOtaBody> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postFilesOta>>,
+  TError,
+  { data?: BodyType<PostFilesOtaBody> },
+  TContext
+> => {
+  const mutationKey = ['postFilesOta']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postFilesOta>>,
+    { data?: BodyType<PostFilesOtaBody> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postFilesOta(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
-export const getPostFilesOtaMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postFilesOta>>, TError,{data?: BodyType<PostFilesOtaBody>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postFilesOta>>, TError,{data?: BodyType<PostFilesOtaBody>}, TContext> => {
+export type PostFilesOtaMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postFilesOta>>
+>
+export type PostFilesOtaMutationBody = BodyType<PostFilesOtaBody> | undefined
+export type PostFilesOtaMutationError = ErrorType<unknown>
 
-const mutationKey = ['postFilesOta'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postFilesOta>>, {data?: BodyType<PostFilesOtaBody>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postFilesOta(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostFilesOtaMutationResult = NonNullable<Awaited<ReturnType<typeof postFilesOta>>>
-    export type PostFilesOtaMutationBody = BodyType<PostFilesOtaBody> | undefined
-    export type PostFilesOtaMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 上传 OTA 升级文件
  */
-export const usePostFilesOta = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postFilesOta>>, TError,{data?: BodyType<PostFilesOtaBody>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postFilesOta>>,
-        TError,
-        {data?: BodyType<PostFilesOtaBody>},
-        TContext
-      > => {
-      return useMutation(getPostFilesOtaMutationOptions(options), queryClient);
-    }
+export const usePostFilesOta = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postFilesOta>>,
+      TError,
+      { data?: BodyType<PostFilesOtaBody> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postFilesOta>>,
+  TError,
+  { data?: BodyType<PostFilesOtaBody> },
+  TContext
+> => {
+  return useMutation(getPostFilesOtaMutationOptions(options), queryClient)
+}
 
 /**
  * @summary 账号登录
  */
 export const postLogin = (
-    apiLoginRequest: BodyType<ApiLoginRequest>,
- signal?: AbortSignal
+  apiLoginRequest: BodyType<ApiLoginRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseApiLoginResponseData>({
+    url: `/login`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: apiLoginRequest,
+    signal,
+  })
+}
 
+export const getPostLoginMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postLogin>>,
+    TError,
+    { data: BodyType<ApiLoginRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postLogin>>,
+  TError,
+  { data: BodyType<ApiLoginRequest> },
+  TContext
+> => {
+  const mutationKey = ['postLogin']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseApiLoginResponseData>(
-      {url: `/login`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: apiLoginRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postLogin>>,
+    { data: BodyType<ApiLoginRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postLogin(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostLoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postLogin>>
+>
+export type PostLoginMutationBody = BodyType<ApiLoginRequest>
+export type PostLoginMutationError = ErrorType<unknown>
 
-export const getPostLoginMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postLogin>>, TError,{data: BodyType<ApiLoginRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postLogin>>, TError,{data: BodyType<ApiLoginRequest>}, TContext> => {
-
-const mutationKey = ['postLogin'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postLogin>>, {data: BodyType<ApiLoginRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postLogin(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostLoginMutationResult = NonNullable<Awaited<ReturnType<typeof postLogin>>>
-    export type PostLoginMutationBody = BodyType<ApiLoginRequest>
-    export type PostLoginMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 账号登录
  */
-export const usePostLogin = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postLogin>>, TError,{data: BodyType<ApiLoginRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postLogin>>,
-        TError,
-        {data: BodyType<ApiLoginRequest>},
-        TContext
-      > => {
-      return useMutation(getPostLoginMutationOptions(options), queryClient);
-    }
+export const usePostLogin = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postLogin>>,
+      TError,
+      { data: BodyType<ApiLoginRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postLogin>>,
+  TError,
+  { data: BodyType<ApiLoginRequest> },
+  TContext
+> => {
+  return useMutation(getPostLoginMutationOptions(options), queryClient)
+}
 
 /**
  * @summary 获取我的组织列表
  */
-export const getOrganizations = (
-
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<ApiResponseArrayApiOrganizationItem>(
-      {url: `/organizations`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetOrganizationsQueryKey = () => {
-    return [
-    `/organizations`
-    ] as const;
-    }
-
-
-export const getGetOrganizationsQueryOptions = <TData = Awaited<ReturnType<typeof getOrganizations>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrganizations>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOrganizationsQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOrganizations>>> = ({ signal }) => getOrganizations(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOrganizations>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getOrganizations = (signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseArrayApiOrganizationItem>({
+    url: `/organizations`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetOrganizationsQueryResult = NonNullable<Awaited<ReturnType<typeof getOrganizations>>>
+export const getGetOrganizationsQueryKey = () => {
+  return [`/organizations`] as const
+}
+
+export const getGetOrganizationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOrganizations>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getOrganizations>>, TError, TData>
+  >
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetOrganizationsQueryKey()
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOrganizations>>
+  > = ({ signal }) => getOrganizations(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOrganizations>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOrganizationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOrganizations>>
+>
 export type GetOrganizationsQueryError = ErrorType<unknown>
 
-
-export function useGetOrganizations<TData = Awaited<ReturnType<typeof getOrganizations>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrganizations>>, TError, TData>> & Pick<
+export function useGetOrganizations<
+  TData = Awaited<ReturnType<typeof getOrganizations>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOrganizations>>,
           TError,
           Awaited<ReturnType<typeof getOrganizations>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOrganizations<TData = Awaited<ReturnType<typeof getOrganizations>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrganizations>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOrganizations<
+  TData = Awaited<ReturnType<typeof getOrganizations>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOrganizations>>,
           TError,
           Awaited<ReturnType<typeof getOrganizations>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOrganizations<TData = Awaited<ReturnType<typeof getOrganizations>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrganizations>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOrganizations<
+  TData = Awaited<ReturnType<typeof getOrganizations>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizations>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取我的组织列表
  */
 
-export function useGetOrganizations<TData = Awaited<ReturnType<typeof getOrganizations>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrganizations>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
+export function useGetOrganizations<
+  TData = Awaited<ReturnType<typeof getOrganizations>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizations>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
   const queryOptions = getGetOrganizationsQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 分页获取 OTA 升级包列表
  * @summary 获取 OTA 升级包列表
  */
 export const getOtaPackages = (
-    params?: GetOtaPackagesParams,
- signal?: AbortSignal
+  params?: GetOtaPackagesParams,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseOtaListOTAPackagesResponse>(
-      {url: `/ota-packages`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-
-
-
-
-export const getGetOtaPackagesQueryKey = (params?: GetOtaPackagesParams,) => {
-    return [
-    `/ota-packages`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetOtaPackagesQueryOptions = <TData = Awaited<ReturnType<typeof getOtaPackages>>, TError = ErrorType<unknown>>(params?: GetOtaPackagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOtaPackagesQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOtaPackages>>> = ({ signal }) => getOtaPackages(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseOtaListOTAPackagesResponse>({
+    url: `/ota-packages`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
-export type GetOtaPackagesQueryResult = NonNullable<Awaited<ReturnType<typeof getOtaPackages>>>
+export const getGetOtaPackagesQueryKey = (params?: GetOtaPackagesParams) => {
+  return [`/ota-packages`, ...(params ? [params] : [])] as const
+}
+
+export const getGetOtaPackagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOtaPackages>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOtaPackagesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetOtaPackagesQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getOtaPackages>>> = ({
+    signal,
+  }) => getOtaPackages(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOtaPackages>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOtaPackagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOtaPackages>>
+>
 export type GetOtaPackagesQueryError = ErrorType<unknown>
 
-
-export function useGetOtaPackages<TData = Awaited<ReturnType<typeof getOtaPackages>>, TError = ErrorType<unknown>>(
- params: undefined |  GetOtaPackagesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>> & Pick<
+export function useGetOtaPackages<
+  TData = Awaited<ReturnType<typeof getOtaPackages>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetOtaPackagesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackages>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackages>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackages<TData = Awaited<ReturnType<typeof getOtaPackages>>, TError = ErrorType<unknown>>(
- params?: GetOtaPackagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackages<
+  TData = Awaited<ReturnType<typeof getOtaPackages>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOtaPackagesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackages>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackages>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackages<TData = Awaited<ReturnType<typeof getOtaPackages>>, TError = ErrorType<unknown>>(
- params?: GetOtaPackagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackages<
+  TData = Awaited<ReturnType<typeof getOtaPackages>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOtaPackagesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取 OTA 升级包列表
  */
 
-export function useGetOtaPackages<TData = Awaited<ReturnType<typeof getOtaPackages>>, TError = ErrorType<unknown>>(
- params?: GetOtaPackagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetOtaPackages<
+  TData = Awaited<ReturnType<typeof getOtaPackages>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOtaPackagesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getOtaPackages>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetOtaPackagesQueryOptions(params, options)
 
-  const queryOptions = getGetOtaPackagesQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 创建一个新的 OTA 升级包
  * @summary 创建 OTA 升级包
  */
 export const postOtaPackages = (
-    otaCreateOTAPackageRequest: BodyType<OtaCreateOTAPackageRequest>,
- signal?: AbortSignal
+  otaCreateOTAPackageRequest: BodyType<OtaCreateOTAPackageRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseOtaOTAPackage>({
+    url: `/ota-packages`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: otaCreateOTAPackageRequest,
+    signal,
+  })
+}
 
+export const getPostOtaPackagesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postOtaPackages>>,
+    TError,
+    { data: BodyType<OtaCreateOTAPackageRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postOtaPackages>>,
+  TError,
+  { data: BodyType<OtaCreateOTAPackageRequest> },
+  TContext
+> => {
+  const mutationKey = ['postOtaPackages']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseOtaOTAPackage>(
-      {url: `/ota-packages`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: otaCreateOTAPackageRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postOtaPackages>>,
+    { data: BodyType<OtaCreateOTAPackageRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postOtaPackages(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostOtaPackagesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postOtaPackages>>
+>
+export type PostOtaPackagesMutationBody = BodyType<OtaCreateOTAPackageRequest>
+export type PostOtaPackagesMutationError = ErrorType<unknown>
 
-export const getPostOtaPackagesMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackages>>, TError,{data: BodyType<OtaCreateOTAPackageRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postOtaPackages>>, TError,{data: BodyType<OtaCreateOTAPackageRequest>}, TContext> => {
-
-const mutationKey = ['postOtaPackages'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postOtaPackages>>, {data: BodyType<OtaCreateOTAPackageRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postOtaPackages(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostOtaPackagesMutationResult = NonNullable<Awaited<ReturnType<typeof postOtaPackages>>>
-    export type PostOtaPackagesMutationBody = BodyType<OtaCreateOTAPackageRequest>
-    export type PostOtaPackagesMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 创建 OTA 升级包
  */
-export const usePostOtaPackages = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackages>>, TError,{data: BodyType<OtaCreateOTAPackageRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postOtaPackages>>,
-        TError,
-        {data: BodyType<OtaCreateOTAPackageRequest>},
-        TContext
-      > => {
-      return useMutation(getPostOtaPackagesMutationOptions(options), queryClient);
-    }
+export const usePostOtaPackages = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postOtaPackages>>,
+      TError,
+      { data: BodyType<OtaCreateOTAPackageRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postOtaPackages>>,
+  TError,
+  { data: BodyType<OtaCreateOTAPackageRequest> },
+  TContext
+> => {
+  return useMutation(getPostOtaPackagesMutationOptions(options), queryClient)
+}
 
 /**
  * 通过升级包 ID 获取 OTA 升级包详情
  * @summary 获取 OTA 升级包详情
  */
-export const getOtaPackagesUuid = (
-    uuid: string,
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<ApiResponseOtaOTAPackage>(
-      {url: `/ota-packages/${uuid}`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetOtaPackagesUuidQueryKey = (uuid: string,) => {
-    return [
-    `/ota-packages/${uuid}`
-    ] as const;
-    }
-
-
-export const getGetOtaPackagesUuidQueryOptions = <TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError = ErrorType<unknown>>(uuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOtaPackagesUuidQueryKey(uuid);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOtaPackagesUuid>>> = ({ signal }) => getOtaPackagesUuid(uuid, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: uuid !== null && uuid !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getOtaPackagesUuid = (uuid: string, signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseOtaOTAPackage>({
+    url: `/ota-packages/${uuid}`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetOtaPackagesUuidQueryResult = NonNullable<Awaited<ReturnType<typeof getOtaPackagesUuid>>>
+export const getGetOtaPackagesUuidQueryKey = (uuid: string) => {
+  return [`/ota-packages/${uuid}`] as const
+}
+
+export const getGetOtaPackagesUuidQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetOtaPackagesUuidQueryKey(uuid)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOtaPackagesUuid>>
+  > = ({ signal }) => getOtaPackagesUuid(uuid, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: uuid !== null && uuid !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOtaPackagesUuidQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOtaPackagesUuid>>
+>
 export type GetOtaPackagesUuidQueryError = ErrorType<unknown>
 
-
-export function useGetOtaPackagesUuid<TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError = ErrorType<unknown>>(
- uuid: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError, TData>> & Pick<
+export function useGetOtaPackagesUuid<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackagesUuid>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackagesUuid>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackagesUuid<TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError = ErrorType<unknown>>(
- uuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackagesUuid<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackagesUuid>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackagesUuid>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackagesUuid<TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError = ErrorType<unknown>>(
- uuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackagesUuid<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取 OTA 升级包详情
  */
 
-export function useGetOtaPackagesUuid<TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError = ErrorType<unknown>>(
- uuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuid>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetOtaPackagesUuid<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuid>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetOtaPackagesUuidQueryOptions(uuid, options)
 
-  const queryOptions = getGetOtaPackagesUuidQueryOptions(uuid,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 通过升级包 ID 更新 OTA 升级包
  * @summary 更新 OTA 升级包
  */
 export const putOtaPackagesUuid = (
-    uuid: string,
-    otaOTAPackageRequest: BodyType<OtaOTAPackageRequest>,
- signal?: AbortSignal
+  uuid: string,
+  otaOTAPackageRequest: BodyType<OtaOTAPackageRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseOtaOTAPackage>({
+    url: `/ota-packages/${uuid}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: otaOTAPackageRequest,
+    signal,
+  })
+}
 
+export const getPutOtaPackagesUuidMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putOtaPackagesUuid>>,
+    TError,
+    { uuid: string; data: BodyType<OtaOTAPackageRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putOtaPackagesUuid>>,
+  TError,
+  { uuid: string; data: BodyType<OtaOTAPackageRequest> },
+  TContext
+> => {
+  const mutationKey = ['putOtaPackagesUuid']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseOtaOTAPackage>(
-      {url: `/ota-packages/${uuid}`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: otaOTAPackageRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putOtaPackagesUuid>>,
+    { uuid: string; data: BodyType<OtaOTAPackageRequest> }
+  > = (props) => {
+    const { uuid, data } = props ?? {}
 
+    return putOtaPackagesUuid(uuid, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutOtaPackagesUuidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putOtaPackagesUuid>>
+>
+export type PutOtaPackagesUuidMutationBody = BodyType<OtaOTAPackageRequest>
+export type PutOtaPackagesUuidMutationError = ErrorType<unknown>
 
-export const getPutOtaPackagesUuidMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putOtaPackagesUuid>>, TError,{uuid: string;data: BodyType<OtaOTAPackageRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putOtaPackagesUuid>>, TError,{uuid: string;data: BodyType<OtaOTAPackageRequest>}, TContext> => {
-
-const mutationKey = ['putOtaPackagesUuid'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putOtaPackagesUuid>>, {uuid: string;data: BodyType<OtaOTAPackageRequest>}> = (props) => {
-          const {uuid,data} = props ?? {};
-
-          return  putOtaPackagesUuid(uuid,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutOtaPackagesUuidMutationResult = NonNullable<Awaited<ReturnType<typeof putOtaPackagesUuid>>>
-    export type PutOtaPackagesUuidMutationBody = BodyType<OtaOTAPackageRequest>
-    export type PutOtaPackagesUuidMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 更新 OTA 升级包
  */
-export const usePutOtaPackagesUuid = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putOtaPackagesUuid>>, TError,{uuid: string;data: BodyType<OtaOTAPackageRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putOtaPackagesUuid>>,
-        TError,
-        {uuid: string;data: BodyType<OtaOTAPackageRequest>},
-        TContext
-      > => {
-      return useMutation(getPutOtaPackagesUuidMutationOptions(options), queryClient);
-    }
+export const usePutOtaPackagesUuid = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putOtaPackagesUuid>>,
+      TError,
+      { uuid: string; data: BodyType<OtaOTAPackageRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putOtaPackagesUuid>>,
+  TError,
+  { uuid: string; data: BodyType<OtaOTAPackageRequest> },
+  TContext
+> => {
+  return useMutation(getPutOtaPackagesUuidMutationOptions(options), queryClient)
+}
 
 /**
  * 通过升级包 ID 删除 OTA 升级包
  * @summary 删除 OTA 升级包
  */
-export const deleteOtaPackagesUuid = (
-    uuid: string,
- signal?: AbortSignal
-) => {
+export const deleteOtaPackagesUuid = (uuid: string, signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseOtaSuccessResponse>({
+    url: `/ota-packages/${uuid}`,
+    method: 'DELETE',
+    signal,
+  })
+}
 
+export const getDeleteOtaPackagesUuidMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteOtaPackagesUuid>>,
+    TError,
+    { uuid: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteOtaPackagesUuid>>,
+  TError,
+  { uuid: string },
+  TContext
+> => {
+  const mutationKey = ['deleteOtaPackagesUuid']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseOtaSuccessResponse>(
-      {url: `/ota-packages/${uuid}`, method: 'DELETE', signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteOtaPackagesUuid>>,
+    { uuid: string }
+  > = (props) => {
+    const { uuid } = props ?? {}
 
+    return deleteOtaPackagesUuid(uuid)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type DeleteOtaPackagesUuidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteOtaPackagesUuid>>
+>
 
-export const getDeleteOtaPackagesUuidMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteOtaPackagesUuid>>, TError,{uuid: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteOtaPackagesUuid>>, TError,{uuid: string}, TContext> => {
+export type DeleteOtaPackagesUuidMutationError = ErrorType<unknown>
 
-const mutationKey = ['deleteOtaPackagesUuid'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteOtaPackagesUuid>>, {uuid: string}> = (props) => {
-          const {uuid} = props ?? {};
-
-          return  deleteOtaPackagesUuid(uuid,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteOtaPackagesUuidMutationResult = NonNullable<Awaited<ReturnType<typeof deleteOtaPackagesUuid>>>
-
-    export type DeleteOtaPackagesUuidMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 删除 OTA 升级包
  */
-export const useDeleteOtaPackagesUuid = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteOtaPackagesUuid>>, TError,{uuid: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteOtaPackagesUuid>>,
-        TError,
-        {uuid: string},
-        TContext
-      > => {
-      return useMutation(getDeleteOtaPackagesUuidMutationOptions(options), queryClient);
-    }
+export const useDeleteOtaPackagesUuid = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteOtaPackagesUuid>>,
+      TError,
+      { uuid: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteOtaPackagesUuid>>,
+  TError,
+  { uuid: string },
+  TContext
+> => {
+  return useMutation(
+    getDeleteOtaPackagesUuidMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 为指定升级包创建一个静态升级批次，并将所选设备加入该批次的升级（状态 pending），升级包状态置为 deploying
  * @summary 批量升级 OTA 升级包
  */
 export const postOtaPackagesUuidBatchUpgrade = (
-    uuid: string,
-    otaBatchUpgradeRequest: BodyType<OtaBatchUpgradeRequest>,
- signal?: AbortSignal
+  uuid: string,
+  otaBatchUpgradeRequest: BodyType<OtaBatchUpgradeRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseOtaUpgradeBatch>({
+    url: `/ota-packages/${uuid}/batch-upgrade`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: otaBatchUpgradeRequest,
+    signal,
+  })
+}
 
+export const getPostOtaPackagesUuidBatchUpgradeMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>,
+    TError,
+    { uuid: string; data: BodyType<OtaBatchUpgradeRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>,
+  TError,
+  { uuid: string; data: BodyType<OtaBatchUpgradeRequest> },
+  TContext
+> => {
+  const mutationKey = ['postOtaPackagesUuidBatchUpgrade']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseOtaUpgradeBatch>(
-      {url: `/ota-packages/${uuid}/batch-upgrade`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: otaBatchUpgradeRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>,
+    { uuid: string; data: BodyType<OtaBatchUpgradeRequest> }
+  > = (props) => {
+    const { uuid, data } = props ?? {}
 
+    return postOtaPackagesUuidBatchUpgrade(uuid, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostOtaPackagesUuidBatchUpgradeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>
+>
+export type PostOtaPackagesUuidBatchUpgradeMutationBody =
+  BodyType<OtaBatchUpgradeRequest>
+export type PostOtaPackagesUuidBatchUpgradeMutationError = ErrorType<unknown>
 
-export const getPostOtaPackagesUuidBatchUpgradeMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>, TError,{uuid: string;data: BodyType<OtaBatchUpgradeRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>, TError,{uuid: string;data: BodyType<OtaBatchUpgradeRequest>}, TContext> => {
-
-const mutationKey = ['postOtaPackagesUuidBatchUpgrade'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>, {uuid: string;data: BodyType<OtaBatchUpgradeRequest>}> = (props) => {
-          const {uuid,data} = props ?? {};
-
-          return  postOtaPackagesUuidBatchUpgrade(uuid,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostOtaPackagesUuidBatchUpgradeMutationResult = NonNullable<Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>>
-    export type PostOtaPackagesUuidBatchUpgradeMutationBody = BodyType<OtaBatchUpgradeRequest>
-    export type PostOtaPackagesUuidBatchUpgradeMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 批量升级 OTA 升级包
  */
-export const usePostOtaPackagesUuidBatchUpgrade = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>, TError,{uuid: string;data: BodyType<OtaBatchUpgradeRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>,
-        TError,
-        {uuid: string;data: BodyType<OtaBatchUpgradeRequest>},
-        TContext
-      > => {
-      return useMutation(getPostOtaPackagesUuidBatchUpgradeMutationOptions(options), queryClient);
-    }
+export const usePostOtaPackagesUuidBatchUpgrade = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>,
+      TError,
+      { uuid: string; data: BodyType<OtaBatchUpgradeRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postOtaPackagesUuidBatchUpgrade>>,
+  TError,
+  { uuid: string; data: BodyType<OtaBatchUpgradeRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPostOtaPackagesUuidBatchUpgradeMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 获取指定 OTA 升级包下的升级批次
  * @summary 获取 OTA 升级批次列表
  */
 export const getOtaPackagesUuidBatches = (
-    uuid: string,
- signal?: AbortSignal
+  uuid: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseOtaListUpgradeBatchesResponse>(
-      {url: `/ota-packages/${uuid}/batches`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetOtaPackagesUuidBatchesQueryKey = (uuid: string,) => {
-    return [
-    `/ota-packages/${uuid}/batches`
-    ] as const;
-    }
-
-
-export const getGetOtaPackagesUuidBatchesQueryOptions = <TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError = ErrorType<unknown>>(uuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOtaPackagesUuidBatchesQueryKey(uuid);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>> = ({ signal }) => getOtaPackagesUuidBatches(uuid, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: uuid !== null && uuid !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseOtaListUpgradeBatchesResponse>({
+    url: `/ota-packages/${uuid}/batches`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetOtaPackagesUuidBatchesQueryResult = NonNullable<Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>>
+export const getGetOtaPackagesUuidBatchesQueryKey = (uuid: string) => {
+  return [`/ota-packages/${uuid}/batches`] as const
+}
+
+export const getGetOtaPackagesUuidBatchesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetOtaPackagesUuidBatchesQueryKey(uuid)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>
+  > = ({ signal }) => getOtaPackagesUuidBatches(uuid, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: uuid !== null && uuid !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOtaPackagesUuidBatchesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>
+>
 export type GetOtaPackagesUuidBatchesQueryError = ErrorType<unknown>
 
-
-export function useGetOtaPackagesUuidBatches<TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError = ErrorType<unknown>>(
- uuid: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError, TData>> & Pick<
+export function useGetOtaPackagesUuidBatches<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackagesUuidBatches<TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError = ErrorType<unknown>>(
- uuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackagesUuidBatches<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackagesUuidBatches<TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError = ErrorType<unknown>>(
- uuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackagesUuidBatches<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取 OTA 升级批次列表
  */
 
-export function useGetOtaPackagesUuidBatches<TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError = ErrorType<unknown>>(
- uuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetOtaPackagesUuidBatches<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidBatches>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetOtaPackagesUuidBatchesQueryOptions(uuid, options)
 
-  const queryOptions = getGetOtaPackagesUuidBatchesQueryOptions(uuid,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 分页获取指定升级包下的设备部署记录
  * @summary 获取 OTA 设备部署列表
  */
 export const getOtaPackagesUuidDeviceDeployments = (
-    uuid: string,
-    params?: GetOtaPackagesUuidDeviceDeploymentsParams,
- signal?: AbortSignal
+  uuid: string,
+  params?: GetOtaPackagesUuidDeviceDeploymentsParams,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseOtaListDeviceDeploymentsResponse>(
-      {url: `/ota-packages/${uuid}/device-deployments`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-
-
-
-
-export const getGetOtaPackagesUuidDeviceDeploymentsQueryKey = (uuid: string,
-    params?: GetOtaPackagesUuidDeviceDeploymentsParams,) => {
-    return [
-    `/ota-packages/${uuid}/device-deployments`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetOtaPackagesUuidDeviceDeploymentsQueryOptions = <TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError = ErrorType<unknown>>(uuid: string,
-    params?: GetOtaPackagesUuidDeviceDeploymentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOtaPackagesUuidDeviceDeploymentsQueryKey(uuid,params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>> = ({ signal }) => getOtaPackagesUuidDeviceDeployments(uuid,params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: uuid !== null && uuid !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseOtaListDeviceDeploymentsResponse>({
+    url: `/ota-packages/${uuid}/device-deployments`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
-export type GetOtaPackagesUuidDeviceDeploymentsQueryResult = NonNullable<Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>>
+export const getGetOtaPackagesUuidDeviceDeploymentsQueryKey = (
+  uuid: string,
+  params?: GetOtaPackagesUuidDeviceDeploymentsParams
+) => {
+  return [
+    `/ota-packages/${uuid}/device-deployments`,
+    ...(params ? [params] : []),
+  ] as const
+}
+
+export const getGetOtaPackagesUuidDeviceDeploymentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params?: GetOtaPackagesUuidDeviceDeploymentsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetOtaPackagesUuidDeviceDeploymentsQueryKey(uuid, params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>
+  > = ({ signal }) => getOtaPackagesUuidDeviceDeployments(uuid, params, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: uuid !== null && uuid !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOtaPackagesUuidDeviceDeploymentsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>
+>
 export type GetOtaPackagesUuidDeviceDeploymentsQueryError = ErrorType<unknown>
 
-
-export function useGetOtaPackagesUuidDeviceDeployments<TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError = ErrorType<unknown>>(
- uuid: string,
-    params: undefined |  GetOtaPackagesUuidDeviceDeploymentsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError, TData>> & Pick<
+export function useGetOtaPackagesUuidDeviceDeployments<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params: undefined | GetOtaPackagesUuidDeviceDeploymentsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackagesUuidDeviceDeployments<TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError = ErrorType<unknown>>(
- uuid: string,
-    params?: GetOtaPackagesUuidDeviceDeploymentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackagesUuidDeviceDeployments<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params?: GetOtaPackagesUuidDeviceDeploymentsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackagesUuidDeviceDeployments<TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError = ErrorType<unknown>>(
- uuid: string,
-    params?: GetOtaPackagesUuidDeviceDeploymentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackagesUuidDeviceDeployments<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params?: GetOtaPackagesUuidDeviceDeploymentsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取 OTA 设备部署列表
  */
 
-export function useGetOtaPackagesUuidDeviceDeployments<TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError = ErrorType<unknown>>(
- uuid: string,
-    params?: GetOtaPackagesUuidDeviceDeploymentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetOtaPackagesUuidDeviceDeployments<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params?: GetOtaPackagesUuidDeviceDeploymentsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidDeviceDeployments>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetOtaPackagesUuidDeviceDeploymentsQueryOptions(
+    uuid,
+    params,
+    options
+  )
 
-  const queryOptions = getGetOtaPackagesUuidDeviceDeploymentsQueryOptions(uuid,params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态
  * @summary 上报设备 OTA 升级结果
  */
 export const postOtaPackagesUuidReport = (
-    uuid: string,
-    otaReportOTAStatusRequest: BodyType<OtaReportOTAStatusRequest>,
- signal?: AbortSignal
+  uuid: string,
+  otaReportOTAStatusRequest: BodyType<OtaReportOTAStatusRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseOtaSuccessResponse>({
+    url: `/ota-packages/${uuid}/report`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: otaReportOTAStatusRequest,
+    signal,
+  })
+}
 
+export const getPostOtaPackagesUuidReportMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postOtaPackagesUuidReport>>,
+    TError,
+    { uuid: string; data: BodyType<OtaReportOTAStatusRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postOtaPackagesUuidReport>>,
+  TError,
+  { uuid: string; data: BodyType<OtaReportOTAStatusRequest> },
+  TContext
+> => {
+  const mutationKey = ['postOtaPackagesUuidReport']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseOtaSuccessResponse>(
-      {url: `/ota-packages/${uuid}/report`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: otaReportOTAStatusRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postOtaPackagesUuidReport>>,
+    { uuid: string; data: BodyType<OtaReportOTAStatusRequest> }
+  > = (props) => {
+    const { uuid, data } = props ?? {}
 
+    return postOtaPackagesUuidReport(uuid, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostOtaPackagesUuidReportMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postOtaPackagesUuidReport>>
+>
+export type PostOtaPackagesUuidReportMutationBody =
+  BodyType<OtaReportOTAStatusRequest>
+export type PostOtaPackagesUuidReportMutationError = ErrorType<unknown>
 
-export const getPostOtaPackagesUuidReportMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesUuidReport>>, TError,{uuid: string;data: BodyType<OtaReportOTAStatusRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesUuidReport>>, TError,{uuid: string;data: BodyType<OtaReportOTAStatusRequest>}, TContext> => {
-
-const mutationKey = ['postOtaPackagesUuidReport'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postOtaPackagesUuidReport>>, {uuid: string;data: BodyType<OtaReportOTAStatusRequest>}> = (props) => {
-          const {uuid,data} = props ?? {};
-
-          return  postOtaPackagesUuidReport(uuid,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostOtaPackagesUuidReportMutationResult = NonNullable<Awaited<ReturnType<typeof postOtaPackagesUuidReport>>>
-    export type PostOtaPackagesUuidReportMutationBody = BodyType<OtaReportOTAStatusRequest>
-    export type PostOtaPackagesUuidReportMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 上报设备 OTA 升级结果
  */
-export const usePostOtaPackagesUuidReport = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postOtaPackagesUuidReport>>, TError,{uuid: string;data: BodyType<OtaReportOTAStatusRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postOtaPackagesUuidReport>>,
-        TError,
-        {uuid: string;data: BodyType<OtaReportOTAStatusRequest>},
-        TContext
-      > => {
-      return useMutation(getPostOtaPackagesUuidReportMutationOptions(options), queryClient);
-    }
+export const usePostOtaPackagesUuidReport = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postOtaPackagesUuidReport>>,
+      TError,
+      { uuid: string; data: BodyType<OtaReportOTAStatusRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postOtaPackagesUuidReport>>,
+  TError,
+  { uuid: string; data: BodyType<OtaReportOTAStatusRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPostOtaPackagesUuidReportMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 获取指定 OTA 升级包的升级统计数据
  * @summary 获取 OTA 升级统计
  */
 export const getOtaPackagesUuidUpgradeStatistics = (
-    uuid: string,
-    params?: GetOtaPackagesUuidUpgradeStatisticsParams,
- signal?: AbortSignal
+  uuid: string,
+  params?: GetOtaPackagesUuidUpgradeStatisticsParams,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseOtaGetUpgradeStatisticsResponse>(
-      {url: `/ota-packages/${uuid}/upgrade-statistics`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-
-
-
-
-export const getGetOtaPackagesUuidUpgradeStatisticsQueryKey = (uuid: string,
-    params?: GetOtaPackagesUuidUpgradeStatisticsParams,) => {
-    return [
-    `/ota-packages/${uuid}/upgrade-statistics`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetOtaPackagesUuidUpgradeStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError = ErrorType<unknown>>(uuid: string,
-    params?: GetOtaPackagesUuidUpgradeStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOtaPackagesUuidUpgradeStatisticsQueryKey(uuid,params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>> = ({ signal }) => getOtaPackagesUuidUpgradeStatistics(uuid,params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: uuid !== null && uuid !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseOtaGetUpgradeStatisticsResponse>({
+    url: `/ota-packages/${uuid}/upgrade-statistics`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
-export type GetOtaPackagesUuidUpgradeStatisticsQueryResult = NonNullable<Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>>
+export const getGetOtaPackagesUuidUpgradeStatisticsQueryKey = (
+  uuid: string,
+  params?: GetOtaPackagesUuidUpgradeStatisticsParams
+) => {
+  return [
+    `/ota-packages/${uuid}/upgrade-statistics`,
+    ...(params ? [params] : []),
+  ] as const
+}
+
+export const getGetOtaPackagesUuidUpgradeStatisticsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params?: GetOtaPackagesUuidUpgradeStatisticsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetOtaPackagesUuidUpgradeStatisticsQueryKey(uuid, params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>
+  > = ({ signal }) => getOtaPackagesUuidUpgradeStatistics(uuid, params, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: uuid !== null && uuid !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOtaPackagesUuidUpgradeStatisticsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>
+>
 export type GetOtaPackagesUuidUpgradeStatisticsQueryError = ErrorType<unknown>
 
-
-export function useGetOtaPackagesUuidUpgradeStatistics<TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError = ErrorType<unknown>>(
- uuid: string,
-    params: undefined |  GetOtaPackagesUuidUpgradeStatisticsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError, TData>> & Pick<
+export function useGetOtaPackagesUuidUpgradeStatistics<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params: undefined | GetOtaPackagesUuidUpgradeStatisticsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackagesUuidUpgradeStatistics<TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError = ErrorType<unknown>>(
- uuid: string,
-    params?: GetOtaPackagesUuidUpgradeStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackagesUuidUpgradeStatistics<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params?: GetOtaPackagesUuidUpgradeStatisticsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
           TError,
           Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetOtaPackagesUuidUpgradeStatistics<TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError = ErrorType<unknown>>(
- uuid: string,
-    params?: GetOtaPackagesUuidUpgradeStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOtaPackagesUuidUpgradeStatistics<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params?: GetOtaPackagesUuidUpgradeStatisticsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取 OTA 升级统计
  */
 
-export function useGetOtaPackagesUuidUpgradeStatistics<TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError = ErrorType<unknown>>(
- uuid: string,
-    params?: GetOtaPackagesUuidUpgradeStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetOtaPackagesUuidUpgradeStatistics<
+  TData = Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  params?: GetOtaPackagesUuidUpgradeStatisticsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOtaPackagesUuidUpgradeStatistics>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetOtaPackagesUuidUpgradeStatisticsQueryOptions(
+    uuid,
+    params,
+    options
+  )
 
-  const queryOptions = getGetOtaPackagesUuidUpgradeStatisticsQueryOptions(uuid,params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 分页获取产品列表，支持按 category、status、searchText 过滤
  * @summary 获取产品列表
  */
 export const getProducts = (
-    params?: GetProductsParams,
- signal?: AbortSignal
+  params?: GetProductsParams,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseProductListProductsResponse>(
-      {url: `/products`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-
-
-
-
-export const getGetProductsQueryKey = (params?: GetProductsParams,) => {
-    return [
-    `/products`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetProductsQueryOptions = <TData = Awaited<ReturnType<typeof getProducts>>, TError = ErrorType<unknown>>(params?: GetProductsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetProductsQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProducts>>> = ({ signal }) => getProducts(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseProductListProductsResponse>({
+    url: `/products`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
-export type GetProductsQueryResult = NonNullable<Awaited<ReturnType<typeof getProducts>>>
+export const getGetProductsQueryKey = (params?: GetProductsParams) => {
+  return [`/products`, ...(params ? [params] : [])] as const
+}
+
+export const getGetProductsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetProductsQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getProducts>>> = ({
+    signal,
+  }) => getProducts(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getProducts>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProducts>>
+>
 export type GetProductsQueryError = ErrorType<unknown>
 
-
-export function useGetProducts<TData = Awaited<ReturnType<typeof getProducts>>, TError = ErrorType<unknown>>(
- params: undefined |  GetProductsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>> & Pick<
+export function useGetProducts<
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetProductsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProducts>>,
           TError,
           Awaited<ReturnType<typeof getProducts>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetProducts<TData = Awaited<ReturnType<typeof getProducts>>, TError = ErrorType<unknown>>(
- params?: GetProductsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProducts<
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProducts>>,
           TError,
           Awaited<ReturnType<typeof getProducts>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetProducts<TData = Awaited<ReturnType<typeof getProducts>>, TError = ErrorType<unknown>>(
- params?: GetProductsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProducts<
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取产品列表
  */
 
-export function useGetProducts<TData = Awaited<ReturnType<typeof getProducts>>, TError = ErrorType<unknown>>(
- params?: GetProductsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetProducts<
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetProductsQueryOptions(params, options)
 
-  const queryOptions = getGetProductsQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 创建一个新的产品
  * @summary 创建产品
  */
 export const postProducts = (
-    productCreateProductRequest: BodyType<ProductCreateProductRequest>,
- signal?: AbortSignal
+  productCreateProductRequest: BodyType<ProductCreateProductRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseProductCreateProductResponse>({
+    url: `/products`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: productCreateProductRequest,
+    signal,
+  })
+}
 
+export const getPostProductsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postProducts>>,
+    TError,
+    { data: BodyType<ProductCreateProductRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postProducts>>,
+  TError,
+  { data: BodyType<ProductCreateProductRequest> },
+  TContext
+> => {
+  const mutationKey = ['postProducts']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseProductCreateProductResponse>(
-      {url: `/products`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: productCreateProductRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postProducts>>,
+    { data: BodyType<ProductCreateProductRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postProducts(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostProductsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postProducts>>
+>
+export type PostProductsMutationBody = BodyType<ProductCreateProductRequest>
+export type PostProductsMutationError = ErrorType<unknown>
 
-export const getPostProductsMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProducts>>, TError,{data: BodyType<ProductCreateProductRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postProducts>>, TError,{data: BodyType<ProductCreateProductRequest>}, TContext> => {
-
-const mutationKey = ['postProducts'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postProducts>>, {data: BodyType<ProductCreateProductRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postProducts(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostProductsMutationResult = NonNullable<Awaited<ReturnType<typeof postProducts>>>
-    export type PostProductsMutationBody = BodyType<ProductCreateProductRequest>
-    export type PostProductsMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 创建产品
  */
-export const usePostProducts = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProducts>>, TError,{data: BodyType<ProductCreateProductRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postProducts>>,
-        TError,
-        {data: BodyType<ProductCreateProductRequest>},
-        TContext
-      > => {
-      return useMutation(getPostProductsMutationOptions(options), queryClient);
-    }
+export const usePostProducts = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postProducts>>,
+      TError,
+      { data: BodyType<ProductCreateProductRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postProducts>>,
+  TError,
+  { data: BodyType<ProductCreateProductRequest> },
+  TContext
+> => {
+  return useMutation(getPostProductsMutationOptions(options), queryClient)
+}
 
 /**
  * 获取产品唯一的消息解析脚本；尚未配置时返回默认模板。
  * @summary 获取产品消息解析器
  */
 export const getProductsKeyProductKeyMessageParser = (
-    productKey: string,
- signal?: AbortSignal
+  productKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseMessageParserProductMessageParser>(
-      {url: `/products/key/${productKey}/message-parser`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetProductsKeyProductKeyMessageParserQueryKey = (productKey: string,) => {
-    return [
-    `/products/key/${productKey}/message-parser`
-    ] as const;
-    }
-
-
-export const getGetProductsKeyProductKeyMessageParserQueryOptions = <TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetProductsKeyProductKeyMessageParserQueryKey(productKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>> = ({ signal }) => getProductsKeyProductKeyMessageParser(productKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: productKey !== null && productKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseMessageParserProductMessageParser>({
+    url: `/products/key/${productKey}/message-parser`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetProductsKeyProductKeyMessageParserQueryResult = NonNullable<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>>
+export const getGetProductsKeyProductKeyMessageParserQueryKey = (
+  productKey: string
+) => {
+  return [`/products/key/${productKey}/message-parser`] as const
+}
+
+export const getGetProductsKeyProductKeyMessageParserQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetProductsKeyProductKeyMessageParserQueryKey(productKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>
+  > = ({ signal }) => getProductsKeyProductKeyMessageParser(productKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: productKey !== null && productKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductsKeyProductKeyMessageParserQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>
+>
 export type GetProductsKeyProductKeyMessageParserQueryError = ErrorType<unknown>
 
-
-export function useGetProductsKeyProductKeyMessageParser<TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(
- productKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>> & Pick<
+export function useGetProductsKeyProductKeyMessageParser<
+  TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
           TError,
           Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetProductsKeyProductKeyMessageParser<TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProductsKeyProductKeyMessageParser<
+  TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
           TError,
           Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetProductsKeyProductKeyMessageParser<TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProductsKeyProductKeyMessageParser<
+  TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取产品消息解析器
  */
 
-export function useGetProductsKeyProductKeyMessageParser<TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetProductsKeyProductKeyMessageParser<
+  TData = Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsKeyProductKeyMessageParser>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetProductsKeyProductKeyMessageParserQueryOptions(
+    productKey,
+    options
+  )
 
-  const queryOptions = getGetProductsKeyProductKeyMessageParserQueryOptions(productKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 按产品覆盖保存 JavaScript ES5 消息解析脚本。
  * @summary 保存产品消息解析器
  */
 export const putProductsKeyProductKeyMessageParser = (
-    productKey: string,
-    messageParserUpsertProductMessageParserRequest: BodyType<MessageParserUpsertProductMessageParserRequest>,
- signal?: AbortSignal
+  productKey: string,
+  messageParserUpsertProductMessageParserRequest: BodyType<MessageParserUpsertProductMessageParserRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseMessageParserProductMessageParser>({
+    url: `/products/key/${productKey}/message-parser`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: messageParserUpsertProductMessageParserRequest,
+    signal,
+  })
+}
 
-
-      return orvalAxios<ApiResponseMessageParserProductMessageParser>(
-      {url: `/products/key/${productKey}/message-parser`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: messageParserUpsertProductMessageParserRequest, signal
+export const getPutProductsKeyProductKeyMessageParserMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>,
+    TError,
+    {
+      productKey: string
+      data: BodyType<MessageParserUpsertProductMessageParserRequest>
     },
-      );
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>,
+  TError,
+  {
+    productKey: string
+    data: BodyType<MessageParserUpsertProductMessageParserRequest>
+  },
+  TContext
+> => {
+  const mutationKey = ['putProductsKeyProductKeyMessageParser']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>,
+    {
+      productKey: string
+      data: BodyType<MessageParserUpsertProductMessageParserRequest>
     }
+  > = (props) => {
+    const { productKey, data } = props ?? {}
 
+    return putProductsKeyProductKeyMessageParser(productKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutProductsKeyProductKeyMessageParserMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>
+>
+export type PutProductsKeyProductKeyMessageParserMutationBody =
+  BodyType<MessageParserUpsertProductMessageParserRequest>
+export type PutProductsKeyProductKeyMessageParserMutationError =
+  ErrorType<unknown>
 
-export const getPutProductsKeyProductKeyMessageParserMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>, TError,{productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>, TError,{productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>}, TContext> => {
-
-const mutationKey = ['putProductsKeyProductKeyMessageParser'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>, {productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>}> = (props) => {
-          const {productKey,data} = props ?? {};
-
-          return  putProductsKeyProductKeyMessageParser(productKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutProductsKeyProductKeyMessageParserMutationResult = NonNullable<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>>
-    export type PutProductsKeyProductKeyMessageParserMutationBody = BodyType<MessageParserUpsertProductMessageParserRequest>
-    export type PutProductsKeyProductKeyMessageParserMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 保存产品消息解析器
  */
-export const usePutProductsKeyProductKeyMessageParser = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>, TError,{productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>,
-        TError,
-        {productKey: string;data: BodyType<MessageParserUpsertProductMessageParserRequest>},
-        TContext
-      > => {
-      return useMutation(getPutProductsKeyProductKeyMessageParserMutationOptions(options), queryClient);
-    }
+export const usePutProductsKeyProductKeyMessageParser = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>,
+      TError,
+      {
+        productKey: string
+        data: BodyType<MessageParserUpsertProductMessageParserRequest>
+      },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putProductsKeyProductKeyMessageParser>>,
+  TError,
+  {
+    productKey: string
+    data: BodyType<MessageParserUpsertProductMessageParserRequest>
+  },
+  TContext
+> => {
+  return useMutation(
+    getPutProductsKeyProductKeyMessageParserMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 仅在受限 JavaScript ES5 运行时中执行保存的产品脚本。
  * @summary 模拟执行产品消息解析器
  */
 export const postProductsKeyProductKeyMessageParserExecute = (
-    productKey: string,
-    messageParserExecuteProductMessageParserRequest: BodyType<MessageParserExecuteProductMessageParserRequest>,
- signal?: AbortSignal
+  productKey: string,
+  messageParserExecuteProductMessageParserRequest: BodyType<MessageParserExecuteProductMessageParserRequest>,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseMessageParserExecuteProductMessageParserResponse>(
-      {url: `/products/key/${productKey}/message-parser/execute`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: messageParserExecuteProductMessageParserRequest, signal
-    },
-      );
+  return orvalAxios<ApiResponseMessageParserExecuteProductMessageParserResponse>(
+    {
+      url: `/products/key/${productKey}/message-parser/execute`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: messageParserExecuteProductMessageParserRequest,
+      signal,
     }
+  )
+}
 
+export const getPostProductsKeyProductKeyMessageParserExecuteMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>,
+    TError,
+    {
+      productKey: string
+      data: BodyType<MessageParserExecuteProductMessageParserRequest>
+    },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>,
+  TError,
+  {
+    productKey: string
+    data: BodyType<MessageParserExecuteProductMessageParserRequest>
+  },
+  TContext
+> => {
+  const mutationKey = ['postProductsKeyProductKeyMessageParserExecute']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>,
+    {
+      productKey: string
+      data: BodyType<MessageParserExecuteProductMessageParserRequest>
+    }
+  > = (props) => {
+    const { productKey, data } = props ?? {}
 
+    return postProductsKeyProductKeyMessageParserExecute(productKey, data)
+  }
 
-export const getPostProductsKeyProductKeyMessageParserExecuteMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>, TError,{productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>, TError,{productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>}, TContext> => {
+  return { mutationFn, ...mutationOptions }
+}
 
-const mutationKey = ['postProductsKeyProductKeyMessageParserExecute'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+export type PostProductsKeyProductKeyMessageParserExecuteMutationResult =
+  NonNullable<
+    Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>
+  >
+export type PostProductsKeyProductKeyMessageParserExecuteMutationBody =
+  BodyType<MessageParserExecuteProductMessageParserRequest>
+export type PostProductsKeyProductKeyMessageParserExecuteMutationError =
+  ErrorType<unknown>
 
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>, {productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>}> = (props) => {
-          const {productKey,data} = props ?? {};
-
-          return  postProductsKeyProductKeyMessageParserExecute(productKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostProductsKeyProductKeyMessageParserExecuteMutationResult = NonNullable<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>>
-    export type PostProductsKeyProductKeyMessageParserExecuteMutationBody = BodyType<MessageParserExecuteProductMessageParserRequest>
-    export type PostProductsKeyProductKeyMessageParserExecuteMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 模拟执行产品消息解析器
  */
-export const usePostProductsKeyProductKeyMessageParserExecute = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>, TError,{productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>,
-        TError,
-        {productKey: string;data: BodyType<MessageParserExecuteProductMessageParserRequest>},
-        TContext
-      > => {
-      return useMutation(getPostProductsKeyProductKeyMessageParserExecuteMutationOptions(options), queryClient);
-    }
+export const usePostProductsKeyProductKeyMessageParserExecute = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>,
+      TError,
+      {
+        productKey: string
+        data: BodyType<MessageParserExecuteProductMessageParserRequest>
+      },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postProductsKeyProductKeyMessageParserExecute>>,
+  TError,
+  {
+    productKey: string
+    data: BodyType<MessageParserExecuteProductMessageParserRequest>
+  },
+  TContext
+> => {
+  return useMutation(
+    getPostProductsKeyProductKeyMessageParserExecuteMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过产品 Key 获取产品详情
  * @summary 通过 productKey 获取产品
  */
 export const getProductsProductKey = (
-    productKey: string,
- signal?: AbortSignal
+  productKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseProductGetProductResponse>(
-      {url: `/products/${productKey}`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetProductsProductKeyQueryKey = (productKey: string,) => {
-    return [
-    `/products/${productKey}`
-    ] as const;
-    }
-
-
-export const getGetProductsProductKeyQueryOptions = <TData = Awaited<ReturnType<typeof getProductsProductKey>>, TError = ErrorType<unknown>>(productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKey>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetProductsProductKeyQueryKey(productKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductsProductKey>>> = ({ signal }) => getProductsProductKey(productKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: productKey !== null && productKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKey>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseProductGetProductResponse>({
+    url: `/products/${productKey}`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetProductsProductKeyQueryResult = NonNullable<Awaited<ReturnType<typeof getProductsProductKey>>>
+export const getGetProductsProductKeyQueryKey = (productKey: string) => {
+  return [`/products/${productKey}`] as const
+}
+
+export const getGetProductsProductKeyQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProductsProductKey>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKey>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetProductsProductKeyQueryKey(productKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getProductsProductKey>>
+  > = ({ signal }) => getProductsProductKey(productKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: productKey !== null && productKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getProductsProductKey>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductsProductKeyQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProductsProductKey>>
+>
 export type GetProductsProductKeyQueryError = ErrorType<unknown>
 
-
-export function useGetProductsProductKey<TData = Awaited<ReturnType<typeof getProductsProductKey>>, TError = ErrorType<unknown>>(
- productKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKey>>, TError, TData>> & Pick<
+export function useGetProductsProductKey<
+  TData = Awaited<ReturnType<typeof getProductsProductKey>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKey>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProductsProductKey>>,
           TError,
           Awaited<ReturnType<typeof getProductsProductKey>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetProductsProductKey<TData = Awaited<ReturnType<typeof getProductsProductKey>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKey>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProductsProductKey<
+  TData = Awaited<ReturnType<typeof getProductsProductKey>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKey>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProductsProductKey>>,
           TError,
           Awaited<ReturnType<typeof getProductsProductKey>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetProductsProductKey<TData = Awaited<ReturnType<typeof getProductsProductKey>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKey>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProductsProductKey<
+  TData = Awaited<ReturnType<typeof getProductsProductKey>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKey>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 通过 productKey 获取产品
  */
 
-export function useGetProductsProductKey<TData = Awaited<ReturnType<typeof getProductsProductKey>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKey>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetProductsProductKey<
+  TData = Awaited<ReturnType<typeof getProductsProductKey>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKey>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetProductsProductKeyQueryOptions(productKey, options)
 
-  const queryOptions = getGetProductsProductKeyQueryOptions(productKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 通过 productKey 更新产品
  * @summary 更新产品
  */
 export const putProductsProductKey = (
-    productKey: string,
-    productUpdateProductRequest: BodyType<ProductUpdateProductRequest>,
- signal?: AbortSignal
+  productKey: string,
+  productUpdateProductRequest: BodyType<ProductUpdateProductRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseProductUpdateProductResponse>({
+    url: `/products/${productKey}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: productUpdateProductRequest,
+    signal,
+  })
+}
 
+export const getPutProductsProductKeyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putProductsProductKey>>,
+    TError,
+    { productKey: string; data: BodyType<ProductUpdateProductRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putProductsProductKey>>,
+  TError,
+  { productKey: string; data: BodyType<ProductUpdateProductRequest> },
+  TContext
+> => {
+  const mutationKey = ['putProductsProductKey']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseProductUpdateProductResponse>(
-      {url: `/products/${productKey}`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: productUpdateProductRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putProductsProductKey>>,
+    { productKey: string; data: BodyType<ProductUpdateProductRequest> }
+  > = (props) => {
+    const { productKey, data } = props ?? {}
 
+    return putProductsProductKey(productKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutProductsProductKeyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putProductsProductKey>>
+>
+export type PutProductsProductKeyMutationBody =
+  BodyType<ProductUpdateProductRequest>
+export type PutProductsProductKeyMutationError = ErrorType<unknown>
 
-export const getPutProductsProductKeyMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putProductsProductKey>>, TError,{productKey: string;data: BodyType<ProductUpdateProductRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putProductsProductKey>>, TError,{productKey: string;data: BodyType<ProductUpdateProductRequest>}, TContext> => {
-
-const mutationKey = ['putProductsProductKey'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putProductsProductKey>>, {productKey: string;data: BodyType<ProductUpdateProductRequest>}> = (props) => {
-          const {productKey,data} = props ?? {};
-
-          return  putProductsProductKey(productKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutProductsProductKeyMutationResult = NonNullable<Awaited<ReturnType<typeof putProductsProductKey>>>
-    export type PutProductsProductKeyMutationBody = BodyType<ProductUpdateProductRequest>
-    export type PutProductsProductKeyMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 更新产品
  */
-export const usePutProductsProductKey = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putProductsProductKey>>, TError,{productKey: string;data: BodyType<ProductUpdateProductRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putProductsProductKey>>,
-        TError,
-        {productKey: string;data: BodyType<ProductUpdateProductRequest>},
-        TContext
-      > => {
-      return useMutation(getPutProductsProductKeyMutationOptions(options), queryClient);
-    }
+export const usePutProductsProductKey = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putProductsProductKey>>,
+      TError,
+      { productKey: string; data: BodyType<ProductUpdateProductRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putProductsProductKey>>,
+  TError,
+  { productKey: string; data: BodyType<ProductUpdateProductRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPutProductsProductKeyMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过产品 Key 软删除产品
  * @summary 删除产品
  */
 export const deleteProductsProductKey = (
-    productKey: string,
- signal?: AbortSignal
+  productKey: string,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseProductSuccessResponse>({
+    url: `/products/${productKey}`,
+    method: 'DELETE',
+    signal,
+  })
+}
 
+export const getDeleteProductsProductKeyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteProductsProductKey>>,
+    TError,
+    { productKey: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteProductsProductKey>>,
+  TError,
+  { productKey: string },
+  TContext
+> => {
+  const mutationKey = ['deleteProductsProductKey']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseProductSuccessResponse>(
-      {url: `/products/${productKey}`, method: 'DELETE', signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteProductsProductKey>>,
+    { productKey: string }
+  > = (props) => {
+    const { productKey } = props ?? {}
 
+    return deleteProductsProductKey(productKey)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type DeleteProductsProductKeyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteProductsProductKey>>
+>
 
-export const getDeleteProductsProductKeyMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProductsProductKey>>, TError,{productKey: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteProductsProductKey>>, TError,{productKey: string}, TContext> => {
+export type DeleteProductsProductKeyMutationError = ErrorType<unknown>
 
-const mutationKey = ['deleteProductsProductKey'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProductsProductKey>>, {productKey: string}> = (props) => {
-          const {productKey} = props ?? {};
-
-          return  deleteProductsProductKey(productKey,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteProductsProductKeyMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProductsProductKey>>>
-
-    export type DeleteProductsProductKeyMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 删除产品
  */
-export const useDeleteProductsProductKey = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProductsProductKey>>, TError,{productKey: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteProductsProductKey>>,
-        TError,
-        {productKey: string},
-        TContext
-      > => {
-      return useMutation(getDeleteProductsProductKeyMutationOptions(options), queryClient);
-    }
+export const useDeleteProductsProductKey = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteProductsProductKey>>,
+      TError,
+      { productKey: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteProductsProductKey>>,
+  TError,
+  { productKey: string },
+  TContext
+> => {
+  return useMutation(
+    getDeleteProductsProductKeyMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过产品 Key 获取其物模型定义（TSL）
  * @summary 获取产品物模型（TSL）
  */
 export const getProductsProductKeyTsl = (
-    productKey: string,
- signal?: AbortSignal
+  productKey: string,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseProductTslGetProductTSLResponse>(
-      {url: `/products/${productKey}/tsl`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetProductsProductKeyTslQueryKey = (productKey: string,) => {
-    return [
-    `/products/${productKey}/tsl`
-    ] as const;
-    }
-
-
-export const getGetProductsProductKeyTslQueryOptions = <TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError = ErrorType<unknown>>(productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetProductsProductKeyTslQueryKey(productKey);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductsProductKeyTsl>>> = ({ signal }) => getProductsProductKeyTsl(productKey, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: productKey !== null && productKey !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseProductTslGetProductTSLResponse>({
+    url: `/products/${productKey}/tsl`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetProductsProductKeyTslQueryResult = NonNullable<Awaited<ReturnType<typeof getProductsProductKeyTsl>>>
+export const getGetProductsProductKeyTslQueryKey = (productKey: string) => {
+  return [`/products/${productKey}/tsl`] as const
+}
+
+export const getGetProductsProductKeyTslQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetProductsProductKeyTslQueryKey(productKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getProductsProductKeyTsl>>
+  > = ({ signal }) => getProductsProductKeyTsl(productKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: productKey !== null && productKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductsProductKeyTslQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProductsProductKeyTsl>>
+>
 export type GetProductsProductKeyTslQueryError = ErrorType<unknown>
 
-
-export function useGetProductsProductKeyTsl<TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError = ErrorType<unknown>>(
- productKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError, TData>> & Pick<
+export function useGetProductsProductKeyTsl<
+  TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
           TError,
           Awaited<ReturnType<typeof getProductsProductKeyTsl>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetProductsProductKeyTsl<TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProductsProductKeyTsl<
+  TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
           TError,
           Awaited<ReturnType<typeof getProductsProductKeyTsl>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetProductsProductKeyTsl<TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProductsProductKeyTsl<
+  TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取产品物模型（TSL）
  */
 
-export function useGetProductsProductKeyTsl<TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError = ErrorType<unknown>>(
- productKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsProductKeyTsl>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetProductsProductKeyTsl<
+  TData = Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+  TError = ErrorType<unknown>,
+>(
+  productKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsProductKeyTsl>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetProductsProductKeyTslQueryOptions(
+    productKey,
+    options
+  )
 
-  const queryOptions = getGetProductsProductKeyTslQueryOptions(productKey,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 通过产品 Key 上传或更新物模型定义
  * @summary 上传/更新产品物模型（TSL）
  */
 export const putProductsProductKeyTsl = (
-    productKey: string,
-    productTslUpsertProductTSLRequest: BodyType<ProductTslUpsertProductTSLRequest>,
- signal?: AbortSignal
+  productKey: string,
+  productTslUpsertProductTSLRequest: BodyType<ProductTslUpsertProductTSLRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseProductTslSuccessResponse>({
+    url: `/products/${productKey}/tsl`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: productTslUpsertProductTSLRequest,
+    signal,
+  })
+}
 
+export const getPutProductsProductKeyTslMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putProductsProductKeyTsl>>,
+    TError,
+    { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putProductsProductKeyTsl>>,
+  TError,
+  { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> },
+  TContext
+> => {
+  const mutationKey = ['putProductsProductKeyTsl']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseProductTslSuccessResponse>(
-      {url: `/products/${productKey}/tsl`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: productTslUpsertProductTSLRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putProductsProductKeyTsl>>,
+    { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> }
+  > = (props) => {
+    const { productKey, data } = props ?? {}
 
+    return putProductsProductKeyTsl(productKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutProductsProductKeyTslMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putProductsProductKeyTsl>>
+>
+export type PutProductsProductKeyTslMutationBody =
+  BodyType<ProductTslUpsertProductTSLRequest>
+export type PutProductsProductKeyTslMutationError = ErrorType<unknown>
 
-export const getPutProductsProductKeyTslMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putProductsProductKeyTsl>>, TError,{productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putProductsProductKeyTsl>>, TError,{productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>}, TContext> => {
-
-const mutationKey = ['putProductsProductKeyTsl'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putProductsProductKeyTsl>>, {productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>}> = (props) => {
-          const {productKey,data} = props ?? {};
-
-          return  putProductsProductKeyTsl(productKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutProductsProductKeyTslMutationResult = NonNullable<Awaited<ReturnType<typeof putProductsProductKeyTsl>>>
-    export type PutProductsProductKeyTslMutationBody = BodyType<ProductTslUpsertProductTSLRequest>
-    export type PutProductsProductKeyTslMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 上传/更新产品物模型（TSL）
  */
-export const usePutProductsProductKeyTsl = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putProductsProductKeyTsl>>, TError,{productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putProductsProductKeyTsl>>,
-        TError,
-        {productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>},
-        TContext
-      > => {
-      return useMutation(getPutProductsProductKeyTslMutationOptions(options), queryClient);
-    }
+export const usePutProductsProductKeyTsl = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putProductsProductKeyTsl>>,
+      TError,
+      { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putProductsProductKeyTsl>>,
+  TError,
+  { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPutProductsProductKeyTslMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过产品 Key 上传或更新物模型定义
  * @summary 上传/更新产品物模型（TSL）
  */
 export const postProductsProductKeyTsl = (
-    productKey: string,
-    productTslUpsertProductTSLRequest: BodyType<ProductTslUpsertProductTSLRequest>,
- signal?: AbortSignal
+  productKey: string,
+  productTslUpsertProductTSLRequest: BodyType<ProductTslUpsertProductTSLRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseProductTslSuccessResponse>({
+    url: `/products/${productKey}/tsl`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: productTslUpsertProductTSLRequest,
+    signal,
+  })
+}
 
+export const getPostProductsProductKeyTslMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postProductsProductKeyTsl>>,
+    TError,
+    { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postProductsProductKeyTsl>>,
+  TError,
+  { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> },
+  TContext
+> => {
+  const mutationKey = ['postProductsProductKeyTsl']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseProductTslSuccessResponse>(
-      {url: `/products/${productKey}/tsl`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: productTslUpsertProductTSLRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postProductsProductKeyTsl>>,
+    { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> }
+  > = (props) => {
+    const { productKey, data } = props ?? {}
 
+    return postProductsProductKeyTsl(productKey, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostProductsProductKeyTslMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postProductsProductKeyTsl>>
+>
+export type PostProductsProductKeyTslMutationBody =
+  BodyType<ProductTslUpsertProductTSLRequest>
+export type PostProductsProductKeyTslMutationError = ErrorType<unknown>
 
-export const getPostProductsProductKeyTslMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProductsProductKeyTsl>>, TError,{productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postProductsProductKeyTsl>>, TError,{productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>}, TContext> => {
-
-const mutationKey = ['postProductsProductKeyTsl'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postProductsProductKeyTsl>>, {productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>}> = (props) => {
-          const {productKey,data} = props ?? {};
-
-          return  postProductsProductKeyTsl(productKey,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostProductsProductKeyTslMutationResult = NonNullable<Awaited<ReturnType<typeof postProductsProductKeyTsl>>>
-    export type PostProductsProductKeyTslMutationBody = BodyType<ProductTslUpsertProductTSLRequest>
-    export type PostProductsProductKeyTslMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 上传/更新产品物模型（TSL）
  */
-export const usePostProductsProductKeyTsl = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProductsProductKeyTsl>>, TError,{productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postProductsProductKeyTsl>>,
-        TError,
-        {productKey: string;data: BodyType<ProductTslUpsertProductTSLRequest>},
-        TContext
-      > => {
-      return useMutation(getPostProductsProductKeyTslMutationOptions(options), queryClient);
-    }
+export const usePostProductsProductKeyTsl = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postProductsProductKeyTsl>>,
+      TError,
+      { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postProductsProductKeyTsl>>,
+  TError,
+  { productKey: string; data: BodyType<ProductTslUpsertProductTSLRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPostProductsProductKeyTslMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过产品 Key 删除其物模型定义
  * @summary 删除产品物模型（TSL）
  */
 export const deleteProductsProductKeyTsl = (
-    productKey: string,
- signal?: AbortSignal
+  productKey: string,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseProductTslSuccessResponse>({
+    url: `/products/${productKey}/tsl`,
+    method: 'DELETE',
+    signal,
+  })
+}
 
+export const getDeleteProductsProductKeyTslMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>,
+    TError,
+    { productKey: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>,
+  TError,
+  { productKey: string },
+  TContext
+> => {
+  const mutationKey = ['deleteProductsProductKeyTsl']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseProductTslSuccessResponse>(
-      {url: `/products/${productKey}/tsl`, method: 'DELETE', signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>,
+    { productKey: string }
+  > = (props) => {
+    const { productKey } = props ?? {}
 
+    return deleteProductsProductKeyTsl(productKey)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type DeleteProductsProductKeyTslMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>
+>
 
-export const getDeleteProductsProductKeyTslMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>, TError,{productKey: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>, TError,{productKey: string}, TContext> => {
+export type DeleteProductsProductKeyTslMutationError = ErrorType<unknown>
 
-const mutationKey = ['deleteProductsProductKeyTsl'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>, {productKey: string}> = (props) => {
-          const {productKey} = props ?? {};
-
-          return  deleteProductsProductKeyTsl(productKey,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteProductsProductKeyTslMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>>
-
-    export type DeleteProductsProductKeyTslMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 删除产品物模型（TSL）
  */
-export const useDeleteProductsProductKeyTsl = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>, TError,{productKey: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>,
-        TError,
-        {productKey: string},
-        TContext
-      > => {
-      return useMutation(getDeleteProductsProductKeyTslMutationOptions(options), queryClient);
-    }
+export const useDeleteProductsProductKeyTsl = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>,
+      TError,
+      { productKey: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteProductsProductKeyTsl>>,
+  TError,
+  { productKey: string },
+  TContext
+> => {
+  return useMutation(
+    getDeleteProductsProductKeyTslMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 目前只支持邮箱登录
  * @summary 用户注册
  */
 export const postRegister = (
-    apiRegisterRequest: BodyType<ApiRegisterRequest>,
- signal?: AbortSignal
+  apiRegisterRequest: BodyType<ApiRegisterRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiSuccessResponse>({
+    url: `/register`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: apiRegisterRequest,
+    signal,
+  })
+}
 
+export const getPostRegisterMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postRegister>>,
+    TError,
+    { data: BodyType<ApiRegisterRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postRegister>>,
+  TError,
+  { data: BodyType<ApiRegisterRequest> },
+  TContext
+> => {
+  const mutationKey = ['postRegister']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiSuccessResponse>(
-      {url: `/register`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: apiRegisterRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postRegister>>,
+    { data: BodyType<ApiRegisterRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postRegister(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostRegisterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postRegister>>
+>
+export type PostRegisterMutationBody = BodyType<ApiRegisterRequest>
+export type PostRegisterMutationError = ErrorType<unknown>
 
-export const getPostRegisterMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postRegister>>, TError,{data: BodyType<ApiRegisterRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postRegister>>, TError,{data: BodyType<ApiRegisterRequest>}, TContext> => {
-
-const mutationKey = ['postRegister'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postRegister>>, {data: BodyType<ApiRegisterRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postRegister(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostRegisterMutationResult = NonNullable<Awaited<ReturnType<typeof postRegister>>>
-    export type PostRegisterMutationBody = BodyType<ApiRegisterRequest>
-    export type PostRegisterMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 用户注册
  */
-export const usePostRegister = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postRegister>>, TError,{data: BodyType<ApiRegisterRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postRegister>>,
-        TError,
-        {data: BodyType<ApiRegisterRequest>},
-        TContext
-      > => {
-      return useMutation(getPostRegisterMutationOptions(options), queryClient);
-    }
+export const usePostRegister = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postRegister>>,
+      TError,
+      { data: BodyType<ApiRegisterRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postRegister>>,
+  TError,
+  { data: BodyType<ApiRegisterRequest> },
+  TContext
+> => {
+  return useMutation(getPostRegisterMutationOptions(options), queryClient)
+}
 
 /**
  * 分页获取场景联动列表，支持按 search、enable 过滤
  * @summary 获取场景联动列表
  */
 export const getSceneLinkages = (
-    params?: GetSceneLinkagesParams,
- signal?: AbortSignal
+  params?: GetSceneLinkagesParams,
+  signal?: AbortSignal
 ) => {
-
-
-      return orvalAxios<ApiResponseListSceneLinkagesResponse>(
-      {url: `/scene-linkages`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-
-
-
-
-export const getGetSceneLinkagesQueryKey = (params?: GetSceneLinkagesParams,) => {
-    return [
-    `/scene-linkages`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getGetSceneLinkagesQueryOptions = <TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(params?: GetSceneLinkagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetSceneLinkagesQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSceneLinkages>>> = ({ signal }) => getSceneLinkages(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+  return orvalAxios<ApiResponseListSceneLinkagesResponse>({
+    url: `/scene-linkages`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
-export type GetSceneLinkagesQueryResult = NonNullable<Awaited<ReturnType<typeof getSceneLinkages>>>
+export const getGetSceneLinkagesQueryKey = (
+  params?: GetSceneLinkagesParams
+) => {
+  return [`/scene-linkages`, ...(params ? [params] : [])] as const
+}
+
+export const getGetSceneLinkagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetSceneLinkagesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkages>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetSceneLinkagesQueryKey(params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getSceneLinkages>>
+  > = ({ signal }) => getSceneLinkages(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSceneLinkages>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSceneLinkagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSceneLinkages>>
+>
 export type GetSceneLinkagesQueryError = ErrorType<unknown>
 
-
-export function useGetSceneLinkages<TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(
- params: undefined |  GetSceneLinkagesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>> & Pick<
+export function useGetSceneLinkages<
+  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetSceneLinkagesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkages>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneLinkages>>,
           TError,
           Awaited<ReturnType<typeof getSceneLinkages>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetSceneLinkages<TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(
- params?: GetSceneLinkagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetSceneLinkages<
+  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetSceneLinkagesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkages>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneLinkages>>,
           TError,
           Awaited<ReturnType<typeof getSceneLinkages>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetSceneLinkages<TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(
- params?: GetSceneLinkagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetSceneLinkages<
+  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetSceneLinkagesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkages>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取场景联动列表
  */
 
-export function useGetSceneLinkages<TData = Awaited<ReturnType<typeof getSceneLinkages>>, TError = ErrorType<unknown>>(
- params?: GetSceneLinkagesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkages>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetSceneLinkages<
+  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetSceneLinkagesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkages>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetSceneLinkagesQueryOptions(params, options)
 
-  const queryOptions = getGetSceneLinkagesQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 创建一条新的场景联动
  * @summary 创建场景联动
  */
 export const postSceneLinkages = (
-    sceneLinkageRequest: BodyType<SceneLinkageRequest>,
- signal?: AbortSignal
+  sceneLinkageRequest: BodyType<SceneLinkageRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseCreateSceneLinkageResponse>({
+    url: `/scene-linkages`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: sceneLinkageRequest,
+    signal,
+  })
+}
 
+export const getPostSceneLinkagesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postSceneLinkages>>,
+    TError,
+    { data: BodyType<SceneLinkageRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postSceneLinkages>>,
+  TError,
+  { data: BodyType<SceneLinkageRequest> },
+  TContext
+> => {
+  const mutationKey = ['postSceneLinkages']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseCreateSceneLinkageResponse>(
-      {url: `/scene-linkages`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: sceneLinkageRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postSceneLinkages>>,
+    { data: BodyType<SceneLinkageRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return postSceneLinkages(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostSceneLinkagesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postSceneLinkages>>
+>
+export type PostSceneLinkagesMutationBody = BodyType<SceneLinkageRequest>
+export type PostSceneLinkagesMutationError = ErrorType<unknown>
 
-export const getPostSceneLinkagesMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkages>>, TError,{data: BodyType<SceneLinkageRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkages>>, TError,{data: BodyType<SceneLinkageRequest>}, TContext> => {
-
-const mutationKey = ['postSceneLinkages'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postSceneLinkages>>, {data: BodyType<SceneLinkageRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postSceneLinkages(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostSceneLinkagesMutationResult = NonNullable<Awaited<ReturnType<typeof postSceneLinkages>>>
-    export type PostSceneLinkagesMutationBody = BodyType<SceneLinkageRequest>
-    export type PostSceneLinkagesMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 创建场景联动
  */
-export const usePostSceneLinkages = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkages>>, TError,{data: BodyType<SceneLinkageRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postSceneLinkages>>,
-        TError,
-        {data: BodyType<SceneLinkageRequest>},
-        TContext
-      > => {
-      return useMutation(getPostSceneLinkagesMutationOptions(options), queryClient);
-    }
+export const usePostSceneLinkages = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postSceneLinkages>>,
+      TError,
+      { data: BodyType<SceneLinkageRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postSceneLinkages>>,
+  TError,
+  { data: BodyType<SceneLinkageRequest> },
+  TContext
+> => {
+  return useMutation(getPostSceneLinkagesMutationOptions(options), queryClient)
+}
 
 /**
  * 通过 ID 获取场景联动
  * @summary 获取场景联动详情
  */
-export const getSceneLinkagesId = (
-    id: number,
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<ApiResponseGetSceneLinkageResponse>(
-      {url: `/scene-linkages/${id}`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetSceneLinkagesIdQueryKey = (id: number,) => {
-    return [
-    `/scene-linkages/${id}`
-    ] as const;
-    }
-
-
-export const getGetSceneLinkagesIdQueryOptions = <TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetSceneLinkagesIdQueryKey(id);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSceneLinkagesId>>> = ({ signal }) => getSceneLinkagesId(id, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getSceneLinkagesId = (id: number, signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseGetSceneLinkageResponse>({
+    url: `/scene-linkages/${id}`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetSceneLinkagesIdQueryResult = NonNullable<Awaited<ReturnType<typeof getSceneLinkagesId>>>
+export const getGetSceneLinkagesIdQueryKey = (id: number) => {
+  return [`/scene-linkages/${id}`] as const
+}
+
+export const getGetSceneLinkagesIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesId>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetSceneLinkagesIdQueryKey(id)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getSceneLinkagesId>>
+  > = ({ signal }) => getSceneLinkagesId(id, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: id !== null && id !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSceneLinkagesId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSceneLinkagesIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSceneLinkagesId>>
+>
 export type GetSceneLinkagesIdQueryError = ErrorType<unknown>
 
-
-export function useGetSceneLinkagesId<TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(
- id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>> & Pick<
+export function useGetSceneLinkagesId<
+  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneLinkagesId>>,
           TError,
           Awaited<ReturnType<typeof getSceneLinkagesId>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetSceneLinkagesId<TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetSceneLinkagesId<
+  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneLinkagesId>>,
           TError,
           Awaited<ReturnType<typeof getSceneLinkagesId>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetSceneLinkagesId<TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetSceneLinkagesId<
+  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesId>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取场景联动详情
  */
 
-export function useGetSceneLinkagesId<TData = Awaited<ReturnType<typeof getSceneLinkagesId>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesId>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetSceneLinkagesId<
+  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesId>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetSceneLinkagesIdQueryOptions(id, options)
 
-  const queryOptions = getGetSceneLinkagesIdQueryOptions(id,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 通过 ID 更新场景联动
  * @summary 更新场景联动
  */
 export const putSceneLinkagesId = (
-    id: number,
-    sceneLinkageRequest: BodyType<SceneLinkageRequest>,
- signal?: AbortSignal
+  id: number,
+  sceneLinkageRequest: BodyType<SceneLinkageRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseUpdateSceneLinkageResponse>({
+    url: `/scene-linkages/${id}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: sceneLinkageRequest,
+    signal,
+  })
+}
 
+export const getPutSceneLinkagesIdMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putSceneLinkagesId>>,
+    TError,
+    { id: number; data: BodyType<SceneLinkageRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putSceneLinkagesId>>,
+  TError,
+  { id: number; data: BodyType<SceneLinkageRequest> },
+  TContext
+> => {
+  const mutationKey = ['putSceneLinkagesId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseUpdateSceneLinkageResponse>(
-      {url: `/scene-linkages/${id}`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: sceneLinkageRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putSceneLinkagesId>>,
+    { id: number; data: BodyType<SceneLinkageRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {}
 
+    return putSceneLinkagesId(id, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutSceneLinkagesIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putSceneLinkagesId>>
+>
+export type PutSceneLinkagesIdMutationBody = BodyType<SceneLinkageRequest>
+export type PutSceneLinkagesIdMutationError = ErrorType<unknown>
 
-export const getPutSceneLinkagesIdMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesId>>, TError,{id: number;data: BodyType<SceneLinkageRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesId>>, TError,{id: number;data: BodyType<SceneLinkageRequest>}, TContext> => {
-
-const mutationKey = ['putSceneLinkagesId'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putSceneLinkagesId>>, {id: number;data: BodyType<SceneLinkageRequest>}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  putSceneLinkagesId(id,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutSceneLinkagesIdMutationResult = NonNullable<Awaited<ReturnType<typeof putSceneLinkagesId>>>
-    export type PutSceneLinkagesIdMutationBody = BodyType<SceneLinkageRequest>
-    export type PutSceneLinkagesIdMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 更新场景联动
  */
-export const usePutSceneLinkagesId = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesId>>, TError,{id: number;data: BodyType<SceneLinkageRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putSceneLinkagesId>>,
-        TError,
-        {id: number;data: BodyType<SceneLinkageRequest>},
-        TContext
-      > => {
-      return useMutation(getPutSceneLinkagesIdMutationOptions(options), queryClient);
-    }
+export const usePutSceneLinkagesId = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putSceneLinkagesId>>,
+      TError,
+      { id: number; data: BodyType<SceneLinkageRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putSceneLinkagesId>>,
+  TError,
+  { id: number; data: BodyType<SceneLinkageRequest> },
+  TContext
+> => {
+  return useMutation(getPutSceneLinkagesIdMutationOptions(options), queryClient)
+}
 
 /**
  * 通过 ID 删除场景联动
  * @summary 删除场景联动
  */
-export const deleteSceneLinkagesId = (
-    id: number,
- signal?: AbortSignal
-) => {
+export const deleteSceneLinkagesId = (id: number, signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseSceneLinkageSuccessResponse>({
+    url: `/scene-linkages/${id}`,
+    method: 'DELETE',
+    signal,
+  })
+}
 
+export const getDeleteSceneLinkagesIdMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
+    TError,
+    { id: number },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ['deleteSceneLinkagesId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseSceneLinkageSuccessResponse>(
-      {url: `/scene-linkages/${id}`, method: 'DELETE', signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {}
 
+    return deleteSceneLinkagesId(id)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type DeleteSceneLinkagesIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteSceneLinkagesId>>
+>
 
-export const getDeleteSceneLinkagesIdMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSceneLinkagesId>>, TError,{id: number}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof deleteSceneLinkagesId>>, TError,{id: number}, TContext> => {
+export type DeleteSceneLinkagesIdMutationError = ErrorType<unknown>
 
-const mutationKey = ['deleteSceneLinkagesId'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSceneLinkagesId>>, {id: number}> = (props) => {
-          const {id} = props ?? {};
-
-          return  deleteSceneLinkagesId(id,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteSceneLinkagesIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSceneLinkagesId>>>
-
-    export type DeleteSceneLinkagesIdMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 删除场景联动
  */
-export const useDeleteSceneLinkagesId = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSceneLinkagesId>>, TError,{id: number}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
-        TError,
-        {id: number},
-        TContext
-      > => {
-      return useMutation(getDeleteSceneLinkagesIdMutationOptions(options), queryClient);
-    }
+export const useDeleteSceneLinkagesId = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
+      TError,
+      { id: number },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(
+    getDeleteSceneLinkagesIdMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 通过场景联动 ID 获取触发器与动作配置
  * @summary 获取场景联动详情配置
  */
-export const getSceneLinkagesIdDetail = (
-    id: number,
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<ApiResponseGetSceneLinkageDetailResponse>(
-      {url: `/scene-linkages/${id}/detail`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetSceneLinkagesIdDetailQueryKey = (id: number,) => {
-    return [
-    `/scene-linkages/${id}/detail`
-    ] as const;
-    }
-
-
-export const getGetSceneLinkagesIdDetailQueryOptions = <TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetSceneLinkagesIdDetailQueryKey(id);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>> = ({ signal }) => getSceneLinkagesIdDetail(id, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getSceneLinkagesIdDetail = (id: number, signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseGetSceneLinkageDetailResponse>({
+    url: `/scene-linkages/${id}/detail`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetSceneLinkagesIdDetailQueryResult = NonNullable<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>>
+export const getGetSceneLinkagesIdDetailQueryKey = (id: number) => {
+  return [`/scene-linkages/${id}/detail`] as const
+}
+
+export const getGetSceneLinkagesIdDetailQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetSceneLinkagesIdDetailQueryKey(id)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
+  > = ({ signal }) => getSceneLinkagesIdDetail(id, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: id !== null && id !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSceneLinkagesIdDetailQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
+>
 export type GetSceneLinkagesIdDetailQueryError = ErrorType<unknown>
 
-
-export function useGetSceneLinkagesIdDetail<TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(
- id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>> & Pick<
+export function useGetSceneLinkagesIdDetail<
+  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
           TError,
           Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetSceneLinkagesIdDetail<TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetSceneLinkagesIdDetail<
+  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
           TError,
           Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetSceneLinkagesIdDetail<TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetSceneLinkagesIdDetail<
+  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取场景联动详情配置
  */
 
-export function useGetSceneLinkagesIdDetail<TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError = ErrorType<unknown>>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useGetSceneLinkagesIdDetail<
+  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetSceneLinkagesIdDetailQueryOptions(id, options)
 
-  const queryOptions = getGetSceneLinkagesIdDetailQueryOptions(id,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * 通过场景联动 ID 更新触发器与动作配置
  * @summary 更新场景联动详情配置
  */
 export const putSceneLinkagesIdDetail = (
-    id: number,
-    sceneLinkageDetailRequest: BodyType<SceneLinkageDetailRequest>,
- signal?: AbortSignal
+  id: number,
+  sceneLinkageDetailRequest: BodyType<SceneLinkageDetailRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseUpdateSceneLinkageDetailResponse>({
+    url: `/scene-linkages/${id}/detail`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: sceneLinkageDetailRequest,
+    signal,
+  })
+}
 
+export const getPutSceneLinkagesIdDetailMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
+    TError,
+    { id: number; data: BodyType<SceneLinkageDetailRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
+  TError,
+  { id: number; data: BodyType<SceneLinkageDetailRequest> },
+  TContext
+> => {
+  const mutationKey = ['putSceneLinkagesIdDetail']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseUpdateSceneLinkageDetailResponse>(
-      {url: `/scene-linkages/${id}/detail`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: sceneLinkageDetailRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
+    { id: number; data: BodyType<SceneLinkageDetailRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {}
 
+    return putSceneLinkagesIdDetail(id, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutSceneLinkagesIdDetailMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>
+>
+export type PutSceneLinkagesIdDetailMutationBody =
+  BodyType<SceneLinkageDetailRequest>
+export type PutSceneLinkagesIdDetailMutationError = ErrorType<unknown>
 
-export const getPutSceneLinkagesIdDetailMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext> => {
-
-const mutationKey = ['putSceneLinkagesIdDetail'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>, {id: number;data: BodyType<SceneLinkageDetailRequest>}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  putSceneLinkagesIdDetail(id,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutSceneLinkagesIdDetailMutationResult = NonNullable<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>>
-    export type PutSceneLinkagesIdDetailMutationBody = BodyType<SceneLinkageDetailRequest>
-    export type PutSceneLinkagesIdDetailMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 更新场景联动详情配置
  */
-export const usePutSceneLinkagesIdDetail = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
-        TError,
-        {id: number;data: BodyType<SceneLinkageDetailRequest>},
-        TContext
-      > => {
-      return useMutation(getPutSceneLinkagesIdDetailMutationOptions(options), queryClient);
-    }
+export const usePutSceneLinkagesIdDetail = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
+      TError,
+      { id: number; data: BodyType<SceneLinkageDetailRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
+  TError,
+  { id: number; data: BodyType<SceneLinkageDetailRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPutSceneLinkagesIdDetailMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * 为指定场景联动创建触发器与动作配置
  * @summary 创建场景联动详情配置
  */
 export const postSceneLinkagesIdDetail = (
-    id: number,
-    sceneLinkageDetailRequest: BodyType<SceneLinkageDetailRequest>,
- signal?: AbortSignal
+  id: number,
+  sceneLinkageDetailRequest: BodyType<SceneLinkageDetailRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiResponseCreateSceneLinkageDetailResponse>({
+    url: `/scene-linkages/${id}/detail`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: sceneLinkageDetailRequest,
+    signal,
+  })
+}
 
+export const getPostSceneLinkagesIdDetailMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
+    TError,
+    { id: number; data: BodyType<SceneLinkageDetailRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
+  TError,
+  { id: number; data: BodyType<SceneLinkageDetailRequest> },
+  TContext
+> => {
+  const mutationKey = ['postSceneLinkagesIdDetail']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiResponseCreateSceneLinkageDetailResponse>(
-      {url: `/scene-linkages/${id}/detail`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: sceneLinkageDetailRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
+    { id: number; data: BodyType<SceneLinkageDetailRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {}
 
+    return postSceneLinkagesIdDetail(id, data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PostSceneLinkagesIdDetailMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>
+>
+export type PostSceneLinkagesIdDetailMutationBody =
+  BodyType<SceneLinkageDetailRequest>
+export type PostSceneLinkagesIdDetailMutationError = ErrorType<unknown>
 
-export const getPostSceneLinkagesIdDetailMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext> => {
-
-const mutationKey = ['postSceneLinkagesIdDetail'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>, {id: number;data: BodyType<SceneLinkageDetailRequest>}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  postSceneLinkagesIdDetail(id,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostSceneLinkagesIdDetailMutationResult = NonNullable<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>>
-    export type PostSceneLinkagesIdDetailMutationBody = BodyType<SceneLinkageDetailRequest>
-    export type PostSceneLinkagesIdDetailMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 创建场景联动详情配置
  */
-export const usePostSceneLinkagesIdDetail = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>, TError,{id: number;data: BodyType<SceneLinkageDetailRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
-        TError,
-        {id: number;data: BodyType<SceneLinkageDetailRequest>},
-        TContext
-      > => {
-      return useMutation(getPostSceneLinkagesIdDetailMutationOptions(options), queryClient);
-    }
+export const usePostSceneLinkagesIdDetail = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
+      TError,
+      { id: number; data: BodyType<SceneLinkageDetailRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
+  TError,
+  { id: number; data: BodyType<SceneLinkageDetailRequest> },
+  TContext
+> => {
+  return useMutation(
+    getPostSceneLinkagesIdDetailMutationOptions(options),
+    queryClient
+  )
+}
 
 /**
  * @summary 获取用户信息
  */
-export const getUser = (
-
- signal?: AbortSignal
-) => {
-
-
-      return orvalAxios<ApiResponseApiGetProfileResponseData>(
-      {url: `/user`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getGetUserQueryKey = () => {
-    return [
-    `/user`
-    ] as const;
-    }
-
-
-export const getGetUserQueryOptions = <TData = Awaited<ReturnType<typeof getUser>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetUserQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUser>>> = ({ signal }) => getUser(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+export const getUser = (signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseApiGetProfileResponseData>({
+    url: `/user`,
+    method: 'GET',
+    signal,
+  })
 }
 
-export type GetUserQueryResult = NonNullable<Awaited<ReturnType<typeof getUser>>>
+export const getGetUserQueryKey = () => {
+  return [`/user`] as const
+}
+
+export const getGetUserQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUser>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
+  >
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetUserQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUser>>> = ({
+    signal,
+  }) => getUser(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUser>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetUserQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUser>>
+>
 export type GetUserQueryError = ErrorType<unknown>
 
-
-export function useGetUser<TData = Awaited<ReturnType<typeof getUser>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>> & Pick<
+export function useGetUser<
+  TData = Awaited<ReturnType<typeof getUser>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getUser>>,
           TError,
           Awaited<ReturnType<typeof getUser>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetUser<TData = Awaited<ReturnType<typeof getUser>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetUser<
+  TData = Awaited<ReturnType<typeof getUser>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getUser>>,
           TError,
           Awaited<ReturnType<typeof getUser>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetUser<TData = Awaited<ReturnType<typeof getUser>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetUser<
+  TData = Awaited<ReturnType<typeof getUser>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary 获取用户信息
  */
 
-export function useGetUser<TData = Awaited<ReturnType<typeof getUser>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
+export function useGetUser<
+  TData = Awaited<ReturnType<typeof getUser>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
   const queryOptions = getGetUserQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-  return withQueryKey(query, queryOptions.queryKey);
+  return withQueryKey(query, queryOptions.queryKey)
 }
-
-
-
-
-
-
 
 /**
  * @summary 修改用户信息
  */
 export const putUser = (
-    apiUpdateProfileRequest: BodyType<ApiUpdateProfileRequest>,
- signal?: AbortSignal
+  apiUpdateProfileRequest: BodyType<ApiUpdateProfileRequest>,
+  signal?: AbortSignal
 ) => {
+  return orvalAxios<ApiSuccessResponse>({
+    url: `/user`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: apiUpdateProfileRequest,
+    signal,
+  })
+}
 
+export const getPutUserMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putUser>>,
+    TError,
+    { data: BodyType<ApiUpdateProfileRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putUser>>,
+  TError,
+  { data: BodyType<ApiUpdateProfileRequest> },
+  TContext
+> => {
+  const mutationKey = ['putUser']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
 
-      return orvalAxios<ApiSuccessResponse>(
-      {url: `/user`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: apiUpdateProfileRequest, signal
-    },
-      );
-    }
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putUser>>,
+    { data: BodyType<ApiUpdateProfileRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
 
+    return putUser(data)
+  }
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PutUserMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putUser>>
+>
+export type PutUserMutationBody = BodyType<ApiUpdateProfileRequest>
+export type PutUserMutationError = ErrorType<unknown>
 
-export const getPutUserMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUser>>, TError,{data: BodyType<ApiUpdateProfileRequest>}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putUser>>, TError,{data: BodyType<ApiUpdateProfileRequest>}, TContext> => {
-
-const mutationKey = ['putUser'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putUser>>, {data: BodyType<ApiUpdateProfileRequest>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  putUser(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutUserMutationResult = NonNullable<Awaited<ReturnType<typeof putUser>>>
-    export type PutUserMutationBody = BodyType<ApiUpdateProfileRequest>
-    export type PutUserMutationError = ErrorType<unknown>
-
-    /**
+/**
  * @summary 修改用户信息
  */
-export const usePutUser = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUser>>, TError,{data: BodyType<ApiUpdateProfileRequest>}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putUser>>,
-        TError,
-        {data: BodyType<ApiUpdateProfileRequest>},
-        TContext
-      > => {
-      return useMutation(getPutUserMutationOptions(options), queryClient);
-    }
+export const usePutUser = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putUser>>,
+      TError,
+      { data: BodyType<ApiUpdateProfileRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putUser>>,
+  TError,
+  { data: BodyType<ApiUpdateProfileRequest> },
+  TContext
+> => {
+  return useMutation(getPutUserMutationOptions(options), queryClient)
+}

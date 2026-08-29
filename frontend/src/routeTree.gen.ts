@@ -47,12 +47,14 @@ import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenti
 import { Route as AuthenticatedRuleEngineSceneLinkageIndexRouteImport } from './routes/_authenticated/rule-engine/scene-linkage/index'
 import { Route as AuthenticatedOperationsMonitoringEventsIndexRouteImport } from './routes/_authenticated/operations-monitoring/events/index'
 import { Route as AuthenticatedDeviceManagementProductsIndexRouteImport } from './routes/_authenticated/device-management/products/index'
+import { Route as AuthenticatedDeviceManagementGroupsIndexRouteImport } from './routes/_authenticated/device-management/groups/index'
 import { Route as AuthenticatedDeviceManagementDevicesIndexRouteImport } from './routes/_authenticated/device-management/devices/index'
 import { Route as AuthenticatedRuleEngineSceneLinkageNewIndexRouteImport } from './routes/_authenticated/rule-engine/scene-linkage/new/index'
 import { Route as AuthenticatedRuleEngineSceneLinkageSceneIdIndexRouteImport } from './routes/_authenticated/rule-engine/scene-linkage/$sceneId/index'
 import { Route as AuthenticatedOperationsMonitoringOtaPackagesIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/packages/index'
 import { Route as AuthenticatedOperationsMonitoringOtaAnalyticsIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/analytics/index'
 import { Route as AuthenticatedDeviceManagementProductsProductKeyIndexRouteImport } from './routes/_authenticated/device-management/products/$productKey/index'
+import { Route as AuthenticatedDeviceManagementGroupsUuidIndexRouteImport } from './routes/_authenticated/device-management/groups/$uuid/index'
 import { Route as AuthenticatedDeviceManagementDevicesDeviceKeyIndexRouteImport } from './routes/_authenticated/device-management/devices/$deviceKey/index'
 import { Route as AuthenticatedOperationsMonitoringOtaPackagesIdIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/packages/$id/index'
 
@@ -260,6 +262,12 @@ const AuthenticatedDeviceManagementProductsIndexRoute =
     path: '/products/',
     getParentRoute: () => AuthenticatedDeviceManagementRouteRoute,
   } as any)
+const AuthenticatedDeviceManagementGroupsIndexRoute =
+  AuthenticatedDeviceManagementGroupsIndexRouteImport.update({
+    id: '/groups/',
+    path: '/groups/',
+    getParentRoute: () => AuthenticatedDeviceManagementRouteRoute,
+  } as any)
 const AuthenticatedDeviceManagementDevicesIndexRoute =
   AuthenticatedDeviceManagementDevicesIndexRouteImport.update({
     id: '/devices/',
@@ -294,6 +302,12 @@ const AuthenticatedDeviceManagementProductsProductKeyIndexRoute =
   AuthenticatedDeviceManagementProductsProductKeyIndexRouteImport.update({
     id: '/products/$productKey/',
     path: '/products/$productKey/',
+    getParentRoute: () => AuthenticatedDeviceManagementRouteRoute,
+  } as any)
+const AuthenticatedDeviceManagementGroupsUuidIndexRoute =
+  AuthenticatedDeviceManagementGroupsUuidIndexRouteImport.update({
+    id: '/groups/$uuid/',
+    path: '/groups/$uuid/',
     getParentRoute: () => AuthenticatedDeviceManagementRouteRoute,
   } as any)
 const AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute =
@@ -343,10 +357,12 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/device-management/devices': typeof AuthenticatedDeviceManagementDevicesIndexRoute
+  '/device-management/groups': typeof AuthenticatedDeviceManagementGroupsIndexRoute
   '/device-management/products': typeof AuthenticatedDeviceManagementProductsIndexRoute
   '/operations-monitoring/events': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
   '/rule-engine/scene-linkage': typeof AuthenticatedRuleEngineSceneLinkageIndexRoute
   '/device-management/devices/$deviceKey': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
+  '/device-management/groups/$uuid': typeof AuthenticatedDeviceManagementGroupsUuidIndexRoute
   '/device-management/products/$productKey': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/operations-monitoring/ota/analytics': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/operations-monitoring/ota/packages': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
@@ -386,10 +402,12 @@ export interface FileRoutesByTo {
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/device-management/devices': typeof AuthenticatedDeviceManagementDevicesIndexRoute
+  '/device-management/groups': typeof AuthenticatedDeviceManagementGroupsIndexRoute
   '/device-management/products': typeof AuthenticatedDeviceManagementProductsIndexRoute
   '/operations-monitoring/events': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
   '/rule-engine/scene-linkage': typeof AuthenticatedRuleEngineSceneLinkageIndexRoute
   '/device-management/devices/$deviceKey': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
+  '/device-management/groups/$uuid': typeof AuthenticatedDeviceManagementGroupsUuidIndexRoute
   '/device-management/products/$productKey': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/operations-monitoring/ota/analytics': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/operations-monitoring/ota/packages': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
@@ -435,10 +453,12 @@ export interface FileRoutesById {
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/device-management/devices/': typeof AuthenticatedDeviceManagementDevicesIndexRoute
+  '/_authenticated/device-management/groups/': typeof AuthenticatedDeviceManagementGroupsIndexRoute
   '/_authenticated/device-management/products/': typeof AuthenticatedDeviceManagementProductsIndexRoute
   '/_authenticated/operations-monitoring/events/': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
   '/_authenticated/rule-engine/scene-linkage/': typeof AuthenticatedRuleEngineSceneLinkageIndexRoute
   '/_authenticated/device-management/devices/$deviceKey/': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
+  '/_authenticated/device-management/groups/$uuid/': typeof AuthenticatedDeviceManagementGroupsUuidIndexRoute
   '/_authenticated/device-management/products/$productKey/': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/_authenticated/operations-monitoring/ota/analytics/': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/_authenticated/operations-monitoring/ota/packages/': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
@@ -482,10 +502,12 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/users'
     | '/device-management/devices'
+    | '/device-management/groups'
     | '/device-management/products'
     | '/operations-monitoring/events'
     | '/rule-engine/scene-linkage'
     | '/device-management/devices/$deviceKey'
+    | '/device-management/groups/$uuid'
     | '/device-management/products/$productKey'
     | '/operations-monitoring/ota/analytics'
     | '/operations-monitoring/ota/packages'
@@ -525,10 +547,12 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/users'
     | '/device-management/devices'
+    | '/device-management/groups'
     | '/device-management/products'
     | '/operations-monitoring/events'
     | '/rule-engine/scene-linkage'
     | '/device-management/devices/$deviceKey'
+    | '/device-management/groups/$uuid'
     | '/device-management/products/$productKey'
     | '/operations-monitoring/ota/analytics'
     | '/operations-monitoring/ota/packages'
@@ -573,10 +597,12 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
     | '/_authenticated/device-management/devices/'
+    | '/_authenticated/device-management/groups/'
     | '/_authenticated/device-management/products/'
     | '/_authenticated/operations-monitoring/events/'
     | '/_authenticated/rule-engine/scene-linkage/'
     | '/_authenticated/device-management/devices/$deviceKey/'
+    | '/_authenticated/device-management/groups/$uuid/'
     | '/_authenticated/device-management/products/$productKey/'
     | '/_authenticated/operations-monitoring/ota/analytics/'
     | '/_authenticated/operations-monitoring/ota/packages/'
@@ -868,6 +894,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDeviceManagementProductsIndexRouteImport
       parentRoute: typeof AuthenticatedDeviceManagementRouteRoute
     }
+    '/_authenticated/device-management/groups/': {
+      id: '/_authenticated/device-management/groups/'
+      path: '/groups'
+      fullPath: '/device-management/groups'
+      preLoaderRoute: typeof AuthenticatedDeviceManagementGroupsIndexRouteImport
+      parentRoute: typeof AuthenticatedDeviceManagementRouteRoute
+    }
     '/_authenticated/device-management/devices/': {
       id: '/_authenticated/device-management/devices/'
       path: '/devices'
@@ -910,6 +943,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDeviceManagementProductsProductKeyIndexRouteImport
       parentRoute: typeof AuthenticatedDeviceManagementRouteRoute
     }
+    '/_authenticated/device-management/groups/$uuid/': {
+      id: '/_authenticated/device-management/groups/$uuid/'
+      path: '/groups/$uuid'
+      fullPath: '/device-management/groups/$uuid'
+      preLoaderRoute: typeof AuthenticatedDeviceManagementGroupsUuidIndexRouteImport
+      parentRoute: typeof AuthenticatedDeviceManagementRouteRoute
+    }
     '/_authenticated/device-management/devices/$deviceKey/': {
       id: '/_authenticated/device-management/devices/$deviceKey/'
       path: '/devices/$deviceKey'
@@ -929,8 +969,10 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedDeviceManagementRouteRouteChildren {
   AuthenticatedDeviceManagementDevicesIndexRoute: typeof AuthenticatedDeviceManagementDevicesIndexRoute
+  AuthenticatedDeviceManagementGroupsIndexRoute: typeof AuthenticatedDeviceManagementGroupsIndexRoute
   AuthenticatedDeviceManagementProductsIndexRoute: typeof AuthenticatedDeviceManagementProductsIndexRoute
   AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute: typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
+  AuthenticatedDeviceManagementGroupsUuidIndexRoute: typeof AuthenticatedDeviceManagementGroupsUuidIndexRoute
   AuthenticatedDeviceManagementProductsProductKeyIndexRoute: typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
 }
 
@@ -938,10 +980,14 @@ const AuthenticatedDeviceManagementRouteRouteChildren: AuthenticatedDeviceManage
   {
     AuthenticatedDeviceManagementDevicesIndexRoute:
       AuthenticatedDeviceManagementDevicesIndexRoute,
+    AuthenticatedDeviceManagementGroupsIndexRoute:
+      AuthenticatedDeviceManagementGroupsIndexRoute,
     AuthenticatedDeviceManagementProductsIndexRoute:
       AuthenticatedDeviceManagementProductsIndexRoute,
     AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute:
       AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute,
+    AuthenticatedDeviceManagementGroupsUuidIndexRoute:
+      AuthenticatedDeviceManagementGroupsUuidIndexRoute,
     AuthenticatedDeviceManagementProductsProductKeyIndexRoute:
       AuthenticatedDeviceManagementProductsProductKeyIndexRoute,
   }

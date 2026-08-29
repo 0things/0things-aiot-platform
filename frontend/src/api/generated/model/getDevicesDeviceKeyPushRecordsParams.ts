@@ -7,20 +7,20 @@
  */
 
 export type GetDevicesDeviceKeyPushRecordsParams = {
-/**
- * 页码
- */
-page?: number;
-/**
- * 每页数量
- */
-pageSize?: number;
-/**
- * 操作类型
- */
-operationType?: string;
-/**
- * 状态
- */
-status?: string;
-};
+  /**
+   * 页码
+   */
+  page?: number
+  /**
+   * 每页数量
+   */
+  pageSize?: number
+  /**
+   * 操作类型
+   */
+  operationType?: string
+  /**
+   * 状态
+   */
+  status?: string
+}

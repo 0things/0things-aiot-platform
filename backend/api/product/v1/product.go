@@ -45,6 +45,10 @@ type Product struct {
 	UpdatedAt          time.Time              `json:"updatedAt"`
 	DeletedAt          *time.Time             `json:"deletedAt,omitempty"`
 } //@name Product
+type ProductListItem struct {
+	Product
+	CategoryName string `json:"categoryName"`
+} //@name ProductListItem
 type CreateProductResponse struct {
 	Product Product `json:"product"`
 } //@name ProductCreateProductResponse
@@ -61,10 +65,10 @@ type RestoreProductResponse struct {
 	Product Product `json:"product"`
 } //@name ProductRestoreProductResponse
 type ListProductsResponse struct {
-	Products []Product `json:"products"`
-	Total    int64     `json:"total"`
-	Page     int       `json:"page"`
-	PageSize int       `json:"pageSize"`
+	Products []ProductListItem `json:"products"`
+	Total    int64             `json:"total"`
+	Page     int               `json:"page"`
+	PageSize int               `json:"pageSize"`
 } //@name ProductListProductsResponse
 
 type SuccessResponse struct {

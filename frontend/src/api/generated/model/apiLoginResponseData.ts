@@ -7,5 +7,5 @@
  */
 
 export interface ApiLoginResponseData {
-  accessToken?: string;
+  accessToken?: string
 }

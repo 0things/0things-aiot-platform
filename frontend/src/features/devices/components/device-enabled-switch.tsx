@@ -14,7 +14,7 @@ export function DeviceEnabledSwitch({ device }: { device: Device }) {
         onCheckedChange={async (checked) => {
           try {
             await setDeviceEnabled.mutateAsync({
-              id: device.id,
+              deviceKey: device.deviceKey,
               data: { enabled: checked },
             })
             toast.success(

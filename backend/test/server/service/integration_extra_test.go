@@ -1264,5 +1264,5 @@ func TestIntegrationOTAService_BatchUpgrade(t *testing.T) {
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, deployments, 1)
 	assert.Equal(t, "D001", deployments[0].DeviceKey)
-	assert.Equal(t, "sent", deployments[0].Status)
+	assert.Equal(t, "pending", deployments[0].Status)
 }

@@ -5,12 +5,12 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { AiotBackendApiProtocolV1CoAPEndpoint } from './aiotBackendApiProtocolV1CoAPEndpoint';
-import type { AiotBackendApiProtocolV1HTTPEndpoint } from './aiotBackendApiProtocolV1HTTPEndpoint';
-import type { AiotBackendApiProtocolV1MQTTEndpoint } from './aiotBackendApiProtocolV1MQTTEndpoint';
+import type { AiotBackendApiProtocolV1CoAPEndpoint } from './aiotBackendApiProtocolV1CoAPEndpoint'
+import type { AiotBackendApiProtocolV1HTTPEndpoint } from './aiotBackendApiProtocolV1HTTPEndpoint'
+import type { AiotBackendApiProtocolV1MQTTEndpoint } from './aiotBackendApiProtocolV1MQTTEndpoint'
 
 export interface AiotBackendApiProtocolV1DeviceEndpoints {
-  coap?: AiotBackendApiProtocolV1CoAPEndpoint;
-  http?: AiotBackendApiProtocolV1HTTPEndpoint;
-  mqtt?: AiotBackendApiProtocolV1MQTTEndpoint;
+  coap?: AiotBackendApiProtocolV1CoAPEndpoint
+  http?: AiotBackendApiProtocolV1HTTPEndpoint
+  mqtt?: AiotBackendApiProtocolV1MQTTEndpoint
 }

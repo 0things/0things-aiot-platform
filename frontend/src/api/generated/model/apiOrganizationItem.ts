@@ -7,7 +7,7 @@
  */
 
 export interface ApiOrganizationItem {
-  id?: number;
-  is_current?: boolean;
-  name?: string;
+  id?: number
+  is_current?: boolean
+  name?: string
 }

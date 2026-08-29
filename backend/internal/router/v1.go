@@ -14,6 +14,7 @@ func InitV1Routers(deps RouterDeps, r *gin.RouterGroup) {
 	InitProductTSLRouter(deps, protected)
 	InitProductMessageParserRouter(deps, protected)
 	InitDeviceRouter(deps, protected)
+	InitDeviceGroupRouter(deps, protected)
 	InitSceneLinkageRouter(deps, protected)
 	InitOTARouter(deps, protected)
 	InitFileRouter(deps, protected)

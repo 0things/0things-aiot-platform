@@ -20,6 +20,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		db:                   db,
 		Device:               newDevice(db, opts...),
 		DeviceEvent:          newDeviceEvent(db, opts...),
+		DeviceGroup:          newDeviceGroup(db, opts...),
+		DeviceGroupMember:    newDeviceGroupMember(db, opts...),
 		DevicePushRecord:     newDevicePushRecord(db, opts...),
 		DeviceShadow:         newDeviceShadow(db, opts...),
 		DeviceShadowHistory:  newDeviceShadowHistory(db, opts...),
@@ -41,6 +43,8 @@ type Query struct {
 
 	Device               device
 	DeviceEvent          deviceEvent
+	DeviceGroup          deviceGroup
+	DeviceGroupMember    deviceGroupMember
 	DevicePushRecord     devicePushRecord
 	DeviceShadow         deviceShadow
 	DeviceShadowHistory  deviceShadowHistory
@@ -65,6 +69,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		db:                   db,
 		Device:               q.Device.clone(db),
 		DeviceEvent:          q.DeviceEvent.clone(db),
+		DeviceGroup:          q.DeviceGroup.clone(db),
+		DeviceGroupMember:    q.DeviceGroupMember.clone(db),
 		DevicePushRecord:     q.DevicePushRecord.clone(db),
 		DeviceShadow:         q.DeviceShadow.clone(db),
 		DeviceShadowHistory:  q.DeviceShadowHistory.clone(db),
@@ -94,6 +100,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		db:                   db,
 		Device:               q.Device.replaceDB(db),
 		DeviceEvent:          q.DeviceEvent.replaceDB(db),
+		DeviceGroup:          q.DeviceGroup.replaceDB(db),
+		DeviceGroupMember:    q.DeviceGroupMember.replaceDB(db),
 		DevicePushRecord:     q.DevicePushRecord.replaceDB(db),
 		DeviceShadow:         q.DeviceShadow.replaceDB(db),
 		DeviceShadowHistory:  q.DeviceShadowHistory.replaceDB(db),
@@ -113,6 +121,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 type queryCtx struct {
 	Device               *deviceDo
 	DeviceEvent          *deviceEventDo
+	DeviceGroup          *deviceGroupDo
+	DeviceGroupMember    *deviceGroupMemberDo
 	DevicePushRecord     *devicePushRecordDo
 	DeviceShadow         *deviceShadowDo
 	DeviceShadowHistory  *deviceShadowHistoryDo
@@ -132,6 +142,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		Device:               q.Device.WithContext(ctx),
 		DeviceEvent:          q.DeviceEvent.WithContext(ctx),
+		DeviceGroup:          q.DeviceGroup.WithContext(ctx),
+		DeviceGroupMember:    q.DeviceGroupMember.WithContext(ctx),
 		DevicePushRecord:     q.DevicePushRecord.WithContext(ctx),
 		DeviceShadow:         q.DeviceShadow.WithContext(ctx),
 		DeviceShadowHistory:  q.DeviceShadowHistory.WithContext(ctx),

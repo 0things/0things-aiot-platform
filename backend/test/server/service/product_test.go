@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	mock_service "aiot-backend/test/mocks/service"
 	"github.com/golang/mock/gomock"
@@ -67,7 +68,7 @@ func TestProductService_List(t *testing.T) {
 	mockProductRepo := mock_service.NewMockProductServiceInterface(ctrl)
 	ctx := context.Background()
 
-	expectedProducts := []model.Product{{ID: 1, Name: "Product 1"}}
+	expectedProducts := []dto.ProductListItem{{Product: model.Product{ID: 1, Name: "Product 1"}}}
 	var total int64 = 1
 
 	mockProductRepo.EXPECT().List(ctx, 1, 10, "", "", "").Return(expectedProducts, total, nil)

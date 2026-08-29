@@ -208,18 +208,18 @@ export function useSetDeviceEnabled() {
 
   return useMutation({
     mutationFn: async ({
-      id,
+      deviceKey,
       data,
     }: {
-      id: string
+      deviceKey: string
       data: DeviceV1SetDeviceEnabledRequest
     }) => {
-      return postDevicesDeviceKeyEnabled(id, data as never) as never
+      return postDevicesDeviceKeyEnabled(deviceKey, data as never) as never
     },
     onSuccess: (_, variables) => {
       // Invalidate the specific device detail
       queryClient.invalidateQueries({
-        queryKey: deviceKeys.detail(variables.id),
+        queryKey: deviceKeys.detail(variables.deviceKey),
       })
       // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })

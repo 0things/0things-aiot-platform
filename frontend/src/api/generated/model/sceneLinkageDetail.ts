@@ -7,7 +7,7 @@
  */
 
 export interface SceneLinkageDetail {
-  actionConfig?: number[];
-  sceneId?: number;
-  triggerConfig?: number[];
+  actionConfig?: number[]
+  sceneId?: number
+  triggerConfig?: number[]
 }

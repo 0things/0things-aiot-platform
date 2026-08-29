@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { AiotBackendApiProtocolV1CoAPDockerExample } from './aiotBackendApiProtocolV1CoAPDockerExample';
+import type { AiotBackendApiProtocolV1CoAPDockerExample } from './aiotBackendApiProtocolV1CoAPDockerExample'
 
 export interface AiotBackendApiProtocolV1CoAPEndpoint {
-  coap?: string;
-  docker?: AiotBackendApiProtocolV1CoAPDockerExample;
-  rpcSubscribe?: string;
+  coap?: string
+  docker?: AiotBackendApiProtocolV1CoAPDockerExample
+  rpcSubscribe?: string
 }

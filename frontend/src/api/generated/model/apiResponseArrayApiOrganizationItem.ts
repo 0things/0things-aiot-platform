@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { ApiOrganizationItem } from './apiOrganizationItem';
+import type { ApiOrganizationItem } from './apiOrganizationItem'
 
 export interface ApiResponseArrayApiOrganizationItem {
-  code?: number;
-  data?: ApiOrganizationItem[];
-  message?: string;
+  code?: number
+  data?: ApiOrganizationItem[]
+  message?: string
 }

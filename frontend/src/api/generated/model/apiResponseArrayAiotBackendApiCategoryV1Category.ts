@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { AiotBackendApiCategoryV1Category } from './aiotBackendApiCategoryV1Category';
+import type { AiotBackendApiCategoryV1Category } from './aiotBackendApiCategoryV1Category'
 
 export interface ApiResponseArrayAiotBackendApiCategoryV1Category {
-  code?: number;
-  data?: AiotBackendApiCategoryV1Category[];
-  message?: string;
+  code?: number
+  data?: AiotBackendApiCategoryV1Category[]
+  message?: string
 }

@@ -23,4 +23,5 @@ type RouterDeps struct {
 	FileHandler                 *handler.FileHandler
 	DeviceEventHandler          *handler.DeviceEventHandler
 	ProtocolHandler             *handler.ProtocolHandler
+	DeviceGroupHandler          *handler.DeviceGroupHandler
 }

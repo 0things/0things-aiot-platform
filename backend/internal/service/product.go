@@ -8,6 +8,7 @@ import (
 	"errors"
 	"strings"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/enum"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
@@ -22,12 +23,14 @@ type ProductServiceInterface interface {
 	// Deprecated: 外部删除接口统一使用 productKey，保留供旧测试兼容。
 	Delete(ctx context.Context, id int64) error
 	DeleteByKey(ctx context.Context, key string) error
-	List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error)
+	List(ctx context.Context, page, size int, category, status, search string) ([]dto.ProductListItem, int64, error)
 	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
 	Restore(ctx context.Context, id int64) (*model.Product, error)
 	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
 	RestoreByKey(ctx context.Context, key string) (*model.Product, error)
 }
+
+// ProductListItem 是产品列表专用结果，包含分类名称但不污染产品领域模型。
 
 type ProductService struct {
 	repo *repository.ProductRepository
@@ -97,6 +100,9 @@ func (s *ProductService) GetByKey(ctx context.Context, key string) (*model.Produ
 }
 
 func (s *ProductService) Save(ctx context.Context, product *model.Product) error {
+	if product.Status == "" {
+		product.Status = string(enum.ProductStatusActive)
+	}
 	if product.Status != string(enum.ProductStatusActive) && product.Status != string(enum.ProductStatusInactive) && product.Status != string(enum.ProductStatusArchived) {
 		return errors.New("invalid product status")
 	}
@@ -138,7 +144,7 @@ func (s *ProductService) Delete(ctx context.Context, id int64) error {
 	return s.repo.Delete(ctx, product)
 }
 
-func (s *ProductService) List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error) {
+func (s *ProductService) List(ctx context.Context, page, size int, category, status, search string) ([]dto.ProductListItem, int64, error) {
 	return s.repo.List(ctx, page, size, category, status, search)
 }
 

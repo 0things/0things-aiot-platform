@@ -9,7 +9,6 @@ import { DeviceEndpointsCard } from './device-endpoints-card'
 import { DeviceHeader } from './device-header'
 import { DeviceInfoTab } from './device-info-tab'
 import { FileManagementTab } from './file-management-tab'
-import { GroupsTab } from './groups-tab'
 import { LogServiceTab } from './log-service-tab'
 import { OnlineDebugTab } from './online-debug-tab'
 import { ShadowTab } from './shadow-tab'
@@ -117,10 +116,6 @@ export function DeviceDetailPage() {
 
             <TabsContent value='debug' className='mt-0'>
               <OnlineDebugTab />
-            </TabsContent>
-
-            <TabsContent value='groups' className='mt-0'>
-              <GroupsTab />
             </TabsContent>
 
             <TabsContent value='tasks' className='mt-0'>

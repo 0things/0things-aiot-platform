@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/handler"
 	"aiot-backend/internal/model"
 	mock_service "aiot-backend/test/mocks/service"
@@ -41,7 +42,7 @@ func TestProductHandler_Create(t *testing.T) {
 	product := &model.Product{ID: 1, Name: "Test Product", ProductKey: "P001"}
 	mockService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(product, nil)
 
-	body, _ := json.Marshal(map[string]string{"name": "Test Product"})
+	body, _ := json.Marshal(map[string]any{"name": "Test Product", "categoryId": 1})
 	req, _ := http.NewRequest("POST", "/products", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -75,7 +76,7 @@ func TestProductHandler_List(t *testing.T) {
 	mockService := mock_service.NewMockProductServiceInterface(ctrl)
 	router := setupProductRouter(mockService)
 
-	products := []model.Product{{ID: 1, Name: "Product 1"}}
+	products := []dto.ProductListItem{{Product: model.Product{ID: 1, Name: "Product 1"}}}
 	mockService.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(products, int64(1), nil)
 
 	req, _ := http.NewRequest("GET", "/products", nil)

@@ -7,10 +7,10 @@
  */
 
 export interface AiotBackendApiCategoryV1Category {
-  children?: AiotBackendApiCategoryV1Category[];
-  enabled?: boolean;
-  id?: number;
-  name?: string;
-  parentId?: number;
-  sort?: number;
+  children?: AiotBackendApiCategoryV1Category[]
+  enabled?: boolean
+  id?: number
+  name?: string
+  parentId?: number
+  sort?: number
 }

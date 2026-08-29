@@ -28,7 +28,7 @@ export function DevicesDeleteDialog({
     if (value.trim() !== currentRow.deviceKey) return
 
     try {
-      await deleteDevice.mutateAsync(currentRow.id)
+      await deleteDevice.mutateAsync(currentRow.deviceKey)
       toast.success('Device deleted successfully!')
       setValue('')
       onOpenChange(false)

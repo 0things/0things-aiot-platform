@@ -5,8 +5,8 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DeviceTag } from './deviceTag';
+import type { DeviceTag } from './deviceTag'
 
 export interface DeviceListDeviceTagsResponse {
-  tags?: DeviceTag[];
+  tags?: DeviceTag[]
 }

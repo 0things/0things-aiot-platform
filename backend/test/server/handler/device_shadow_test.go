@@ -26,13 +26,13 @@ func setupDeviceRouterRemaining(mockService *mock_service.MockDeviceServiceInter
 	config.Set("data.kafka.device.brokers", []string{"localhost:9092"})
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 
-	router.PUT("/devices/:id/shadow/desired", deviceHandler.Desired)
-	router.PUT("/devices/:id/shadow/reported", deviceHandler.Reported)
-	router.DELETE("/devices/:id/shadow/desired", deviceHandler.ClearDesired)
-	router.GET("/devices/:id/shadow/history", deviceHandler.History)
+	router.PUT("/devices/:deviceKey/shadow/desired", deviceHandler.Desired)
+	router.PUT("/devices/:deviceKey/shadow/reported", deviceHandler.Reported)
+	router.DELETE("/devices/:deviceKey/shadow/desired", deviceHandler.ClearDesired)
+	router.GET("/devices/:deviceKey/shadow/history", deviceHandler.History)
 	router.POST("/devices/batch-upload", deviceHandler.BatchUpload)
-	router.GET("/devices/:id/push-records", deviceHandler.PushRecords)
-	router.GET("/devices/:id/push-records/:pushRecordId", deviceHandler.PushRecord)
+	router.GET("/devices/:deviceKey/push-records", deviceHandler.PushRecords)
+	router.GET("/devices/:deviceKey/push-records/:pushRecordId", deviceHandler.PushRecord)
 
 	return router
 }

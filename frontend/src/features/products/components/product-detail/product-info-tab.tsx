@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useProductCategories, type CategoryNode } from '../../api/categories'
-import { accessProtocolLabels } from '../../data/schema'
 import { ProductProtocolsCard } from './product-protocols-card'
 
 interface ProductInfoTabProps {
@@ -55,29 +54,10 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
     })
   }
 
-  // Helper to get label for access protocol
-  const getAccessProtocolLabel = () => {
-    const accessProtocol = (
-      product as ProductV1Product & { accessProtocol?: string }
-    ).accessProtocol
-    if (!accessProtocol) return '-'
-    return (
-      accessProtocolLabels[
-        accessProtocol as keyof typeof accessProtocolLabels
-      ] || accessProtocol
-    )
-  }
-
   // Check if should show connectivity method (only for direct and gateway)
   const nodeType = (product as ProductV1Product & { nodeType?: string })
     .nodeType
   const showConnectivityMethod = nodeType === 'direct' || nodeType === 'gateway'
-
-  // Dynamic label for access protocol
-  const accessProtocolFieldLabel =
-    nodeType === 'gateway-sub'
-      ? t('productDetail.info.fields.gatewayAccessProtocol')
-      : t('productDetail.info.fields.accessProtocol')
 
   // Get status variant and label
   const statusVariant = product.status === 'active' ? 'default' : 'secondary'
@@ -132,13 +112,6 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
                 <p className='font-medium'>{getConnectivityMethodLabel()}</p>
               </div>
             )}
-
-            <div className='space-y-1'>
-              <p className='text-sm text-muted-foreground'>
-                {accessProtocolFieldLabel}
-              </p>
-              <p className='font-medium'>{getAccessProtocolLabel()}</p>
-            </div>
 
             <div className='space-y-1'>
               <p className='text-sm text-muted-foreground'>

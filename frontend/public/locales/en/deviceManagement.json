@@ -494,7 +494,10 @@
       "comingSoon": "Online debugging coming soon"
     },
     "groupsTab": {
-      "comingSoon": "Groups coming soon"
+      "loading": "Loading groups...",
+      "empty": "This device is not in any group",
+      "manual": "Manual groups",
+      "dynamic": "Dynamic groups"
     },
     "tasksTab": {
       "comingSoon": "Tasks coming soon"

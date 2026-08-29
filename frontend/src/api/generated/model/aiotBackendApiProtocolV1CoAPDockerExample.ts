@@ -7,5 +7,5 @@
  */
 
 export interface AiotBackendApiProtocolV1CoAPDockerExample {
-  coap?: string;
+  coap?: string
 }

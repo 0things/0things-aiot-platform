@@ -7,12 +7,12 @@
  */
 
 export interface DeviceTag {
-  createdAt?: string;
-  deletedAt?: string;
-  deviceId?: number;
-  id?: number;
-  key?: string;
-  source?: string;
-  updatedAt?: string;
-  value?: string;
+  createdAt?: string
+  deletedAt?: string
+  deviceId?: number
+  id?: number
+  key?: string
+  source?: string
+  updatedAt?: string
+  value?: string
 }

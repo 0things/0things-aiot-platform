@@ -34,6 +34,7 @@ i18n
       'navigation',
       'settings',
       'deviceManagement',
+      'deviceGroup',
       'operationsMonitoring',
       'ota',
       'iotDashboard',

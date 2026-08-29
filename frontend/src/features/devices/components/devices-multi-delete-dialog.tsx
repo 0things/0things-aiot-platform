@@ -45,7 +45,7 @@ export function DevicesMultiDeleteDialog<TData>({
       // Delete devices one by one
       for (const device of devices) {
         try {
-          await deleteDevice.mutateAsync(device.id)
+          await deleteDevice.mutateAsync(device.deviceKey)
           successCount++
         } catch (error) {
           // eslint-disable-next-line no-console

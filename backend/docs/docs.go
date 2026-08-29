@@ -155,6 +155,357 @@ const docTemplate = `{
                 }
             }
         },
+        "/device-groups": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "查询设备分组",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "分组名称",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "分组类型",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_ListDeviceGroupsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "创建设备分组",
+                "parameters": [
+                    {
+                        "description": "分组参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.CreateDeviceGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup"
+                        }
+                    }
+                }
+            }
+        },
+        "/device-groups/preview": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "预览未保存动态规则",
+                "parameters": [
+                    {
+                        "description": "动态规则",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.PreviewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/device-groups/{groupUuid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "查询设备分组详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分组 UUID",
+                        "name": "groupUuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "更新设备分组",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分组 UUID",
+                        "name": "groupUuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "分组参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.UpdateDeviceGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "删除设备分组",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分组 UUID",
+                        "name": "groupUuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-map_string_bool"
+                        }
+                    }
+                }
+            }
+        },
+        "/device-groups/{groupUuid}/devices": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "查询分组设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分组 UUID",
+                        "name": "groupUuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "设备 Key 或名称",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroupDevicesResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "添加分组设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分组 UUID",
+                        "name": "groupUuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "设备 Key 列表",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceKeysRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-map_string_bool"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "移除分组设备",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分组 UUID",
+                        "name": "groupUuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "设备 Key 列表",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceKeysRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-map_string_bool"
+                        }
+                    }
+                }
+            }
+        },
+        "/device-groups/{groupUuid}/preview": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备分组"
+                ],
+                "summary": "预览已保存动态规则",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分组 UUID",
+                        "name": "groupUuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "动态规则",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.PreviewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/device-statistics": {
             "get": {
                 "security": [
@@ -3346,6 +3697,62 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceGroup"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-aiot-backend_api_device_group_v1_DeviceGroupDevicesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceGroupDevicesResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-aiot-backend_api_device_group_v1_ListDeviceGroupsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_device_group_v1.ListDeviceGroupsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_device_group_v1.PreviewResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints": {
             "type": "object",
             "properties": {
@@ -3388,6 +3795,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/aiot-backend_api_category_v1.Category"
                     }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-map_string_bool": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/map_string_bool"
                 },
                 "message": {
                     "type": "string"
@@ -4529,6 +4950,62 @@ const docTemplate = `{
                 }
             }
         },
+        "ProductListItem": {
+            "type": "object",
+            "properties": {
+                "accessProtocol": {
+                    "type": "string"
+                },
+                "categoryId": {
+                    "type": "integer"
+                },
+                "categoryName": {
+                    "type": "string"
+                },
+                "connectivityMethod": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "deviceCount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeType": {
+                    "type": "string"
+                },
+                "organizationId": {
+                    "type": "integer"
+                },
+                "productKey": {
+                    "type": "string"
+                },
+                "protocols": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_product_v1.ProductProtocolInput"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "ProductListProductsResponse": {
             "type": "object",
             "properties": {
@@ -4541,7 +5018,7 @@ const docTemplate = `{
                 "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Product"
+                        "$ref": "#/definitions/ProductListItem"
                     }
                 },
                 "total": {
@@ -4771,6 +5248,153 @@ const docTemplate = `{
                 }
             }
         },
+        "aiot-backend_api_device_group_v1.CreateDeviceGroupRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "type"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rule": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_device_group_v1.DeviceGroup": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "groupUuid": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rule": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_device_group_v1.DeviceGroupDevicesResponse": {
+            "type": "object",
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Device"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "aiot-backend_api_device_group_v1.DeviceKeysRequest": {
+            "type": "object",
+            "required": [
+                "deviceKeys"
+            ],
+            "properties": {
+                "deviceKeys": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "aiot-backend_api_device_group_v1.ListDeviceGroupsResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceGroup"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "aiot-backend_api_device_group_v1.PreviewRequest": {
+            "type": "object",
+            "required": [
+                "rule"
+            ],
+            "properties": {
+                "rule": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_device_group_v1.PreviewResponse": {
+            "type": "object",
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Device"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "aiot-backend_api_device_group_v1.UpdateDeviceGroupRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rule": {
+                    "type": "string"
+                }
+            }
+        },
         "aiot-backend_api_product_v1.ProductProtocolInput": {
             "type": "object",
             "required": [
@@ -4854,6 +5478,12 @@ const docTemplate = `{
                 "telemetryTopic": {
                     "type": "string"
                 }
+            }
+        },
+        "map_string_bool": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "boolean"
             }
         }
     },

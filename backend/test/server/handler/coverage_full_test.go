@@ -71,25 +71,25 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 	r.GET("/devices/stats", dh.Stats)
 	r.GET("/devices", dh.ListDevices)
 	r.POST("/devices", dh.CreateDevice)
-	r.GET("/devices/:id", dh.GetDevice)
-	r.PUT("/devices/:id", dh.UpdateDevice)
-	r.DELETE("/devices/:id", dh.DeleteDevice)
-	r.POST("/devices/:id/activate", dh.Activate)
-	r.PUT("/devices/:id/enabled", dh.Enabled)
-	r.POST("/devices/:id/restore", dh.Restore)
-	r.GET("/devices/:id/tags", dh.GetTags)
-	r.PUT("/devices/:id/tags", dh.PutTags)
-	r.POST("/devices/:id/tags", dh.PostTags)
-	r.DELETE("/devices/:id/tags", dh.DeleteTags)
-	r.GET("/devices/:id/shadow", dh.GetShadow)
-	r.PUT("/devices/:id/shadow/desired", dh.Desired)
-	r.PUT("/devices/:id/shadow/reported", dh.Reported)
-	r.DELETE("/devices/:id/shadow/desired", dh.ClearDesired)
-	r.GET("/devices/:id/shadow/history", dh.History)
-	r.POST("/devices/:id/simulate-push", dh.SimulatePush)
-	r.GET("/devices/:id/push-records", dh.PushRecords)
-	r.GET("/devices/:id/push-records/:pushRecordId", dh.PushRecord)
-	r.DELETE("/devices/:id/push-records", dh.ClearPushRecords)
+	r.GET("/devices/:deviceKey", dh.GetDevice)
+	r.PUT("/devices/:deviceKey", dh.UpdateDevice)
+	r.DELETE("/devices/:deviceKey", dh.DeleteDevice)
+	r.POST("/devices/:deviceKey/activate", dh.Activate)
+	r.POST("/devices/:deviceKey/enabled", dh.Enabled)
+	r.POST("/devices/:deviceKey/restore", dh.Restore)
+	r.GET("/devices/:deviceKey/tags", dh.GetTags)
+	r.PUT("/devices/:deviceKey/tags", dh.PutTags)
+	r.POST("/devices/:deviceKey/tags", dh.PostTags)
+	r.DELETE("/devices/:deviceKey/tags", dh.DeleteTags)
+	r.GET("/devices/:deviceKey/shadow", dh.GetShadow)
+	r.PUT("/devices/:deviceKey/shadow/desired", dh.Desired)
+	r.PUT("/devices/:deviceKey/shadow/reported", dh.Reported)
+	r.DELETE("/devices/:deviceKey/shadow/desired", dh.ClearDesired)
+	r.GET("/devices/:deviceKey/shadow/history", dh.History)
+	r.POST("/devices/:deviceKey/simulate-push", dh.SimulatePush)
+	r.GET("/devices/:deviceKey/push-records", dh.PushRecords)
+	r.GET("/devices/:deviceKey/push-records/:pushRecordId", dh.PushRecord)
+	r.DELETE("/devices/:deviceKey/push-records", dh.ClearPushRecords)
 	r.GET("/devices/batch-template", dh.BatchTemplate)
 
 	r.POST("/products", ph.Create)
@@ -302,14 +302,14 @@ func TestCoverage_Product_Create_InvalidJSON(t *testing.T) {
 func TestCoverage_Product_Create_Success(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().Create(gomock.Any(), gomock.Any()).Return(&model.Product{ID: 1, Name: "Test"}, nil)
-	w := cr.do("POST", "/products", map[string]any{"name": "Test"})
+	w := cr.do("POST", "/products", map[string]any{"name": "Test", "categoryId": 1})
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Product_Create_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("name is required"))
-	w := cr.do("POST", "/products", map[string]any{"name": "Test"})
+	w := cr.do("POST", "/products", map[string]any{"name": "Test", "categoryId": 1})
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
@@ -343,14 +343,14 @@ func TestCoverage_Product_List_Error(t *testing.T) {
 
 func TestCoverage_Product_List_Success(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return([]model.Product{{ID: 1, Name: "Test"}}, int64(1), nil)
+	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(1), nil)
 	w := cr.do("GET", "/products", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Product_List_WithFilters(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "iot", "active", "search").Return([]model.Product{}, int64(0), nil)
+	cr.product.EXPECT().List(gomock.Any(), 1, 10, "iot", "active", "search").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?category=iot&status=active&searchText=search", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -545,35 +545,35 @@ func TestCoverage_DeviceEvent_List_WithTimeRange(t *testing.T) {
 
 func TestCoverage_Page_NegativePageNumber(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return([]model.Product{}, int64(0), nil)
+	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?page=-1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Page_ZeroPageSize(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return([]model.Product{}, int64(0), nil)
+	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?pageSize=0", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Page_NegativePageSize(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return([]model.Product{}, int64(0), nil)
+	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?pageSize=-5", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Page_LargePageSize(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 100, "", "", "").Return([]model.Product{}, int64(0), nil)
+	cr.product.EXPECT().List(gomock.Any(), 1, 100, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?pageSize=200", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Page_NonNumericPage(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return([]model.Product{}, int64(0), nil)
+	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?page=abc&pageSize=xyz", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }

@@ -494,7 +494,10 @@
       "comingSoon": "在线调试功能即将推出"
     },
     "groupsTab": {
-      "comingSoon": "分组功能即将推出"
+      "loading": "加载分组中...",
+      "empty": "该设备暂未加入分组",
+      "manual": "手动分组",
+      "dynamic": "动态分组"
     },
     "tasksTab": {
       "comingSoon": "任务功能即将推出"

@@ -7,6 +7,6 @@
  */
 
 export interface AiotBackendApiProductV1ProductProtocolInput {
-  applicationProtocol: string;
-  transportProtocol: string;
+  applicationProtocol: string
+  transportProtocol: string
 }

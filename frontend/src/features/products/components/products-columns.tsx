@@ -116,7 +116,7 @@ export const productsColumns: ColumnDef<Product>[] = [
     ),
     cell: ({ row }) => (
       <Badge variant='secondary' className='capitalize'>
-        {row.original.categoryId ? `ID: ${row.original.categoryId}` : '-'}
+        {row.original.categoryName || '-'}
       </Badge>
     ),
     filterFn: (row, id, value) => {
@@ -142,16 +142,6 @@ export const productsColumns: ColumnDef<Product>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
     },
-    enableSorting: false,
-  },
-  {
-    accessorKey: 'deviceCount',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Devices' />
-    ),
-    cell: ({ row }) => (
-      <div className='text-center'>{row.getValue('deviceCount') || 0}</div>
-    ),
     enableSorting: false,
   },
   {

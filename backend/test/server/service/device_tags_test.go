@@ -23,7 +23,7 @@ func newTagServiceWithSeed(t *testing.T) (*service.DeviceService, context.Contex
 func TestDeviceService_SetTags_RejectsNumericKey(t *testing.T) {
 	svc, ctx := newTagServiceWithSeed(t)
 
-	_, err := svc.SetTags(ctx, "1", map[string]string{"12345": "x"}, false)
+	_, err := svc.SetTags(ctx, "D001", map[string]string{"12345": "x"}, false)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "purely numeric")
 }
@@ -31,7 +31,7 @@ func TestDeviceService_SetTags_RejectsNumericKey(t *testing.T) {
 func TestDeviceService_SetTags_RejectsEmptyKey(t *testing.T) {
 	svc, ctx := newTagServiceWithSeed(t)
 
-	_, err := svc.SetTags(ctx, "1", map[string]string{"": "x"}, false)
+	_, err := svc.SetTags(ctx, "D001", map[string]string{"": "x"}, false)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid tag key")
 }
@@ -43,7 +43,7 @@ func TestDeviceService_SetTags_RejectsOverlongKey(t *testing.T) {
 	for i := range overlong {
 		overlong[i] = 'a'
 	}
-	_, err := svc.SetTags(ctx, "1", map[string]string{string(overlong): "x"}, false)
+	_, err := svc.SetTags(ctx, "D001", map[string]string{string(overlong): "x"}, false)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid tag key")
 }
@@ -51,10 +51,10 @@ func TestDeviceService_SetTags_RejectsOverlongKey(t *testing.T) {
 func TestDeviceService_SetTags_AcceptsValidKey(t *testing.T) {
 	svc, ctx := newTagServiceWithSeed(t)
 
-	_, err := svc.SetTags(ctx, "1", map[string]string{"room_no": "A1"}, false)
+	_, err := svc.SetTags(ctx, "D001", map[string]string{"room_no": "A1"}, false)
 	require.NoError(t, err)
 
-	tags, err := svc.Tags(ctx, "1")
+	tags, err := svc.Tags(ctx, "D001")
 	require.NoError(t, err)
 	found := false
 	for _, tg := range tags {

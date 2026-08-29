@@ -100,25 +100,6 @@ func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) err
 		if err := tx.DeviceState.WithContext(ctx).Create(&model.DeviceState{DeviceKey: device.DeviceKey, State: "inactive"}); err != nil {
 			return err
 		}
-		// 产品协议是设备的默认能力；创建设备时同步生成端点记录，后续可单独配置地址和凭据。
-		txDB := tx.UnderlyingDB()
-		if !txDB.Migrator().HasTable("product_protocols") || !txDB.Migrator().HasTable("device_endpoints") {
-			return nil
-		}
-		var protocols []model.ProductProtocol
-		if err := txDB.WithContext(ctx).Where("product_id = ?", device.ProductID).Find(&protocols).Error; err != nil {
-			return err
-		}
-		for _, protocol := range protocols {
-			if err := txDB.WithContext(ctx).Create(&model.DeviceEndpoint{
-				DeviceID:          device.ID,
-				ProductProtocolID: protocol.ID,
-				Enabled:           true,
-				Status:            "inactive",
-			}).Error; err != nil {
-				return err
-			}
-		}
 		return nil
 	})
 }

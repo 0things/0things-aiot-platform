@@ -7,5 +7,5 @@
  */
 
 export interface ApiSwitchOrgResponseData {
-  accessToken?: string;
+  accessToken?: string
 }

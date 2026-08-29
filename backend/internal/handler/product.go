@@ -122,9 +122,10 @@ func (h *ProductHandler) List(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	items := make([]productV1.Product, 0, len(products))
+	items := make([]productV1.ProductListItem, 0, len(products))
 	for _, product := range products {
-		items = append(items, productJSON(product, 0))
+		item := productV1.ProductListItem{Product: productJSON(product.Product, 0), CategoryName: product.CategoryName}
+		items = append(items, item)
 	}
 	v1.HandleSuccess(c, productV1.ListProductsResponse{Products: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }

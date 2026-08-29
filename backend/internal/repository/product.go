@@ -5,10 +5,10 @@ import (
 	"errors"
 	"strconv"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 
-	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -105,27 +105,30 @@ func (r *ProductRepository) Delete(ctx context.Context, product *model.Product) 
 	return err
 }
 
-func (r *ProductRepository) List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error) {
-	q := useIoTQuery(r.db)
-	products := q.Product.WithContext(ctx).Where(q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
+func (r *ProductRepository) List(ctx context.Context, page, size int, category, status, search string) ([]dto.ProductListItem, int64, error) {
+	query := r.db.WithContext(ctx).Model(&model.Product{}).
+		Select("products.*, categories.name AS category_name").
+		Joins("LEFT JOIN categories ON categories.id = products.category_id AND categories.deleted_at IS NULL").
+		Where("products.organization_id = ?", tenant.GetOrganizationID(ctx))
 	if category != "" {
 		if catID, err := strconv.ParseInt(category, 10, 64); err == nil {
-			products = products.Where(q.Product.CategoryID.Eq(catID))
+			query = query.Where("products.category_id = ?", catID)
 		}
 	}
 	if status != "" {
-		products = products.Where(q.Product.Status.Eq(status))
+		query = query.Where("products.status = ?", status)
 	}
 	if search != "" {
-		products = products.Where(field.Or(q.Product.ProductKey.Like("%"+search+"%"), q.Product.Name.Like("%"+search+"%")))
+		value := "%" + search + "%"
+		query = query.Where("(products.product_key LIKE ? OR products.name LIKE ?)", value, value)
 	}
-	items, total, err := products.Order(q.Product.CreatedAt.Desc()).FindByPage((page-1)*size, size)
-	if err != nil {
+	var total int64
+	if err := query.Session(&gorm.Session{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	result := make([]model.Product, len(items))
-	for i := range items {
-		result[i] = *items[i]
+	var result []dto.ProductListItem
+	if err := query.Order("products.id DESC").Offset((page - 1) * size).Limit(size).Find(&result).Error; err != nil {
+		return nil, 0, err
 	}
 	return result, total, nil
 }

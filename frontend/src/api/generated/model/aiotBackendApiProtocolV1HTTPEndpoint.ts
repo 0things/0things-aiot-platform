@@ -7,6 +7,6 @@
  */
 
 export interface AiotBackendApiProtocolV1HTTPEndpoint {
-  http?: string;
-  rpcSubscribe?: string;
+  http?: string
+  rpcSubscribe?: string
 }

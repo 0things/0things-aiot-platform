@@ -5,8 +5,8 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { SceneLinkageDetail } from './sceneLinkageDetail';
+import type { SceneLinkageDetail } from './sceneLinkageDetail'
 
 export interface CreateSceneLinkageDetailResponse {
-  detail?: SceneLinkageDetail;
+  detail?: SceneLinkageDetail
 }

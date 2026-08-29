@@ -65,6 +65,7 @@ export const productSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   categoryId: z.number().optional(),
+  categoryName: z.string().optional(),
   status: productStatusSchema,
   nodeType: nodeTypeSchema.optional(),
   connectivityMethod: connectivityMethodSchema.optional(),

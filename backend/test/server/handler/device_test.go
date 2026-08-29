@@ -25,15 +25,15 @@ func setupDeviceRouter(mockService *mock_service.MockDeviceServiceInterface) *gi
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 
 	router.POST("/devices", deviceHandler.CreateDevice)
-	router.GET("/devices/:id", deviceHandler.GetDevice)
+	router.GET("/devices/:deviceKey", deviceHandler.GetDevice)
 	router.GET("/devices/key/:deviceKey", deviceHandler.GetDeviceByKey)
 	router.GET("/devices", deviceHandler.ListDevices)
-	router.PUT("/devices/:id", deviceHandler.UpdateDevice)
-	router.DELETE("/devices/:id", deviceHandler.DeleteDevice)
-	router.POST("/devices/:id/activate", deviceHandler.Activate)
-	router.PUT("/devices/:id/enabled", deviceHandler.Enabled)
+	router.PUT("/devices/:deviceKey", deviceHandler.UpdateDevice)
+	router.DELETE("/devices/:deviceKey", deviceHandler.DeleteDevice)
+	router.POST("/devices/:deviceKey/activate", deviceHandler.Activate)
+	router.POST("/devices/:deviceKey/enabled", deviceHandler.Enabled)
 	router.GET("/devices/stats", deviceHandler.Stats)
-	router.POST("/devices/:id/restore", deviceHandler.Restore)
+	router.POST("/devices/:deviceKey/restore", deviceHandler.Restore)
 
 	return router
 }
@@ -66,7 +66,7 @@ func TestDeviceHandler_GetDevice(t *testing.T) {
 	router := setupDeviceRouter(mockService)
 
 	device := &model.Device{ID: 1, Name: "Test Device"}
-	mockService.EXPECT().Device(gomock.Any(), int64(1)).Return(device, nil)
+	mockService.EXPECT().DeviceByKey(gomock.Any(), "1").Return(device, nil)
 
 	req, _ := http.NewRequest("GET", "/devices/1", nil)
 	w := httptest.NewRecorder()
@@ -99,7 +99,7 @@ func TestDeviceHandler_DeleteDevice(t *testing.T) {
 	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
 	router := setupDeviceRouter(mockService)
 
-	mockService.EXPECT().DeleteDevice(gomock.Any(), int64(1)).Return(nil)
+	mockService.EXPECT().DeleteDeviceByKey(gomock.Any(), "1").Return(nil)
 
 	req, _ := http.NewRequest("DELETE", "/devices/1", nil)
 	w := httptest.NewRecorder()
@@ -133,7 +133,7 @@ func TestDeviceHandler_RestoreDevice(t *testing.T) {
 	router := setupDeviceRouter(mockService)
 
 	device := &model.Device{ID: 1, Name: "Restored Device"}
-	mockService.EXPECT().RestoreDevice(gomock.Any(), int64(1)).Return(device, nil)
+	mockService.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(device, nil)
 
 	req, _ := http.NewRequest("POST", "/devices/1/restore", nil)
 	w := httptest.NewRecorder()

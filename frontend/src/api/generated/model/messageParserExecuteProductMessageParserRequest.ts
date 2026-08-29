@@ -5,11 +5,11 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { MessageParserExecuteProductMessageParserRequestMode } from './messageParserExecuteProductMessageParserRequestMode';
+import type { MessageParserExecuteProductMessageParserRequestMode } from './messageParserExecuteProductMessageParserRequestMode'
 
 export interface MessageParserExecuteProductMessageParserRequest {
-  jsonObj?: string;
-  mode: MessageParserExecuteProductMessageParserRequestMode;
-  rawData?: string;
-  topic?: string;
+  jsonObj?: string
+  mode: MessageParserExecuteProductMessageParserRequestMode
+  rawData?: string
+  topic?: string
 }

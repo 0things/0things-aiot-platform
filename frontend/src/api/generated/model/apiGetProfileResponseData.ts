@@ -7,7 +7,7 @@
  */
 
 export interface ApiGetProfileResponseData {
-  email?: string;
-  nickname?: string;
-  userId?: string;
+  email?: string
+  nickname?: string
+  userId?: string
 }

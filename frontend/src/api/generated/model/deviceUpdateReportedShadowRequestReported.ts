@@ -6,4 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type DeviceUpdateReportedShadowRequestReported = {[key: string]: unknown};
+export type DeviceUpdateReportedShadowRequestReported = {
+  [key: string]: unknown
+}

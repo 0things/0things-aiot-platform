@@ -29,6 +29,8 @@ func main() {
 		model.ProductTSL{},
 		model.ProductMessageParser{},
 		model.DevicePushRecord{},
+		model.DeviceGroup{},
+		model.DeviceGroupMember{},
 		model.SceneLinkage{},
 		model.SceneLinkageDetail{},
 	)

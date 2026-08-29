@@ -7,9 +7,9 @@
  */
 
 export interface DeviceStatisticsResponse {
-  activatedDevices?: number;
-  inactiveDevices?: number;
-  offlineDevices?: number;
-  onlineDevices?: number;
-  totalDevices?: number;
+  activatedDevices?: number
+  inactiveDevices?: number
+  offlineDevices?: number
+  onlineDevices?: number
+  totalDevices?: number
 }

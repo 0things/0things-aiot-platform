@@ -47,16 +47,16 @@ func TestDeviceHandler_GetDevice_NotFound(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id", deviceHandler.GetDevice)
+	router.GET("/devices/:deviceKey", deviceHandler.GetDevice)
 
-	mockService.EXPECT().Device(gomock.Any(), int64(1)).Return(nil, repository.ErrNotFound)
+	mockService.EXPECT().DeviceByKey(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
 	req, _ := http.NewRequest("GET", "/devices/1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
-func TestDeviceHandler_GetDevice_InvalidID(t *testing.T) {
+func TestDeviceHandler_GetDevice_ServiceError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
@@ -65,8 +65,9 @@ func TestDeviceHandler_GetDevice_InvalidID(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id", deviceHandler.GetDevice)
+	router.GET("/devices/:deviceKey", deviceHandler.GetDevice)
 
+	mockService.EXPECT().DeviceByKey(gomock.Any(), "abc").Return(nil, errors.New("db error"))
 	req, _ := http.NewRequest("GET", "/devices/abc", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -177,7 +178,7 @@ func TestDeviceHandler_UpdateDevice_InvalidJSON(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id", deviceHandler.UpdateDevice)
+	router.PUT("/devices/:deviceKey", deviceHandler.UpdateDevice)
 
 	req, _ := http.NewRequest("PUT", "/devices/1", bytes.NewBufferString("invalid"))
 	req.Header.Set("Content-Type", "application/json")
@@ -195,9 +196,9 @@ func TestDeviceHandler_DeleteDevice_Success(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id", deviceHandler.DeleteDevice)
+	router.DELETE("/devices/:deviceKey", deviceHandler.DeleteDevice)
 
-	mockService.EXPECT().DeleteDevice(gomock.Any(), int64(1)).Return(nil)
+	mockService.EXPECT().DeleteDeviceByKey(gomock.Any(), "1").Return(nil)
 	req, _ := http.NewRequest("DELETE", "/devices/1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -232,7 +233,7 @@ func TestDeviceHandler_Telemetry_NotFound(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/telemetry", deviceHandler.Telemetry)
+	router.GET("/devices/:deviceKey/telemetry", deviceHandler.Telemetry)
 
 	mockService.EXPECT().Telemetry(gomock.Any(), "D001").Return("", repository.ErrNotFound)
 	req, _ := http.NewRequest("GET", "/devices/D001/telemetry", nil)
@@ -250,10 +251,10 @@ func TestDeviceHandler_Restore_Success(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:id/restore", deviceHandler.Restore)
+	router.POST("/devices/:deviceKey/restore", deviceHandler.Restore)
 
 	device := &model.Device{ID: 1}
-	mockService.EXPECT().RestoreDevice(gomock.Any(), int64(1)).Return(device, nil)
+	mockService.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(device, nil)
 	req, _ := http.NewRequest("POST", "/devices/1/restore", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -269,7 +270,7 @@ func TestDeviceHandler_GetTags_NotFound(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/tags", deviceHandler.GetTags)
+	router.GET("/devices/:deviceKey/tags", deviceHandler.GetTags)
 
 	mockService.EXPECT().Tags(gomock.Any(), "D001").Return(nil, repository.ErrNotFound)
 	req, _ := http.NewRequest("GET", "/devices/D001/tags", nil)
@@ -287,7 +288,7 @@ func TestDeviceHandler_PutTags_InvalidJSON(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id/tags", deviceHandler.PutTags)
+	router.PUT("/devices/:deviceKey/tags", deviceHandler.PutTags)
 
 	req, _ := http.NewRequest("PUT", "/devices/D001/tags", bytes.NewBufferString("invalid"))
 	req.Header.Set("Content-Type", "application/json")
@@ -305,7 +306,7 @@ func TestDeviceHandler_DeleteTags_Success(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/tags", deviceHandler.DeleteTags)
+	router.DELETE("/devices/:deviceKey/tags", deviceHandler.DeleteTags)
 
 	mockService.EXPECT().RemoveTags(gomock.Any(), "D001", []string{"key1"}).Return(nil)
 	body, _ := json.Marshal(map[string]interface{}{"keys": []string{"key1"}})
@@ -325,7 +326,7 @@ func TestDeviceHandler_DeleteTags_InvalidJSON(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/tags", deviceHandler.DeleteTags)
+	router.DELETE("/devices/:deviceKey/tags", deviceHandler.DeleteTags)
 
 	req, _ := http.NewRequest("DELETE", "/devices/D001/tags", bytes.NewBufferString("invalid"))
 	req.Header.Set("Content-Type", "application/json")
@@ -343,7 +344,7 @@ func TestDeviceHandler_GetShadow_NotFound(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/shadow", deviceHandler.GetShadow)
+	router.GET("/devices/:deviceKey/shadow", deviceHandler.GetShadow)
 
 	mockService.EXPECT().Shadow(gomock.Any(), "D001").Return(nil, repository.ErrNotFound)
 	req, _ := http.NewRequest("GET", "/devices/D001/shadow", nil)
@@ -361,7 +362,7 @@ func TestDeviceHandler_History_Success(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/shadow/history", deviceHandler.History)
+	router.GET("/devices/:deviceKey/shadow/history", deviceHandler.History)
 
 	history := []model.DeviceShadowHistory{{ID: 1, DeviceID: 1, Version: 1, Source: "device"}}
 	mockService.EXPECT().ShadowHistory(gomock.Any(), "D001").Return(history, nil)
@@ -380,7 +381,7 @@ func TestDeviceHandler_ClearPushRecords_Success(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/push-records", deviceHandler.ClearPushRecords)
+	router.DELETE("/devices/:deviceKey/push-records", deviceHandler.ClearPushRecords)
 
 	mockService.EXPECT().ClearPushRecords(gomock.Any(), "D001", gomock.Any()).Return(int64(5), nil)
 	req, _ := http.NewRequest("DELETE", "/devices/D001/push-records", nil)
@@ -398,7 +399,7 @@ func TestDeviceHandler_ClearPushRecords_WithBeforeTime(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/push-records", deviceHandler.ClearPushRecords)
+	router.DELETE("/devices/:deviceKey/push-records", deviceHandler.ClearPushRecords)
 
 	before := time.Now().Format(time.RFC3339)
 	mockService.EXPECT().ClearPushRecords(gomock.Any(), "D001", gomock.Any()).Return(int64(5), nil)
@@ -417,7 +418,7 @@ func TestDeviceHandler_SimulatePush_InvalidJSON(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:id/simulate-push", deviceHandler.SimulatePush)
+	router.POST("/devices/:deviceKey/simulate-push", deviceHandler.SimulatePush)
 
 	req, _ := http.NewRequest("POST", "/devices/D001/simulate-push", bytes.NewBufferString("invalid"))
 	req.Header.Set("Content-Type", "application/json")
@@ -435,8 +436,9 @@ func TestDeviceHandler_UpdateDevice_InvalidID(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id", deviceHandler.UpdateDevice)
+	router.PUT("/devices/:deviceKey", deviceHandler.UpdateDevice)
 
+	mockService.EXPECT().UpdateDeviceByKey(gomock.Any(), "abc", "Test", "", "").Return(nil, errors.New("not found"))
 	body, _ := json.Marshal(map[string]string{"name": "Test"})
 	req, _ := http.NewRequest("PUT", "/devices/abc", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -454,32 +456,15 @@ func TestDeviceHandler_UpdateDevice_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id", deviceHandler.UpdateDevice)
+	router.PUT("/devices/:deviceKey", deviceHandler.UpdateDevice)
 
-	mockService.EXPECT().UpdateDevice(gomock.Any(), int64(1), "Test", "", "").Return(nil, errors.New("invalid status transition"))
+	mockService.EXPECT().UpdateDeviceByKey(gomock.Any(), "1", "Test", "", "").Return(nil, errors.New("invalid status transition"))
 	body, _ := json.Marshal(map[string]string{"name": "Test"})
 	req, _ := http.NewRequest("PUT", "/devices/1", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-}
-
-func TestDeviceHandler_DeleteDevice_InvalidID(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id", deviceHandler.DeleteDevice)
-
-	req, _ := http.NewRequest("DELETE", "/devices/abc", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_DeleteDevice_ServiceError(t *testing.T) {
@@ -491,27 +476,10 @@ func TestDeviceHandler_DeleteDevice_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id", deviceHandler.DeleteDevice)
+	router.DELETE("/devices/:deviceKey", deviceHandler.DeleteDevice)
 
-	mockService.EXPECT().DeleteDevice(gomock.Any(), int64(1)).Return(errors.New("db error"))
+	mockService.EXPECT().DeleteDeviceByKey(gomock.Any(), "1").Return(errors.New("db error"))
 	req, _ := http.NewRequest("DELETE", "/devices/1", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-}
-
-func TestDeviceHandler_Activate_InvalidID(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:id/activate", deviceHandler.Activate)
-
-	req, _ := http.NewRequest("POST", "/devices/abc/activate", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
@@ -526,32 +494,13 @@ func TestDeviceHandler_Activate_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:id/activate", deviceHandler.Activate)
+	router.POST("/devices/:deviceKey/activate", deviceHandler.Activate)
 
-	mockService.EXPECT().Activate(gomock.Any(), int64(1)).Return(nil, errors.New("device already activated"))
+	mockService.EXPECT().ActivateByKey(gomock.Any(), "1").Return(nil, errors.New("device already activated"))
 	req, _ := http.NewRequest("POST", "/devices/1/activate", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-}
-
-func TestDeviceHandler_Enabled_InvalidID(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id/enabled", deviceHandler.Enabled)
-
-	body, _ := json.Marshal(map[string]bool{"enabled": true})
-	req, _ := http.NewRequest("PUT", "/devices/abc/enabled", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_Enabled_BindError(t *testing.T) {
@@ -563,9 +512,9 @@ func TestDeviceHandler_Enabled_BindError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id/enabled", deviceHandler.Enabled)
+	router.POST("/devices/:deviceKey/enabled", deviceHandler.Enabled)
 
-	req, _ := http.NewRequest("PUT", "/devices/1/enabled", bytes.NewBufferString("invalid"))
+	req, _ := http.NewRequest("POST", "/devices/1/enabled", bytes.NewBufferString("invalid"))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -581,11 +530,11 @@ func TestDeviceHandler_Enabled_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id/enabled", deviceHandler.Enabled)
+	router.POST("/devices/:deviceKey/enabled", deviceHandler.Enabled)
 
-	mockService.EXPECT().SetEnabled(gomock.Any(), int64(1), true).Return(nil, errors.New("not found"))
+	mockService.EXPECT().SetEnabledByKey(gomock.Any(), "1", true).Return(nil, errors.New("not found"))
 	body, _ := json.Marshal(map[string]bool{"enabled": true})
-	req, _ := http.NewRequest("PUT", "/devices/1/enabled", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/devices/1/enabled", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -610,23 +559,6 @@ func TestDeviceHandler_Stats_Error(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
-func TestDeviceHandler_Restore_InvalidID(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:id/restore", deviceHandler.Restore)
-
-	req, _ := http.NewRequest("POST", "/devices/abc/restore", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-}
-
 func TestDeviceHandler_Restore_ServiceError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -636,9 +568,9 @@ func TestDeviceHandler_Restore_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:id/restore", deviceHandler.Restore)
+	router.POST("/devices/:deviceKey/restore", deviceHandler.Restore)
 
-	mockService.EXPECT().RestoreDevice(gomock.Any(), int64(1)).Return(nil, errors.New("not found"))
+	mockService.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(nil, errors.New("not found"))
 	req, _ := http.NewRequest("POST", "/devices/1/restore", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -654,7 +586,7 @@ func TestDeviceHandler_SimulatePush_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:id/simulate-push", deviceHandler.SimulatePush)
+	router.POST("/devices/:deviceKey/simulate-push", deviceHandler.SimulatePush)
 
 	mockService.EXPECT().SimulatePush(gomock.Any(), "D001", `{"temp":25}`, "").Return(nil, errors.New("device not found"))
 	body, _ := json.Marshal(map[string]string{"payload": `{"temp":25}`})
@@ -674,7 +606,7 @@ func TestDeviceHandler_SimulatePush_WithUserID(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:id/simulate-push", deviceHandler.SimulatePush)
+	router.POST("/devices/:deviceKey/simulate-push", deviceHandler.SimulatePush)
 
 	record := &model.DevicePushRecord{ID: 1, DeviceID: 1, Status: "success"}
 	mockService.EXPECT().SimulatePush(gomock.Any(), "D001", `{"temp":25}`, "user123").Return(record, nil)
@@ -696,7 +628,7 @@ func TestDeviceHandler_PushRecords_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/push-records", deviceHandler.PushRecords)
+	router.GET("/devices/:deviceKey/push-records", deviceHandler.PushRecords)
 
 	mockService.EXPECT().ListPushRecords(gomock.Any(), "D001", 1, 20, "", "").Return(nil, int64(0), errors.New("db error"))
 	req, _ := http.NewRequest("GET", "/devices/D001/push-records", nil)
@@ -714,7 +646,7 @@ func TestDeviceHandler_PushRecord_InvalidID(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/push-records/:pushRecordId", deviceHandler.PushRecord)
+	router.GET("/devices/:deviceKey/push-records/:pushRecordId", deviceHandler.PushRecord)
 
 	req, _ := http.NewRequest("GET", "/devices/D001/push-records/abc", nil)
 	w := httptest.NewRecorder()
@@ -731,7 +663,7 @@ func TestDeviceHandler_PushRecord_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/push-records/:pushRecordId", deviceHandler.PushRecord)
+	router.GET("/devices/:deviceKey/push-records/:pushRecordId", deviceHandler.PushRecord)
 
 	mockService.EXPECT().PushRecord(gomock.Any(), int64(1)).Return(nil, errors.New("not found"))
 	req, _ := http.NewRequest("GET", "/devices/D001/push-records/1", nil)
@@ -749,7 +681,7 @@ func TestDeviceHandler_ClearPushRecords_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/push-records", deviceHandler.ClearPushRecords)
+	router.DELETE("/devices/:deviceKey/push-records", deviceHandler.ClearPushRecords)
 
 	mockService.EXPECT().ClearPushRecords(gomock.Any(), "D001", gomock.Any()).Return(int64(0), errors.New("db error"))
 	req, _ := http.NewRequest("DELETE", "/devices/D001/push-records", nil)
@@ -767,7 +699,7 @@ func TestDeviceHandler_ClearPushRecords_WithMilliseconds(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/push-records", deviceHandler.ClearPushRecords)
+	router.DELETE("/devices/:deviceKey/push-records", deviceHandler.ClearPushRecords)
 
 	mockService.EXPECT().ClearPushRecords(gomock.Any(), "D001", gomock.Any()).Return(int64(3), nil)
 	req, _ := http.NewRequest("DELETE", "/devices/D001/push-records?beforeTimestamp=1700000000000", nil)
@@ -785,7 +717,7 @@ func TestDeviceHandler_ClearPushRecords_InvalidBeforeTimestamp(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/push-records", deviceHandler.ClearPushRecords)
+	router.DELETE("/devices/:deviceKey/push-records", deviceHandler.ClearPushRecords)
 
 	mockService.EXPECT().ClearPushRecords(gomock.Any(), "D001", gomock.Any()).Return(int64(0), nil)
 	req, _ := http.NewRequest("DELETE", "/devices/D001/push-records?beforeTimestamp=abc", nil)
@@ -803,7 +735,7 @@ func TestDeviceHandler_ClearPushRecords_NegativeBeforeTimestamp(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/push-records", deviceHandler.ClearPushRecords)
+	router.DELETE("/devices/:deviceKey/push-records", deviceHandler.ClearPushRecords)
 
 	mockService.EXPECT().ClearPushRecords(gomock.Any(), "D001", gomock.Any()).Return(int64(0), nil)
 	req, _ := http.NewRequest("DELETE", "/devices/D001/push-records?beforeTimestamp=-1", nil)
@@ -839,7 +771,7 @@ func TestDeviceHandler_Desired_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id/shadow/desired", deviceHandler.Desired)
+	router.PUT("/devices/:deviceKey/shadow/desired", deviceHandler.Desired)
 
 	desired := map[string]any{"key": "val"}
 	mockService.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "app", &desired, nil, false).Return(nil, errors.New("version conflict"))
@@ -860,7 +792,7 @@ func TestDeviceHandler_Reported_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id/shadow/reported", deviceHandler.Reported)
+	router.PUT("/devices/:deviceKey/shadow/reported", deviceHandler.Reported)
 
 	reported := map[string]any{"temp": float64(25)}
 	mockService.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "device", nil, &reported, false).Return(nil, errors.New("not found"))
@@ -881,7 +813,7 @@ func TestDeviceHandler_ClearDesired_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/shadow/desired", deviceHandler.ClearDesired)
+	router.DELETE("/devices/:deviceKey/shadow/desired", deviceHandler.ClearDesired)
 
 	mockService.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "app", nil, nil, true).Return(nil, errors.New("not found"))
 	body, _ := json.Marshal(map[string]any{"version": 0})
@@ -901,7 +833,7 @@ func TestDeviceHandler_Telemetry_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/telemetry", deviceHandler.Telemetry)
+	router.GET("/devices/:deviceKey/telemetry", deviceHandler.Telemetry)
 
 	mockService.EXPECT().Telemetry(gomock.Any(), "D001").Return("", errors.New("redis error"))
 	req, _ := http.NewRequest("GET", "/devices/D001/telemetry", nil)
@@ -919,7 +851,7 @@ func TestDeviceHandler_GetTags_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/tags", deviceHandler.GetTags)
+	router.GET("/devices/:deviceKey/tags", deviceHandler.GetTags)
 
 	mockService.EXPECT().Tags(gomock.Any(), "D001").Return(nil, errors.New("db error"))
 	req, _ := http.NewRequest("GET", "/devices/D001/tags", nil)
@@ -937,7 +869,7 @@ func TestDeviceHandler_PutTags_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:id/tags", deviceHandler.PutTags)
+	router.PUT("/devices/:deviceKey/tags", deviceHandler.PutTags)
 
 	mockService.EXPECT().SetTags(gomock.Any(), "D001", map[string]string{"k": "v"}, true).Return(nil, errors.New("invalid tag key"))
 	body, _ := json.Marshal(map[string]interface{}{"tags": map[string]string{"k": "v"}})
@@ -957,7 +889,7 @@ func TestDeviceHandler_DeleteTags_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.DELETE("/devices/:id/tags", deviceHandler.DeleteTags)
+	router.DELETE("/devices/:deviceKey/tags", deviceHandler.DeleteTags)
 
 	mockService.EXPECT().RemoveTags(gomock.Any(), "D001", []string{"key1"}).Return(errors.New("db error"))
 	body, _ := json.Marshal(map[string]interface{}{"keys": []string{"key1"}})
@@ -977,7 +909,7 @@ func TestDeviceHandler_GetShadow_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/shadow", deviceHandler.GetShadow)
+	router.GET("/devices/:deviceKey/shadow", deviceHandler.GetShadow)
 
 	mockService.EXPECT().Shadow(gomock.Any(), "D001").Return(nil, errors.New("not found"))
 	req, _ := http.NewRequest("GET", "/devices/D001/shadow", nil)
@@ -995,7 +927,7 @@ func TestDeviceHandler_History_ServiceError(t *testing.T) {
 	h := &handler.Handler{}
 	config := viper.New()
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/shadow/history", deviceHandler.History)
+	router.GET("/devices/:deviceKey/shadow/history", deviceHandler.History)
 
 	mockService.EXPECT().ShadowHistory(gomock.Any(), "D001").Return(nil, errors.New("db error"))
 	req, _ := http.NewRequest("GET", "/devices/D001/shadow/history", nil)

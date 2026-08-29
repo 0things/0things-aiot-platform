@@ -21,7 +21,11 @@ func deviceError(c *gin.Context, err error) {
 	} else if err.Error() == "invalid status transition" ||
 		err.Error() == "device already activated" ||
 		err.Error() == "name is required" ||
-		err.Error() == "invalid tag key" {
+		err.Error() == "invalid tag key" ||
+		err.Error() == "invalid device group type" ||
+		err.Error() == "rule is required for dynamic group" ||
+		err.Error() == "device group name already exists" ||
+		err.Error() == "dynamic group members are managed by rule" {
 		status = http.StatusBadRequest
 	}
 

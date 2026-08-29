@@ -5,6 +5,7 @@
 package mock_service
 
 import (
+	dto "aiot-backend/internal/dto"
 	model "aiot-backend/internal/model"
 	context "context"
 	reflect "reflect"
@@ -109,10 +110,10 @@ func (mr *MockProductServiceInterfaceMockRecorder) GetByKey(ctx, key interface{}
 }
 
 // List mocks base method.
-func (m *MockProductServiceInterface) List(ctx context.Context, page, size int, category, status, search string) ([]model.Product, int64, error) {
+func (m *MockProductServiceInterface) List(ctx context.Context, page, size int, category, status, search string) ([]dto.ProductListItem, int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", ctx, page, size, category, status, search)
-	ret0, _ := ret[0].([]model.Product)
+	ret0, _ := ret[0].([]dto.ProductListItem)
 	ret1, _ := ret[1].(int64)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
