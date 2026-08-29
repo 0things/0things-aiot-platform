@@ -241,24 +241,6 @@ func TestDeviceHandler_Telemetry_NotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
-func TestDeviceHandler_MQTT_NotFound(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/mqtt", deviceHandler.MQTT)
-
-	mockService.EXPECT().MQTT(gomock.Any(), "D001").Return(service.MQTTParameters{}, repository.ErrNotFound)
-	req, _ := http.NewRequest("GET", "/devices/D001/mqtt", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusNotFound, w.Code)
-}
-
 func TestDeviceHandler_Restore_Success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -923,24 +905,6 @@ func TestDeviceHandler_Telemetry_ServiceError(t *testing.T) {
 
 	mockService.EXPECT().Telemetry(gomock.Any(), "D001").Return("", errors.New("redis error"))
 	req, _ := http.NewRequest("GET", "/devices/D001/telemetry", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-}
-
-func TestDeviceHandler_MQTT_ServiceError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.GET("/devices/:id/mqtt", deviceHandler.MQTT)
-
-	mockService.EXPECT().MQTT(gomock.Any(), "D001").Return(service.MQTTParameters{}, errors.New("not found"))
-	req, _ := http.NewRequest("GET", "/devices/D001/mqtt", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)

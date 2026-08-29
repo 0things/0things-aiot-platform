@@ -687,11 +687,13 @@ func TestProductRepository_List_WithFilters(t *testing.T) {
 	ctx := tenant.WithTenant(context.Background(), 1)
 
 	// Create products
-	productRepo.Create(ctx, &model.Product{ProductKey: "P001", Name: "IoT Sensor", Status: "active", Category: "iot", OrganizationID: 1})
-	productRepo.Create(ctx, &model.Product{ProductKey: "P002", Name: "Gateway", Status: "inactive", Category: "gateway", OrganizationID: 1})
+	cat1 := int64(1)
+	cat2 := int64(2)
+	productRepo.Create(ctx, &model.Product{ProductKey: "P001", Name: "IoT Sensor", Status: "active", CategoryID: &cat1, OrganizationID: 1})
+	productRepo.Create(ctx, &model.Product{ProductKey: "P002", Name: "Gateway", Status: "inactive", CategoryID: &cat2, OrganizationID: 1})
 
 	// List with category filter
-	products, total, err := productRepo.List(ctx, 1, 10, "iot", "", "")
+	products, total, err := productRepo.List(ctx, 1, 10, "1", "", "")
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, products, 1)

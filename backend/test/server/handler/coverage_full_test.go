@@ -21,8 +21,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/spf13/viper"
-	"gorm.io/gorm"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 var coverageLogger *log.Logger
@@ -39,10 +39,10 @@ var coverageConf *viper.Viper
 
 type coverageRouters struct {
 	*testing.T
-	router     *gin.Engine
-	device     *mock_service.MockDeviceServiceInterface
-	product    *mock_service.MockProductServiceInterface
-	ota        *mock_service.MockOTAServiceInterface
+	router      *gin.Engine
+	device      *mock_service.MockDeviceServiceInterface
+	product     *mock_service.MockProductServiceInterface
+	ota         *mock_service.MockOTAServiceInterface
 	deviceEvent *mock_service.MockDeviceEventServiceInterface
 }
 
@@ -93,11 +93,11 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 	r.GET("/devices/batch-template", dh.BatchTemplate)
 
 	r.POST("/products", ph.Create)
-	r.GET("/products/:id", ph.Get)
+	r.GET("/products/:productKey", ph.Get)
 	r.GET("/products", ph.List)
-	r.PUT("/products/key/:productKey", ph.Update)
-	r.DELETE("/products/:id", ph.Delete)
-	r.POST("/products/:id/restore", ph.Restore)
+	r.PUT("/products/:productKey", ph.Update)
+	r.DELETE("/products/:productKey", ph.Delete)
+	r.POST("/products/:productKey/restore", ph.Restore)
 
 	r.GET("/ota/packages", oh.ListOTA)
 	r.GET("/ota/packages/:uuid", oh.GetOTA)
@@ -315,20 +315,21 @@ func TestCoverage_Product_Create_Error(t *testing.T) {
 
 func TestCoverage_Product_Get_InvalidID(t *testing.T) {
 	cr := newCoverageRouters(t)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "abc").Return(nil, repository.ErrNotFound)
 	w := cr.do("GET", "/products/abc", nil)
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 
 func TestCoverage_Product_Get_Success(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.Product{ID: 1, Name: "Test"}, nil)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(&model.Product{ID: 1, Name: "Test"}, nil)
 	w := cr.do("GET", "/products/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Product_Get_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(nil, repository.ErrNotFound)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
 	w := cr.do("GET", "/products/1", nil)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
@@ -357,14 +358,14 @@ func TestCoverage_Product_List_WithFilters(t *testing.T) {
 func TestCoverage_Product_Update_GetFails(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().GetByKey(gomock.Any(), "NONEXIST").Return(nil, repository.ErrNotFound)
-	w := cr.do("PUT", "/products/key/NONEXIST", map[string]any{"name": "Updated"})
+	w := cr.do("PUT", "/products/NONEXIST", map[string]any{"name": "Updated"})
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
 func TestCoverage_Product_Update_InvalidJSON(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().GetByKey(gomock.Any(), "P001").Return(&model.Product{ID: 1, ProductKey: "P001"}, nil)
-	w := cr.doRaw("PUT", "/products/key/P001", []byte("bad"))
+	w := cr.doRaw("PUT", "/products/P001", []byte("bad"))
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 
@@ -372,46 +373,48 @@ func TestCoverage_Product_Update_SaveFails(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().GetByKey(gomock.Any(), "P001").Return(&model.Product{ID: 1, ProductKey: "P001"}, nil)
 	cr.product.EXPECT().Save(gomock.Any(), gomock.Any()).Return(errors.New("save error"))
-	w := cr.do("PUT", "/products/key/P001", map[string]any{"name": "Updated"})
+	w := cr.do("PUT", "/products/P001", map[string]any{"name": "Updated"})
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 
 func TestCoverage_Product_Delete_InvalidID(t *testing.T) {
 	cr := newCoverageRouters(t)
+	cr.product.EXPECT().DeleteByKey(gomock.Any(), "abc").Return(repository.ErrNotFound)
 	w := cr.do("DELETE", "/products/abc", nil)
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 
 func TestCoverage_Product_Delete_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Delete(gomock.Any(), int64(1)).Return(errors.New("name is required"))
+	cr.product.EXPECT().DeleteByKey(gomock.Any(), "1").Return(errors.New("name is required"))
 	w := cr.do("DELETE", "/products/1", nil)
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 
 func TestCoverage_Product_Delete_Success(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Delete(gomock.Any(), int64(1)).Return(nil)
+	cr.product.EXPECT().DeleteByKey(gomock.Any(), "1").Return(nil)
 	w := cr.do("DELETE", "/products/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Product_Restore_InvalidID(t *testing.T) {
 	cr := newCoverageRouters(t)
+	cr.product.EXPECT().RestoreByKey(gomock.Any(), "abc").Return(nil, repository.ErrNotFound)
 	w := cr.do("POST", "/products/abc/restore", nil)
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 
 func TestCoverage_Product_Restore_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Restore(gomock.Any(), int64(1)).Return(nil, repository.ErrNotFound)
+	cr.product.EXPECT().RestoreByKey(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
 	w := cr.do("POST", "/products/1/restore", nil)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
 func TestCoverage_Product_Restore_Success(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Restore(gomock.Any(), int64(1)).Return(&model.Product{ID: 1}, nil)
+	cr.product.EXPECT().RestoreByKey(gomock.Any(), "1").Return(&model.Product{ID: 1}, nil)
 	w := cr.do("POST", "/products/1/restore", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -577,28 +580,28 @@ func TestCoverage_Page_NonNumericPage(t *testing.T) {
 
 func TestCoverage_Raw_EmptyPayload(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.Product{ID: 1, Metadata: ``}, nil)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(&model.Product{ID: 1, Metadata: ``}, nil)
 	w := cr.do("GET", "/products/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Raw_LegacyString(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.Product{ID: 1, Metadata: `"legacy string"`}, nil)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(&model.Product{ID: 1, Metadata: `"legacy string"`}, nil)
 	w := cr.do("GET", "/products/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Raw_JSONObject(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.Product{ID: 1, Metadata: `{"key":"value"}`}, nil)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(&model.Product{ID: 1, Metadata: `{"key":"value"}`}, nil)
 	w := cr.do("GET", "/products/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Raw_InvalidLegacyString(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.Product{ID: 1, Metadata: `"not-valid-json`}, nil)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(&model.Product{ID: 1, Metadata: `"not-valid-json`}, nil)
 	w := cr.do("GET", "/products/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -607,7 +610,7 @@ func TestCoverage_DeletedAt_Valid(t *testing.T) {
 	cr := newCoverageRouters(t)
 	now := time.Now()
 	product := &model.Product{ID: 1, Name: "Deleted", DeletedAt: gorm.DeletedAt{Time: now, Valid: true}}
-	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(product, nil)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(product, nil)
 	w := cr.do("GET", "/products/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -615,7 +618,7 @@ func TestCoverage_DeletedAt_Valid(t *testing.T) {
 func TestCoverage_DeletedAt_Invalid(t *testing.T) {
 	cr := newCoverageRouters(t)
 	product := &model.Product{ID: 1, Name: "Active", DeletedAt: gorm.DeletedAt{Valid: false}}
-	cr.product.EXPECT().Get(gomock.Any(), int64(1)).Return(product, nil)
+	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(product, nil)
 	w := cr.do("GET", "/products/1", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }

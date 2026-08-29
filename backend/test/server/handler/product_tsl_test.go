@@ -24,9 +24,9 @@ func setupProductTSLRouter(mockService *mock_service.MockProductTSLServiceInterf
 	h := &handler.Handler{}
 	productTSLHandler := handler.NewProductTSLHandler(h, mockService)
 
-	router.GET("/products/:id/tsl", productTSLHandler.Get)
-	router.PUT("/products/:id/tsl", productTSLHandler.Put)
-	router.DELETE("/products/:id/tsl", productTSLHandler.Delete)
+	router.GET("/products/:productKey/tsl", productTSLHandler.Get)
+	router.PUT("/products/:productKey/tsl", productTSLHandler.Put)
+	router.DELETE("/products/:productKey/tsl", productTSLHandler.Delete)
 
 	return router
 }

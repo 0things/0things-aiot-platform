@@ -41,7 +41,6 @@ func mountDevice(r *gin.Engine, h *DeviceHandler) {
 	g.POST("/:id/activate", h.Activate)
 	g.POST("/:id/enabled", h.Enabled)
 	g.GET("/:id/telemetry", h.Telemetry)
-	g.GET("/:id/mqtt-parameters", h.MQTT)
 	g.POST("/:id/restore", h.Restore)
 	g.GET("/:id/tags", h.GetTags)
 	g.PUT("/:id/tags", h.PutTags)
@@ -76,7 +75,7 @@ func doDeviceReq(h *DeviceHandler, method, path string, body []byte, hdr map[str
 
 func sampleDevice() *model.Device {
 	return &model.Device{
-		ID:       1,
+		ID:        1,
 		DeviceKey: "dk1",
 		Product:   model.Product{ProductKey: "pk", Name: "pn"},
 		State:     model.DeviceState{State: "online"},
@@ -197,16 +196,6 @@ func TestDeviceHandler_Telemetry(t *testing.T) {
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
 	m.EXPECT().Telemetry(gomock.Any(), "1").Return("{}", nil)
 	w := doDeviceReq(h, http.MethodGet, "/devices/1/telemetry", nil, nil)
-	if w.Code != http.StatusOK {
-		t.Fatalf("got %d", w.Code)
-	}
-}
-
-func TestDeviceHandler_MQTT(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().MQTT(gomock.Any(), "1").Return(service.MQTTParameters{ClientID: "c", Username: "u", MQTTHostURL: "h", Password: "p", Port: 1883}, nil)
-	w := doDeviceReq(h, http.MethodGet, "/devices/1/mqtt-parameters", nil, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
 	}

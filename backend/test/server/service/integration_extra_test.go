@@ -221,14 +221,6 @@ func TestIntegrationDeviceService_ShadowHistory_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestIntegrationDeviceService_MQTT_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestDeviceService(db)
-
-	_, err := svc.MQTT(ctx2(), "D001")
-	assert.Error(t, err)
-}
-
 func TestIntegrationDeviceService_SimulatePush_NotFound(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestDeviceService(db)
@@ -667,14 +659,6 @@ func TestIntegrationDeviceService_ShadowHistory_NotFoundDevice(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	_, err := svc.ShadowHistory(ctx2(), "NONEXIST")
-	assert.Error(t, err)
-}
-
-func TestIntegrationDeviceService_MQTT_NotFoundDevice(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestDeviceService(db)
-
-	_, err := svc.MQTT(ctx2(), "NONEXIST")
 	assert.Error(t, err)
 }
 

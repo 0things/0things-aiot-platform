@@ -52,6 +52,21 @@ func (mr *MockDeviceServiceInterfaceMockRecorder) Activate(ctx, id interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Activate", reflect.TypeOf((*MockDeviceServiceInterface)(nil).Activate), ctx, id)
 }
 
+// ActivateByKey mocks base method.
+func (m *MockDeviceServiceInterface) ActivateByKey(ctx context.Context, deviceKey string) (*model.Device, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ActivateByKey", ctx, deviceKey)
+	ret0, _ := ret[0].(*model.Device)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ActivateByKey indicates an expected call of ActivateByKey.
+func (mr *MockDeviceServiceInterfaceMockRecorder) ActivateByKey(ctx, deviceKey interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateByKey", reflect.TypeOf((*MockDeviceServiceInterface)(nil).ActivateByKey), ctx, deviceKey)
+}
+
 // BatchCreate mocks base method.
 func (m *MockDeviceServiceInterface) BatchCreate(ctx context.Context, content []byte) (int, []service.BatchUploadError, error) {
 	m.ctrl.T.Helper()
@@ -127,6 +142,20 @@ func (mr *MockDeviceServiceInterfaceMockRecorder) DeleteDevice(ctx, id interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDevice", reflect.TypeOf((*MockDeviceServiceInterface)(nil).DeleteDevice), ctx, id)
 }
 
+// DeleteDeviceByKey mocks base method.
+func (m *MockDeviceServiceInterface) DeleteDeviceByKey(ctx context.Context, deviceKey string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteDeviceByKey", ctx, deviceKey)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteDeviceByKey indicates an expected call of DeleteDeviceByKey.
+func (mr *MockDeviceServiceInterfaceMockRecorder) DeleteDeviceByKey(ctx, deviceKey interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDeviceByKey", reflect.TypeOf((*MockDeviceServiceInterface)(nil).DeleteDeviceByKey), ctx, deviceKey)
+}
+
 // Device mocks base method.
 func (m *MockDeviceServiceInterface) Device(ctx context.Context, id int64) (*model.Device, error) {
 	m.ctrl.T.Helper()
@@ -189,21 +218,6 @@ func (mr *MockDeviceServiceInterfaceMockRecorder) ListPushRecords(ctx, deviceKey
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPushRecords", reflect.TypeOf((*MockDeviceServiceInterface)(nil).ListPushRecords), ctx, deviceKey, page, size, operationType, status)
 }
 
-// MQTT mocks base method.
-func (m *MockDeviceServiceInterface) MQTT(ctx context.Context, key string) (service.MQTTParameters, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MQTT", ctx, key)
-	ret0, _ := ret[0].(service.MQTTParameters)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// MQTT indicates an expected call of MQTT.
-func (mr *MockDeviceServiceInterfaceMockRecorder) MQTT(ctx, key interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MQTT", reflect.TypeOf((*MockDeviceServiceInterface)(nil).MQTT), ctx, key)
-}
-
 // MutateShadow mocks base method.
 func (m *MockDeviceServiceInterface) MutateShadow(ctx context.Context, key string, version int64, source string, desired, reported *map[string]any, clear bool) (*model.DeviceShadow, error) {
 	m.ctrl.T.Helper()
@@ -263,6 +277,21 @@ func (mr *MockDeviceServiceInterfaceMockRecorder) RestoreDevice(ctx, id interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreDevice", reflect.TypeOf((*MockDeviceServiceInterface)(nil).RestoreDevice), ctx, id)
 }
 
+// RestoreDeviceByKey mocks base method.
+func (m *MockDeviceServiceInterface) RestoreDeviceByKey(ctx context.Context, deviceKey string) (*model.Device, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RestoreDeviceByKey", ctx, deviceKey)
+	ret0, _ := ret[0].(*model.Device)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RestoreDeviceByKey indicates an expected call of RestoreDeviceByKey.
+func (mr *MockDeviceServiceInterfaceMockRecorder) RestoreDeviceByKey(ctx, deviceKey interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreDeviceByKey", reflect.TypeOf((*MockDeviceServiceInterface)(nil).RestoreDeviceByKey), ctx, deviceKey)
+}
+
 // SetEnabled mocks base method.
 func (m *MockDeviceServiceInterface) SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error) {
 	m.ctrl.T.Helper()
@@ -276,6 +305,21 @@ func (m *MockDeviceServiceInterface) SetEnabled(ctx context.Context, id int64, v
 func (mr *MockDeviceServiceInterfaceMockRecorder) SetEnabled(ctx, id, v interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEnabled", reflect.TypeOf((*MockDeviceServiceInterface)(nil).SetEnabled), ctx, id, v)
+}
+
+// SetEnabledByKey mocks base method.
+func (m *MockDeviceServiceInterface) SetEnabledByKey(ctx context.Context, deviceKey string, v bool) (*model.Device, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetEnabledByKey", ctx, deviceKey, v)
+	ret0, _ := ret[0].(*model.Device)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SetEnabledByKey indicates an expected call of SetEnabledByKey.
+func (mr *MockDeviceServiceInterfaceMockRecorder) SetEnabledByKey(ctx, deviceKey, v interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEnabledByKey", reflect.TypeOf((*MockDeviceServiceInterface)(nil).SetEnabledByKey), ctx, deviceKey, v)
 }
 
 // SetTags mocks base method.
@@ -396,4 +440,19 @@ func (m *MockDeviceServiceInterface) UpdateDevice(ctx context.Context, id int64,
 func (mr *MockDeviceServiceInterfaceMockRecorder) UpdateDevice(ctx, id, name, state, metadata interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDevice", reflect.TypeOf((*MockDeviceServiceInterface)(nil).UpdateDevice), ctx, id, name, state, metadata)
+}
+
+// UpdateDeviceByKey mocks base method.
+func (m *MockDeviceServiceInterface) UpdateDeviceByKey(ctx context.Context, deviceKey, name, state, metadata string) (*model.Device, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDeviceByKey", ctx, deviceKey, name, state, metadata)
+	ret0, _ := ret[0].(*model.Device)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateDeviceByKey indicates an expected call of UpdateDeviceByKey.
+func (mr *MockDeviceServiceInterfaceMockRecorder) UpdateDeviceByKey(ctx, deviceKey, name, state, metadata interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceByKey", reflect.TypeOf((*MockDeviceServiceInterface)(nil).UpdateDeviceByKey), ctx, deviceKey, name, state, metadata)
 }

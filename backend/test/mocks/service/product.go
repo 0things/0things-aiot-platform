@@ -64,6 +64,20 @@ func (mr *MockProductServiceInterfaceMockRecorder) Delete(ctx, id interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProductServiceInterface)(nil).Delete), ctx, id)
 }
 
+// DeleteByKey mocks base method.
+func (m *MockProductServiceInterface) DeleteByKey(ctx context.Context, key string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteByKey", ctx, key)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteByKey indicates an expected call of DeleteByKey.
+func (mr *MockProductServiceInterfaceMockRecorder) DeleteByKey(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByKey", reflect.TypeOf((*MockProductServiceInterface)(nil).DeleteByKey), ctx, key)
+}
+
 // Get mocks base method.
 func (m *MockProductServiceInterface) Get(ctx context.Context, id int64) (*model.Product, error) {
 	m.ctrl.T.Helper()
@@ -123,6 +137,21 @@ func (m *MockProductServiceInterface) Restore(ctx context.Context, id int64) (*m
 func (mr *MockProductServiceInterfaceMockRecorder) Restore(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Restore", reflect.TypeOf((*MockProductServiceInterface)(nil).Restore), ctx, id)
+}
+
+// RestoreByKey mocks base method.
+func (m *MockProductServiceInterface) RestoreByKey(ctx context.Context, key string) (*model.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RestoreByKey", ctx, key)
+	ret0, _ := ret[0].(*model.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RestoreByKey indicates an expected call of RestoreByKey.
+func (mr *MockProductServiceInterfaceMockRecorder) RestoreByKey(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreByKey", reflect.TypeOf((*MockProductServiceInterface)(nil).RestoreByKey), ctx, key)
 }
 
 // Save mocks base method.

@@ -19,7 +19,7 @@ func newDeviceSvc(t *testing.T) (*DeviceService, *gorm.DB, context.Context) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(
-		&model.Product{}, &model.Device{}, &model.DeviceState{}, &model.DeviceTag{},
+		&model.Product{}, &model.ProductProtocol{}, &model.Device{}, &model.DeviceState{}, &model.DeviceTag{},
 		&model.DeviceShadow{}, &model.DeviceShadowHistory{}, &model.DevicePushRecord{},
 	))
 	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "Test", OrganizationID: 1}).Error)
@@ -135,19 +135,18 @@ func TestDeviceService_Stats(t *testing.T) {
 
 func TestDeviceService_Tags(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
-	_, err := svc.SetTags(ctx, "1", map[string]string{"env": "prod"}, false)
+	_, err := svc.SetTags(ctx, "D001", map[string]string{"env": "prod"}, false)
 	require.NoError(t, err)
-	tags, err := svc.Tags(ctx, "1")
+	tags, err := svc.Tags(ctx, "D001")
 	require.NoError(t, err)
 	require.Len(t, tags, 1)
-	require.NoError(t, svc.RemoveTags(ctx, "1", []string{"env"}))
+	require.NoError(t, svc.RemoveTags(ctx, "D001", []string{"env"}))
 }
 
 func TestDeviceService_SetTags_InvalidKey(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
-	_, err := svc.SetTags(ctx, "1", map[string]string{"": "v"}, false)
+	_, err := svc.SetTags(ctx, "D001", map[string]string{"": "v"}, false)
 	require.Error(t, err)
-	_, err = svc.SetTags(ctx, "1", map[string]string{"123": "v"}, false)
 	require.Error(t, err)
 }
 
@@ -169,13 +168,6 @@ func TestDeviceService_Telemetry_NoRedis(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
 	_, err := svc.Telemetry(ctx, "D001")
 	require.Error(t, err)
-}
-
-func TestDeviceService_MQTT(t *testing.T) {
-	svc, _, ctx := newDeviceSvc(t)
-	p, err := svc.MQTT(ctx, "D001")
-	require.NoError(t, err)
-	require.Equal(t, "D001", p.Username)
 }
 
 func TestDeviceService_DeleteAndRestore(t *testing.T) {

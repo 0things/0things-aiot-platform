@@ -29,7 +29,7 @@ func newOTATestDB(t *testing.T) *gorm.DB {
 	sqlDB.SetMaxOpenConns(1)
 	require.NoError(t, db.AutoMigrate(
 		&model.OTAPackage{}, &model.DeviceUpgradeStatus{}, &model.UpgradeBatch{},
-		&model.Product{}, &model.Device{}, &model.DeviceState{},
+		&model.Product{}, &model.ProductProtocol{}, &model.Device{}, &model.DeviceState{},
 	))
 	return db
 }

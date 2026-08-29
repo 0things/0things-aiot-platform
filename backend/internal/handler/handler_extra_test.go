@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -51,7 +52,8 @@ func hctx(method, target string, body []byte, claims *jwt.MyCustomClaims, params
 	return c, w
 }
 
-func idParam(v string) gin.Params { return gin.Params{{Key: "id", Value: v}} }
+func idParam(v string) gin.Params         { return gin.Params{{Key: "id", Value: v}} }
+func productKeyParam(v string) gin.Params { return gin.Params{{Key: "productKey", Value: v}} }
 
 // ---------------- UserHandler ----------------
 func TestUserHandler_Register(t *testing.T) {
@@ -138,18 +140,11 @@ func TestProductHandler_CRUD(t *testing.T) {
 		t.Fatalf("Create got %d", w.Code)
 	}
 
-	m.EXPECT().Get(gomock.Any(), int64(1)).Return(&model.Product{ID: 1}, nil)
-	c, w = hctx(http.MethodGet, "/products/1", nil, nil, idParam("1"))
+	m.EXPECT().GetByKey(gomock.Any(), "P001").Return(&model.Product{ID: 1}, nil)
+	c, w = hctx(http.MethodGet, "/products/P001", nil, nil, productKeyParam("P001"))
 	h.Get(c)
 	if w.Code != http.StatusOK {
 		t.Fatalf("Get got %d", w.Code)
-	}
-
-	m.EXPECT().GetByKey(gomock.Any(), "P001").Return(&model.Product{ID: 1}, nil)
-	c, w = hctx(http.MethodGet, "/products/key/P001", nil, nil, gin.Params{{Key: "productKey", Value: "P001"}})
-	h.GetByKey(c)
-	if w.Code != http.StatusOK {
-		t.Fatalf("GetByKey got %d", w.Code)
 	}
 
 	m.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]model.Product{}, int64(0), nil)
@@ -167,15 +162,15 @@ func TestProductHandler_CRUD(t *testing.T) {
 		t.Fatalf("Update got %d", w.Code)
 	}
 
-	m.EXPECT().Delete(gomock.Any(), int64(1)).Return(nil)
-	c, w = hctx(http.MethodDelete, "/products/1", nil, nil, idParam("1"))
+	m.EXPECT().DeleteByKey(gomock.Any(), "P001").Return(nil)
+	c, w = hctx(http.MethodDelete, "/products/P001", nil, nil, productKeyParam("P001"))
 	h.Delete(c)
 	if w.Code != http.StatusOK {
 		t.Fatalf("Delete got %d", w.Code)
 	}
 
-	m.EXPECT().Restore(gomock.Any(), int64(1)).Return(&model.Product{ID: 1}, nil)
-	c, w = hctx(http.MethodPost, "/products/1/restore", nil, nil, idParam("1"))
+	m.EXPECT().RestoreByKey(gomock.Any(), "P001").Return(&model.Product{ID: 1}, nil)
+	c, w = hctx(http.MethodPost, "/products/P001/restore", nil, nil, productKeyParam("P001"))
 	h.Restore(c)
 	if w.Code != http.StatusOK {
 		t.Fatalf("Restore got %d", w.Code)
@@ -186,7 +181,8 @@ func TestProductHandler_Get_InvalidID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	m := mock_service.NewMockProductServiceInterface(ctrl)
 	h := NewProductHandler(baseHandler(t), m)
-	c, w := hctx(http.MethodGet, "/products/abc", nil, nil, idParam("abc"))
+	m.EXPECT().GetByKey(gomock.Any(), "abc").Return(nil, errors.New("not found"))
+	c, w := hctx(http.MethodGet, "/products/abc", nil, nil, productKeyParam("abc"))
 	h.Get(c)
 	if w.Code == http.StatusOK {
 		t.Fatalf("expected error")
@@ -225,22 +221,22 @@ func TestProductTSLHandler_CRUD(t *testing.T) {
 	m := mock_service.NewMockProductTSLServiceInterface(ctrl)
 	h := NewProductTSLHandler(baseHandler(t), m)
 
-	m.EXPECT().Get(gomock.Any(), "1").Return(&model.ProductTSL{}, nil)
-	c, w := hctx(http.MethodGet, "/products/1/tsl", nil, nil, idParam("1"))
+	m.EXPECT().Get(gomock.Any(), "P001").Return(&model.ProductTSL{}, nil)
+	c, w := hctx(http.MethodGet, "/products/P001/tsl", nil, nil, productKeyParam("P001"))
 	h.Get(c)
 	if w.Code != http.StatusOK {
 		t.Fatalf("Get got %d", w.Code)
 	}
 
-	m.EXPECT().Upsert(gomock.Any(), "1", gomock.Any()).Return(nil)
-	c, w = hctx(http.MethodPut, "/products/1/tsl", []byte(`{"tsl":"x"}`), nil, idParam("1"))
+	m.EXPECT().Upsert(gomock.Any(), "P001", gomock.Any()).Return(nil)
+	c, w = hctx(http.MethodPut, "/products/P001/tsl", []byte(`{"tsl":"x"}`), nil, productKeyParam("P001"))
 	h.Put(c)
 	if w.Code != http.StatusOK {
 		t.Fatalf("Put got %d", w.Code)
 	}
 
-	m.EXPECT().Delete(gomock.Any(), "1").Return(nil)
-	c, w = hctx(http.MethodDelete, "/products/1/tsl", nil, nil, idParam("1"))
+	m.EXPECT().Delete(gomock.Any(), "P001").Return(nil)
+	c, w = hctx(http.MethodDelete, "/products/P001/tsl", nil, nil, productKeyParam("P001"))
 	h.Delete(c)
 	if w.Code != http.StatusOK {
 		t.Fatalf("Delete got %d", w.Code)

@@ -9,7 +9,6 @@ import (
 
 	"aiot-backend/internal/handler"
 	"aiot-backend/internal/model"
-	"aiot-backend/internal/service"
 	mock_service "aiot-backend/test/mocks/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -34,7 +33,6 @@ func setupDeviceRouterFull(mockService *mock_service.MockDeviceServiceInterface)
 	router.PUT("/devices/:id/enabled", deviceHandler.Enabled)
 	router.GET("/devices/stats", deviceHandler.Stats)
 	router.GET("/devices/:id/telemetry", deviceHandler.Telemetry)
-	router.GET("/devices/:id/mqtt-parameters", deviceHandler.MQTT)
 	router.POST("/devices/:id/restore", deviceHandler.Restore)
 	router.GET("/devices/:id/tags", deviceHandler.GetTags)
 	router.PUT("/devices/:id/tags", deviceHandler.PutTags)
@@ -139,29 +137,6 @@ func TestDeviceHandler_Telemetry(t *testing.T) {
 	mockService.EXPECT().Telemetry(gomock.Any(), "D001").Return(`{"temperature": 25.5}`, nil)
 
 	req, _ := http.NewRequest("GET", "/devices/D001/telemetry", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestDeviceHandler_MQTT(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	router := setupDeviceRouterFull(mockService)
-
-	mqttParams := service.MQTTParameters{
-		ClientID:    "client1",
-		Username:    "user1",
-		MQTTHostURL: "mqtt.example.com",
-		Password:    "pass1",
-		Port:        8883,
-	}
-	mockService.EXPECT().MQTT(gomock.Any(), "D001").Return(mqttParams, nil)
-
-	req, _ := http.NewRequest("GET", "/devices/D001/mqtt-parameters", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

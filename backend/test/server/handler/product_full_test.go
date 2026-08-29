@@ -22,12 +22,11 @@ func setupProductRouterFull(mockService *mock_service.MockProductServiceInterfac
 	productHandler := handler.NewProductHandler(h, mockService)
 
 	router.POST("/products", productHandler.Create)
-	router.GET("/products/:id", productHandler.Get)
-	router.GET("/products/key/:productKey", productHandler.GetByKey)
+	router.GET("/products/:productKey", productHandler.Get)
 	router.GET("/products", productHandler.List)
-	router.PUT("/products/key/:productKey", productHandler.Update)
-	router.DELETE("/products/:id", productHandler.Delete)
-	router.POST("/products/:id/restore", productHandler.Restore)
+	router.PUT("/products/:productKey", productHandler.Update)
+	router.DELETE("/products/:productKey", productHandler.Delete)
+	router.POST("/products/:productKey/restore", productHandler.Restore)
 
 	return router
 }
@@ -49,7 +48,7 @@ func TestProductHandler_Update(t *testing.T) {
 		"category":    "sensor",
 		"status":      "active",
 	})
-	req, _ := http.NewRequest("PUT", "/products/key/P001", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("PUT", "/products/P001", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
@@ -72,7 +71,7 @@ func TestProductHandler_UpdatePartial(t *testing.T) {
 	body, _ := json.Marshal(map[string]interface{}{
 		"name": "New Name",
 	})
-	req, _ := http.NewRequest("PUT", "/products/key/P001", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("PUT", "/products/P001", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
@@ -91,25 +90,9 @@ func TestProductHandler_UpdateInvalidJSON(t *testing.T) {
 	existingProduct := &model.Product{ID: 1, ProductKey: "P001"}
 	mockService.EXPECT().GetByKey(gomock.Any(), "P001").Return(existingProduct, nil)
 
-	req, _ := http.NewRequest("PUT", "/products/key/P001", bytes.NewBufferString("invalid"))
+	req, _ := http.NewRequest("PUT", "/products/P001", bytes.NewBufferString("invalid"))
 	req.Header.Set("Content-Type", "application/json")
 
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-}
-
-func TestProductHandler_GetByKeyNotFound(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockService := mock_service.NewMockProductServiceInterface(ctrl)
-	router := setupProductRouterFull(mockService)
-
-	mockService.EXPECT().GetByKey(gomock.Any(), "NONEXIST").Return(nil, assert.AnError)
-
-	req, _ := http.NewRequest("GET", "/products/key/NONEXIST", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

@@ -161,17 +161,22 @@ func (mr *MockOTAServiceInterfaceMockRecorder) List(ctx, page, size interface{})
 }
 
 // ReportBatchDevice mocks base method.
-func (m *MockOTAServiceInterface) ReportBatchDevice(ctx context.Context, batchID, deviceKey, status, version string, progress int32) error {
+func (m *MockOTAServiceInterface) ReportBatchDevice(ctx context.Context, batchID, deviceKey, status, version string, progress int32, desc ...string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReportBatchDevice", ctx, batchID, deviceKey, status, version, progress)
+	varargs := []interface{}{ctx, batchID, deviceKey, status, version, progress}
+	for _, a := range desc {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ReportBatchDevice", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ReportBatchDevice indicates an expected call of ReportBatchDevice.
-func (mr *MockOTAServiceInterfaceMockRecorder) ReportBatchDevice(ctx, batchID, deviceKey, status, version, progress interface{}) *gomock.Call {
+func (mr *MockOTAServiceInterfaceMockRecorder) ReportBatchDevice(ctx, batchID, deviceKey, status, version, progress interface{}, desc ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReportBatchDevice", reflect.TypeOf((*MockOTAServiceInterface)(nil).ReportBatchDevice), ctx, batchID, deviceKey, status, version, progress)
+	varargs := append([]interface{}{ctx, batchID, deviceKey, status, version, progress}, desc...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReportBatchDevice", reflect.TypeOf((*MockOTAServiceInterface)(nil).ReportBatchDevice), varargs...)
 }
 
 // ReportStatus mocks base method.

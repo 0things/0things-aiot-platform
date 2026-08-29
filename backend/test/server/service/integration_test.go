@@ -255,17 +255,6 @@ func TestIntegrationDeviceService_Stats(t *testing.T) {
 	assert.Equal(t, int64(1), stats.OnlineDevices)
 }
 
-func TestIntegrationDeviceService_MQTT(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	mqtt, err := svc.MQTT(ctx(), "D001")
-	require.NoError(t, err)
-	assert.NotEmpty(t, mqtt.ClientID)
-	assert.NotEmpty(t, mqtt.Username)
-}
-
 func TestIntegrationDeviceService_BatchTemplate(t *testing.T) {
 	svc := testutil.NewTestDeviceService(nil)
 

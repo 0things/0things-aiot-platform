@@ -346,6 +346,7 @@ func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param uuid path string true "升级包 UUID"
+// @Param batchId query string false "批次 ID"
 // @Success 200 {object} v1.ApiResponse[otaV1.GetUpgradeStatisticsResponse]
 // @Router /ota-packages/{uuid}/upgrade-statistics [get]
 func (h *OTAHandler) OTAStats(c *gin.Context) {
