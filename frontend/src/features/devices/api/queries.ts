@@ -1,22 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  deleteDevicesId,
+  deleteDevicesDeviceKey,
   getDevices,
-  getDevicesDeviceKeyMqttParameters,
-  getDevicesIdTelemetry,
-  getDevicesKeyDeviceKey,
+  getDevicesDeviceKey,
+  getDevicesDeviceKeyTelemetry,
   getDeviceStatistics,
   postDevices,
   postDevicesBatchUpload,
-  postDevicesIdActivate,
-  putDevicesId,
-  postDevicesIdEnabled,
+  postDevicesDeviceKeyActivate,
+  putDevicesDeviceKey,
+  postDevicesDeviceKeyEnabled,
 } from '@/api/generated'
 import type {
   DeviceBatchUploadDevicesResponse as DeviceV1BatchUploadDevicesResponse,
   DeviceCreateDeviceRequest as DeviceV1CreateDeviceRequest,
   DeviceGetDeviceResponse as DeviceV1GetDeviceResponse,
-  DeviceMQTTParametersResponse as DeviceV1GetMqttParametersResponse,
   DeviceListDevicesResponse as DeviceV1ListDevicesResponse,
   DeviceSetDeviceEnabledRequest as DeviceV1SetDeviceEnabledRequest,
   DeviceTelemetryResponse as DeviceV1GetDeviceTelemetryResponse,
@@ -77,7 +75,7 @@ export function useDeviceByKey(deviceKey: string) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'key', deviceKey],
     queryFn: async () => {
-      const res = await getDevicesKeyDeviceKey(deviceKey)
+      const res = await getDevicesDeviceKey(deviceKey)
       return (res?.data ?? res) as unknown as DeviceV1GetDeviceResponse
     },
     enabled: !!deviceKey,
@@ -91,7 +89,7 @@ export function useDeviceTelemetry(deviceKey: string) {
   return useQuery({
     queryKey: [...deviceKeys.details(), 'telemetry', deviceKey],
     queryFn: async () => {
-      const res = await getDevicesIdTelemetry(Number(deviceKey))
+      const res = await getDevicesDeviceKeyTelemetry(deviceKey)
       return (res?.data ?? res) as unknown as DeviceV1GetDeviceTelemetryResponse
     },
     enabled: !!deviceKey,
@@ -108,20 +106,6 @@ export function useDeviceStatistics() {
       const res = await getDeviceStatistics()
       return (res?.data ?? res) as never
     },
-  })
-}
-
-/**
- * Hook to fetch MQTT parameters for a device
- */
-export function useDeviceMqttParameters(deviceKey: string, enabled = false) {
-  return useQuery({
-    queryKey: [...deviceKeys.details(), 'mqtt-parameters', deviceKey],
-    queryFn: async () => {
-      const res = await getDevicesDeviceKeyMqttParameters(deviceKey)
-      return (res?.data ?? res) as unknown as DeviceV1GetMqttParametersResponse
-    },
-    enabled: enabled && !!deviceKey,
   })
 }
 
@@ -159,7 +143,7 @@ export function useUpdateDevice() {
       id: string
       data: DeviceV1UpdateDeviceRequest
     }) => {
-      return putDevicesId(Number(id), data as never) as never
+      return putDevicesDeviceKey(id, data as never) as never
     },
     onSuccess: (_, variables) => {
       // Invalidate the specific device detail
@@ -179,7 +163,7 @@ export function useDeleteDevice() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => deleteDevicesId(Number(id)),
+    mutationFn: (deviceKey: string) => deleteDevicesDeviceKey(deviceKey),
     onSuccess: () => {
       // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
@@ -201,8 +185,8 @@ export function useActivateDevice() {
       id: string
       data: Record<string, never>
     }) => {
-      return postDevicesIdActivate(
-        Number(id)
+      return postDevicesDeviceKeyActivate(
+        id
       ) as unknown as DeviceV1GetDeviceResponse
     },
     onSuccess: (_, variables) => {
@@ -230,7 +214,7 @@ export function useSetDeviceEnabled() {
       id: string
       data: DeviceV1SetDeviceEnabledRequest
     }) => {
-      return postDevicesIdEnabled(Number(id), data as never) as never
+      return postDevicesDeviceKeyEnabled(id, data as never) as never
     },
     onSuccess: (_, variables) => {
       // Invalidate the specific device detail

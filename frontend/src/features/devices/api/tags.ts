@@ -1,11 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  deleteDevicesIdTags,
-  getDevicesIdTags,
-  postDevicesIdTags,
-  putDevicesIdTags,
+  deleteDevicesDeviceKeyTags,
+  getDevicesDeviceKeyTags,
+  postDevicesDeviceKeyTags,
+  putDevicesDeviceKeyTags,
 } from '@/api/generated'
-import { getDeviceId } from './device-id'
 
 export type DeviceTag = { key: string; value: string; source?: string }
 
@@ -19,7 +18,7 @@ export function useDeviceTags(deviceKey: string) {
     queryKey: tagKeys.list(deviceKey),
     enabled: !!deviceKey,
     queryFn: async (): Promise<DeviceTag[]> => {
-      const data = await getDevicesIdTags(await getDeviceId(deviceKey))
+      const data = await getDevicesDeviceKeyTags(deviceKey)
       return (data?.data?.tags ?? []) as DeviceTag[]
     },
   })
@@ -29,7 +28,7 @@ export function useSetTags(deviceKey: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (tags: Record<string, string>) => {
-      return putDevicesIdTags(await getDeviceId(deviceKey), { tags })
+      return putDevicesDeviceKeyTags(deviceKey, { tags })
     },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),
@@ -40,7 +39,7 @@ export function useAddTags(deviceKey: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (tags: Record<string, string>) => {
-      return postDevicesIdTags(await getDeviceId(deviceKey), { tags })
+      return postDevicesDeviceKeyTags(deviceKey, { tags })
     },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),
@@ -51,7 +50,7 @@ export function useRemoveTags(deviceKey: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (keys: string[]) => {
-      return deleteDevicesIdTags(await getDeviceId(deviceKey), { keys })
+      return deleteDevicesDeviceKeyTags(deviceKey, { keys })
     },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: tagKeys.list(deviceKey) }),

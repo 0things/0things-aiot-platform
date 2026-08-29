@@ -1,13 +1,11 @@
 import {
-  deleteDevicesIdPushRecords,
-  getDevicesIdPushRecords,
+  deleteDevicesDeviceKeyPushRecords,
+  getDevicesDeviceKeyPushRecords,
   getDevicesPushRecordsPushRecordId,
-  getProductsIdTsl,
-  getProductsKeyProductKey,
-  postDevicesIdSimulatePush,
+  getProductsProductKeyTsl,
+  postDevicesDeviceKeySimulatePush,
 } from '@/api/generated'
 import type { DeviceSimulatePushRequest } from '@/api/generated/model'
-import { getDeviceId } from './device-id'
 
 /**
  * Simulate a device push
@@ -16,10 +14,7 @@ export async function simulatePush(params: {
   deviceKey: string
   request: DeviceSimulatePushRequest
 }) {
-  return postDevicesIdSimulatePush(
-    await getDeviceId(params.deviceKey),
-    params.request
-  )
+  return postDevicesDeviceKeySimulatePush(params.deviceKey, params.request)
 }
 
 /**
@@ -32,7 +27,7 @@ export async function listPushRecords(params: {
   operationType?: string
   status?: string
 }) {
-  return getDevicesIdPushRecords(await getDeviceId(params.deviceKey), {
+  return getDevicesDeviceKeyPushRecords(params.deviceKey, {
     page: params.page,
     pageSize: params.pageSize,
     operationType: params.operationType,
@@ -43,8 +38,7 @@ export async function listPushRecords(params: {
 /**
  * Get a specific push record
  */
-export async function getPushRecord(deviceKey: string, pushRecordId: string) {
-  await getDeviceId(deviceKey)
+export async function getPushRecord(_deviceKey: string, pushRecordId: string) {
   return getDevicesPushRecordsPushRecordId(Number(pushRecordId))
 }
 
@@ -55,7 +49,7 @@ export async function clearPushRecords(params: {
   deviceKey: string
   beforeTimestamp?: string
 }) {
-  return deleteDevicesIdPushRecords(await getDeviceId(params.deviceKey), {
+  return deleteDevicesDeviceKeyPushRecords(params.deviceKey, {
     beforeTimestamp: params.beforeTimestamp
       ? Number(params.beforeTimestamp)
       : undefined,
@@ -66,8 +60,5 @@ export async function clearPushRecords(params: {
  * Get product TSL (Thing Specification Language)
  */
 export async function getProductTSL(productKey: string) {
-  const product = await getProductsKeyProductKey(productKey)
-  if (product.data?.product?.id === undefined)
-    throw new Error('Product not found')
-  return getProductsIdTsl(product.data.product.id)
+  return getProductsProductKeyTsl(productKey)
 }

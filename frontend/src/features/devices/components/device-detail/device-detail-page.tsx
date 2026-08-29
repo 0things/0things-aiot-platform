@@ -5,17 +5,17 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Main } from '@/components/layout/main'
 import { useDeviceByKey } from '@/features/devices/api/queries'
+import { DeviceEndpointsCard } from './device-endpoints-card'
 import { DeviceHeader } from './device-header'
 import { DeviceInfoTab } from './device-info-tab'
-import { DeviceShadowTab } from './device-shadow-tab'
 import { FileManagementTab } from './file-management-tab'
 import { GroupsTab } from './groups-tab'
 import { LogServiceTab } from './log-service-tab'
 import { OnlineDebugTab } from './online-debug-tab'
+import { ShadowTab } from './shadow-tab'
 import { TasksTab } from './tasks-tab'
 import { TelemetryTab } from './telemetry-tab'
 import { ThingModelDataTab } from './thing-model-data-tab'
-import { TopicListTab } from './topic-list-tab'
 
 export function DeviceDetailPage() {
   const { t } = useTranslation('deviceManagement')
@@ -66,8 +66,8 @@ export function DeviceDetailPage() {
             <TabsTrigger value='info'>
               {t('deviceDetail.tabs.info')}
             </TabsTrigger>
-            <TabsTrigger value='topics'>
-              {t('deviceDetail.tabs.topics')}
+            <TabsTrigger value='connection'>
+              {t('deviceDetail.tabs.connection')}
             </TabsTrigger>
             <TabsTrigger value='thingModel'>
               {t('deviceDetail.tabs.thingModel')}
@@ -91,8 +91,8 @@ export function DeviceDetailPage() {
               <DeviceInfoTab device={device} />
             </TabsContent>
 
-            <TabsContent value='topics' className='mt-0'>
-              <TopicListTab />
+            <TabsContent value='connection' className='mt-0'>
+              <DeviceEndpointsCard deviceKey={device.deviceKey || ''} />
             </TabsContent>
 
             <TabsContent value='thingModel' className='mt-0'>
@@ -100,7 +100,7 @@ export function DeviceDetailPage() {
             </TabsContent>
 
             <TabsContent value='shadow' className='mt-0'>
-              <DeviceShadowTab />
+              <ShadowTab deviceKey={device.deviceKey || ''} />
             </TabsContent>
 
             <TabsContent value='telemetry' className='mt-0'>

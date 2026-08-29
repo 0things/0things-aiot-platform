@@ -1,10 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getDevicesIdShadow,
-  getDevicesIdShadowHistory,
-  putDevicesIdShadowDesired,
+  getDevicesDeviceKeyShadow,
+  getDevicesDeviceKeyShadowHistory,
+  putDevicesDeviceKeyShadowDesired,
 } from '@/api/generated'
-import { getDeviceId } from './device-id'
 
 export type ShadowDoc = {
   desired: Record<string, unknown>
@@ -27,7 +26,7 @@ export function useDeviceShadow(deviceKey: string) {
     queryKey: shadowKeys.detail(deviceKey),
     enabled: !!deviceKey,
     queryFn: async (): Promise<ShadowDoc> => {
-      const res = await getDevicesIdShadow(await getDeviceId(deviceKey))
+      const res = await getDevicesDeviceKeyShadow(deviceKey)
       return (res?.data ?? res) as ShadowDoc
     },
   })
@@ -40,10 +39,7 @@ export function useUpdateDesired(deviceKey: string) {
       desired: Record<string, unknown>
       version: number
     }) => {
-      const res = await putDevicesIdShadowDesired(
-        await getDeviceId(deviceKey),
-        input
-      )
+      const res = await putDevicesDeviceKeyShadowDesired(deviceKey, input)
       return (res?.data ?? res) as ShadowDoc
     },
     onSuccess: () => {
@@ -57,7 +53,7 @@ export function useShadowHistory(deviceKey: string) {
     queryKey: shadowKeys.history(deviceKey),
     enabled: !!deviceKey,
     queryFn: async () => {
-      const res = await getDevicesIdShadowHistory(await getDeviceId(deviceKey))
+      const res = await getDevicesDeviceKeyShadowHistory(deviceKey)
       return (res?.data ?? res) as Array<{
         version: number
         updatedAt: string

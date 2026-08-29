@@ -26,7 +26,12 @@ func (r *DeviceShadowRepository) GetShadow(ctx context.Context, deviceID int64) 
 	var shadow model.DeviceShadow
 	if err := r.DB(ctx).Where("device_id = ?", deviceID).First(&shadow).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrNotFound
+			// 影子是设备的按需资源，首次读取时初始化空文档，避免前端收到无意义的 404。
+			shadow = model.DeviceShadow{DeviceID: deviceID, Desired: "{}", Reported: "{}", Metadata: "{}", Version: 0}
+			if createErr := r.DB(ctx).Create(&shadow).Error; createErr != nil {
+				return nil, createErr
+			}
+			return &shadow, nil
 		}
 		return nil, err
 	}

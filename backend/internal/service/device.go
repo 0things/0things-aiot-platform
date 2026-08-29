@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"strconv"
 	"strings"
 	"time"
 
@@ -24,11 +23,18 @@ type DeviceServiceInterface interface {
 	DeviceByKey(ctx context.Context, key string) (*model.Device, error)
 	ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error)
 	UpdateDevice(ctx context.Context, id int64, name, state string, metadata string) (*model.Device, error)
+	UpdateDeviceByKey(ctx context.Context, deviceKey string, name, state string, metadata string) (*model.Device, error)
 	Activate(ctx context.Context, id int64) (*model.Device, error)
+	ActivateByKey(ctx context.Context, deviceKey string) (*model.Device, error)
 	SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error)
+	SetEnabledByKey(ctx context.Context, deviceKey string, v bool) (*model.Device, error)
 	DeleteDevice(ctx context.Context, id int64) error
+	DeleteDeviceByKey(ctx context.Context, deviceKey string) error
 	Stats(ctx context.Context) (DeviceStatistics, error)
+	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
 	RestoreDevice(ctx context.Context, id int64) (*model.Device, error)
+	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
+	RestoreDeviceByKey(ctx context.Context, deviceKey string) (*model.Device, error)
 	Tags(ctx context.Context, key string) ([]model.DeviceTag, error)
 	SetTags(ctx context.Context, key string, tags map[string]string, replace bool) ([]model.DeviceTag, error)
 	RemoveTags(ctx context.Context, key string, keys []string) error
@@ -36,7 +42,6 @@ type DeviceServiceInterface interface {
 	MutateShadow(ctx context.Context, key string, version int64, source string, desired, reported *map[string]any, clear bool) (*model.DeviceShadow, error)
 	ShadowHistory(ctx context.Context, key string) ([]model.DeviceShadowHistory, error)
 	Telemetry(ctx context.Context, key string) (string, error)
-	MQTT(ctx context.Context, key string) (MQTTParameters, error)
 	SimulatePush(ctx context.Context, deviceKey, payload, createdBy string) (*model.DevicePushRecord, error)
 	ListPushRecords(ctx context.Context, deviceKey string, page, size int, operationType, status string) ([]model.DevicePushRecord, int64, error)
 	PushRecord(ctx context.Context, id int64) (*model.DevicePushRecord, error)
@@ -66,14 +71,6 @@ type DeviceStatistics struct {
 	OnlineDevices    int64
 	OfflineDevices   int64
 	InactiveDevices  int64
-}
-
-type MQTTParameters struct {
-	ClientID    string
-	Username    string
-	MQTTHostURL string
-	Password    string
-	Port        int32
 }
 
 func NewDeviceService(
@@ -172,6 +169,13 @@ func (s *DeviceService) UpdateDevice(ctx context.Context, id int64, name, state 
 	}
 	return s.Device(ctx, id)
 }
+func (s *DeviceService) UpdateDeviceByKey(ctx context.Context, deviceKey string, name, state string, metadata string) (*model.Device, error) {
+	d, err := s.DeviceByKey(ctx, deviceKey)
+	if err != nil {
+		return nil, err
+	}
+	return s.UpdateDevice(ctx, d.ID, name, state, metadata)
+}
 func (s *DeviceService) Activate(ctx context.Context, id int64) (*model.Device, error) {
 	d, err := s.Device(ctx, id)
 	if err != nil {
@@ -182,6 +186,13 @@ func (s *DeviceService) Activate(ctx context.Context, id int64) (*model.Device, 
 	}
 	return s.UpdateDevice(ctx, id, "", "offline", "")
 }
+func (s *DeviceService) ActivateByKey(ctx context.Context, deviceKey string) (*model.Device, error) {
+	d, err := s.DeviceByKey(ctx, deviceKey)
+	if err != nil {
+		return nil, err
+	}
+	return s.Activate(ctx, d.ID)
+}
 func (s *DeviceService) SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error) {
 	d, err := s.Device(ctx, id)
 	if err != nil {
@@ -191,16 +202,23 @@ func (s *DeviceService) SetEnabled(ctx context.Context, id int64, v bool) (*mode
 	err = s.repo.SaveEnabled(ctx, d)
 	return d, err
 }
+func (s *DeviceService) SetEnabledByKey(ctx context.Context, deviceKey string, v bool) (*model.Device, error) {
+	d, err := s.DeviceByKey(ctx, deviceKey)
+	if err != nil {
+		return nil, err
+	}
+	return s.SetEnabled(ctx, d.ID, v)
+}
 
 func (s *DeviceService) Tags(ctx context.Context, key string) ([]model.DeviceTag, error) {
-	d, err := s.deviceByIDParam(ctx, key)
+	d, err := s.DeviceByKey(ctx, key)
 	if err != nil {
 		return nil, err
 	}
 	return s.tags.ListTags(ctx, d.ID)
 }
 func (s *DeviceService) SetTags(ctx context.Context, key string, tags map[string]string, replace bool) ([]model.DeviceTag, error) {
-	d, err := s.deviceByIDParam(ctx, key)
+	d, err := s.DeviceByKey(ctx, key)
 	if err != nil {
 		return nil, err
 	}
@@ -219,23 +237,12 @@ func (s *DeviceService) SetTags(ctx context.Context, key string, tags map[string
 	return s.Tags(ctx, key)
 }
 func (s *DeviceService) RemoveTags(ctx context.Context, key string, keys []string) error {
-	d, err := s.deviceByIDParam(ctx, key)
+	d, err := s.DeviceByKey(ctx, key)
 	if err != nil {
 		return err
 	}
 	return s.tags.DeleteTags(ctx, d.ID, keys)
 }
-func (s *DeviceService) deviceByIDParam(ctx context.Context, key string) (*model.Device, error) {
-	id, err := strconv.ParseInt(key, 10, 64)
-	if err == nil {
-		d, err := s.Device(ctx, id)
-		if err == nil {
-			return d, nil
-		}
-	}
-	return s.DeviceByKey(ctx, key)
-}
-
 func isNumericKey(s string) bool {
 	if s == "" {
 		return false
@@ -281,21 +288,19 @@ func (s *DeviceService) Stats(ctx context.Context) (DeviceStatistics, error) {
 		OnlineDevices: counts.OnlineDevices, OfflineDevices: counts.OfflineDevices, InactiveDevices: counts.InactiveDevices,
 	}, nil
 }
-func (s *DeviceService) MQTT(ctx context.Context, key string) (MQTTParameters, error) {
-	d, err := s.DeviceByKey(ctx, key)
-	if err != nil {
-		return MQTTParameters{}, err
-	}
-	return MQTTParameters{
-		ClientID: d.Product.ProductKey, Username: d.DeviceKey, MQTTHostURL: "mqtt.0things.com", Password: d.DeviceKey, Port: 8883,
-	}, nil
-}
 func (s *DeviceService) DeleteDevice(ctx context.Context, id int64) error {
 	d, err := s.Device(ctx, id)
 	if err != nil {
 		return err
 	}
 	return s.repo.Delete(ctx, d)
+}
+func (s *DeviceService) DeleteDeviceByKey(ctx context.Context, deviceKey string) error {
+	d, err := s.DeviceByKey(ctx, deviceKey)
+	if err != nil {
+		return err
+	}
+	return s.DeleteDevice(ctx, d.ID)
 }
 
 func (s *DeviceService) SimulatePush(ctx context.Context, deviceKey, payload, createdBy string) (*model.DevicePushRecord, error) {
@@ -399,9 +404,20 @@ func (s *DeviceService) BatchCreate(ctx context.Context, content []byte) (int, [
 	}
 	return success, errs, nil
 }
+
+// Deprecated: 设备恢复接口已下线。
 func (s *DeviceService) RestoreDevice(ctx context.Context, id int64) (*model.Device, error) {
 	if err := s.repo.Restore(ctx, id); err != nil {
 		return nil, err
 	}
 	return s.Device(ctx, id)
+}
+
+// Deprecated: 设备恢复接口已下线。
+func (s *DeviceService) RestoreDeviceByKey(ctx context.Context, deviceKey string) (*model.Device, error) {
+	d, err := s.DeviceByKey(ctx, deviceKey)
+	if err != nil {
+		return nil, err
+	}
+	return s.RestoreDevice(ctx, d.ID)
 }

@@ -113,14 +113,6 @@ type DeviceStatisticsResponse struct {
 	InactiveDevices  int64 `json:"inactiveDevices"`
 } //@name DeviceStatisticsResponse
 
-type MQTTParametersResponse struct {
-	ClientID    string `json:"clientId"`
-	Username    string `json:"username"`
-	MQTTHostURL string `json:"mqttHostUrl"`
-	Password    string `json:"password"`
-	Port        int32  `json:"port"`
-} //@name DeviceMQTTParametersResponse
-
 type Shadow struct {
 	Desired   any            `json:"desired"`
 	Reported  any            `json:"reported"`

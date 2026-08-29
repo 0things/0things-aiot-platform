@@ -7,8 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { useDeviceMqttParameters } from '../../api/queries'
-import { MqttParametersDialog } from './mqtt-parameters-dialog'
 import { TagsEditor } from './tags-editor'
 
 interface DeviceInfoTabProps {
@@ -18,13 +16,6 @@ interface DeviceInfoTabProps {
 export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
   const { t } = useTranslation('deviceManagement')
   const [logUploadEnabled, setLogUploadEnabled] = useState(false)
-  const [mqttDialogOpen, setMqttDialogOpen] = useState(false)
-
-  const {
-    data: mqttParams,
-    isLoading: isMqttParamsLoading,
-    refetch: refetchMqttParams,
-  } = useDeviceMqttParameters(device.deviceKey || '', mqttDialogOpen)
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
@@ -63,13 +54,6 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
     setTimeout(() => {
       toast.success(t('deviceDetail.info.latencyResult', { latency: '45ms' }))
     }, 1000)
-  }
-
-  const handleViewMqttParams = () => {
-    setMqttDialogOpen(true)
-    if (!mqttParams) {
-      refetchMqttParams()
-    }
   }
 
   return (
@@ -118,20 +102,6 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
                     defaultValue: device.state || '-',
                   })}
                 </Badge>
-              </div>
-
-              <div className='space-y-1'>
-                <p className='text-sm text-muted-foreground'>
-                  {t('deviceDetail.info.fields.mqttParams')}
-                </p>
-                <Button
-                  variant='link'
-                  size='sm'
-                  className='h-auto p-0'
-                  onClick={handleViewMqttParams}
-                >
-                  {t('deviceDetail.header.view')}
-                </Button>
               </div>
             </div>
 
@@ -293,14 +263,6 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
           <TagsEditor deviceKey={device.deviceKey || ''} />
         </CardContent>
       </Card>
-
-      {/* MQTT Parameters Dialog */}
-      <MqttParametersDialog
-        open={mqttDialogOpen}
-        onOpenChange={setMqttDialogOpen}
-        mqttParams={mqttParams || null}
-        isLoading={isMqttParamsLoading}
-      />
     </div>
   )
 }
