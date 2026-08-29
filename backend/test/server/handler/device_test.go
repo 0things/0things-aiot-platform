@@ -11,6 +11,7 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/spf13/viper"

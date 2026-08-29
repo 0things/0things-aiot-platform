@@ -34,7 +34,6 @@ export function GroupsTable() {
   const queryClient = useQueryClient()
   const columns = useGroupsColumns()
 
-  const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [appliedFilters, setAppliedFilters] = useState<ColumnFiltersState>([])
@@ -125,16 +124,14 @@ export function GroupsTable() {
     state: {
       sorting,
       pagination,
-      rowSelection,
       columnFilters,
       columnVisibility,
     },
-    enableRowSelection: true,
+    enableRowSelection: false,
     manualPagination: true,
     manualFiltering: true,
     onPaginationChange: handlePaginationChange,
     onColumnFiltersChange: setColumnFilters,
-    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
