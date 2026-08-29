@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { FileUploadOTAFileResponse } from './fileUploadOTAFileResponse'
+import type { FileUploadOTAFileResponse } from './fileUploadOTAFileResponse';
 
 export interface ApiResponseFileUploadOTAFileResponse {
-  code?: number
-  data?: FileUploadOTAFileResponse
-  message?: string
+  code?: number;
+  data?: FileUploadOTAFileResponse;
+  message?: string;
 }

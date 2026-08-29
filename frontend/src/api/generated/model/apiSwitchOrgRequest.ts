@@ -7,5 +7,5 @@
  */
 
 export interface ApiSwitchOrgRequest {
-  org_id: number
+  org_id: number;
 }

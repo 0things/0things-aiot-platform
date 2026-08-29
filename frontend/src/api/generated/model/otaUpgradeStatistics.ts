@@ -7,11 +7,11 @@
  */
 
 export interface OtaUpgradeStatistics {
-  cancelledUpgrades?: number
-  failedUpgrades?: number
-  inProgressUpgrades?: number
-  packageId?: string
-  pendingUpgrades?: number
-  successfulUpgrades?: number
-  totalTargetDevices?: number
+  cancelledUpgrades?: number;
+  failedUpgrades?: number;
+  inProgressUpgrades?: number;
+  packageId?: string;
+  pendingUpgrades?: number;
+  successfulUpgrades?: number;
+  totalTargetDevices?: number;
 }

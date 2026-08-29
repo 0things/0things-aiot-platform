@@ -5,8 +5,8 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DevicePushRecord } from './devicePushRecord'
+import type { DevicePushRecord } from './devicePushRecord';
 
 export interface DeviceGetPushRecordResponse {
-  record?: DevicePushRecord
+  record?: DevicePushRecord;
 }

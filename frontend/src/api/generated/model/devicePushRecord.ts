@@ -7,14 +7,14 @@
  */
 
 export interface DevicePushRecord {
-  createdAt?: string
-  createdBy?: string
-  deviceId?: number
-  errorMessage?: string
-  id?: number
-  operationName?: string
-  operationType?: string
-  payload?: string
-  status?: string
-  updatedAt?: string
+  createdAt?: string;
+  createdBy?: string;
+  deviceId?: number;
+  errorMessage?: string;
+  id?: number;
+  operationName?: string;
+  operationType?: string;
+  payload?: string;
+  status?: string;
+  updatedAt?: string;
 }

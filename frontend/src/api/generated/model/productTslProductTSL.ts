@@ -7,9 +7,9 @@
  */
 
 export interface ProductTslProductTSL {
-  createdAt?: string
-  id?: number
-  productId?: number
-  tsl?: string
-  updatedAt?: string
+  createdAt?: string;
+  id?: number;
+  productId?: number;
+  tsl?: string;
+  updatedAt?: string;
 }

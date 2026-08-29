@@ -7,6 +7,6 @@
  */
 
 export interface SceneLinkageDetailRequest {
-  actionConfig?: number[]
-  triggerConfig?: number[]
+  actionConfig?: number[];
+  triggerConfig?: number[];
 }

@@ -7,5 +7,5 @@
  */
 
 export interface DeviceDeleteDeviceTagsRequest {
-  keys: string[]
+  keys: string[];
 }

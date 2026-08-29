@@ -7,6 +7,6 @@
  */
 
 export interface MessageParserUpsertProductMessageParserRequest {
-  language: string
-  script: string
+  language: string;
+  script: string;
 }

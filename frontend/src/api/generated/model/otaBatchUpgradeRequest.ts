@@ -7,5 +7,5 @@
  */
 
 export interface OtaBatchUpgradeRequest {
-  deviceKeys: string[]
+  deviceKeys: string[];
 }

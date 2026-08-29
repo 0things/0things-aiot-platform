@@ -6,10 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface DeviceMQTTParametersResponse {
-  clientId?: string
-  mqttHostUrl?: string
-  password?: string
-  port?: number
-  username?: string
+export interface AiotBackendApiProductV1ProductProtocolInput {
+  applicationProtocol: string;
+  transportProtocol: string;
 }

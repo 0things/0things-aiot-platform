@@ -7,9 +7,9 @@
  */
 
 export interface OtaUpgradeBatch {
-  batchId?: string
-  createdAt?: string
-  status?: string
-  targetDeviceCount?: number
-  upgradeStrategy?: string
+  batchId?: string;
+  createdAt?: string;
+  status?: string;
+  targetDeviceCount?: number;
+  upgradeStrategy?: string;
 }

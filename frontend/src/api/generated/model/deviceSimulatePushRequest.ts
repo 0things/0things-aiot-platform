@@ -7,5 +7,5 @@
  */
 
 export interface DeviceSimulatePushRequest {
-  payload?: string
+  payload?: string;
 }

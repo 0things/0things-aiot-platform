@@ -7,5 +7,5 @@
  */
 
 export interface ProductTslSuccessResponse {
-  success?: boolean
+  success?: boolean;
 }

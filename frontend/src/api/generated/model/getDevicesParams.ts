@@ -7,28 +7,28 @@
  */
 
 export type GetDevicesParams = {
-  /**
-   * 页码
-   */
-  page?: number
-  /**
-   * 每页数量
-   */
-  pageSize?: number
-  /**
-   * 产品 ID
-   */
-  productId?: number
-  /**
-   * 设备状态
-   */
-  states?: string[]
-  /**
-   * 是否启用
-   */
-  enabled?: boolean
-  /**
-   * 搜索关键字
-   */
-  searchText?: string
-}
+/**
+ * 页码
+ */
+page?: number;
+/**
+ * 每页数量
+ */
+pageSize?: number;
+/**
+ * 产品 ID
+ */
+productId?: number;
+/**
+ * 设备状态
+ */
+states?: string[];
+/**
+ * 是否启用
+ */
+enabled?: boolean;
+/**
+ * 搜索关键字
+ */
+searchText?: string;
+};

@@ -8,5 +8,5 @@
 
 export type PostFilesOtaBody = {
   /** OTA upgrade file (.bin, .dav, .tar, .gz, .zip, .gzip, .apk, .tar.gz, .tar.xz, .pack; max 100 MB) */
-  file: Blob
-}
+  file: Blob;
+};

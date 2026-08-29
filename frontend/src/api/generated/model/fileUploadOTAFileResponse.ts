@@ -7,7 +7,7 @@
  */
 
 export interface FileUploadOTAFileResponse {
-  checksum?: string
-  fileSize?: number
-  fileUrl?: string
+  checksum?: string;
+  fileSize?: number;
+  fileUrl?: string;
 }

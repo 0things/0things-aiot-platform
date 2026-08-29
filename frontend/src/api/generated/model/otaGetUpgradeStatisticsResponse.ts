@@ -5,8 +5,8 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { OtaUpgradeStatistics } from './otaUpgradeStatistics'
+import type { OtaUpgradeStatistics } from './otaUpgradeStatistics';
 
 export interface OtaGetUpgradeStatisticsResponse {
-  statistics?: OtaUpgradeStatistics
+  statistics?: OtaUpgradeStatistics;
 }

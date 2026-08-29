@@ -7,5 +7,5 @@
  */
 
 export interface DeviceClearDesiredShadowRequest {
-  version?: number
+  version?: number;
 }

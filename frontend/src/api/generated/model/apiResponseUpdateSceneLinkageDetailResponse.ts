@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { UpdateSceneLinkageDetailResponse } from './updateSceneLinkageDetailResponse'
+import type { UpdateSceneLinkageDetailResponse } from './updateSceneLinkageDetailResponse';
 
 export interface ApiResponseUpdateSceneLinkageDetailResponse {
-  code?: number
-  data?: UpdateSceneLinkageDetailResponse
-  message?: string
+  code?: number;
+  data?: UpdateSceneLinkageDetailResponse;
+  message?: string;
 }

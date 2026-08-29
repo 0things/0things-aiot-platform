@@ -7,6 +7,6 @@
  */
 
 export interface DeviceClearPushRecordsResponse {
-  deletedCount?: number
-  success?: boolean
+  deletedCount?: number;
+  success?: boolean;
 }

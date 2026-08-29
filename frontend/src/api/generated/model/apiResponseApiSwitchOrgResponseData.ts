@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { ApiSwitchOrgResponseData } from './apiSwitchOrgResponseData'
+import type { ApiSwitchOrgResponseData } from './apiSwitchOrgResponseData';
 
 export interface ApiResponseApiSwitchOrgResponseData {
-  code?: number
-  data?: ApiSwitchOrgResponseData
-  message?: string
+  code?: number;
+  data?: ApiSwitchOrgResponseData;
+  message?: string;
 }

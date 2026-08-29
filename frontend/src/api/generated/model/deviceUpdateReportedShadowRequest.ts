@@ -5,9 +5,9 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DeviceUpdateReportedShadowRequestReported } from './deviceUpdateReportedShadowRequestReported'
+import type { DeviceUpdateReportedShadowRequestReported } from './deviceUpdateReportedShadowRequestReported';
 
 export interface DeviceUpdateReportedShadowRequest {
-  reported: DeviceUpdateReportedShadowRequestReported
-  version?: number
+  reported: DeviceUpdateReportedShadowRequestReported;
+  version?: number;
 }

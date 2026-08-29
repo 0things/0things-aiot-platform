@@ -7,7 +7,7 @@
  */
 
 export interface SceneLinkageRequest {
-  description?: string
-  enable?: number
-  name: string
+  description?: string;
+  enable?: number;
+  name: string;
 }

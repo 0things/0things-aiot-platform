@@ -7,32 +7,32 @@
  */
 
 export type GetDeviceEventsParams = {
-  /**
-   * 页码
-   */
-  page?: number
-  /**
-   * 每页数量
-   */
-  pageSize?: number
-  /**
-   * 关键词
-   */
-  keyword?: string
-  /**
-   * 设备 Key
-   */
-  device_key?: string
-  /**
-   * 事件类型
-   */
-  event_type?: string
-  /**
-   * 开始时间 RFC3339
-   */
-  start_at?: string
-  /**
-   * 结束时间 RFC3339
-   */
-  end_at?: string
-}
+/**
+ * 页码
+ */
+page?: number;
+/**
+ * 每页数量
+ */
+pageSize?: number;
+/**
+ * 关键词
+ */
+keyword?: string;
+/**
+ * 设备 Key
+ */
+device_key?: string;
+/**
+ * 事件类型
+ */
+event_type?: string;
+/**
+ * 开始时间 RFC3339
+ */
+start_at?: string;
+/**
+ * 结束时间 RFC3339
+ */
+end_at?: string;
+};

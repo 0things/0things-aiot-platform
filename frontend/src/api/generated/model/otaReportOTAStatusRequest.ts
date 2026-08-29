@@ -7,6 +7,9 @@
  */
 
 export interface OtaReportOTAStatusRequest {
-  deviceKey: string
-  status: string
+  batchId?: string;
+  deviceKey: string;
+  progress?: number;
+  status: string;
+  version?: string;
 }

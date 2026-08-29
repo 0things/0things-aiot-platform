@@ -7,5 +7,5 @@
  */
 
 export interface OtaSuccessResponse {
-  success?: boolean
+  success?: boolean;
 }

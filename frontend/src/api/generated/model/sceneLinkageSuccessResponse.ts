@@ -7,5 +7,5 @@
  */
 
 export interface SceneLinkageSuccessResponse {
-  success?: boolean
+  success?: boolean;
 }

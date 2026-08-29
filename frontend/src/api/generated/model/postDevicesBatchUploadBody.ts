@@ -8,5 +8,5 @@
 
 export type PostDevicesBatchUploadBody = {
   /** Excel 模板文件 */
-  file: Blob
-}
+  file: Blob;
+};

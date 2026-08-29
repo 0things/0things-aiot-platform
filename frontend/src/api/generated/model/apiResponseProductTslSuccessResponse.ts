@@ -5,10 +5,10 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { ProductTslSuccessResponse } from './productTslSuccessResponse'
+import type { ProductTslSuccessResponse } from './productTslSuccessResponse';
 
 export interface ApiResponseProductTslSuccessResponse {
-  code?: number
-  data?: ProductTslSuccessResponse
-  message?: string
+  code?: number;
+  data?: ProductTslSuccessResponse;
+  message?: string;
 }

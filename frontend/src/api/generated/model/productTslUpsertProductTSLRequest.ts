@@ -7,5 +7,5 @@
  */
 
 export interface ProductTslUpsertProductTSLRequest {
-  tsl?: string
+  tsl?: string;
 }

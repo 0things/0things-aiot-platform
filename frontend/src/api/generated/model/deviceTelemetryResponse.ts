@@ -7,5 +7,5 @@
  */
 
 export interface DeviceTelemetryResponse {
-  telemetry?: string
+  telemetry?: string;
 }

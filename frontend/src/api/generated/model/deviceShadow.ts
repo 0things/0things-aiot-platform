@@ -5,13 +5,13 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { DeviceShadowDelta } from './deviceShadowDelta'
+import type { DeviceShadowDelta } from './deviceShadowDelta';
 
 export interface DeviceShadow {
-  delta?: DeviceShadowDelta
-  desired?: unknown
-  metadata?: unknown
-  reported?: unknown
-  updatedAt?: string
-  version?: number
+  delta?: DeviceShadowDelta;
+  desired?: unknown;
+  metadata?: unknown;
+  reported?: unknown;
+  updatedAt?: string;
+  version?: number;
 }
