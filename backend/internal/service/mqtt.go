@@ -8,7 +8,8 @@ import (
 	"time"
 
 	"aiot-backend/pkg/log"
-	"github.com/eclipse/paho.mqtt.golang"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -19,6 +20,7 @@ var ErrMQTTNotConnected = errors.New("mqtt client not connected")
 type MQTTServiceInterface interface {
 	Publish(ctx context.Context, topic string, qos byte, payload []byte) error
 	Subscribe(ctx context.Context, topic string, qos byte, handler mqtt.MessageHandler) error
+	Unsubscribe(topics ...string) error
 	Close()
 }
 
@@ -105,6 +107,20 @@ func (s *MQTTService) Subscribe(ctx context.Context, topic string, qos byte, han
 		}
 		return nil
 	}
+}
+
+func (s *MQTTService) Unsubscribe(topics ...string) error {
+	s.mu.Lock()
+	for _, topic := range topics {
+		delete(s.subscriptions, topic)
+	}
+	s.mu.Unlock()
+	if !s.client.IsConnected() || len(topics) == 0 {
+		return nil
+	}
+	token := s.client.Unsubscribe(topics...)
+	token.Wait()
+	return token.Error()
 }
 
 func (s *MQTTService) Close() {

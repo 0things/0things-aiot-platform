@@ -11,6 +11,24 @@
     }
   },
   "productDetail": {
+    "actions": {
+      "create": "Create Product",
+      "edit": "Edit Product",
+      "save": "Save changes"
+    },
+    "protocols": {
+      "title": "Access Protocols",
+      "loading": "Loading protocols...",
+      "empty": "No access protocols configured",
+      "ota": "OTA supported",
+      "noOta": "OTA not supported",
+      "add": "Add protocol",
+      "transport": "Transport protocol",
+      "application": "Application protocol",
+      "save": "Save"
+      ,"delete": "Delete"
+      ,"edit": "Edit"
+    },
     "header": {
       "productKey": "ProductKey",
       "productSecret": "ProductSecret",
@@ -47,7 +65,8 @@
         "createdAt": "Created At",
         "dataValidationLevel": "Data Validation Level",
         "dataValidationValue": "Weak Validation",
-        "description": "Description"
+        "description": "Description",
+        "metadata": "Metadata"
       },
       "labels": {
         "title": "Label Information",
@@ -64,16 +83,6 @@
       "cellular": "Cellular (2G/3G/4G/5G)",
       "ethernet": "Ethernet",
       "other": "Other"
-    },
-    "accessProtocols": {
-      "http": "HTTP",
-      "mqtt": "MQTT",
-      "other": "Other",
-      "custom": "Custom",
-      "modbus": "Modbus",
-      "opc-ua": "OPC UA",
-      "zigbee": "ZigBee",
-      "ble": "BLE"
     },
     "status": {
       "active": "Active",
@@ -420,6 +429,26 @@
     }
   },
   "deviceDetail": {
+    "endpoints": {
+      "title": "Access Endpoints",
+      "loading": "Loading access endpoints...",
+      "empty": "No access endpoints configured",
+      "noAddress": "No address configured",
+      "add": "Add endpoint",
+      "selectProtocol": "Select protocol",
+      "endpoint": "Endpoint address",
+      "save": "Save"
+      ,"delete": "Delete"
+      ,"edit": "Edit"
+      ,"connectionData": "Connection data"
+      ,"clientId": "Client ID"
+      ,"username": "Username"
+      ,"password": "Password"
+      ,"port": "Port"
+      ,"method": "Method"
+      ,"publishTopic": "Publish topic"
+      ,"subscribeTopic": "Subscribe topic"
+    },
     "header": {
       "product": "Product",
       "deviceSecret": "DeviceSecret",
@@ -430,6 +459,7 @@
     },
     "tabs": {
       "info": "Device Info",
+      "connection": "Connection",
       "topics": "Topic List",
       "thingModel": "Thing Model Data",
       "shadow": "Device Shadow",
@@ -485,24 +515,14 @@
       "copySuccess": "Copied",
       "testingLatency": "Testing latency...",
       "latencyResult": "Latency: {{latency}}",
-      "mqttParamsView": "View MQTT Connection Parameters",
       "logUploadEnabled": "Device log upload enabled",
       "logUploadDisabled": "Device log upload disabled",
-      "mqttDialog": {
-        "title": "MQTT Connection Parameters",
-        "loading": "Loading...",
-        "noData": "No data available",
-        "copyAll": "Copy All",
-        "close": "Close",
-        "copyAllSuccess": "All parameters copied to clipboard"
-      },
       "fields": {
         "productName": "Product Name",
         "nodeType": "Node Type",
         "notes": "Notes",
         "createdAt": "Created At",
         "currentStatus": "Current Status",
-        "mqttParams": "MQTT Connection Parameters",
         "ipAddress": "IP Address",
         "activationTime": "Activation Time",
         "realTimeLatency": "Real-time Latency",

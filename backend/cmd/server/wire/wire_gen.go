@@ -13,6 +13,8 @@ import (
 	"aiot-backend/internal/router"
 	"aiot-backend/internal/server"
 	"aiot-backend/internal/service"
+	"aiot-backend/internal/transport"
+	"aiot-backend/internal/transport/coap"
 	"aiot-backend/pkg/app"
 	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
@@ -41,6 +43,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	productRepository := repository.NewProductRepository(ioTDB)
 	productService := service.NewProductService(productRepository)
 	productHandler := handler.NewProductHandler(handlerHandler, productService)
+	categoryRepository := repository.NewCategoryRepository(ioTDB)
+	categoryService := service.NewCategoryService(categoryRepository)
+	categoryHandler := handler.NewCategoryHandler(handlerHandler, categoryService)
 	productTSLRepository := repository.NewProductTSLRepository(ioTDB)
 	productTSLService := service.NewProductTSLService(productRepository, productTSLRepository)
 	productTSLHandler := handler.NewProductTSLHandler(handlerHandler, productTSLService)
@@ -65,19 +70,23 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	if err != nil {
 		return nil, nil, err
 	}
-	otaService := service.NewOTAService(otaRepository, productRepository, deviceRepository, kafkaService)
+	protocolRepository := repository.NewProtocolRepository(ioTDB)
+	otaService := provideOTAService(otaRepository, productRepository, deviceRepository, kafkaService, protocolRepository)
 	otaHandler := handler.NewOTAHandler(handlerHandler, otaService)
 	fileService := service.NewFileService(viperViper)
 	fileHandler := handler.NewFileHandler(handlerHandler, fileService)
 	deviceEventRepository := repository.NewDeviceEventRepository(ioTDB)
 	deviceEventService := service.NewDeviceEventService(deviceEventRepository, deviceRepository)
 	deviceEventHandler := handler.NewDeviceEventHandler(handlerHandler, deviceEventService)
+	protocolService := provideProtocolService(protocolRepository, viperViper)
+	protocolHandler := handler.NewProtocolHandler(handlerHandler, protocolService)
 	routerDeps := router.RouterDeps{
 		Logger:                      logger,
 		Config:                      viperViper,
 		JWT:                         jwtJWT,
 		UserHandler:                 userHandler,
 		ProductHandler:              productHandler,
+		CategoryHandler:             categoryHandler,
 		ProductTSLHandler:           productTSLHandler,
 		ProductMessageParserHandler: productMessageParserHandler,
 		DeviceHandler:               deviceHandler,
@@ -86,6 +95,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		OTAHandler:                  otaHandler,
 		FileHandler:                 fileHandler,
 		DeviceEventHandler:          deviceEventHandler,
+		ProtocolHandler:             protocolHandler,
 	}
 	httpServer := server.NewHTTPServer(routerDeps)
 	jobJob := job.NewJob(transaction, logger, sidSid)
@@ -95,18 +105,37 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		cleanup()
 		return nil, nil, err
 	}
+	deviceMessageConsumer, err := job.NewDeviceMessageConsumer(viperViper, protocolRepository, logger)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
 	mqttService, cleanup2, err := service.NewMQTTService(viperViper, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	otaCommandConsumer, err := job.NewOTACommandConsumer(viperViper, mqttService, otaService, kafkaService, logger)
+	adapter := job.NewMQTTTransportAdapterForWire(mqttService)
+	registry, err := provideTransportRegistry(adapter)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	jobServer := server.NewJobServer(logger, userJob, deviceEventConsumer, otaCommandConsumer)
+	otaCommandConsumer, err := provideOTACommandConsumer(viperViper, mqttService, otaService, logger, registry)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	otamqttReportBridge := job.NewOTAMQTTReportBridge(mqttService, kafkaService, logger)
+	otaReportConsumer, err := job.NewOTAReportConsumer(viperViper, otaService, logger)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	jobServer := server.NewJobServer(logger, userJob, deviceEventConsumer, deviceMessageConsumer, otaCommandConsumer, otamqttReportBridge, otaReportConsumer)
 	appApp := newApp(httpServer, jobServer)
 	return appApp, func() {
 		cleanup2()
@@ -116,13 +145,32 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewIoTDB, repository.NewIoTRedis, repository.NewProductRepository, repository.NewProductTSLRepository, repository.NewProductMessageParserRepository, repository.NewDeviceRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewSceneLinkageRepository, repository.NewSceneLinkageDetailRepository, repository.NewOTARepository, repository.NewDeviceEventRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewOrganizationRepository, repository.NewOrganizationUserRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewIoTDB, repository.NewIoTRedis, repository.NewProductRepository, repository.NewCategoryRepository, repository.NewProductTSLRepository, repository.NewProductMessageParserRepository, repository.NewDeviceRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewSceneLinkageRepository, repository.NewSceneLinkageDetailRepository, repository.NewOTARepository, repository.NewDeviceEventRepository, repository.NewProtocolRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewOrganizationRepository, repository.NewOrganizationUserRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewProductTSLService, service.NewProductMessageParserService, service.NewDeviceService, service.NewKafkaService, service.NewMQTTService, service.NewSceneLinkageService, service.NewSceneLinkageDetailService, service.NewOTAService, service.NewFileService, service.NewDeviceEventService, wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)), wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)), wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)), wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)), wire.Bind(new(service.KafkaServiceInterface), new(*service.KafkaService)), wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)), wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)), wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)), wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)), wire.Bind(new(service.FileServiceInterface), new(*service.FileService)), wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)))
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewCategoryService, service.NewProductTSLService, service.NewProductMessageParserService, service.NewDeviceService, service.NewKafkaService, service.NewMQTTService, service.NewSceneLinkageService, service.NewSceneLinkageDetailService, provideOTAService, service.NewFileService, service.NewDeviceEventService, provideProtocolService, wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)), wire.Bind(new(service.CategoryServiceInterface), new(*service.CategoryService)), wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)), wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)), wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)), wire.Bind(new(service.KafkaServiceInterface), new(*service.KafkaService)), wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)), wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)), wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)), wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)), wire.Bind(new(service.FileServiceInterface), new(*service.FileService)), wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)), wire.Bind(new(service.ProtocolServiceInterface), new(*service.ProtocolService)))
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewProductTSLHandler, handler.NewProductMessageParserHandler, handler.NewDeviceHandler, handler.NewSceneLinkageHandler, handler.NewSceneLinkageDetailHandler, handler.NewOTAHandler, handler.NewFileHandler, handler.NewDeviceEventHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewCategoryHandler, handler.NewProductTSLHandler, handler.NewProductMessageParserHandler, handler.NewDeviceHandler, handler.NewSceneLinkageHandler, handler.NewSceneLinkageDetailHandler, handler.NewOTAHandler, handler.NewFileHandler, handler.NewDeviceEventHandler, handler.NewProtocolHandler)
 
-var jobSet = wire.NewSet(job.NewJob, job.NewUserJob, job.NewDeviceEventConsumer, job.NewOTACommandConsumer)
+var jobSet = wire.NewSet(job.NewJob, job.NewUserJob, job.NewDeviceEventConsumer, job.NewDeviceMessageConsumer, job.NewMQTTTransportAdapterForWire, provideTransportRegistry,
+	provideOTACommandConsumer, job.NewOTAMQTTReportBridge, job.NewOTAReportConsumer,
+)
+
+func provideOTACommandConsumer(config *viper.Viper, mqtt service.MQTTServiceInterface, ota *service.OTAService, logger *log.Logger, registry *transport.Registry) (*job.OTACommandConsumer, error) {
+	return job.NewOTACommandConsumer(config, mqtt, ota, logger, registry)
+}
+
+func provideOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, kafka service.KafkaServiceInterface, protocols *repository.ProtocolRepository) *service.OTAService {
+	return service.NewOTAServiceWithProtocol(repo, productRepo, deviceRepo, kafka, protocols)
+}
+
+func provideProtocolService(repo *repository.ProtocolRepository, config *viper.Viper) *service.ProtocolService {
+	return service.NewProtocolService(repo, config)
+}
+
+func provideTransportRegistry(adapter transport.Adapter) (*transport.Registry, error) {
+
+	return transport.NewRegistry(adapter, coaptransport.NewAdapter(""))
+}
 
 var serverSet = wire.NewSet(server.NewHTTPServer, server.NewJobServer)
 

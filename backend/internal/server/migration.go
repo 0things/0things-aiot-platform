@@ -79,9 +79,12 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 	}
 	if err := m.deviceDB.AutoMigrate(
 		&model.Product{},
+		&model.Category{},
+		&model.ProductProtocol{},
 		&model.ProductTSL{},
 		&model.ProductMessageParser{},
 		&model.Device{},
+		&model.DeviceEndpoint{},
 		&model.DeviceState{},
 		&model.DeviceShadow{},
 		&model.DeviceTag{},
@@ -95,6 +98,20 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 		&model.SceneLinkageDetail{},
 	); err != nil {
 		return err
+	}
+	if err := m.seedDefaultCategories(); err != nil {
+		return fmt.Errorf("seed product categories: %w", err)
+	}
+	for _, column := range []string{"config_schema", "support_uplink", "support_downlink", "support_ota", "enabled"} {
+		if m.deviceDB.Migrator().HasColumn("product_protocols", column) {
+			if err := m.deviceDB.Exec("ALTER TABLE product_protocols DROP COLUMN " + column).Error; err != nil {
+				return fmt.Errorf("drop product_protocols.%s: %w", column, err)
+			}
+		}
+	}
+	// 将旧产品上的单值接入协议迁移为产品协议能力。
+	if err := m.backfillProductProtocols(); err != nil {
+		return fmt.Errorf("backfill product protocols: %w", err)
 	}
 	for _, table := range []string{"products", "devices"} {
 		if err := m.deviceDB.Exec("UPDATE " + table + " SET organization_id = 1 WHERE organization_id IS NULL OR organization_id = 0").Error; err != nil {
@@ -111,6 +128,53 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 	m.log.Info("AutoMigrate success")
 	fmt.Println("migration complete: device_events table is ready")
 	os.Exit(0)
+	return nil
+}
+
+// seedDefaultCategories keeps existing product creation usable after the category tree is introduced.
+func (m *MigrateServer) seedDefaultCategories() error {
+	var count int64
+	if err := m.deviceDB.Model(&model.Category{}).Count(&count).Error; err != nil || count > 0 {
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	items := []string{"传感器", "执行器", "网关", "控制器", "显示设备", "摄像头", "其他"}
+	for i, name := range items {
+		if err := m.deviceDB.Create(&model.Category{Name: name, Sort: i, Enabled: true}).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *MigrateServer) backfillProductProtocols() error {
+	var products []model.Product
+	if err := m.deviceDB.Where("access_protocol IS NOT NULL AND access_protocol <> ?", "").Find(&products).Error; err != nil {
+		return err
+	}
+	for _, product := range products {
+		var count int64
+		if err := m.deviceDB.Model(&model.ProductProtocol{}).Where("product_id = ?", product.ID).Count(&count).Error; err != nil {
+			return err
+		}
+		if count > 0 {
+			continue
+		}
+		transports := []string{product.AccessProtocol}
+		if product.AccessProtocol == "default" {
+			transports = []string{"http", "mqtt"}
+		}
+		for _, transport := range transports {
+			if err := m.deviceDB.Create(&model.ProductProtocol{
+				ProductID: product.ID, TransportProtocol: transport,
+				ApplicationProtocol: "json",
+			}).Error; err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 func (m *MigrateServer) Stop(ctx context.Context) error {

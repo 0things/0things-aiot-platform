@@ -8,6 +8,8 @@ security:
     app_security: change-me
   jwt:
     key: change-me-to-a-random-secret
+  # 端点凭据加密密钥；生产环境必须使用独立随机值。
+  device_credentials_key: change-me-to-a-random-device-credentials-key
 data:
   db:
     user:
@@ -43,6 +45,23 @@ data:
     # OTA 传输开发使用的本地 MQTT Broker 示例配置。
     broker: tcp://127.0.0.1:1883
     client_id: aiot-ota-backend
+    username: ""
+    password: ""
+device_gateway:
+  # 独立设备协议网关的 HTTP 上报监听地址。
+  http_addr: :8081
+  # 可选 TCP 设备接入监听地址，留空时不启动 TCP Listener。
+  tcp_addr: ""
+  # 可选 CoAP/UDP 监听地址，留空时不启动 CoAP Listener。
+  coap_addr: ""
+  # 与管理服务共用的 OTA Kafka 消费组，保证命令只被一个进程处理。
+  kafka_consumer_group: aiot-backend-ota-commands
+  # 端点超过该时长未上报时自动标记为 offline。
+  endpoint_offline_after: 5m
+  mqtt:
+    # MQTT 设备属性上报主题，第二、第三通配段分别为 productKey 和 deviceName。
+    broker: tcp://127.0.0.1:1883
+    ingress_topic: /sys/+/+/thing/event/property/post
     username: ""
     password: ""
   mongo:

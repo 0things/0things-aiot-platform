@@ -62,6 +62,30 @@ const docTemplate = `{
                 }
             }
         },
+        "/categories/tree": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品分类"
+                ],
+                "summary": "获取产品分类树",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-array_aiot-backend_api_category_v1_Category"
+                        }
+                    }
+                }
+            }
+        },
         "/device-events": {
             "get": {
                 "security": [
@@ -328,43 +352,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/key/{deviceKey}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过设备 Key 获取设备详情",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备模块"
-                ],
-                "summary": "通过 deviceKey 获取设备",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "设备 Key",
-                        "name": "deviceKey",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-DeviceGetDeviceResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/devices/push-records/{pushRecordId}": {
             "get": {
                 "security": [
@@ -402,14 +389,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{device_key}/mqtt-parameters": {
+        "/devices/{deviceKey}": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port",
+                "description": "通过设备 Key 获取设备详情",
                 "consumes": [
                     "application/json"
                 ],
@@ -419,49 +406,12 @@ const docTemplate = `{
                 "tags": [
                     "设备模块"
                 ],
-                "summary": "获取 MQTT 连接参数",
+                "summary": "通过 deviceKey 获取设备",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 DeviceKey",
-                        "name": "device_key",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-DeviceMQTTParametersResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/devices/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过设备 ID 获取设备详情",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备模块"
-                ],
-                "summary": "通过 ID 获取设备",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     }
@@ -481,7 +431,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 ID 更新设备",
+                "description": "通过设备 Key 更新设备",
                 "consumes": [
                     "application/json"
                 ],
@@ -494,9 +444,9 @@ const docTemplate = `{
                 "summary": "更新设备",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -525,7 +475,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 ID 软删除设备",
+                "description": "通过设备 Key 软删除设备",
                 "consumes": [
                     "application/json"
                 ],
@@ -538,9 +488,9 @@ const docTemplate = `{
                 "summary": "删除设备",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     }
@@ -555,14 +505,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/activate": {
+        "/devices/{deviceKey}/activate": {
             "post": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 ID 激活设备",
+                "description": "通过设备 Key 激活设备",
                 "consumes": [
                     "application/json"
                 ],
@@ -575,9 +525,9 @@ const docTemplate = `{
                 "summary": "激活设备",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     }
@@ -592,14 +542,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/enabled": {
+        "/devices/{deviceKey}/enabled": {
             "post": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 ID 启用或禁用设备",
+                "description": "通过设备 Key 启用或禁用设备",
                 "consumes": [
                     "application/json"
                 ],
@@ -612,9 +562,9 @@ const docTemplate = `{
                 "summary": "设置设备启用/禁用",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -638,7 +588,35 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/push-records": {
+        "/devices/{deviceKey}/endpoints": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "获取设备连接数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device key",
+                        "name": "deviceKey",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{deviceKey}/push-records": {
             "get": {
                 "security": [
                     {
@@ -658,9 +636,9 @@ const docTemplate = `{
                 "summary": "获取设备下行推送记录列表",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -717,9 +695,9 @@ const docTemplate = `{
                 "summary": "清理设备下行推送记录",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -740,44 +718,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/restore": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过设备 ID 恢复软删除的设备",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备模块"
-                ],
-                "summary": "恢复已删除的设备",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-DeviceRestoreDeviceResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/devices/{id}/shadow": {
+        "/devices/{deviceKey}/shadow": {
             "get": {
                 "security": [
                     {
@@ -797,9 +738,9 @@ const docTemplate = `{
                 "summary": "获取设备影子",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     }
@@ -814,7 +755,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/shadow/desired": {
+        "/devices/{deviceKey}/shadow/desired": {
             "put": {
                 "security": [
                     {
@@ -834,9 +775,9 @@ const docTemplate = `{
                 "summary": "更新设备影子期望值",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -878,9 +819,9 @@ const docTemplate = `{
                 "summary": "清空设备影子期望值",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -904,7 +845,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/shadow/history": {
+        "/devices/{deviceKey}/shadow/history": {
             "get": {
                 "security": [
                     {
@@ -924,9 +865,9 @@ const docTemplate = `{
                 "summary": "获取设备影子历史",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     }
@@ -941,7 +882,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/shadow/reported": {
+        "/devices/{deviceKey}/shadow/reported": {
             "put": {
                 "security": [
                     {
@@ -961,9 +902,9 @@ const docTemplate = `{
                 "summary": "更新设备影子上报值",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -987,7 +928,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/simulate-push": {
+        "/devices/{deviceKey}/simulate-push": {
             "post": {
                 "security": [
                     {
@@ -1007,9 +948,9 @@ const docTemplate = `{
                 "summary": "模拟下行推送",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -1033,7 +974,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/tags": {
+        "/devices/{deviceKey}/tags": {
             "get": {
                 "security": [
                     {
@@ -1053,9 +994,9 @@ const docTemplate = `{
                 "summary": "获取设备标签",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     }
@@ -1088,9 +1029,9 @@ const docTemplate = `{
                 "summary": "全量覆盖设置设备标签",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -1132,9 +1073,9 @@ const docTemplate = `{
                 "summary": "增量添加设备标签",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -1176,9 +1117,9 @@ const docTemplate = `{
                 "summary": "删除设备标签",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
@@ -1202,7 +1143,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{id}/telemetry": {
+        "/devices/{deviceKey}/telemetry": {
             "get": {
                 "security": [
                     {
@@ -1222,9 +1163,9 @@ const docTemplate = `{
                 "summary": "获取设备遥测数据",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "设备 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "设备 Key",
+                        "name": "deviceKey",
                         "in": "path",
                         "required": true
                     }
@@ -1740,6 +1681,12 @@ const docTemplate = `{
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "批次 ID",
+                        "name": "batchId",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1844,87 +1791,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductCreateProductResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/key/{productKey}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过产品 Key 获取产品详情",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "产品模块"
-                ],
-                "summary": "通过 productKey 获取产品",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "产品 Key",
-                        "name": "productKey",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-ProductGetProductByKeyResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过 productKey 更新产品",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "产品模块"
-                ],
-                "summary": "更新产品",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "产品 Key",
-                        "name": "productKey",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ProductUpdateProductRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-ProductUpdateProductResponse"
                         }
                     }
                 }
@@ -2057,14 +1923,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/{id}": {
+        "/products/{productKey}": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 ID 获取产品详情",
+                "description": "通过产品 Key 获取产品详情",
                 "consumes": [
                     "application/json"
                 ],
@@ -2074,12 +1940,12 @@ const docTemplate = `{
                 "tags": [
                     "产品模块"
                 ],
-                "summary": "通过 ID 获取产品",
+                "summary": "通过 productKey 获取产品",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "产品 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
                         "in": "path",
                         "required": true
                     }
@@ -2093,13 +1959,57 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "通过 productKey 更新产品",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "产品模块"
+                ],
+                "summary": "更新产品",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProductUpdateProductRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-ProductUpdateProductResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 ID 软删除产品",
+                "description": "通过产品 Key 软删除产品",
                 "consumes": [
                     "application/json"
                 ],
@@ -2112,9 +2022,9 @@ const docTemplate = `{
                 "summary": "删除产品",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "产品 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
                         "in": "path",
                         "required": true
                     }
@@ -2129,51 +2039,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/{id}/restore": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "通过产品 ID 恢复软删除的产品",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "产品模块"
-                ],
-                "summary": "恢复已删除的产品",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "产品 ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-ProductRestoreProductResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/{id}/tsl": {
+        "/products/{productKey}/tsl": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 ID 获取其物模型定义（TSL）",
+                "description": "通过产品 Key 获取其物模型定义（TSL）",
                 "consumes": [
                     "application/json"
                 ],
@@ -2186,9 +2059,9 @@ const docTemplate = `{
                 "summary": "获取产品物模型（TSL）",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "产品 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
                         "in": "path",
                         "required": true
                     }
@@ -2208,7 +2081,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 ID 上传或更新物模型定义",
+                "description": "通过产品 Key 上传或更新物模型定义",
                 "consumes": [
                     "application/json"
                 ],
@@ -2221,9 +2094,9 @@ const docTemplate = `{
                 "summary": "上传/更新产品物模型（TSL）",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "产品 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
                         "in": "path",
                         "required": true
                     },
@@ -2252,7 +2125,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 ID 上传或更新物模型定义",
+                "description": "通过产品 Key 上传或更新物模型定义",
                 "consumes": [
                     "application/json"
                 ],
@@ -2265,9 +2138,9 @@ const docTemplate = `{
                 "summary": "上传/更新产品物模型（TSL）",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "产品 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
                         "in": "path",
                         "required": true
                     },
@@ -2296,7 +2169,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 ID 删除其物模型定义",
+                "description": "通过产品 Key 删除其物模型定义",
                 "consumes": [
                     "application/json"
                 ],
@@ -2309,9 +2182,9 @@ const docTemplate = `{
                 "summary": "删除产品物模型（TSL）",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "产品 ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "产品 Key",
+                        "name": "productKey",
                         "in": "path",
                         "required": true
                     }
@@ -3053,34 +2926,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-DeviceMQTTParametersResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/DeviceMQTTParametersResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-DeviceRestoreDeviceResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/DeviceRestoreDeviceResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "ApiResponse-DeviceSetDeviceEnabledResponse": {
             "type": "object",
             "properties": {
@@ -3375,20 +3220,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-ProductGetProductByKeyResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/ProductGetProductByKeyResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "ApiResponse-ProductGetProductResponse": {
             "type": "object",
             "properties": {
@@ -3411,20 +3242,6 @@ const docTemplate = `{
                 },
                 "data": {
                     "$ref": "#/definitions/ProductListProductsResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-ProductRestoreProductResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/ProductRestoreProductResponse"
                 },
                 "message": {
                     "type": "string"
@@ -3529,6 +3346,20 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.DeviceEndpoints"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-array_ApiOrganizationItem": {
             "type": "object",
             "properties": {
@@ -3539,6 +3370,23 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/ApiOrganizationItem"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-array_aiot-backend_api_category_v1_Category": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_category_v1.Category"
                     }
                 },
                 "message": {
@@ -3883,26 +3731,6 @@ const docTemplate = `{
                 }
             }
         },
-        "DeviceMQTTParametersResponse": {
-            "type": "object",
-            "properties": {
-                "clientId": {
-                    "type": "string"
-                },
-                "mqttHostUrl": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "integer"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
         "DevicePushRecord": {
             "type": "object",
             "properties": {
@@ -3935,14 +3763,6 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
-                }
-            }
-        },
-        "DeviceRestoreDeviceResponse": {
-            "type": "object",
-            "properties": {
-                "device": {
-                    "$ref": "#/definitions/Device"
                 }
             }
         },
@@ -4610,8 +4430,8 @@ const docTemplate = `{
                 "accessProtocol": {
                     "type": "string"
                 },
-                "category": {
-                    "type": "string"
+                "categoryId": {
+                    "type": "integer"
                 },
                 "connectivityMethod": {
                     "type": "string"
@@ -4631,9 +4451,6 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "metadata": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -4646,6 +4463,12 @@ const docTemplate = `{
                 "productKey": {
                     "type": "string"
                 },
+                "protocols": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_product_v1.ProductProtocolInput"
+                    }
+                },
                 "status": {
                     "type": "string"
                 },
@@ -4657,14 +4480,15 @@ const docTemplate = `{
         "ProductCreateProductRequest": {
             "type": "object",
             "required": [
+                "categoryId",
                 "name"
             ],
             "properties": {
                 "accessProtocol": {
                     "type": "string"
                 },
-                "category": {
-                    "type": "string"
+                "categoryId": {
+                    "type": "integer"
                 },
                 "connectivityMethod": {
                     "type": "string"
@@ -4672,17 +4496,17 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
                 "name": {
                     "type": "string"
                 },
                 "nodeType": {
                     "type": "string"
+                },
+                "protocols": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_product_v1.ProductProtocolInput"
+                    }
                 },
                 "status": {
                     "type": "string"
@@ -4690,14 +4514,6 @@ const docTemplate = `{
             }
         },
         "ProductCreateProductResponse": {
-            "type": "object",
-            "properties": {
-                "product": {
-                    "$ref": "#/definitions/Product"
-                }
-            }
-        },
-        "ProductGetProductByKeyResponse": {
             "type": "object",
             "properties": {
                 "product": {
@@ -4730,14 +4546,6 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
-                }
-            }
-        },
-        "ProductRestoreProductResponse": {
-            "type": "object",
-            "properties": {
-                "product": {
-                    "$ref": "#/definitions/Product"
                 }
             }
         },
@@ -4799,8 +4607,8 @@ const docTemplate = `{
                 "accessProtocol": {
                     "type": "string"
                 },
-                "category": {
-                    "type": "string"
+                "categoryId": {
+                    "type": "integer"
                 },
                 "connectivityMethod": {
                     "type": "string"
@@ -4808,17 +4616,17 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
                 "name": {
                     "type": "string"
                 },
                 "nodeType": {
                     "type": "string"
+                },
+                "protocols": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_product_v1.ProductProtocolInput"
+                    }
                 },
                 "status": {
                     "type": "string"
@@ -4934,6 +4742,117 @@ const docTemplate = `{
             "properties": {
                 "sceneLinkage": {
                     "$ref": "#/definitions/SceneLinkage"
+                }
+            }
+        },
+        "aiot-backend_api_category_v1.Category": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_category_v1.Category"
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "integer"
+                },
+                "sort": {
+                    "type": "integer"
+                }
+            }
+        },
+        "aiot-backend_api_product_v1.ProductProtocolInput": {
+            "type": "object",
+            "required": [
+                "applicationProtocol",
+                "transportProtocol"
+            ],
+            "properties": {
+                "applicationProtocol": {
+                    "type": "string"
+                },
+                "transportProtocol": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_protocol_v1.CoAPDockerExample": {
+            "type": "object",
+            "properties": {
+                "coap": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_protocol_v1.CoAPEndpoint": {
+            "type": "object",
+            "properties": {
+                "coap": {
+                    "type": "string"
+                },
+                "docker": {
+                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.CoAPDockerExample"
+                },
+                "rpcSubscribe": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_protocol_v1.DeviceEndpoints": {
+            "type": "object",
+            "properties": {
+                "coap": {
+                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.CoAPEndpoint"
+                },
+                "http": {
+                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.HTTPEndpoint"
+                },
+                "mqtt": {
+                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.MQTTEndpoint"
+                }
+            }
+        },
+        "aiot-backend_api_protocol_v1.HTTPEndpoint": {
+            "type": "object",
+            "properties": {
+                "http": {
+                    "type": "string"
+                },
+                "rpcSubscribe": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_protocol_v1.MQTTEndpoint": {
+            "type": "object",
+            "properties": {
+                "attributesSubscribeTopic": {
+                    "type": "string"
+                },
+                "attributesTopic": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "rpcSubscribeTopic": {
+                    "type": "string"
+                },
+                "telemetryTopic": {
+                    "type": "string"
                 }
             }
         }

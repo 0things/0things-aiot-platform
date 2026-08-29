@@ -28,6 +28,7 @@ func newOTAPackage(db *gorm.DB, opts ...gen.DOOption) oTAPackage {
 	tableName := _oTAPackage.oTAPackageDo.TableName()
 	_oTAPackage.ALL = field.NewAsterisk(tableName)
 	_oTAPackage.ID = field.NewInt64(tableName, "id")
+	_oTAPackage.UUID = field.NewString(tableName, "uuid")
 	_oTAPackage.PackageName = field.NewString(tableName, "package_name")
 	_oTAPackage.Version = field.NewString(tableName, "version")
 	_oTAPackage.ProductID = field.NewInt64(tableName, "product_id")
@@ -41,7 +42,6 @@ func newOTAPackage(db *gorm.DB, opts ...gen.DOOption) oTAPackage {
 	_oTAPackage.FileSize = field.NewInt64(tableName, "file_size")
 	_oTAPackage.Checksum = field.NewString(tableName, "checksum")
 	_oTAPackage.Description = field.NewString(tableName, "description")
-	_oTAPackage.ReleaseNotes = field.NewString(tableName, "release_notes")
 	_oTAPackage.DeletedAt = field.NewField(tableName, "deleted_at")
 	_oTAPackage.CreatedAt = field.NewTime(tableName, "created_at")
 	_oTAPackage.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -55,26 +55,26 @@ func newOTAPackage(db *gorm.DB, opts ...gen.DOOption) oTAPackage {
 type oTAPackage struct {
 	oTAPackageDo oTAPackageDo
 
-	ALL          field.Asterisk
-	ID           field.Int64
-	PackageName  field.String
-	Version      field.String
-	ProductID    field.Int64
-	OrganizationID     field.Int64
-	ProductKey   field.String
-	ProductName  field.String
-	PackageType  field.String
-	Status       field.String
-	UploadType   field.String
-	FileURL      field.String
-	FileSize     field.Int64
-	Checksum     field.String
-	Description  field.String
-	ReleaseNotes field.String
-	DeletedAt    field.Field
-	CreatedAt    field.Time
-	UpdatedAt    field.Time
-	ReleasedAt   field.Time
+	ALL            field.Asterisk
+	ID             field.Int64
+	UUID           field.String
+	PackageName    field.String
+	Version        field.String
+	ProductID      field.Int64
+	OrganizationID field.Int64
+	ProductKey     field.String
+	ProductName    field.String
+	PackageType    field.String
+	Status         field.String
+	UploadType     field.String
+	FileURL        field.String
+	FileSize       field.Int64
+	Checksum       field.String
+	Description    field.String
+	DeletedAt      field.Field
+	CreatedAt      field.Time
+	UpdatedAt      field.Time
+	ReleasedAt     field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -92,6 +92,7 @@ func (o oTAPackage) As(alias string) *oTAPackage {
 func (o *oTAPackage) updateTableName(table string) *oTAPackage {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
+	o.UUID = field.NewString(table, "uuid")
 	o.PackageName = field.NewString(table, "package_name")
 	o.Version = field.NewString(table, "version")
 	o.ProductID = field.NewInt64(table, "product_id")
@@ -105,7 +106,6 @@ func (o *oTAPackage) updateTableName(table string) *oTAPackage {
 	o.FileSize = field.NewInt64(table, "file_size")
 	o.Checksum = field.NewString(table, "checksum")
 	o.Description = field.NewString(table, "description")
-	o.ReleaseNotes = field.NewString(table, "release_notes")
 	o.DeletedAt = field.NewField(table, "deleted_at")
 	o.CreatedAt = field.NewTime(table, "created_at")
 	o.UpdatedAt = field.NewTime(table, "updated_at")
@@ -138,6 +138,7 @@ func (o *oTAPackage) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (o *oTAPackage) fillFieldMap() {
 	o.fieldMap = make(map[string]field.Expr, 19)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["uuid"] = o.UUID
 	o.fieldMap["package_name"] = o.PackageName
 	o.fieldMap["version"] = o.Version
 	o.fieldMap["product_id"] = o.ProductID
@@ -151,7 +152,6 @@ func (o *oTAPackage) fillFieldMap() {
 	o.fieldMap["file_size"] = o.FileSize
 	o.fieldMap["checksum"] = o.Checksum
 	o.fieldMap["description"] = o.Description
-	o.fieldMap["release_notes"] = o.ReleaseNotes
 	o.fieldMap["deleted_at"] = o.DeletedAt
 	o.fieldMap["created_at"] = o.CreatedAt
 	o.fieldMap["updated_at"] = o.UpdatedAt

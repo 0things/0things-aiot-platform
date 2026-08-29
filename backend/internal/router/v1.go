@@ -9,6 +9,7 @@ import (
 func InitV1Routers(deps RouterDeps, r *gin.RouterGroup) {
 	protected := r.Group("/")
 	protected.Use(middleware.NoStrictAuth(deps.JWT, deps.Logger))
+	InitCategoryRouter(deps, protected)
 	InitProductRouter(deps, protected)
 	InitProductTSLRouter(deps, protected)
 	InitProductMessageParserRouter(deps, protected)

@@ -31,7 +31,7 @@ func newProduct(db *gorm.DB, opts ...gen.DOOption) product {
 	_product.ProductKey = field.NewString(tableName, "product_key")
 	_product.Name = field.NewString(tableName, "name")
 	_product.Description = field.NewString(tableName, "description")
-	_product.Category = field.NewString(tableName, "category")
+	_product.CategoryID = field.NewInt64(tableName, "category_id")
 	_product.Status = field.NewString(tableName, "status")
 	_product.Metadata = field.NewString(tableName, "metadata")
 	_product.NodeType = field.NewString(tableName, "node_type")
@@ -55,13 +55,13 @@ type product struct {
 	ProductKey         field.String
 	Name               field.String
 	Description        field.String
-	Category           field.String
+	CategoryID         field.Int64
 	Status             field.String
 	Metadata           field.String
 	NodeType           field.String
 	ConnectivityMethod field.String
 	AccessProtocol     field.String
-	OrganizationID           field.Int64
+	OrganizationID     field.Int64
 	DeletedAt          field.Field
 	CreatedAt          field.Time
 	UpdatedAt          field.Time
@@ -85,7 +85,7 @@ func (p *product) updateTableName(table string) *product {
 	p.ProductKey = field.NewString(table, "product_key")
 	p.Name = field.NewString(table, "name")
 	p.Description = field.NewString(table, "description")
-	p.Category = field.NewString(table, "category")
+	p.CategoryID = field.NewInt64(table, "category_id")
 	p.Status = field.NewString(table, "status")
 	p.Metadata = field.NewString(table, "metadata")
 	p.NodeType = field.NewString(table, "node_type")
@@ -124,7 +124,7 @@ func (p *product) fillFieldMap() {
 	p.fieldMap["product_key"] = p.ProductKey
 	p.fieldMap["name"] = p.Name
 	p.fieldMap["description"] = p.Description
-	p.fieldMap["category"] = p.Category
+	p.fieldMap["category_id"] = p.CategoryID
 	p.fieldMap["status"] = p.Status
 	p.fieldMap["metadata"] = p.Metadata
 	p.fieldMap["node_type"] = p.NodeType

@@ -13,6 +13,7 @@ type RouterDeps struct {
 	JWT                         *jwt.JWT
 	UserHandler                 *handler.UserHandler
 	ProductHandler              *handler.ProductHandler
+	CategoryHandler             *handler.CategoryHandler
 	ProductTSLHandler           *handler.ProductTSLHandler
 	ProductMessageParserHandler *handler.ProductMessageParserHandler
 	DeviceHandler               *handler.DeviceHandler
@@ -21,4 +22,5 @@ type RouterDeps struct {
 	OTAHandler                  *handler.OTAHandler
 	FileHandler                 *handler.FileHandler
 	DeviceEventHandler          *handler.DeviceEventHandler
+	ProtocolHandler             *handler.ProtocolHandler
 }

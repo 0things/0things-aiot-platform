@@ -192,24 +192,6 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-DeviceMQTTParametersResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/DeviceMQTTParametersResponse'
-      message:
-        type: string
-    type: object
-  ApiResponse-DeviceRestoreDeviceResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/DeviceRestoreDeviceResponse'
-      message:
-        type: string
-    type: object
   ApiResponse-DeviceSetDeviceEnabledResponse:
     properties:
       code:
@@ -399,15 +381,6 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-ProductGetProductByKeyResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/ProductGetProductByKeyResponse'
-      message:
-        type: string
-    type: object
   ApiResponse-ProductGetProductResponse:
     properties:
       code:
@@ -423,15 +396,6 @@ definitions:
         type: integer
       data:
         $ref: '#/definitions/ProductListProductsResponse'
-      message:
-        type: string
-    type: object
-  ApiResponse-ProductRestoreProductResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/ProductRestoreProductResponse'
       message:
         type: string
     type: object
@@ -498,6 +462,15 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_protocol_v1.DeviceEndpoints'
+      message:
+        type: string
+    type: object
   ApiResponse-array_ApiOrganizationItem:
     properties:
       code:
@@ -505,6 +478,17 @@ definitions:
       data:
         items:
           $ref: '#/definitions/ApiOrganizationItem'
+        type: array
+      message:
+        type: string
+    type: object
+  ApiResponse-array_aiot-backend_api_category_v1_Category:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/aiot-backend_api_category_v1.Category'
         type: array
       message:
         type: string
@@ -727,19 +711,6 @@ definitions:
       total:
         type: integer
     type: object
-  DeviceMQTTParametersResponse:
-    properties:
-      clientId:
-        type: string
-      mqttHostUrl:
-        type: string
-      password:
-        type: string
-      port:
-        type: integer
-      username:
-        type: string
-    type: object
   DevicePushRecord:
     properties:
       createdAt:
@@ -762,11 +733,6 @@ definitions:
         type: string
       updatedAt:
         type: string
-    type: object
-  DeviceRestoreDeviceResponse:
-    properties:
-      device:
-        $ref: '#/definitions/Device'
     type: object
   DeviceSetDeviceEnabledRequest:
     properties:
@@ -1203,8 +1169,8 @@ definitions:
     properties:
       accessProtocol:
         type: string
-      category:
-        type: string
+      categoryId:
+        type: integer
       connectivityMethod:
         type: string
       createdAt:
@@ -1217,8 +1183,6 @@ definitions:
         type: integer
       id:
         type: integer
-      metadata:
-        type: string
       name:
         type: string
       nodeType:
@@ -1227,6 +1191,10 @@ definitions:
         type: integer
       productKey:
         type: string
+      protocols:
+        items:
+          $ref: '#/definitions/aiot-backend_api_product_v1.ProductProtocolInput'
+        type: array
       status:
         type: string
       updatedAt:
@@ -1236,31 +1204,27 @@ definitions:
     properties:
       accessProtocol:
         type: string
-      category:
-        type: string
+      categoryId:
+        type: integer
       connectivityMethod:
         type: string
       description:
         type: string
-      metadata:
-        items:
-          type: integer
-        type: array
       name:
         type: string
       nodeType:
         type: string
+      protocols:
+        items:
+          $ref: '#/definitions/aiot-backend_api_product_v1.ProductProtocolInput'
+        type: array
       status:
         type: string
     required:
+    - categoryId
     - name
     type: object
   ProductCreateProductResponse:
-    properties:
-      product:
-        $ref: '#/definitions/Product'
-    type: object
-  ProductGetProductByKeyResponse:
     properties:
       product:
         $ref: '#/definitions/Product'
@@ -1282,11 +1246,6 @@ definitions:
         type: array
       total:
         type: integer
-    type: object
-  ProductRestoreProductResponse:
-    properties:
-      product:
-        $ref: '#/definitions/Product'
     type: object
   ProductSuccessResponse:
     properties:
@@ -1325,20 +1284,20 @@ definitions:
     properties:
       accessProtocol:
         type: string
-      category:
-        type: string
+      categoryId:
+        type: integer
       connectivityMethod:
         type: string
       description:
         type: string
-      metadata:
-        items:
-          type: integer
-        type: array
       name:
         type: string
       nodeType:
         type: string
+      protocols:
+        items:
+          $ref: '#/definitions/aiot-backend_api_product_v1.ProductProtocolInput'
+        type: array
       status:
         type: string
     type: object
@@ -1414,6 +1373,78 @@ definitions:
       sceneLinkage:
         $ref: '#/definitions/SceneLinkage'
     type: object
+  aiot-backend_api_category_v1.Category:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/aiot-backend_api_category_v1.Category'
+        type: array
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      name:
+        type: string
+      parentId:
+        type: integer
+      sort:
+        type: integer
+    type: object
+  aiot-backend_api_product_v1.ProductProtocolInput:
+    properties:
+      applicationProtocol:
+        type: string
+      transportProtocol:
+        type: string
+    required:
+    - applicationProtocol
+    - transportProtocol
+    type: object
+  aiot-backend_api_protocol_v1.CoAPDockerExample:
+    properties:
+      coap:
+        type: string
+    type: object
+  aiot-backend_api_protocol_v1.CoAPEndpoint:
+    properties:
+      coap:
+        type: string
+      docker:
+        $ref: '#/definitions/aiot-backend_api_protocol_v1.CoAPDockerExample'
+      rpcSubscribe:
+        type: string
+    type: object
+  aiot-backend_api_protocol_v1.DeviceEndpoints:
+    properties:
+      coap:
+        $ref: '#/definitions/aiot-backend_api_protocol_v1.CoAPEndpoint'
+      http:
+        $ref: '#/definitions/aiot-backend_api_protocol_v1.HTTPEndpoint'
+      mqtt:
+        $ref: '#/definitions/aiot-backend_api_protocol_v1.MQTTEndpoint'
+    type: object
+  aiot-backend_api_protocol_v1.HTTPEndpoint:
+    properties:
+      http:
+        type: string
+      rpcSubscribe:
+        type: string
+    type: object
+  aiot-backend_api_protocol_v1.MQTTEndpoint:
+    properties:
+      attributesSubscribeTopic:
+        type: string
+      attributesTopic:
+        type: string
+      host:
+        type: string
+      port:
+        type: string
+      rpcSubscribeTopic:
+        type: string
+      telemetryTopic:
+        type: string
+    type: object
 host: localhost:8000
 info:
   contact:
@@ -1451,6 +1482,20 @@ paths:
       summary: 切换组织
       tags:
       - 用户模块
+  /categories/tree:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-array_aiot-backend_api_category_v1_Category'
+      security:
+      - Bearer: []
+      summary: 获取产品分类树
+      tags:
+      - 产品分类
   /device-events:
     get:
       description: 分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选
@@ -1580,40 +1625,17 @@ paths:
       summary: 创建设备
       tags:
       - 设备模块
-  /devices/{device_key}/mqtt-parameters:
-    get:
-      consumes:
-      - application/json
-      description: 获取设备 MQTT 连接的 ClientID、Username、Password、HostURL、Port
-      parameters:
-      - description: 设备 DeviceKey
-        in: path
-        name: device_key
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-DeviceMQTTParametersResponse'
-      security:
-      - Bearer: []
-      summary: 获取 MQTT 连接参数
-      tags:
-      - 设备模块
-  /devices/{id}:
+  /devices/{deviceKey}:
     delete:
       consumes:
       - application/json
-      description: 通过设备 ID 软删除设备
+      description: 通过设备 Key 软删除设备
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1629,13 +1651,13 @@ paths:
     get:
       consumes:
       - application/json
-      description: 通过设备 ID 获取设备详情
+      description: 通过设备 Key 获取设备详情
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1645,19 +1667,19 @@ paths:
             $ref: '#/definitions/ApiResponse-DeviceGetDeviceResponse'
       security:
       - Bearer: []
-      summary: 通过 ID 获取设备
+      summary: 通过 deviceKey 获取设备
       tags:
       - 设备模块
     put:
       consumes:
       - application/json
-      description: 通过设备 ID 更新设备
+      description: 通过设备 Key 更新设备
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -1676,17 +1698,17 @@ paths:
       summary: 更新设备
       tags:
       - 设备模块
-  /devices/{id}/activate:
+  /devices/{deviceKey}/activate:
     post:
       consumes:
       - application/json
-      description: 通过设备 ID 激活设备
+      description: 通过设备 Key 激活设备
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1699,17 +1721,17 @@ paths:
       summary: 激活设备
       tags:
       - 设备模块
-  /devices/{id}/enabled:
+  /devices/{deviceKey}/enabled:
     post:
       consumes:
       - application/json
-      description: 通过设备 ID 启用或禁用设备
+      description: 通过设备 Key 启用或禁用设备
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -1728,17 +1750,35 @@ paths:
       summary: 设置设备启用/禁用
       tags:
       - 设备模块
-  /devices/{id}/push-records:
+  /devices/{deviceKey}/endpoints:
+    get:
+      parameters:
+      - description: Device key
+        in: path
+        name: deviceKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints'
+      summary: 获取设备连接数据
+      tags:
+      - devices
+  /devices/{deviceKey}/push-records:
     delete:
       consumes:
       - application/json
       description: 清理设备指定时间戳之前的下行推送记录
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: 清理此时间戳之前的记录（毫秒）
         in: query
         name: beforeTimestamp
@@ -1760,11 +1800,11 @@ paths:
       - application/json
       description: 分页获取设备的下行推送记录
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: 页码
         in: query
         name: page
@@ -1793,40 +1833,17 @@ paths:
       summary: 获取设备下行推送记录列表
       tags:
       - 设备模块
-  /devices/{id}/restore:
-    post:
-      consumes:
-      - application/json
-      description: 通过设备 ID 恢复软删除的设备
-      parameters:
-      - description: 设备 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-DeviceRestoreDeviceResponse'
-      security:
-      - Bearer: []
-      summary: 恢复已删除的设备
-      tags:
-      - 设备模块
-  /devices/{id}/shadow:
+  /devices/{deviceKey}/shadow:
     get:
       consumes:
       - application/json
       description: 获取设备影子（Desired、Reported、Delta、Metadata、Version）
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1839,17 +1856,17 @@ paths:
       summary: 获取设备影子
       tags:
       - 设备模块
-  /devices/{id}/shadow/desired:
+  /devices/{deviceKey}/shadow/desired:
     delete:
       consumes:
       - application/json
       description: 清空设备影子的 Desired 部分
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -1873,11 +1890,11 @@ paths:
       - application/json
       description: 由应用侧更新设备的 Desired 影子
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -1896,17 +1913,17 @@ paths:
       summary: 更新设备影子期望值
       tags:
       - 设备模块
-  /devices/{id}/shadow/history:
+  /devices/{deviceKey}/shadow/history:
     get:
       consumes:
       - application/json
       description: 获取设备影子的变更历史记录
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1919,17 +1936,17 @@ paths:
       summary: 获取设备影子历史
       tags:
       - 设备模块
-  /devices/{id}/shadow/reported:
+  /devices/{deviceKey}/shadow/reported:
     put:
       consumes:
       - application/json
       description: 由设备侧更新 Reported 影子
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -1948,17 +1965,17 @@ paths:
       summary: 更新设备影子上报值
       tags:
       - 设备模块
-  /devices/{id}/simulate-push:
+  /devices/{deviceKey}/simulate-push:
     post:
       consumes:
       - application/json
       description: 模拟服务端向设备发起一次下行推送
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -1977,17 +1994,17 @@ paths:
       summary: 模拟下行推送
       tags:
       - 设备模块
-  /devices/{id}/tags:
+  /devices/{deviceKey}/tags:
     delete:
       consumes:
       - application/json
       description: 删除设备指定的标签键
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -2011,11 +2028,11 @@ paths:
       - application/json
       description: 获取设备的所有标签
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -2033,11 +2050,11 @@ paths:
       - application/json
       description: 增量式添加设备的标签（POST 语义，保留已存在的标签）
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -2061,11 +2078,11 @@ paths:
       - application/json
       description: 覆盖式设置设备的标签集合（PUT 语义）
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       - description: params
         in: body
         name: request
@@ -2084,17 +2101,17 @@ paths:
       summary: 全量覆盖设置设备标签
       tags:
       - 设备模块
-  /devices/{id}/telemetry:
+  /devices/{deviceKey}/telemetry:
     get:
       consumes:
       - application/json
       description: 获取设备的遥测（Telemetry）数据
       parameters:
-      - description: 设备 ID
+      - description: 设备 Key
         in: path
-        name: id
+        name: deviceKey
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -2143,29 +2160,6 @@ paths:
       security:
       - Bearer: []
       summary: 批量上传设备
-      tags:
-      - 设备模块
-  /devices/key/{deviceKey}:
-    get:
-      consumes:
-      - application/json
-      description: 通过设备 Key 获取设备详情
-      parameters:
-      - description: 设备 Key
-        in: path
-        name: deviceKey
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-DeviceGetDeviceResponse'
-      security:
-      - Bearer: []
-      summary: 通过 deviceKey 获取设备
       tags:
       - 设备模块
   /devices/push-records/{pushRecordId}:
@@ -2501,6 +2495,10 @@ paths:
         name: uuid
         required: true
         type: string
+      - description: 批次 ID
+        in: query
+        name: batchId
+        type: string
       produces:
       - application/json
       responses:
@@ -2574,17 +2572,17 @@ paths:
       summary: 创建产品
       tags:
       - 产品模块
-  /products/{id}:
+  /products/{productKey}:
     delete:
       consumes:
       - application/json
-      description: 通过产品 ID 软删除产品
+      description: 通过产品 Key 软删除产品
       parameters:
-      - description: 产品 ID
+      - description: 产品 Key
         in: path
-        name: id
+        name: productKey
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -2597,153 +2595,6 @@ paths:
       summary: 删除产品
       tags:
       - 产品模块
-    get:
-      consumes:
-      - application/json
-      description: 通过产品 ID 获取产品详情
-      parameters:
-      - description: 产品 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-ProductGetProductResponse'
-      security:
-      - Bearer: []
-      summary: 通过 ID 获取产品
-      tags:
-      - 产品模块
-  /products/{id}/restore:
-    post:
-      consumes:
-      - application/json
-      description: 通过产品 ID 恢复软删除的产品
-      parameters:
-      - description: 产品 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-ProductRestoreProductResponse'
-      security:
-      - Bearer: []
-      summary: 恢复已删除的产品
-      tags:
-      - 产品模块
-  /products/{id}/tsl:
-    delete:
-      consumes:
-      - application/json
-      description: 通过产品 ID 删除其物模型定义
-      parameters:
-      - description: 产品 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
-      security:
-      - Bearer: []
-      summary: 删除产品物模型（TSL）
-      tags:
-      - 产品模块
-    get:
-      consumes:
-      - application/json
-      description: 通过产品 ID 获取其物模型定义（TSL）
-      parameters:
-      - description: 产品 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-ProductTslGetProductTSLResponse'
-      security:
-      - Bearer: []
-      summary: 获取产品物模型（TSL）
-      tags:
-      - 产品模块
-    post:
-      consumes:
-      - application/json
-      description: 通过产品 ID 上传或更新物模型定义
-      parameters:
-      - description: 产品 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ProductTslUpsertProductTSLRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
-      security:
-      - Bearer: []
-      summary: 上传/更新产品物模型（TSL）
-      tags:
-      - 产品模块
-    put:
-      consumes:
-      - application/json
-      description: 通过产品 ID 上传或更新物模型定义
-      parameters:
-      - description: 产品 ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ProductTslUpsertProductTSLRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
-      security:
-      - Bearer: []
-      summary: 上传/更新产品物模型（TSL）
-      tags:
-      - 产品模块
-  /products/key/{productKey}:
     get:
       consumes:
       - application/json
@@ -2760,7 +2611,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ApiResponse-ProductGetProductByKeyResponse'
+            $ref: '#/definitions/ApiResponse-ProductGetProductResponse'
       security:
       - Bearer: []
       summary: 通过 productKey 获取产品
@@ -2792,6 +2643,107 @@ paths:
       security:
       - Bearer: []
       summary: 更新产品
+      tags:
+      - 产品模块
+  /products/{productKey}/tsl:
+    delete:
+      consumes:
+      - application/json
+      description: 通过产品 Key 删除其物模型定义
+      parameters:
+      - description: 产品 Key
+        in: path
+        name: productKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
+      security:
+      - Bearer: []
+      summary: 删除产品物模型（TSL）
+      tags:
+      - 产品模块
+    get:
+      consumes:
+      - application/json
+      description: 通过产品 Key 获取其物模型定义（TSL）
+      parameters:
+      - description: 产品 Key
+        in: path
+        name: productKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-ProductTslGetProductTSLResponse'
+      security:
+      - Bearer: []
+      summary: 获取产品物模型（TSL）
+      tags:
+      - 产品模块
+    post:
+      consumes:
+      - application/json
+      description: 通过产品 Key 上传或更新物模型定义
+      parameters:
+      - description: 产品 Key
+        in: path
+        name: productKey
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ProductTslUpsertProductTSLRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
+      security:
+      - Bearer: []
+      summary: 上传/更新产品物模型（TSL）
+      tags:
+      - 产品模块
+    put:
+      consumes:
+      - application/json
+      description: 通过产品 Key 上传或更新物模型定义
+      parameters:
+      - description: 产品 Key
+        in: path
+        name: productKey
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ProductTslUpsertProductTSLRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
+      security:
+      - Bearer: []
+      summary: 上传/更新产品物模型（TSL）
       tags:
       - 产品模块
   /products/key/{productKey}/message-parser:

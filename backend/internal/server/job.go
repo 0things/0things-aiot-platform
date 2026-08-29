@@ -9,25 +9,34 @@ import (
 )
 
 type JobServer struct {
-	log           *log.Logger
-	userJob       job.UserJob
-	eventConsumer *job.DeviceEventConsumer
-	otaConsumer   *job.OTACommandConsumer
-	cancel        context.CancelFunc
-	mu            sync.Mutex
+	log                   *log.Logger
+	userJob               job.UserJob
+	eventConsumer         *job.DeviceEventConsumer
+	deviceMessageConsumer *job.DeviceMessageConsumer
+	otaCommandConsumer    *job.OTACommandConsumer
+	otaMQTTReportBridge   *job.OTAMQTTReportBridge
+	otaReportConsumer     *job.OTAReportConsumer
+	cancel                context.CancelFunc
+	mu                    sync.Mutex
 }
 
 func NewJobServer(
 	log *log.Logger,
 	userJob job.UserJob,
 	eventConsumer *job.DeviceEventConsumer,
-	otaConsumer *job.OTACommandConsumer,
+	deviceMessageConsumer *job.DeviceMessageConsumer,
+	otaCommandConsumer *job.OTACommandConsumer,
+	otaMQTTReportBridge *job.OTAMQTTReportBridge,
+	otaReportConsumer *job.OTAReportConsumer,
 ) *JobServer {
 	return &JobServer{
-		log:           log,
-		userJob:       userJob,
-		eventConsumer: eventConsumer,
-		otaConsumer:   otaConsumer,
+		log:                   log,
+		userJob:               userJob,
+		eventConsumer:         eventConsumer,
+		deviceMessageConsumer: deviceMessageConsumer,
+		otaCommandConsumer:    otaCommandConsumer,
+		otaMQTTReportBridge:   otaMQTTReportBridge,
+		otaReportConsumer:     otaReportConsumer,
 	}
 }
 
@@ -39,9 +48,20 @@ func (j *JobServer) Start(ctx context.Context) error {
 	j.cancel = cancel
 	j.mu.Unlock()
 	go j.eventConsumer.Start(ctx)
+	go j.deviceMessageConsumer.Start(ctx)
 	go func() {
-		if err := j.otaConsumer.Start(ctx); err != nil && ctx.Err() == nil {
+		if err := j.otaCommandConsumer.Start(ctx); err != nil && ctx.Err() == nil {
 			j.log.Error("OTA command consumer stopped", zap.Error(err))
+		}
+	}()
+	go func() {
+		if err := j.otaMQTTReportBridge.Start(ctx); err != nil && ctx.Err() == nil {
+			j.log.Error("OTA MQTT report bridge stopped", zap.Error(err))
+		}
+	}()
+	go func() {
+		if err := j.otaReportConsumer.Start(ctx); err != nil && ctx.Err() == nil {
+			j.log.Error("OTA report consumer stopped", zap.Error(err))
 		}
 	}()
 	return j.userJob.KafkaConsumer(ctx)
@@ -53,6 +73,9 @@ func (j *JobServer) Stop(ctx context.Context) error {
 	}
 	j.mu.Unlock()
 	j.eventConsumer.Stop()
-	j.otaConsumer.Stop()
+	j.deviceMessageConsumer.Stop()
+	j.otaCommandConsumer.Stop()
+	j.otaMQTTReportBridge.Stop()
+	j.otaReportConsumer.Stop()
 	return nil
 }

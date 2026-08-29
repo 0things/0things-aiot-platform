@@ -44,15 +44,15 @@ func newSceneLinkage(db *gorm.DB, opts ...gen.DOOption) sceneLinkage {
 type sceneLinkage struct {
 	sceneLinkageDo sceneLinkageDo
 
-	ALL         field.Asterisk
-	ID          field.Int64
-	OrganizationID    field.Int64
-	Name        field.String
-	Description field.String
-	Enable      field.Int
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
-	DeletedAt   field.Field
+	ALL            field.Asterisk
+	ID             field.Int64
+	OrganizationID field.Int64
+	Name           field.String
+	Description    field.String
+	Enable         field.Int
+	CreatedAt      field.Time
+	UpdatedAt      field.Time
+	DeletedAt      field.Field
 
 	fieldMap map[string]field.Expr
 }

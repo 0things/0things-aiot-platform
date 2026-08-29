@@ -11,6 +11,24 @@
     }
   },
   "productDetail": {
+    "actions": {
+      "create": "新建产品",
+      "edit": "编辑产品",
+      "save": "保存"
+    },
+    "protocols": {
+      "title": "接入协议",
+      "loading": "加载协议中...",
+      "empty": "暂未配置接入协议",
+      "ota": "支持 OTA",
+      "noOta": "不支持 OTA",
+      "add": "新增协议",
+      "transport": "传输协议",
+      "application": "应用协议",
+      "save": "保存"
+      ,"delete": "删除"
+      ,"edit": "编辑"
+    },
     "header": {
       "productKey": "ProductKey",
       "productSecret": "ProductSecret",
@@ -48,6 +66,7 @@
         "dataValidationLevel": "数据校验级别",
         "dataValidationValue": "弱校验",
         "description": "产品描述"
+        ,"metadata": "元数据"
       },
       "labels": {
         "title": "标签信息",
@@ -64,16 +83,6 @@
       "cellular": "蜂窝(2G/3G/4G/5G)",
       "ethernet": "以太网",
       "other": "其他"
-    },
-    "accessProtocols": {
-      "http": "HTTP",
-      "mqtt": "MQTT",
-      "other": "其他",
-      "custom": "自定义",
-      "modbus": "Modbus",
-      "opc-ua": "OPC UA",
-      "zigbee": "ZigBee",
-      "ble": "BLE"
     },
     "status": {
       "active": "有效",
@@ -420,6 +429,26 @@
     }
   },
   "deviceDetail": {
+    "endpoints": {
+      "title": "接入端点",
+      "loading": "加载接入端点中...",
+      "empty": "暂未配置接入端点",
+      "noAddress": "未配置地址",
+      "add": "新增端点",
+      "selectProtocol": "选择协议",
+      "endpoint": "端点地址",
+      "save": "保存"
+      ,"delete": "删除"
+      ,"edit": "编辑"
+      ,"connectionData": "连接数据"
+      ,"clientId": "客户端 ID"
+      ,"username": "用户名"
+      ,"password": "密码"
+      ,"port": "端口"
+      ,"method": "请求方法"
+      ,"publishTopic": "发布主题"
+      ,"subscribeTopic": "订阅主题"
+    },
     "header": {
       "product": "产品",
       "deviceSecret": "DeviceSecret",
@@ -430,6 +459,7 @@
     },
     "tabs": {
       "info": "设备信息",
+      "connection": "连接信息",
       "topics": "Topic 列表",
       "thingModel": "物模型数据",
       "shadow": "设备影子",
@@ -485,24 +515,14 @@
       "copySuccess": "已复制",
       "testingLatency": "正在测试延迟...",
       "latencyResult": "延迟: {{latency}}",
-      "mqttParamsView": "查看 MQTT 连接参数",
       "logUploadEnabled": "设备日志上报已启用",
       "logUploadDisabled": "设备日志上报已禁用",
-      "mqttDialog": {
-        "title": "MQTT 连接参数",
-        "loading": "加载中...",
-        "noData": "暂无数据",
-        "copyAll": "一键复制",
-        "close": "关闭",
-        "copyAllSuccess": "所有参数已复制到剪贴板"
-      },
       "fields": {
         "productName": "产品名称",
         "nodeType": "节点类型",
         "notes": "备注名称",
         "createdAt": "创建时间",
         "currentStatus": "当前状态",
-        "mqttParams": "MQTT 连接参数",
         "ipAddress": "IP地址",
         "activationTime": "激活时间",
         "realTimeLatency": "实时延迟",

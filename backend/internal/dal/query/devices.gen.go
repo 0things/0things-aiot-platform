@@ -57,18 +57,18 @@ func newDevice(db *gorm.DB, opts ...gen.DOOption) device {
 type device struct {
 	deviceDo deviceDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	DeviceKey field.String
-	Name      field.String
-	ProductID field.Int64
-	OrganizationID  field.Int64
-	Enabled   field.Bool
-	Metadata  field.String
-	DeletedAt field.Field
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	State     deviceHasOneState
+	ALL            field.Asterisk
+	ID             field.Int64
+	DeviceKey      field.String
+	Name           field.String
+	ProductID      field.Int64
+	OrganizationID field.Int64
+	Enabled        field.Bool
+	Metadata       field.String
+	DeletedAt      field.Field
+	CreatedAt      field.Time
+	UpdatedAt      field.Time
+	State          deviceHasOneState
 
 	Product deviceBelongsToProduct
 

@@ -43,14 +43,14 @@ func newProductMessageParser(db *gorm.DB, opts ...gen.DOOption) productMessagePa
 type productMessageParser struct {
 	productMessageParserDo productMessageParserDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	OrganizationID  field.Int64
-	ProductID field.Int64
-	Language  field.String
-	Script    field.String
-	CreatedAt field.Time
-	UpdatedAt field.Time
+	ALL            field.Asterisk
+	ID             field.Int64
+	OrganizationID field.Int64
+	ProductID      field.Int64
+	Language       field.String
+	Script         field.String
+	CreatedAt      field.Time
+	UpdatedAt      field.Time
 
 	fieldMap map[string]field.Expr
 }
