@@ -193,14 +193,25 @@ func (r *OTARepository) FindBatchDevice(ctx context.Context, batchID string, dev
 	return &task, err
 }
 
-// ShouldDispatchBatchDevice 判断待下发任务是否仍处于 pending，避免 Kafka 重复消息重复下发。
-func (r *OTARepository) ShouldDispatchBatchDevice(ctx context.Context, batchID, deviceKey string) (bool, error) {
-	var count int64
-	err := r.DB(ctx).Table("ota_device_upgrade_status dus").
-		Joins("JOIN devices d ON d.id = dus.device_id").
-		Where("dus.upgrade_batch_id = ? AND d.device_key = ? AND dus.status = ?", batchID, deviceKey, enum.OTAStatusPending).
-		Count(&count).Error
-	return count > 0, err
+// ClaimBatchDeviceForMQTT 原子领取待下发任务，避免并发消费重复发送。
+func (r *OTARepository) ClaimBatchDeviceForMQTT(ctx context.Context, batchID, deviceKey string) (bool, error) {
+	result := r.DB(ctx).Exec(`
+		UPDATE ota_device_upgrade_status
+		SET status = ?, last_status_change_ts = ?
+		WHERE id = (
+			SELECT dus.id FROM ota_device_upgrade_status dus
+			JOIN devices d ON d.id = dus.device_id
+			WHERE dus.upgrade_batch_id = ? AND d.device_key = ? AND dus.status = ?
+			LIMIT 1
+		)`, enum.OTAStatusSent, time.Now().Unix(), batchID, deviceKey, enum.OTAStatusPending)
+	return result.RowsAffected == 1, result.Error
+}
+
+// ResetMQTTDispatch 将 MQTT 发布失败的任务退回 pending，供显式重试再次投递。
+func (r *OTARepository) ResetMQTTDispatch(ctx context.Context, batchID, deviceKey, dispatchError string) error {
+	return r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
+		Where("upgrade_batch_id = ? AND status = ? AND device_id = (SELECT d.id FROM devices d WHERE d.device_key = ? LIMIT 1)", batchID, enum.OTAStatusSent, deviceKey).
+		Updates(map[string]interface{}{"status": enum.OTAStatusPending, "last_dispatch_error": dispatchError, "last_status_change_ts": time.Now().Unix()}).Error
 }
 
 // CreateBatch 持久化一个新的升级批次。
@@ -286,6 +297,13 @@ func (r *OTARepository) MarkDispatchResult(ctx context.Context, packageID, devic
 		Updates(updates).Error
 }
 
+// RecordKafkaDispatch 记录命令已写入 Kafka，保留 pending 交给 transport worker 原子领取。
+func (r *OTARepository) RecordKafkaDispatch(ctx context.Context, packageID, deviceID int64, batchID string) error {
+	return r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
+		Where("ota_package_id = ? AND upgrade_batch_id = ? AND device_id = ? AND status = ?", strconv.FormatInt(packageID, 10), batchID, deviceID, enum.OTAStatusPending).
+		Updates(map[string]interface{}{"dispatch_attempts": gorm.Expr("dispatch_attempts + 1"), "last_dispatch_error": ""}).Error
+}
+
 func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, size int, status string, batchID ...string) ([]model.DeviceDeployment, int64, error) {
 	query := r.DB(ctx).Table("ota_device_upgrade_status dus").
 		Select("dus.device_id, d.device_key, d.name as device_name, d.product_id, p.product_key, dus.current_version, dus.target_version, dus.progress, dus.upgrade_batch_id, dus.status, dus.last_status_change_ts, dus.created_at").
@@ -330,7 +348,7 @@ func (r *OTARepository) UpdateDeviceStatus(ctx context.Context, packageID, devic
 		Updates(updates).Error
 }
 
-func (r *OTARepository) UpdateBatchDeviceStatus(ctx context.Context, batchID string, deviceID int64, status, currentVersion string, progress int32) error {
+func (r *OTARepository) UpdateBatchDeviceStatus(ctx context.Context, batchID string, deviceID int64, status, currentVersion string, progress int32, lastError ...string) error {
 	now := time.Now().Unix()
 	updates := map[string]interface{}{
 		"status":                status,
@@ -341,6 +359,9 @@ func (r *OTARepository) UpdateBatchDeviceStatus(ctx context.Context, batchID str
 	}
 	if currentVersion != "" {
 		updates["current_version"] = currentVersion
+	}
+	if len(lastError) > 0 && lastError[0] != "" {
+		updates["last_dispatch_error"] = lastError[0]
 	}
 	return r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
 		Where("upgrade_batch_id = ? AND device_id = ?", batchID, deviceID).
