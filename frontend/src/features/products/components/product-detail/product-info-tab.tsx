@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useProductCategories, type CategoryNode } from '../../api/categories'
-import { ProductProtocolsCard } from './product-protocols-card'
 
 interface ProductInfoTabProps {
   product: ProductV1Product
@@ -140,11 +139,6 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
           </p>
         </CardContent>
       </Card>
-
-      <ProductProtocolsCard
-        protocols={product.protocols ?? []}
-        productKey={product.productKey ?? ''}
-      />
     </div>
   )
 }
