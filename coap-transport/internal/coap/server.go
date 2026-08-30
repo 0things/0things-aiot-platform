@@ -102,9 +102,15 @@ func (s *Service) handleDeviceIngress(w mux.ResponseWriter, r *mux.Message) {
 		MessageType: "telemetry",
 		Payload:     json.RawMessage(payload),
 		Timestamp:   time.Now().UTC(),
-		Headers: map[string]string{
-			"remote-addr": r.Context().Value("remote-addr").(fmt.Stringer).String(),
-		},
+		Headers: func() map[string]string {
+			h := make(map[string]string)
+			if addrVal := r.Context().Value("remote-addr"); addrVal != nil {
+				if s, ok := addrVal.(fmt.Stringer); ok {
+					h["remote-addr"] = s.String()
+				}
+			}
+			return h
+		}(),
 	}
 
 	// 投递 Kafka

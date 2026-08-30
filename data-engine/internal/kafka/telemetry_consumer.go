@@ -8,6 +8,7 @@ import (
 	"data-engine/internal/engine"
 	"data-engine/internal/enum"
 	"data-engine/internal/model"
+
 	"github.com/spf13/viper"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.uber.org/zap"

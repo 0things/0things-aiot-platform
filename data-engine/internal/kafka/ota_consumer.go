@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// OTAConsumer 封装专用于消费 OTA 进度与设备生命周期事件的 Kafka Consumer。
+// OTAConsumer 封装专用于消费 OTA 进度的 Kafka Consumer。
 type OTAConsumer struct {
 	client    *kgo.Client
 	processor *service.OTAProcessor
@@ -28,7 +28,8 @@ func NewOTAConsumer(config *viper.Viper, logger *zap.Logger, processor *service.
 		return &OTAConsumer{processor: processor, logger: logger}, nil
 	}
 
-	topics := []string{enum.KafkaTopicOTAReport, enum.KafkaTopicDeviceEvent}
+	// 专职只监听 OTA 进度主题
+	topic := enum.KafkaTopicOTAReport
 
 	group := config.GetString("kafka.ota_consumer_group")
 	if group == "" {
@@ -38,7 +39,7 @@ func NewOTAConsumer(config *viper.Viper, logger *zap.Logger, processor *service.
 	opts := []kgo.Opt{
 		kgo.SeedBrokers(brokers...),
 		kgo.ConsumerGroup(group),
-		kgo.ConsumeTopics(topics...),
+		kgo.ConsumeTopics(topic),
 		kgo.DisableAutoCommit(),
 	}
 

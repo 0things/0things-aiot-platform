@@ -14,4 +14,5 @@ const (
 	// 消费组默认名称
 	ConsumerGroupTelemetry = "data-engine-telemetry-consumer-group"
 	ConsumerGroupOTA       = "data-engine-ota-consumer-group"
+	ConsumerGroupEvent     = "data-engine-event-consumer-group"
 )

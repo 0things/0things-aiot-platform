@@ -98,67 +98,39 @@ func (s *Service) subscribeTopic(topic string, handler mqtt.MessageHandler) {
 	}
 }
 
-// handleTelemetry 专职处理时序遥测与属性 ➔ 投递至 device.telemetry.v1
-func (s *Service) handleTelemetry(_ mqtt.Client, msg mqtt.Message) {
-	topic := msg.Topic()
-	deviceKey := extractDeviceKey(topic)
+// dispatchUplink 统一提取上行报文、解析 deviceKey 并投递到 Kafka 专属 Topic
+func (s *Service) dispatchUplink(msgType string, topic string, payload []byte) {
+	deviceKey := ExtractDeviceKey(topic)
 	if deviceKey == "" {
-		s.logger.Warn("could not extract deviceKey from telemetry topic", zap.String("topic", topic))
+		s.logger.Warn("could not extract deviceKey from topic", zap.String("topic", topic), zap.String("msg_type", msgType))
 		return
 	}
 
 	deviceMsg := model.DeviceMessage{
 		DeviceKey:   deviceKey,
 		Transport:   "mqtt",
-		MessageType: "telemetry",
-		Payload:     json.RawMessage(msg.Payload()),
+		MessageType: msgType,
+		Payload:     json.RawMessage(payload),
 		Timestamp:   time.Now().UTC(),
 		Headers:     map[string]string{"topic": topic},
 	}
 
 	_ = s.producer.SendDeviceMessage(context.Background(), deviceMsg)
+}
+
+// handleTelemetry 专职处理时序遥测与属性 ➔ 投递至 device.telemetry.v1
+func (s *Service) handleTelemetry(_ mqtt.Client, msg mqtt.Message) {
+	s.dispatchUplink("telemetry", msg.Topic(), msg.Payload())
 }
 
 // handleOtaProgress 专职处理 OTA 固件升级进度 ➔ 投递至 ota.report.v1
 func (s *Service) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
-	topic := msg.Topic()
-	deviceKey := extractDeviceKey(topic)
-	if deviceKey == "" {
-		s.logger.Warn("could not extract deviceKey from OTA topic", zap.String("topic", topic))
-		return
-	}
-
-	deviceMsg := model.DeviceMessage{
-		DeviceKey:   deviceKey,
-		Transport:   "mqtt",
-		MessageType: "ota_report",
-		Payload:     json.RawMessage(msg.Payload()),
-		Timestamp:   time.Now().UTC(),
-		Headers:     map[string]string{"topic": topic},
-	}
-
-	_ = s.producer.SendDeviceMessage(context.Background(), deviceMsg)
+	s.dispatchUplink("ota_report", msg.Topic(), msg.Payload())
 }
 
 // handleDeviceEvent 专职处理设备特定告警与事件 ➔ 投递至 device.event.v1
 func (s *Service) handleDeviceEvent(_ mqtt.Client, msg mqtt.Message) {
-	topic := msg.Topic()
-	deviceKey := extractDeviceKey(topic)
-	if deviceKey == "" {
-		s.logger.Warn("could not extract deviceKey from event topic", zap.String("topic", topic))
-		return
-	}
-
-	deviceMsg := model.DeviceMessage{
-		DeviceKey:   deviceKey,
-		Transport:   "mqtt",
-		MessageType: "event",
-		Payload:     json.RawMessage(msg.Payload()),
-		Timestamp:   time.Now().UTC(),
-		Headers:     map[string]string{"topic": topic},
-	}
-
-	_ = s.producer.SendDeviceMessage(context.Background(), deviceMsg)
+	s.dispatchUplink("event", msg.Topic(), msg.Payload())
 }
 
 // HandleDownlinkCommand 处理来自 Kafka 的下行控制指令并推向设备（使用标准枚举模板）
@@ -191,8 +163,8 @@ func (s *Service) HandleDownlinkCommand(ctx context.Context, cmd model.DeviceCom
 	return nil
 }
 
-// extractDeviceKey 从标准 /sys/{deviceKey}/... 路径中提取 deviceKey
-func extractDeviceKey(topic string) string {
+// ExtractDeviceKey 从标准 /sys/{deviceKey}/... 路径中提取 deviceKey
+func ExtractDeviceKey(topic string) string {
 	parts := strings.Split(strings.Trim(topic, "/"), "/")
 	if len(parts) >= 2 && parts[0] == "sys" {
 		return parts[1]

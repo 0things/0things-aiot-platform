@@ -5,6 +5,7 @@ kafka:
     - "127.0.0.1:9092"
   telemetry_consumer_group: "data-engine-telemetry-consumer-group"
   ota_consumer_group: "data-engine-ota-consumer-group"
+  event_consumer_group: "data-engine-event-consumer-group"
 
 log:
   log_level: debug
