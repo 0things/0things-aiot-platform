@@ -6,32 +6,33 @@ import (
 	"fmt"
 	"time"
 
+	"0things/pkg/tsdb"
 	"data-engine/internal/model"
 	"data-engine/internal/storage"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-// Processor 是数据处理引擎的核心计算处理器，负责 TSL 物模型字段展开、TDengine 时序落库、设备影子更新与告警规则计算。
+// Processor 是数据处理引擎的核心计算处理器，负责 TSL 物模型字段展开、TSDB 时序落库、设备影子更新与告警规则计算。
 type Processor struct {
-	tsdb   storage.TSDBWriter
-	shadow storage.ShadowStore
-	logger *zap.Logger
+	tsdbClient tsdb.Client
+	shadow     storage.ShadowStore
+	logger     *zap.Logger
 }
 
-func NewProcessor(config *viper.Viper, logger *zap.Logger, tsdb storage.TSDBWriter, shadow storage.ShadowStore) *Processor {
+func NewProcessor(config *viper.Viper, logger *zap.Logger, tsdbClient tsdb.Client, shadow storage.ShadowStore) *Processor {
 	return &Processor{
-		tsdb:   tsdb,
-		shadow: shadow,
-		logger: logger,
+		tsdbClient: tsdbClient,
+		shadow:     shadow,
+		logger:     logger,
 	}
 }
 
 // ProcessMessage 处理单条设备上行消息流。
 // 执行阶段：
 // 1. 反序列化 JSON 载荷；
-// 2. 扁平化提取 params / values / 顶级字段为标准时序指标（TelemetryRecord）；
-// 3. 异步写入 TDengine 时序数据库；
+// 2. 扁平化提取 params / values / 顶级字段为标准时序指标（tsdb.Record）；
+// 3. 异步写入 TSDB 统一时序客户端（支持 TDengine/IoTDB/Mock 可插拔）；
 // 4. 刷新 Redis / 内存设备影子最新快照；
 // 5. 执行告警规则判定（evaluateRule）。
 func (p *Processor) ProcessMessage(ctx context.Context, msg model.DeviceMessage) error {
@@ -57,9 +58,9 @@ func (p *Processor) ProcessMessage(ctx context.Context, msg model.DeviceMessage)
 	}
 
 	// 2. 扁平化抽取所有时序键值对
-	records := make([]model.TelemetryRecord, 0, len(data))
+	records := make([]tsdb.Record, 0, len(data))
 	for k, v := range data {
-		records = append(records, model.TelemetryRecord{
+		records = append(records, tsdb.Record{
 			DeviceKey: msg.DeviceKey,
 			Metric:    k,
 			Value:     v,
@@ -70,9 +71,9 @@ func (p *Processor) ProcessMessage(ctx context.Context, msg model.DeviceMessage)
 		p.evaluateRule(msg.DeviceKey, k, v)
 	}
 
-	// 4. 异步持久化至 TDengine 时序数据库
-	if p.tsdb != nil && len(records) > 0 {
-		_ = p.tsdb.WriteTelemetry(ctx, records)
+	// 4. 异步持久化至统一 TSDB 时序数据库客户端
+	if p.tsdbClient != nil && len(records) > 0 {
+		_ = p.tsdbClient.WriteBatch(ctx, records)
 	}
 
 	// 5. 刷新设备实时影子快照
@@ -80,7 +81,7 @@ func (p *Processor) ProcessMessage(ctx context.Context, msg model.DeviceMessage)
 		_ = p.shadow.UpdateShadow(ctx, msg.DeviceKey, data, msg.Timestamp)
 	}
 
-	p.logger.Debug("extracted & stored telemetry metrics", zap.String("device_key", msg.DeviceKey), zap.Int("count", len(records)))
+	p.logger.Debug("extracted & stored telemetry metrics via tsdb.Client", zap.String("device_key", msg.DeviceKey), zap.Int("count", len(records)))
 	return nil
 }
 

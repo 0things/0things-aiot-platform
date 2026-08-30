@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"0things/pkg/tsdb"
 	"data-engine/internal/model"
 	"data-engine/internal/storage"
 	"github.com/spf13/viper"
@@ -15,11 +16,11 @@ import (
 func TestProcessor_ProcessMessage(t *testing.T) {
 	logger := zap.NewNop()
 	v := viper.New()
-	tsdb := storage.NewTDengineWriter(v, logger)
-	defer tsdb.Close()
+	tsdbClient := tsdb.NewClient(v, logger)
+	defer tsdbClient.Close()
 	shadow := storage.NewShadowStore(v, logger)
 
-	proc := NewProcessor(v, logger, tsdb, shadow)
+	proc := NewProcessor(v, logger, tsdbClient, shadow)
 
 	// 1. 测试常规温度解析 (低于阈值)
 	normalMsg := model.DeviceMessage{

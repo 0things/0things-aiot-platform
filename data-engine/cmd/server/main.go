@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"0things/pkg/tsdb"
 	"data-engine/internal/engine"
 	"data-engine/internal/kafka"
 	"data-engine/internal/service"
@@ -28,13 +29,13 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// 2. 初始化持久化存储层 (TDengine 时序库 & 设备影子)
-	tsdbWriter := storage.NewTDengineWriter(conf, logger.Logger)
-	defer tsdbWriter.Close()
+	// 2. 初始化持久化存储层 (统一可插拔 TSDB 客户端 & 设备影子)
+	tsdbClient := tsdb.NewClient(conf, logger.Logger)
+	defer tsdbClient.Close()
 	shadowStore := storage.NewShadowStore(conf, logger.Logger)
 
 	// 3. 初始化核心计算与业务处理器
-	ruleProcessor := engine.NewProcessor(conf, logger.Logger, tsdbWriter, shadowStore)
+	ruleProcessor := engine.NewProcessor(conf, logger.Logger, tsdbClient, shadowStore)
 	otaProcessor := service.NewOTAProcessor(conf, logger.Logger)
 	eventProcessor := service.NewEventProcessor(conf, logger.Logger)
 

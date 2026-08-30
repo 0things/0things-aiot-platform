@@ -1,0 +1,10 @@
+go 1.25.0
+
+use (
+	./backend
+	./coap-transport
+	./data-engine
+	./http-transport
+	./mqtt-transport
+	./pkg/tsdb
+)

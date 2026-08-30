@@ -7,8 +7,9 @@ kafka:
   ota_consumer_group: "data-engine-ota-consumer-group"
   event_consumer_group: "data-engine-event-consumer-group"
 
-# TDengine 时序数据库连接配置 (可选配置，未配置时自动使用 Mock/内存模式)
-tdengine:
+# 统一时序数据库配置 (可插拔 type: "tdengine" | "iotdb" | "mock")
+tsdb:
+  type: "tdengine"
   dsn: "" # eg: "root:taosdata@ws(127.0.0.1:6041)/things_tsdb"
   database: "things_tsdb"
 

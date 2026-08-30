@@ -30,12 +30,12 @@ const (
 
 func main() {
 	var (
-		deviceKey = flag.String("device", "mock_sensor_01", "Device unique key")
-		mqttBroker = flag.String("broker", "tcp://127.0.0.1:1883", "MQTT Broker URI")
-		httpGateway = flag.String("http", "http://127.0.0.1:8081", "HTTP Transport Gateway URL")
-		interval = flag.Int("interval", 3, "Telemetry upload interval in seconds")
+		deviceKey    = flag.String("device", "mock_sensor_01", "Device unique key")
+		mqttBroker   = flag.String("broker", "tcp://127.0.0.1:1883", "MQTT Broker URI")
+		httpGateway  = flag.String("http", "http://127.0.0.1:8081", "HTTP Transport Gateway URL")
+		interval     = flag.Int("interval", 3, "Telemetry upload interval in seconds")
 		triggerAlarm = flag.Bool("alarm", false, "Simulate high temperature alarm (88.8°C)")
-		mode = flag.String("mode", "mqtt", "Transport mode: 'mqtt' or 'http'")
+		mode         = flag.String("mode", "mqtt", "Transport mode: 'mqtt' or 'http'")
 	)
 	flag.Parse()
 
