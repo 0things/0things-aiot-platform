@@ -3,18 +3,19 @@ package tsdb
 import (
 	"context"
 	"fmt"
-	"strings"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-// TimescaleDBClient 封装面向 TimescaleDB (PostgreSQL 时序超表插件) 的适配驱动。
-// 表结构规范 (Hypertable: device_properties):
-// (time TIMESTAMPTZ, device_key VARCHAR(64), property_id VARCHAR(64), num_value DOUBLE PRECISION, str_value TEXT)
+// TimescaleDBClient 封装 TimescaleDB / PostgreSQL 官方高性能原生二进制协议连接池 (github.com/jackc/pgx/v5)。
+// 采用 pgx.Batch 二进制管道批量极速写入。
 type TimescaleDBClient struct {
-	dsn       string
+	pool      *pgxpool.Pool
 	tableName string
+	enabled   bool
 	logger    *zap.Logger
 }
 
@@ -25,10 +26,34 @@ func NewTimescaleDBClient(config *viper.Viper, logger *zap.Logger) *TimescaleDBC
 		tableName = "device_properties"
 	}
 
-	logger.Info("TimescaleDB TSDB client initialized", zap.String("table", tableName))
+	var pool *pgxpool.Pool
+	var err error
+	enabled := dsn != ""
+
+	if enabled {
+		poolConfig, parseErr := pgxpool.ParseConfig(dsn)
+		if parseErr != nil {
+			logger.Error("failed to parse TimescaleDB/PG DSN", zap.Error(parseErr))
+			enabled = false
+		} else {
+			poolConfig.MaxConns = 50
+			poolConfig.MinConns = 5
+			pool, err = pgxpool.NewWithConfig(context.Background(), poolConfig)
+			if err != nil {
+				logger.Error("failed to connect TimescaleDB pgxpool", zap.Error(err))
+				enabled = false
+			} else {
+				logger.Info("TimescaleDB official pgx/v5 driver pool connected", zap.String("table", tableName))
+			}
+		}
+	} else {
+		logger.Info("TimescaleDB DSN not set, running in fallback mode")
+	}
+
 	return &TimescaleDBClient{
-		dsn:       dsn,
+		pool:      pool,
 		tableName: tableName,
+		enabled:   enabled,
 		logger:    logger,
 	}
 }
@@ -38,20 +63,53 @@ func (c *TimescaleDBClient) WriteBatch(ctx context.Context, records []Record) er
 		return nil
 	}
 
-	var sqlBuilder strings.Builder
-	sqlBuilder.WriteString(fmt.Sprintf("INSERT INTO %s (time, device_key, property_id, num_value, str_value) VALUES ", c.tableName))
-
-	for i, rec := range records {
-		if i > 0 {
-			sqlBuilder.WriteString(", ")
-		}
-		numVal, strVal := SplitValue(rec.Value)
-		sqlBuilder.WriteString(fmt.Sprintf("(to_timestamp(%d / 1000.0), '%s', '%s', %s, %s)",
-			rec.Timestamp.UnixMilli(), rec.DeviceKey, rec.Metric, numVal, strVal))
+	if !c.enabled || c.pool == nil {
+		c.logger.Debug("TimescaleDB batch processed (Mock)", zap.Int("count", len(records)))
+		return nil
 	}
-	sqlBuilder.WriteString(";")
 
-	c.logger.Debug("persisting batch to TimescaleDB", zap.Int("count", len(records)))
+	batch := &pgx.Batch{}
+	sql := fmt.Sprintf("INSERT INTO %s (time, device_key, property_id, num_value, str_value) VALUES ($1, $2, $3, $4, $5)", c.tableName)
+
+	for _, rec := range records {
+		var numVal *float64
+		var strVal *string
+
+		switch v := rec.Value.(type) {
+		case float64:
+			numVal = &v
+		case int:
+			f := float64(v)
+			numVal = &f
+		case int64:
+			f := float64(v)
+			numVal = &f
+		case string:
+			strVal = &v
+		case bool:
+			var f float64
+			if v {
+				f = 1
+			}
+			numVal = &f
+		default:
+			s := fmt.Sprintf("%v", v)
+			strVal = &s
+		}
+
+		batch.Queue(sql, rec.Timestamp, rec.DeviceKey, rec.Metric, numVal, strVal)
+	}
+
+	br := c.pool.SendBatch(ctx, batch)
+	defer br.Close()
+
+	for i := 0; i < len(records); i++ {
+		if _, err := br.Exec(); err != nil {
+			return fmt.Errorf("pgx batch exec error at %d: %w", i, err)
+		}
+	}
+
+	c.logger.Debug("persisted batch via pgx/v5 binary pipeline", zap.Int("count", len(records)))
 	return nil
 }
 
@@ -61,5 +119,8 @@ func (c *TimescaleDBClient) QueryPoints(ctx context.Context, filter QueryFilter)
 }
 
 func (c *TimescaleDBClient) Close() error {
+	if c.pool != nil {
+		c.pool.Close()
+	}
 	return nil
 }

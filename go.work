@@ -8,4 +8,3 @@ use (
 	./mqtt-transport
 	./pkg/tsdb
 )
-

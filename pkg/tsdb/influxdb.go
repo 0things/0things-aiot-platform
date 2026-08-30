@@ -2,21 +2,23 @@ package tsdb
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-// InfluxDBClient 封装面向 InfluxDB 的 Line Protocol 行协议适配驱动。
-// 格式: device_properties,device_key=<dev> property_id="<prop>",num_value=<num>,str_value="<str>" <ts_nano>
+// InfluxDBClient 封装 InfluxDB 官方原生 SDK (github.com/influxdata/influxdb-client-go/v2)。
+// 采用官方非阻塞高性能异步批处理 WriteAPI，支持内置 Gzip 压缩、自适应重试与背压保护。
 type InfluxDBClient struct {
-	url    string
-	token  string
-	org    string
-	bucket string
-	logger *zap.Logger
+	client   influxdb2.Client
+	writeAPI api.WriteAPI
+	queryAPI api.QueryAPI
+	org      string
+	bucket   string
+	enabled  bool
+	logger   *zap.Logger
 }
 
 func NewInfluxDBClient(config *viper.Viper, logger *zap.Logger) *InfluxDBClient {
@@ -24,18 +26,44 @@ func NewInfluxDBClient(config *viper.Viper, logger *zap.Logger) *InfluxDBClient 
 	if url == "" {
 		url = "http://127.0.0.1:8086"
 	}
+	token := config.GetString("tsdb.token")
+	org := config.GetString("tsdb.org")
 	bucket := config.GetString("tsdb.bucket")
 	if bucket == "" {
 		bucket = "things_tsdb"
 	}
 
-	logger.Info("InfluxDB TSDB client initialized", zap.String("url", url), zap.String("bucket", bucket))
+	opts := influxdb2.DefaultOptions().
+		SetBatchSize(5000).
+		SetFlushInterval(200).
+		SetUseGZip(true)
+
+	client := influxdb2.NewClientWithOptions(url, token, opts)
+	writeAPI := client.WriteAPI(org, bucket)
+	queryAPI := client.QueryAPI(org)
+
+	// 监听官方异步写入错误通道
+	go func() {
+		for err := range writeAPI.Errors() {
+			logger.Error("InfluxDB async write error", zap.Error(err))
+		}
+	}()
+
+	enabled := token != ""
+	if enabled {
+		logger.Info("InfluxDB official SDK initialized", zap.String("url", url), zap.String("bucket", bucket))
+	} else {
+		logger.Info("InfluxDB token not set, running in fallback mode")
+	}
+
 	return &InfluxDBClient{
-		url:    url,
-		token:  config.GetString("tsdb.token"),
-		org:    config.GetString("tsdb.org"),
-		bucket: bucket,
-		logger: logger,
+		client:   client,
+		writeAPI: writeAPI,
+		queryAPI: queryAPI,
+		org:      org,
+		bucket:   bucket,
+		enabled:  enabled,
+		logger:   logger,
 	}
 }
 
@@ -44,37 +72,23 @@ func (c *InfluxDBClient) WriteBatch(ctx context.Context, records []Record) error
 		return nil
 	}
 
-	var lines strings.Builder
 	for _, rec := range records {
-		tsNano := rec.Timestamp.UnixNano()
-		fieldPart := formatInfluxField(rec.Value)
-
-		lines.WriteString(fmt.Sprintf("device_properties,device_key=%s property_id=\"%s\",%s %d\n",
-			rec.DeviceKey, rec.Metric, fieldPart, tsNano))
+		p := influxdb2.NewPoint(
+			"device_properties",
+			map[string]string{
+				"device_key":  rec.DeviceKey,
+				"property_id": rec.Metric,
+			},
+			map[string]interface{}{
+				"value": rec.Value,
+			},
+			rec.Timestamp,
+		)
+		c.writeAPI.WritePoint(p)
 	}
 
-	c.logger.Debug("persisting batch to InfluxDB Line Protocol", zap.Int("count", len(records)))
+	c.logger.Debug("persisted batch via InfluxDB official WriteAPI", zap.Int("count", len(records)))
 	return nil
-}
-
-func formatInfluxField(v interface{}) string {
-	switch val := v.(type) {
-	case float64:
-		return fmt.Sprintf("num_value=%.4f", val)
-	case int:
-		return fmt.Sprintf("num_value=%di", val)
-	case int64:
-		return fmt.Sprintf("num_value=%di", val)
-	case string:
-		return fmt.Sprintf("str_value=\"%s\"", strings.ReplaceAll(val, "\"", "\\\""))
-	case bool:
-		if val {
-			return "num_value=1"
-		}
-		return "num_value=0"
-	default:
-		return fmt.Sprintf("str_value=\"%v\"", val)
-	}
 }
 
 func (c *InfluxDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]Point, error) {
@@ -83,5 +97,7 @@ func (c *InfluxDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 }
 
 func (c *InfluxDBClient) Close() error {
+	c.writeAPI.Flush()
+	c.client.Close()
 	return nil
 }
