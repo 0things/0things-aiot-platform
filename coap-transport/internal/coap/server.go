@@ -11,6 +11,7 @@ import (
 
 	"coap-transport/internal/kafka"
 	"coap-transport/internal/model"
+
 	"github.com/plgd-dev/go-coap/v3/message"
 	"github.com/plgd-dev/go-coap/v3/message/codes"
 	"github.com/plgd-dev/go-coap/v3/mux"

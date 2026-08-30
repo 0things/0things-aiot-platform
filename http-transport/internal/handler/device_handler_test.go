@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"http-transport/internal/kafka"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"

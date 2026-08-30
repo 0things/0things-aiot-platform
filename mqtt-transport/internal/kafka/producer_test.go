@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"mqtt-transport/internal/model"
+
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
