@@ -1,4 +1,4 @@
-.PHONY: all start stop restart status test build
+.PHONY: all start stop restart status test build mock-device mock-alarm
 
 # 一键启动所有微服务与前端
 start:
@@ -30,3 +30,10 @@ build:
 	@(cd backend && go build -o /dev/null ./cmd/server)
 	@echo "✅ All binaries built cleanly!"
 
+# 启动虚拟设备模拟器 (正常遥测 + 监听 OTA 升级)
+mock-device:
+	@go run ./scripts/mock_device/main.go -device sensor_test_01 -interval 3
+
+# 启动虚拟设备模拟器 (触发高温告警 88.8°C)
+mock-alarm:
+	@go run ./scripts/mock_device/main.go -device sensor_test_01 -interval 3 -alarm=true

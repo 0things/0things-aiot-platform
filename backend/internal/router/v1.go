@@ -19,4 +19,5 @@ func InitV1Routers(deps RouterDeps, r *gin.RouterGroup) {
 	InitOTARouter(deps, protected)
 	InitFileRouter(deps, protected)
 	InitDeviceEventRouter(deps, protected)
+	InitTelemetryRouter(deps, protected)
 }

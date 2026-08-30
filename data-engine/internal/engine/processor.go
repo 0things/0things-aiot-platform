@@ -7,17 +7,22 @@ import (
 	"time"
 
 	"data-engine/internal/model"
+	"data-engine/internal/storage"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-// Processor 是数据处理引擎的核心计算处理器，负责 TSL 物模型字段展开、时序指标抽取与告警阈值计算。
+// Processor 是数据处理引擎的核心计算处理器，负责 TSL 物模型字段展开、TDengine 时序落库、设备影子更新与告警规则计算。
 type Processor struct {
+	tsdb   storage.TSDBWriter
+	shadow storage.ShadowStore
 	logger *zap.Logger
 }
 
-func NewProcessor(config *viper.Viper, logger *zap.Logger) *Processor {
+func NewProcessor(config *viper.Viper, logger *zap.Logger, tsdb storage.TSDBWriter, shadow storage.ShadowStore) *Processor {
 	return &Processor{
+		tsdb:   tsdb,
+		shadow: shadow,
 		logger: logger,
 	}
 }
@@ -26,7 +31,9 @@ func NewProcessor(config *viper.Viper, logger *zap.Logger) *Processor {
 // 执行阶段：
 // 1. 反序列化 JSON 载荷；
 // 2. 扁平化提取 params / values / 顶级字段为标准时序指标（TelemetryRecord）；
-// 3. 执行告警规则判定（evaluateRule）。
+// 3. 异步写入 TDengine 时序数据库；
+// 4. 刷新 Redis / 内存设备影子最新快照；
+// 5. 执行告警规则判定（evaluateRule）。
 func (p *Processor) ProcessMessage(ctx context.Context, msg model.DeviceMessage) error {
 	p.logger.Info("processing device message",
 		zap.String("device_key", msg.DeviceKey),
@@ -63,7 +70,17 @@ func (p *Processor) ProcessMessage(ctx context.Context, msg model.DeviceMessage)
 		p.evaluateRule(msg.DeviceKey, k, v)
 	}
 
-	p.logger.Debug("extracted telemetry metrics", zap.String("device_key", msg.DeviceKey), zap.Int("count", len(records)))
+	// 4. 异步持久化至 TDengine 时序数据库
+	if p.tsdb != nil && len(records) > 0 {
+		_ = p.tsdb.WriteTelemetry(ctx, records)
+	}
+
+	// 5. 刷新设备实时影子快照
+	if p.shadow != nil && len(data) > 0 {
+		_ = p.shadow.UpdateShadow(ctx, msg.DeviceKey, data, msg.Timestamp)
+	}
+
+	p.logger.Debug("extracted & stored telemetry metrics", zap.String("device_key", msg.DeviceKey), zap.Int("count", len(records)))
 	return nil
 }
 

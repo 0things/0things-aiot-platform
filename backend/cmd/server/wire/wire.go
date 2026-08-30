@@ -38,6 +38,7 @@ var repositorySet = wire.NewSet(
 	repository.NewOTARepository,
 	repository.NewDeviceEventRepository,
 	repository.NewProtocolRepository,
+	repository.NewTelemetryRepository,
 	repository.NewTransaction,
 	repository.NewUserRepository,
 	repository.NewOrganizationRepository,
@@ -57,6 +58,7 @@ var serviceSet = wire.NewSet(
 	service.NewMQTTService,
 	service.NewSceneLinkageService,
 	service.NewSceneLinkageDetailService,
+	service.NewTelemetryService,
 	provideOTAService,
 	service.NewFileService,
 	service.NewDeviceEventService,
@@ -71,6 +73,7 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)),
 	wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)),
 	wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)),
+	wire.Bind(new(service.TelemetryServiceInterface), new(*service.TelemetryService)),
 	wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)),
 	wire.Bind(new(service.FileServiceInterface), new(*service.FileService)),
 	wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)),
@@ -92,6 +95,7 @@ var handlerSet = wire.NewSet(
 	handler.NewFileHandler,
 	handler.NewDeviceEventHandler,
 	handler.NewProtocolHandler,
+	handler.NewTelemetryHandler,
 )
 
 func provideOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, kafka service.KafkaServiceInterface, protocols *repository.ProtocolRepository) *service.OTAService {

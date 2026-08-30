@@ -7,14 +7,19 @@ import (
 	"time"
 
 	"data-engine/internal/model"
-
+	"data-engine/internal/storage"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 func TestProcessor_ProcessMessage(t *testing.T) {
 	logger := zap.NewNop()
-	proc := NewProcessor(viper.New(), logger)
+	v := viper.New()
+	tsdb := storage.NewTDengineWriter(v, logger)
+	defer tsdb.Close()
+	shadow := storage.NewShadowStore(v, logger)
+
+	proc := NewProcessor(v, logger, tsdb, shadow)
 
 	// 1. 测试常规温度解析 (低于阈值)
 	normalMsg := model.DeviceMessage{
@@ -27,6 +32,15 @@ func TestProcessor_ProcessMessage(t *testing.T) {
 
 	if err := proc.ProcessMessage(context.Background(), normalMsg); err != nil {
 		t.Errorf("ProcessMessage failed on normal telemetry: %v", err)
+	}
+
+	// 验证设备影子是否已更新
+	sh, err := shadow.GetShadow(context.Background(), "sensor_test_01")
+	if err != nil || sh == nil {
+		t.Fatalf("expected shadow to be created, got nil or err: %v", err)
+	}
+	if sh.Attributes["temperature"] != 25.0 {
+		t.Errorf("expected temperature 25.0 in shadow, got %v", sh.Attributes["temperature"])
 	}
 
 	// 2. 测试高温告警触发分支 (高于 70.0°C)
