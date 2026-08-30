@@ -11,10 +11,10 @@ import (
 
 // IoTDBClient 封装面向 Apache IoTDB 的时序数据库驱动。
 type IoTDBClient struct {
-	host     string
-	port     string
+	host         string
+	port         string
 	storageGroup string
-	logger   *zap.Logger
+	logger       *zap.Logger
 }
 
 func NewIoTDBClient(config *viper.Viper, logger *zap.Logger) *IoTDBClient {
