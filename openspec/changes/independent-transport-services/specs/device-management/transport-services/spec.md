@@ -35,3 +35,4 @@
 #### Scenario: Rule engine processes device message
 - **WHEN** Kafka `device.message.v1` 接收到上行遥测数据
 - **THEN** `rule-engine` 消费该消息并解析物模型，更新设备状态与历史时序记录
+

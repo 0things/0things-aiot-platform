@@ -1,0 +1,19 @@
+env: local
+
+http:
+  host: 0.0.0.0
+  port: 8081
+
+kafka:
+  brokers:
+    - "127.0.0.1:9092"
+
+log:
+  log_level: debug
+  mode: console
+  encoding: console
+  log_file_name: "./storage/logs/http-transport.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true

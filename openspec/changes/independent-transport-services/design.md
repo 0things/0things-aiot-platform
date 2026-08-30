@@ -34,3 +34,4 @@
 
 - **[Kafka 单点依赖]** → 各 Transport 和 Rule Engine 均支持断网重连与重试缓冲机制。
 - **[本地多进程启动复杂度]** → 提供统一的 shell 脚本或 Makefile 支持一键启动/构建。
+

@@ -8,13 +8,10 @@ package wire
 
 import (
 	"aiot-backend/internal/handler"
-	"aiot-backend/internal/job"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/router"
 	"aiot-backend/internal/server"
 	"aiot-backend/internal/service"
-	"aiot-backend/internal/transport"
-	"aiot-backend/internal/transport/coap"
 	"aiot-backend/pkg/app"
 	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
@@ -102,47 +99,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		DeviceGroupHandler:          deviceGroupHandler,
 	}
 	httpServer := server.NewHTTPServer(routerDeps)
-	jobJob := job.NewJob(transaction, logger, sidSid)
-	userJob := job.NewUserJob(jobJob, userRepository)
-	deviceEventConsumer, err := job.NewDeviceEventConsumer(viperViper, deviceEventService, logger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	deviceMessageConsumer, err := job.NewDeviceMessageConsumer(viperViper, protocolRepository, logger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	mqttService, cleanup2, err := service.NewMQTTService(viperViper, logger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	adapter := job.NewMQTTTransportAdapterForWire(mqttService)
-	registry, err := provideTransportRegistry(adapter)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	otaCommandConsumer, err := provideOTACommandConsumer(viperViper, mqttService, otaService, logger, registry)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	otamqttReportBridge := job.NewOTAMQTTReportBridge(mqttService, kafkaService, logger)
-	otaReportConsumer, err := job.NewOTAReportConsumer(viperViper, otaService, logger)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	jobServer := server.NewJobServer(logger, userJob, deviceEventConsumer, deviceMessageConsumer, otaCommandConsumer, otamqttReportBridge, otaReportConsumer)
+	jobServer := server.NewJobServer(logger)
 	appApp := newApp(httpServer, jobServer)
 	return appApp, func() {
-		cleanup2()
 		cleanup()
 	}, nil
 }
@@ -155,14 +114,6 @@ var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service
 
 var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewCategoryHandler, handler.NewProductTSLHandler, handler.NewProductMessageParserHandler, handler.NewDeviceHandler, handler.NewDeviceGroupHandler, handler.NewSceneLinkageHandler, handler.NewSceneLinkageDetailHandler, handler.NewOTAHandler, handler.NewFileHandler, handler.NewDeviceEventHandler, handler.NewProtocolHandler)
 
-var jobSet = wire.NewSet(job.NewJob, job.NewUserJob, job.NewDeviceEventConsumer, job.NewDeviceMessageConsumer, job.NewMQTTTransportAdapterForWire, provideTransportRegistry,
-	provideOTACommandConsumer, job.NewOTAMQTTReportBridge, job.NewOTAReportConsumer,
-)
-
-func provideOTACommandConsumer(config *viper.Viper, mqtt service.MQTTServiceInterface, ota *service.OTAService, logger *log.Logger, registry *transport.Registry) (*job.OTACommandConsumer, error) {
-	return job.NewOTACommandConsumer(config, mqtt, ota, logger, registry)
-}
-
 func provideOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, kafka service.KafkaServiceInterface, protocols *repository.ProtocolRepository) *service.OTAService {
 	return service.NewOTAServiceWithProtocol(repo, productRepo, deviceRepo, kafka, protocols)
 }
@@ -171,18 +122,12 @@ func provideProtocolService(repo *repository.ProtocolRepository, config *viper.V
 	return service.NewProtocolService(repo, config)
 }
 
-func provideTransportRegistry(adapter transport.Adapter) (*transport.Registry, error) {
-
-	return transport.NewRegistry(adapter, coaptransport.NewAdapter(""))
-}
-
 var serverSet = wire.NewSet(server.NewHTTPServer, server.NewJobServer)
 
 // build App
 func newApp(
 	httpServer *http.Server,
 	jobServer *server.JobServer,
-
 ) *app.App {
-	return app.NewApp(app.WithServer(httpServer, jobServer), app.WithName("demo-server"))
+	return app.NewApp(app.WithServer(httpServer, jobServer), app.WithName("0things-backend"))
 }

@@ -1,0 +1,22 @@
+env: local
+
+mqtt:
+  broker: "tcp://127.0.0.1:1883"
+  client_id: "0things-mqtt-transport"
+  username: ""
+  password: ""
+
+kafka:
+  brokers:
+    - "127.0.0.1:9092"
+  consumer_group: "mqtt-transport-downlink-group"
+
+log:
+  log_level: debug
+  mode: console
+  encoding: console
+  log_file_name: "./storage/logs/mqtt-transport.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true
