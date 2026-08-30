@@ -2,6 +2,8 @@ package tsdb
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -37,4 +39,32 @@ type Client interface {
 	QueryPoints(ctx context.Context, filter QueryFilter) ([]Point, error)
 	// Close 优雅释放连接池
 	Close() error
+}
+
+// SanitizeTableName 将设备唯一 Key 转换为合法的数据库表名
+func SanitizeTableName(deviceKey string) string {
+	clean := strings.ReplaceAll(deviceKey, "-", "_")
+	clean = strings.ReplaceAll(clean, ".", "_")
+	return "d_" + clean
+}
+
+// SplitValue 将任意类型的变量拆分为合法的 SQL 数值槽或字符串槽
+func SplitValue(v interface{}) (numVal string, strVal string) {
+	switch val := v.(type) {
+	case float64:
+		return fmt.Sprintf("%.4f", val), "NULL"
+	case int:
+		return fmt.Sprintf("%d", val), "NULL"
+	case int64:
+		return fmt.Sprintf("%d", val), "NULL"
+	case string:
+		return "NULL", fmt.Sprintf("'%s'", strings.ReplaceAll(val, "'", "''"))
+	case bool:
+		if val {
+			return "1", "NULL"
+		}
+		return "0", "NULL"
+	default:
+		return "NULL", fmt.Sprintf("'%v'", val)
+	}
 }

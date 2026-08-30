@@ -53,7 +53,7 @@ func (c *ClickHouseClient) WriteBatch(ctx context.Context, records []Record) err
 		if i > 0 {
 			sqlBuilder.WriteString(", ")
 		}
-		numVal, strVal := splitValue(rec.Value)
+		numVal, strVal := SplitValue(rec.Value)
 		sqlBuilder.WriteString(fmt.Sprintf("(toDateTime64(%d / 1000.0, 3), '%s', '%s', %s, %s)",
 			rec.Timestamp.UnixMilli(), rec.DeviceKey, rec.Metric, numVal, strVal))
 	}

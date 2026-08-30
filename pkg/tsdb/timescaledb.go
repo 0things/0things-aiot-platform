@@ -45,7 +45,7 @@ func (c *TimescaleDBClient) WriteBatch(ctx context.Context, records []Record) er
 		if i > 0 {
 			sqlBuilder.WriteString(", ")
 		}
-		numVal, strVal := splitValue(rec.Value)
+		numVal, strVal := SplitValue(rec.Value)
 		sqlBuilder.WriteString(fmt.Sprintf("(to_timestamp(%d / 1000.0), '%s', '%s', %s, %s)",
 			rec.Timestamp.UnixMilli(), rec.DeviceKey, rec.Metric, numVal, strVal))
 	}
