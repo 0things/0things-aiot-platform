@@ -1,0 +1,17 @@
+env: local
+
+kafka:
+  brokers:
+    - "127.0.0.1:9092"
+  telemetry_consumer_group: "data-engine-telemetry-consumer-group"
+  ota_consumer_group: "data-engine-ota-consumer-group"
+
+log:
+  log_level: debug
+  mode: console
+  encoding: console
+  log_file_name: "./storage/logs/data-engine.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true
