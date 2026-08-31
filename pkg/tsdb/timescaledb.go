@@ -6,9 +6,20 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
+
+// PostgreSQLConfig PostgreSQL 数据库专属配置结构体
+type PostgreSQLConfig struct {
+	DSN   string `mapstructure:"dsn" yaml:"dsn" json:"dsn"`       // 标准 PG DSN
+	Table string `mapstructure:"table" yaml:"table" json:"table"` // 存储表名 (默认: device_properties)
+}
+
+// TimescaleDBConfig TimescaleDB 数据库专属配置结构体
+type TimescaleDBConfig struct {
+	DSN   string `mapstructure:"dsn" yaml:"dsn" json:"dsn"`       // 标准 PG / TimescaleDB DSN
+	Table string `mapstructure:"table" yaml:"table" json:"table"` // 存储超表名 (默认: device_properties)
+}
 
 // TimescaleDBClient 封装 TimescaleDB / PostgreSQL 官方高性能原生二进制协议连接池 (github.com/jackc/pgx/v5)。
 // 采用 pgx.Batch 二进制管道批量极速写入与原生连接池真实查询。
@@ -19,9 +30,15 @@ type TimescaleDBClient struct {
 	logger    *zap.Logger
 }
 
-func NewTimescaleDBClient(config *viper.Viper, logger *zap.Logger) *TimescaleDBClient {
-	dsn := config.GetString("tsdb.dsn")
-	tableName := config.GetString("tsdb.table")
+func NewTimescaleDBClient(cfg TimescaleDBConfig, logger *zap.Logger) *TimescaleDBClient {
+	return createPGClient(cfg.DSN, cfg.Table, logger)
+}
+
+func NewPostgreSQLClient(cfg PostgreSQLConfig, logger *zap.Logger) *TimescaleDBClient {
+	return createPGClient(cfg.DSN, cfg.Table, logger)
+}
+
+func createPGClient(dsn, tableName string, logger *zap.Logger) *TimescaleDBClient {
 	if tableName == "" {
 		tableName = "device_properties"
 	}

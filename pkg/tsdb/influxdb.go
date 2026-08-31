@@ -7,9 +7,16 @@ import (
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
+
+// InfluxDBConfig InfluxDB 数据库专属配置结构体
+type InfluxDBConfig struct {
+	URL    string `mapstructure:"url" yaml:"url" json:"url"`          // InfluxDB 服务地址 (如 http://127.0.0.1:8086)
+	Token  string `mapstructure:"token" yaml:"token" json:"token"`    // API Token
+	Org    string `mapstructure:"org" yaml:"org" json:"org"`          // Organization
+	Bucket string `mapstructure:"bucket" yaml:"bucket" json:"bucket"` // Bucket (默认: things_tsdb)
+}
 
 // InfluxDBClient 封装 InfluxDB 官方原生 SDK (github.com/influxdata/influxdb-client-go/v2)。
 // 采用官方非阻塞高性能异步批处理 WriteAPI 与 Flux 真实查询，支持内置 Gzip 压缩、自适应重试与背压保护。
@@ -23,14 +30,14 @@ type InfluxDBClient struct {
 	logger   *zap.Logger
 }
 
-func NewInfluxDBClient(config *viper.Viper, logger *zap.Logger) *InfluxDBClient {
-	url := config.GetString("tsdb.url")
+func NewInfluxDBClient(cfg InfluxDBConfig, logger *zap.Logger) *InfluxDBClient {
+	url := cfg.URL
 	if url == "" {
 		url = "http://127.0.0.1:8086"
 	}
-	token := config.GetString("tsdb.token")
-	org := config.GetString("tsdb.org")
-	bucket := config.GetString("tsdb.bucket")
+	token := cfg.Token
+	org := cfg.Org
+	bucket := cfg.Bucket
 	if bucket == "" {
 		bucket = "things_tsdb"
 	}

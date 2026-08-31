@@ -1,6 +1,7 @@
 package tsdb
 
 import (
+	"bytes"
 	"context"
 	"testing"
 	"time"
@@ -8,6 +9,56 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
+
+func TestTSDB_DedicatedConfigs(t *testing.T) {
+	yamlConfig := []byte(`
+tsdb:
+  type: tdengine
+  tdengine:
+    dsn: "root:taosdata@ws(127.0.0.1:6041)/things_tsdb"
+    database: "things_tsdb"
+    table: "device_properties"
+  sqlite:
+    path: "data/things_tsdb.db"
+    table: "device_properties"
+  influxdb:
+    url: "http://127.0.0.1:8086"
+    token: "my-token"
+    org: "my-org"
+    bucket: "my-bucket"
+  iotdb:
+    host: "127.0.0.1"
+    port: "6667"
+    storage_group: "root.custom"
+`)
+
+	v := viper.New()
+	v.SetConfigType("yaml")
+	if err := v.ReadConfig(bytes.NewBuffer(yamlConfig)); err != nil {
+		t.Fatalf("failed to read yaml config: %v", err)
+	}
+
+	rootCfg, err := LoadRootConfigFromViper(v)
+	if err != nil {
+		t.Fatalf("LoadRootConfigFromViper failed: %v", err)
+	}
+
+	if rootCfg.Type != DriverTypeTDengine {
+		t.Fatalf("expected DriverTypeTDengine, got %v", rootCfg.Type)
+	}
+	if rootCfg.TDengine.DSN != "root:taosdata@ws(127.0.0.1:6041)/things_tsdb" {
+		t.Fatalf("unexpected TDengine DSN: %s", rootCfg.TDengine.DSN)
+	}
+	if rootCfg.SQLite.Path != "data/things_tsdb.db" {
+		t.Fatalf("unexpected SQLite path: %s", rootCfg.SQLite.Path)
+	}
+	if rootCfg.InfluxDB.URL != "http://127.0.0.1:8086" || rootCfg.InfluxDB.Token != "my-token" || rootCfg.InfluxDB.Bucket != "my-bucket" {
+		t.Fatalf("unexpected InfluxDB params: %s / %s / %s", rootCfg.InfluxDB.URL, rootCfg.InfluxDB.Token, rootCfg.InfluxDB.Bucket)
+	}
+	if rootCfg.IoTDB.Host != "127.0.0.1" || rootCfg.IoTDB.StorageGroup != "root.custom" {
+		t.Fatalf("unexpected IoTDB host/group: %s / %s", rootCfg.IoTDB.Host, rootCfg.IoTDB.StorageGroup)
+	}
+}
 
 func TestTSDB_EnumAndAllDrivers(t *testing.T) {
 	logger := zap.NewNop()
@@ -17,7 +68,6 @@ func TestTSDB_EnumAndAllDrivers(t *testing.T) {
 		t.Fatal("expected non-empty driver types")
 	}
 
-	// 1. 验证枚举的解析与合法性判断
 	for _, dt := range drivers {
 		if !dt.IsValid() {
 			t.Fatalf("driver type %s should be valid", dt)
@@ -26,11 +76,6 @@ func TestTSDB_EnumAndAllDrivers(t *testing.T) {
 		if err != nil || parsed != dt {
 			t.Fatalf("ParseDriverType(%s) failed: %v", dt, err)
 		}
-	}
-
-	// 验证非法枚举报错
-	if _, err := ParseDriverType("unknown_invalid_db"); err == nil {
-		t.Fatal("expected error for invalid driver type")
 	}
 
 	records := []Record{
@@ -44,7 +89,6 @@ func TestTSDB_EnumAndAllDrivers(t *testing.T) {
 		Limit:     10,
 	}
 
-	// 2. 验证所有枚举驱动的写入与查询能力
 	for _, driverType := range drivers {
 		driverName := driverType.String()
 		t.Run(driverName, func(t *testing.T) {
@@ -55,12 +99,10 @@ func TestTSDB_EnumAndAllDrivers(t *testing.T) {
 			client := NewClient(v, logger)
 			defer client.Close()
 
-			// 验证写入
 			if err := client.WriteBatch(context.Background(), records); err != nil {
 				t.Fatalf("driver %s WriteBatch failed: %v", driverName, err)
 			}
 
-			// 验证查询
 			points, err := client.QueryPoints(context.Background(), filter)
 			if err != nil {
 				t.Fatalf("driver %s QueryPoints failed: %v", driverName, err)

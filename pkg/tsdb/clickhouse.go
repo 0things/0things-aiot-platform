@@ -7,9 +7,15 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
+
+// ClickHouseConfig ClickHouse 数据库专属配置结构体
+type ClickHouseConfig struct {
+	DSN      string `mapstructure:"dsn" yaml:"dsn" json:"dsn"`                // ClickHouse Native TCP DSN
+	Database string `mapstructure:"database" yaml:"database" json:"database"` // 数据库名 (默认: things_tsdb)
+	Table    string `mapstructure:"table" yaml:"table" json:"table"`          // 目标表名 (默认: device_properties)
+}
 
 // ClickHouseClient 封装 ClickHouse 官方原生 Native TCP 驱动 (github.com/ClickHouse/clickhouse-go/v2)。
 // 采用官方 PrepareBatch 原生二进制列存流式批处理与真实 Native 查询，吞吐量高达数十万点/秒。
@@ -21,13 +27,13 @@ type ClickHouseClient struct {
 	logger    *zap.Logger
 }
 
-func NewClickHouseClient(config *viper.Viper, logger *zap.Logger) *ClickHouseClient {
-	dsn := config.GetString("tsdb.dsn")
-	dbName := config.GetString("tsdb.database")
+func NewClickHouseClient(cfg ClickHouseConfig, logger *zap.Logger) *ClickHouseClient {
+	dsn := cfg.DSN
+	dbName := cfg.Database
 	if dbName == "" {
 		dbName = "things_tsdb"
 	}
-	tableName := config.GetString("tsdb.table")
+	tableName := cfg.Table
 	if tableName == "" {
 		tableName = "device_properties"
 	}

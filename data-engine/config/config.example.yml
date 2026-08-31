@@ -7,11 +7,52 @@ kafka:
   ota_consumer_group: "data-engine-ota-consumer-group"
   event_consumer_group: "data-engine-event-consumer-group"
 
-# 统一时序数据库配置 (可插拔 type: "tdengine" | "iotdb" | "mock")
+# ==============================================================================
+# 统一时序数据库配置 (可插拔时序存储引擎，支持各 DB 专属子配置)
+# 切换数据库只需修改 `type` 字段 (tdengine | sqlite | postgresql | timescaledb | clickhouse | influxdb | iotdb | mock)
+# ==============================================================================
 tsdb:
-  type: "tdengine"
-  dsn: "" # eg: "root:taosdata@ws(127.0.0.1:6041)/things_tsdb"
-  database: "things_tsdb"
+  type: tdengine # 当前激活的驱动类型
+
+  # 1. TDengine 专属配置
+  tdengine:
+    dsn: "root:taosdata@ws(127.0.0.1:6041)/things_tsdb"
+    database: "things_tsdb"
+    table: "device_properties"
+
+  # 2. SQLite 专属配置
+  sqlite:
+    path: "data/things_tsdb.db" # 或 ":memory:"
+    table: "device_properties"
+
+  # 3. PostgreSQL 专属配置
+  postgresql:
+    dsn: "postgres://postgres:password@127.0.0.1:5432/things_db?sslmode=disable"
+    table: "device_properties"
+
+  # 4. TimescaleDB 专属配置
+  timescaledb:
+    dsn: "postgres://postgres:password@127.0.0.1:5432/things_db?sslmode=disable"
+    table: "device_properties"
+
+  # 5. ClickHouse 专属配置
+  clickhouse:
+    dsn: "clickhouse://default:password@127.0.0.1:9000/things_tsdb"
+    database: "things_tsdb"
+    table: "device_properties"
+
+  # 6. InfluxDB 专属配置
+  influxdb:
+    url: "http://127.0.0.1:8086"
+    token: "your-secret-token"
+    org: "my-org"
+    bucket: "things_tsdb"
+
+  # 7. Apache IoTDB 专属配置
+  iotdb:
+    host: "127.0.0.1"
+    port: "6667"
+    storage_group: "root.things"
 
 # Redis 设备影子连接配置
 redis:

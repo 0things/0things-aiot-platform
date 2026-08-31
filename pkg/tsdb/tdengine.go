@@ -8,10 +8,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/viper"
 	_ "github.com/taosdata/driver-go/v3/taosWS"
 	"go.uber.org/zap"
 )
+
+// TDengineConfig TDengine 数据库专属配置结构体
+type TDengineConfig struct {
+	DSN      string `mapstructure:"dsn" yaml:"dsn" json:"dsn"`                // 格式: root:taosdata@ws(127.0.0.1:6041)/things_tsdb
+	Database string `mapstructure:"database" yaml:"database" json:"database"` // 数据库名 (默认: things_tsdb)
+	Table    string `mapstructure:"table" yaml:"table" json:"table"`          // 超级表名 (默认: device_properties)
+}
 
 // TDengineClient 基于 TDengine 官方原生纯 Go WebSocket 驱动 (github.com/taosdata/driver-go/v3/taosWS)。
 // 无需任何 CGO / 本地 C 动态库，支持官方连接池管理、自动建库建超级表与全双工高并发写入/查询。
@@ -25,9 +31,9 @@ type TDengineClient struct {
 	enabled  bool
 }
 
-func NewTDengineClient(config *viper.Viper, logger *zap.Logger) *TDengineClient {
-	rawDSN := config.GetString("tsdb.dsn")
-	dbName := config.GetString("tsdb.database")
+func NewTDengineClient(cfg TDengineConfig, logger *zap.Logger) *TDengineClient {
+	rawDSN := cfg.DSN
+	dbName := cfg.Database
 	if dbName == "" {
 		dbName = "things_tsdb"
 	}
