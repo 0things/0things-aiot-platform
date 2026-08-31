@@ -48,7 +48,7 @@ func SanitizeTableName(deviceKey string) string {
 	return "d_" + clean
 }
 
-// SplitValue 将任意类型的变量拆分为合法的 SQL 数值槽或字符串槽
+// SplitValue 将任意类型的变量拆分为合法的 SQL 数值槽或字符串槽 (用于 SQL 模板拼接)
 func SplitValue(v interface{}) (numVal string, strVal string) {
 	switch val := v.(type) {
 	case float64:
@@ -66,5 +66,30 @@ func SplitValue(v interface{}) (numVal string, strVal string) {
 		return "0", "NULL"
 	default:
 		return "NULL", fmt.Sprintf("'%v'", val)
+	}
+}
+
+// ToTypedValue 将通用 interface{} 统一解析为强类型指针 (*float64, *string)，供各大官方原生 SDK 批量绑定复用
+func ToTypedValue(v interface{}) (numVal *float64, strVal *string) {
+	switch val := v.(type) {
+	case float64:
+		return &val, nil
+	case int:
+		f := float64(val)
+		return &f, nil
+	case int64:
+		f := float64(val)
+		return &f, nil
+	case string:
+		return nil, &val
+	case bool:
+		var f float64
+		if val {
+			f = 1
+		}
+		return &f, nil
+	default:
+		s := fmt.Sprintf("%v", val)
+		return nil, &s
 	}
 }

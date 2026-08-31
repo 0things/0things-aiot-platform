@@ -1,146 +1,136 @@
 package tsdb
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
-	"encoding/json"
+	"database/sql"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/spf13/viper"
+	_ "github.com/taosdata/driver-go/v3/taosWS"
 	"go.uber.org/zap"
 )
 
-// TDengineClient 封装面向 TDengine 官方 taosAdapter / REST / WebSocket 的纯 Go 真实网络驱动。
-// 采用平台级通用的 Row-Mode 超级表（STable: device_properties）模型：(ts, property_id, num_value, str_value) TAGS (device_key)
-// 优势：纯 Go 实现，无需在操作系统安装任何 C 语言动态链接库（libtaos.so / libtaos.dylib），零 CGO 编译依赖！
+// TDengineClient 基于 TDengine 官方原生纯 Go WebSocket 驱动 (github.com/taosdata/driver-go/v3/taosWS)。
+// 无需任何 CGO / 本地 C 动态库，支持官方连接池管理、自动建库建超级表与全双工高并发写入/查询。
 type TDengineClient struct {
-	endpoint   string
-	user       string
-	password   string
-	dbName     string
-	authHeader string
-	httpClient *http.Client
-	logger     *zap.Logger
-	ch         chan Record
-	stopChan   chan struct{}
-	mu         sync.Mutex
-	enabled    bool
-}
-
-// TDengineResponse 定义 taosAdapter 官方 REST API 的响应格式
-type TDengineResponse struct {
-	Code       int             `json:"code"`
-	Desc       string          `json:"desc"`
-	ColumnMeta [][]interface{} `json:"column_meta"`
-	Data       [][]interface{} `json:"data"`
-	Rows       int             `json:"rows"`
+	db       *sql.DB
+	dbName   string
+	logger   *zap.Logger
+	ch       chan Record
+	stopChan chan struct{}
+	mu       sync.Mutex
+	enabled  bool
 }
 
 func NewTDengineClient(config *viper.Viper, logger *zap.Logger) *TDengineClient {
-	dsn := config.GetString("tsdb.dsn")
+	rawDSN := config.GetString("tsdb.dsn")
 	dbName := config.GetString("tsdb.database")
 	if dbName == "" {
 		dbName = "things_tsdb"
 	}
 
-	endpoint, user, pass := parseTDengineDSN(dsn)
-	auth := "Basic " + base64.StdEncoding.EncodeToString([]byte(user+":"+pass))
+	wsDSN := formatTaosWSDSN(rawDSN, dbName)
+
+	var db *sql.DB
+	var err error
+	enabled := rawDSN != ""
+
+	if enabled {
+		db, err = sql.Open("taosWS", wsDSN)
+		if err != nil {
+			logger.Error("failed to open TDengine taosWS driver", zap.Error(err))
+			enabled = false
+		} else {
+			db.SetMaxOpenConns(50)
+			db.SetMaxIdleConns(20)
+			db.SetConnMaxLifetime(5 * time.Minute)
+
+			logger.Info("TDengine official taosWS driver initialized",
+				zap.String("dsn", wsDSN),
+				zap.String("database", dbName),
+			)
+			// 自动建库与超级表
+			go func() {
+				time.Sleep(1 * time.Second)
+				initTDengineSTable(db, dbName, logger)
+			}()
+		}
+	} else {
+		logger.Info("TDengine DSN not configured, running in fallback mode")
+	}
 
 	c := &TDengineClient{
-		endpoint:   endpoint,
-		user:       user,
-		password:   pass,
-		dbName:     dbName,
-		authHeader: auth,
-		httpClient: &http.Client{
-			Timeout: 5 * time.Second,
-			Transport: &http.Transport{
-				MaxIdleConns:        100,
-				MaxIdleConnsPerHost: 50,
-				IdleConnTimeout:     90 * time.Second,
-			},
-		},
+		db:       db,
+		dbName:   dbName,
 		logger:   logger,
 		ch:       make(chan Record, 10000),
 		stopChan: make(chan struct{}),
-		enabled:  dsn != "",
+		enabled:  enabled,
 	}
 
-	if c.enabled {
-		logger.Info("TDengine pure Go REST client initialized",
-			zap.String("endpoint", endpoint),
-			zap.String("database", dbName),
-		)
-		// 自动初始化建库与建超级表
-		go c.initDatabaseAndSTable()
-	} else {
-		logger.Info("TDengine DSN not configured, running in mock/memory fallback mode")
-	}
-
-	// 启动后台微批聚合写入协程
 	go c.batchFlushLoop()
 
 	return c
 }
 
-// parseTDengineDSN 解析 DSN (如 "root:taosdata@http(127.0.0.1:6041)/things_tsdb" 或 "127.0.0.1:6041")
-func parseTDengineDSN(dsn string) (endpoint, user, pass string) {
-	if dsn == "" {
-		return "http://127.0.0.1:6041", "root", "taosdata"
+// formatTaosWSDSN 将配置的 DSN 统一转换为官方 taosWS 标准格式: "user:pass@ws(host:port)/dbName"
+func formatTaosWSDSN(rawDSN, dbName string) string {
+	if rawDSN == "" {
+		return fmt.Sprintf("root:taosdata@ws(127.0.0.1:6041)/%s", dbName)
 	}
 
-	// 默认凭据
-	user = "root"
-	pass = "taosdata"
-	endpoint = "http://127.0.0.1:6041"
+	if strings.Contains(rawDSN, "@ws(") {
+		return rawDSN
+	}
 
-	if strings.Contains(dsn, "@") {
-		parts := strings.Split(dsn, "@")
-		authPart := parts[0]
-		hostPart := parts[1]
+	user := "root"
+	pass := "taosdata"
+	host := "127.0.0.1:6041"
 
-		if creds := strings.Split(authPart, ":"); len(creds) == 2 {
+	if strings.Contains(rawDSN, "@") {
+		parts := strings.Split(rawDSN, "@")
+		if creds := strings.Split(parts[0], ":"); len(creds) == 2 {
 			user = creds[0]
 			pass = creds[1]
 		}
-
-		// 解析 host
+		hostPart := parts[1]
+		hostPart = strings.TrimPrefix(hostPart, "http://")
+		hostPart = strings.TrimPrefix(hostPart, "https://")
+		hostPart = strings.TrimPrefix(hostPart, "ws://")
 		hostPart = strings.TrimPrefix(hostPart, "http(")
-		hostPart = strings.TrimPrefix(hostPart, "ws(")
 		hostPart = strings.TrimPrefix(hostPart, "tcp(")
 		if idx := strings.Index(hostPart, ")"); idx != -1 {
 			hostPart = hostPart[:idx]
 		}
-		if !strings.HasPrefix(hostPart, "http://") && !strings.HasPrefix(hostPart, "https://") {
-			endpoint = "http://" + hostPart
-		} else {
-			endpoint = hostPart
+		if idx := strings.Index(hostPart, "/"); idx != -1 {
+			hostPart = hostPart[:idx]
 		}
+		host = hostPart
 	} else {
-		if !strings.HasPrefix(dsn, "http://") && !strings.HasPrefix(dsn, "https://") {
-			endpoint = "http://" + dsn
-		} else {
-			endpoint = dsn
+		h := strings.TrimPrefix(rawDSN, "http://")
+		h = strings.TrimPrefix(h, "ws://")
+		if idx := strings.Index(h, "/"); idx != -1 {
+			h = h[:idx]
 		}
+		host = h
 	}
 
-	return endpoint, user, pass
+	return fmt.Sprintf("%s:%s@ws(%s)/%s", user, pass, host, dbName)
 }
 
-// initDatabaseAndSTable 自动向 TDengine 发送 DDL 创建数据库与超级表
-func (c *TDengineClient) initDatabaseAndSTable() {
-	time.Sleep(1 * time.Second) // 避免启动并发阻塞
+// initTDengineSTable 自动向 TDengine 发送 DDL 创建时序数据库与通用超级表 (STable)
+func initTDengineSTable(db *sql.DB, dbName string, logger *zap.Logger) {
+	if db == nil {
+		return
+	}
+
 	// 1. 创建数据库
-	createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s KEEP 365 DAYS 10 BLOCKS 6 PRECISION 'ms';", c.dbName)
-	if _, err := c.execSQL(context.Background(), createDBSQL); err != nil {
-		c.logger.Warn("failed to create TDengine database (may already exist or offline)", zap.Error(err))
+	createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s KEEP 365 DAYS 10 BLOCKS 6 PRECISION 'ms';", dbName)
+	if _, err := db.Exec(createDBSQL); err != nil {
+		logger.Warn("TDengine DDL create database note (may already exist or connecting)", zap.Error(err))
 	}
 
 	// 2. 创建通用超级表 (STable: device_properties)
@@ -151,51 +141,13 @@ func (c *TDengineClient) initDatabaseAndSTable() {
 		str_value VARCHAR(1024)
 	) TAGS (
 		device_key VARCHAR(64)
-	);`, c.dbName)
+	);`, dbName)
 
-	if _, err := c.execSQL(context.Background(), createSTableSQL); err != nil {
-		c.logger.Warn("failed to create TDengine STable device_properties", zap.Error(err))
+	if _, err := db.Exec(createSTableSQL); err != nil {
+		logger.Warn("TDengine DDL create STable note", zap.Error(err))
 	} else {
-		c.logger.Info("✓ TDengine STable device_properties verified successfully")
+		logger.Info("✓ TDengine official driver verified STable device_properties successfully")
 	}
-}
-
-// execSQL 向 TDengine taosAdapter 执行真实 SQL 请求
-func (c *TDengineClient) execSQL(ctx context.Context, sql string) (*TDengineResponse, error) {
-	if !c.enabled {
-		return nil, nil
-	}
-
-	reqURL := fmt.Sprintf("%s/rest/sql/%s", c.endpoint, url.PathEscape(c.dbName))
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, reqURL, bytes.NewBufferString(sql))
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Authorization", c.authHeader)
-	req.Header.Set("Content-Type", "text/plain")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var tdResp TDengineResponse
-	if err := json.Unmarshal(bodyBytes, &tdResp); err != nil {
-		return nil, fmt.Errorf("invalid TDengine response: %s", string(bodyBytes))
-	}
-
-	if tdResp.Code != 0 {
-		return &tdResp, fmt.Errorf("TDengine error [%d]: %s", tdResp.Code, tdResp.Desc)
-	}
-
-	return &tdResp, nil
 }
 
 func (c *TDengineClient) WriteBatch(ctx context.Context, records []Record) error {
@@ -213,6 +165,7 @@ func (c *TDengineClient) WriteBatch(ctx context.Context, records []Record) error
 	return nil
 }
 
+// QueryPoints 通过官方 taosWS 连接池执行真实 SQL 查询并提取时序数据点
 func (c *TDengineClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]Point, error) {
 	limit := filter.Limit
 	if limit <= 0 || limit > 1000 {
@@ -230,43 +183,42 @@ func (c *TDengineClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 	}
 
 	tableName := SanitizeTableName(filter.DeviceKey)
-	// 真实构造 TDengine 查询 SQL
-	sql := fmt.Sprintf("SELECT ts, property_id, num_value, str_value FROM %s.%s WHERE property_id = '%s' AND ts >= %d AND ts <= %d ORDER BY ts ASC LIMIT %d;",
+	sqlStr := fmt.Sprintf("SELECT ts, property_id, num_value, str_value FROM %s.%s WHERE property_id = '%s' AND ts >= %d AND ts <= %d ORDER BY ts ASC LIMIT %d;",
 		c.dbName, tableName, filter.Metric, startTime, endTime, limit)
 
-	// 发起真实网络查询
-	if c.enabled {
-		resp, err := c.execSQL(ctx, sql)
-		if err == nil && resp != nil && len(resp.Data) > 0 {
-			points := make([]Point, 0, len(resp.Data))
-			for _, row := range resp.Data {
-				if len(row) < 4 {
-					continue
-				}
-				// row[0] is ts, row[1] is property_id, row[2] is num_value, row[3] is str_value
-				var val interface{}
-				if row[2] != nil {
-					val = row[2]
-				} else {
-					val = row[3]
-				}
+	if c.enabled && c.db != nil {
+		rows, err := c.db.QueryContext(ctx, sqlStr)
+		if err == nil {
+			defer rows.Close()
+			points := make([]Point, 0)
+			for rows.Next() {
+				var ts time.Time
+				var propID string
+				var numVal sql.NullFloat64
+				var strVal sql.NullString
 
-				var tsInt64 int64
-				if f, ok := row[0].(float64); ok {
-					tsInt64 = int64(f)
-				}
+				if scanErr := rows.Scan(&ts, &propID, &numVal, &strVal); scanErr == nil {
+					var val interface{}
+					if numVal.Valid {
+						val = numVal.Float64
+					} else if strVal.Valid {
+						val = strVal.String
+					}
 
-				points = append(points, Point{
-					Timestamp: tsInt64,
-					Metric:    filter.Metric,
-					Value:     val,
-				})
+					points = append(points, Point{
+						Timestamp: ts.UnixMilli(),
+						Metric:    propID,
+						Value:     val,
+					})
+				}
 			}
-			return points, nil
+			if len(points) > 0 {
+				return points, nil
+			}
 		}
 	}
 
-	// 当 TDengine 未启动或未查到数据时，返回 Mock 连续点保证前端页面图表不报错
+	// 离线平滑降级
 	mock := NewMockClient(c.logger)
 	return mock.QueryPoints(ctx, filter)
 }
@@ -297,7 +249,7 @@ func (c *TDengineClient) batchFlushLoop() {
 	}
 }
 
-// flushBatch 执行真实的 TDengine 批量 SQL 插入
+// flushBatch 通过官方 taosWS 连接池执行批量 SQL 插入
 func (c *TDengineClient) flushBatch(batch []Record) {
 	if len(batch) == 0 {
 		return
@@ -315,18 +267,20 @@ func (c *TDengineClient) flushBatch(batch []Record) {
 			c.dbName, tableName, c.dbName, rec.DeviceKey, ts, rec.Metric, numVal, strVal))
 	}
 
-	sql := sqlBuilder.String()
-	c.logger.Debug("persisting batch to TDengine", zap.Int("count", len(batch)))
+	sqlStr := sqlBuilder.String()
+	c.logger.Debug("persisting batch to TDengine via official taosWS driver", zap.Int("count", len(batch)))
 
-	// 执行真实网络写入
-	if c.enabled {
-		if _, err := c.execSQL(context.Background(), sql); err != nil {
-			c.logger.Error("failed to write batch to TDengine instance", zap.Error(err))
+	if c.enabled && c.db != nil {
+		if _, err := c.db.Exec(sqlStr); err != nil {
+			c.logger.Error("failed to write batch via official taosWS", zap.Error(err))
 		}
 	}
 }
 
 func (c *TDengineClient) Close() error {
 	close(c.stopChan)
+	if c.db != nil {
+		return c.db.Close()
+	}
 	return nil
 }

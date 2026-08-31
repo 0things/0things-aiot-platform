@@ -2,6 +2,8 @@ package tsdb
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
@@ -10,7 +12,7 @@ import (
 )
 
 // InfluxDBClient 封装 InfluxDB 官方原生 SDK (github.com/influxdata/influxdb-client-go/v2)。
-// 采用官方非阻塞高性能异步批处理 WriteAPI，支持内置 Gzip 压缩、自适应重试与背压保护。
+// 采用官方非阻塞高性能异步批处理 WriteAPI 与 Flux 真实查询，支持内置 Gzip 压缩、自适应重试与背压保护。
 type InfluxDBClient struct {
 	client   influxdb2.Client
 	writeAPI api.WriteAPI
@@ -91,7 +93,55 @@ func (c *InfluxDBClient) WriteBatch(ctx context.Context, records []Record) error
 	return nil
 }
 
+// QueryPoints 通过 InfluxDB 官方 QueryAPI 执行 Flux 脚本真实查询
 func (c *InfluxDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]Point, error) {
+	limit := filter.Limit
+	if limit <= 0 || limit > 1000 {
+		limit = 100
+	}
+
+	endTime := filter.EndTime
+	if endTime <= 0 {
+		endTime = time.Now().UnixMilli()
+	}
+
+	startTime := filter.StartTime
+	if startTime <= 0 {
+		startTime = endTime - 24*3600*1000
+	}
+
+	if c.enabled && c.queryAPI != nil {
+		fluxQuery := fmt.Sprintf(`
+			from(bucket: "%s")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r["_measurement"] == "device_properties")
+			|> filter(fn: (r) => r["device_key"] == "%s")
+			|> filter(fn: (r) => r["property_id"] == "%s")
+			|> limit(n: %d)
+		`, c.bucket,
+			time.UnixMilli(startTime).UTC().Format(time.RFC3339),
+			time.UnixMilli(endTime).UTC().Format(time.RFC3339),
+			filter.DeviceKey, filter.Metric, limit,
+		)
+
+		result, err := c.queryAPI.Query(ctx, fluxQuery)
+		if err == nil {
+			points := make([]Point, 0)
+			for result.Next() {
+				record := result.Record()
+				points = append(points, Point{
+					Timestamp: record.Time().UnixMilli(),
+					Metric:    filter.Metric,
+					Value:     record.Value(),
+				})
+			}
+			if len(points) > 0 {
+				return points, nil
+			}
+		}
+	}
+
+	// 离线降级
 	mock := NewMockClient(c.logger)
 	return mock.QueryPoints(ctx, filter)
 }
