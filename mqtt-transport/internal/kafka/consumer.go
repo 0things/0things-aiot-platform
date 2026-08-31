@@ -7,6 +7,7 @@ import (
 
 	"mqtt-transport/internal/enum"
 	"mqtt-transport/internal/model"
+
 	"github.com/spf13/viper"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.uber.org/zap"
@@ -67,18 +68,23 @@ func (c *Consumer) Start(ctx context.Context) error {
 	for ctx.Err() == nil {
 		fetches := c.client.PollFetches(ctx)
 		if errs := fetches.Errors(); len(errs) > 0 {
+			for _, err := range errs {
+				c.logger.Warn("kafka poll fetch error", zap.Error(err.Err), zap.String("topic", err.Topic))
+			}
 			continue
 		}
 
 		fetches.EachRecord(func(record *kgo.Record) {
 			var cmd model.DeviceCommand
 			if err := json.Unmarshal(record.Value, &cmd); err != nil {
-				c.logger.Error("failed to unmarshal device command", zap.Error(err))
+				c.logger.Error("failed to unmarshal device command (poison pill skipped)", zap.Error(err))
+				c.client.MarkCommitRecords(record)
 				return
 			}
 
 			// 协议过滤
 			if cmd.Transport != "" && cmd.Transport != "mqtt" {
+				c.client.MarkCommitRecords(record)
 				return
 			}
 
@@ -86,13 +92,18 @@ func (c *Consumer) Start(ctx context.Context) error {
 			if c.handler != nil {
 				if err := c.handler(ctx, cmd); err != nil {
 					c.logger.Error("failed to handle downlink command", zap.String("device_key", cmd.DeviceKey), zap.Error(err))
-					return
+					// 即使单条下发失败，也标记并提交，避免由于终端离线导致整批阻塞
 				}
 			}
 
-			// 发送成功后手动标记提交消费位移
+			// 手动标记提交消费位移
 			c.client.MarkCommitRecords(record)
 		})
+
+		// 触发持久化提交到 Kafka Broker
+		if err := c.client.CommitMarkedOffsets(ctx); err != nil {
+			c.logger.Warn("failed to commit kafka offsets", zap.Error(err))
+		}
 	}
 	return nil
 }

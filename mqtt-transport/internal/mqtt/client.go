@@ -37,12 +37,24 @@ func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Produce
 		clientID = "0things-mqtt-transport-" + uuid.NewString()[:8]
 	}
 
+	svc := &Service{
+		producer: producer,
+		logger:   logger,
+	}
+
 	opts := mqtt.NewClientOptions().
 		AddBroker(broker).
 		SetClientID(clientID).
 		SetAutoReconnect(true).
 		SetConnectRetry(true).
-		SetKeepAlive(60 * time.Second)
+		SetKeepAlive(60 * time.Second).
+		SetOnConnectHandler(func(c mqtt.Client) {
+			svc.logger.Info("connected/reconnected to MQTT broker, registering subscriptions...")
+			svc.registerSubscriptions(c)
+		}).
+		SetConnectionLostHandler(func(_ mqtt.Client, err error) {
+			svc.logger.Warn("MQTT connection lost, waiting for auto-reconnect", zap.Error(err))
+		})
 
 	if username := config.GetString("mqtt.username"); username != "" {
 		opts.SetUsername(username)
@@ -51,14 +63,11 @@ func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Produce
 		opts.SetPassword(password)
 	}
 
-	return &Service{
-		client:   mqtt.NewClient(opts),
-		producer: producer,
-		logger:   logger,
-	}
+	svc.client = mqtt.NewClient(opts)
+	return svc
 }
 
-// Start 建立连接，并直接通过标准枚举注册专属主题 Handler。
+// Start 建立连接，并保持服务运行。
 func (s *Service) Start(ctx context.Context) error {
 	s.mu.Lock()
 	token := s.client.Connect()
@@ -71,16 +80,7 @@ func (s *Service) Start(ctx context.Context) error {
 		return fmt.Errorf("mqtt broker connect failed: %w", err)
 	}
 
-	s.logger.Info("connected to MQTT broker successfully")
-
-	// 1. 标准时序遥测上报 ➔ 绑定 handleTelemetry
-	s.subscribeTopic(enum.MQTTSubTelemetry, s.handleTelemetry)
-
-	// 2. 标准 OTA 升级进度上报 ➔ 绑定 handleOtaProgress
-	s.subscribeTopic(enum.MQTTSubOTAProgress, s.handleOtaProgress)
-
-	// 3. 标准业务事件上报 ➔ 绑定 handleDeviceEvent
-	s.subscribeTopic(enum.MQTTSubEvent, s.handleDeviceEvent)
+	s.logger.Info("MQTT client connected and listening...")
 
 	<-ctx.Done()
 	s.client.Disconnect(250)
@@ -88,9 +88,20 @@ func (s *Service) Start(ctx context.Context) error {
 	return nil
 }
 
-// subscribeTopic 辅助方法：订阅单个 Topic 并绑定专属 Handler
-func (s *Service) subscribeTopic(topic string, handler mqtt.MessageHandler) {
-	subToken := s.client.Subscribe(topic, 0, handler)
+// registerSubscriptions 在初次连接与重连时统一恢复主题订阅
+func (s *Service) registerSubscriptions(c mqtt.Client) {
+	// 1. 标准时序遥测上报 ➔ 绑定 handleTelemetry
+	s.subscribeTopicWithClient(c, enum.MQTTSubTelemetry, s.handleTelemetry)
+
+	// 2. 标准 OTA 升级进度上报 ➔ 绑定 handleOtaProgress
+	s.subscribeTopicWithClient(c, enum.MQTTSubOTAProgress, s.handleOtaProgress)
+
+	// 3. 标准业务事件上报 ➔ 绑定 handleDeviceEvent
+	s.subscribeTopicWithClient(c, enum.MQTTSubEvent, s.handleDeviceEvent)
+}
+
+func (s *Service) subscribeTopicWithClient(c mqtt.Client, topic string, handler mqtt.MessageHandler) {
+	subToken := c.Subscribe(topic, 0, handler)
 	if subToken.Wait() && subToken.Error() != nil {
 		s.logger.Error("failed to subscribe to topic", zap.String("topic", topic), zap.Error(subToken.Error()))
 	} else {
@@ -115,7 +126,14 @@ func (s *Service) dispatchUplink(msgType string, topic string, payload []byte) {
 		Headers:     map[string]string{"topic": topic},
 	}
 
-	_ = s.producer.SendDeviceMessage(context.Background(), deviceMsg)
+	if err := s.producer.SendDeviceMessage(context.Background(), deviceMsg); err != nil {
+		s.logger.Error("failed to publish uplink message to kafka",
+			zap.String("topic", topic),
+			zap.String("device_key", deviceKey),
+			zap.String("msg_type", msgType),
+			zap.Error(err),
+		)
+	}
 }
 
 // handleTelemetry 专职处理时序遥测与属性 ➔ 投递至 device.telemetry.v1
@@ -130,21 +148,30 @@ func (s *Service) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
 
 // handleDeviceEvent 专职处理设备特定告警与事件 ➔ 投递至 device.event.v1
 func (s *Service) handleDeviceEvent(_ mqtt.Client, msg mqtt.Message) {
+	// 避免与 handleTelemetry 重复：若为 /thing/event/property/post 则由 handleTelemetry 处理，此处跳过
+	if strings.HasSuffix(msg.Topic(), "/thing/event/property/post") {
+		return
+	}
 	s.dispatchUplink("event", msg.Topic(), msg.Payload())
 }
 
 // HandleDownlinkCommand 处理来自 Kafka 的下行控制指令并推向设备（使用标准枚举模板）
 func (s *Service) HandleDownlinkCommand(ctx context.Context, cmd model.DeviceCommand) error {
+	// 校验 deviceKey 与 endpoint 是否包含非法 MQTT 通配符防止注入
+	if strings.ContainsAny(cmd.DeviceKey, "+#\n\r") {
+		return fmt.Errorf("invalid device key containing MQTT wildcard: %s", cmd.DeviceKey)
+	}
+
 	topic := cmd.Endpoint
 	if topic == "" {
 		switch cmd.CommandType {
 		case "ota_upgrade", "ota":
-			// 使用枚举模板构造 OTA 下发 Topic
 			topic = fmt.Sprintf(enum.MQTTTplOTAUpgrade, cmd.DeviceKey)
 		default:
-			// 使用枚举模板构造属性设置下发 Topic
 			topic = fmt.Sprintf(enum.MQTTTplPropertySet, cmd.DeviceKey)
 		}
+	} else if strings.ContainsAny(topic, "+#\n\r") {
+		return fmt.Errorf("invalid custom endpoint topic containing MQTT wildcard: %s", topic)
 	}
 
 	token := s.client.Publish(topic, 1, false, cmd.Payload)
@@ -163,11 +190,14 @@ func (s *Service) HandleDownlinkCommand(ctx context.Context, cmd model.DeviceCom
 	return nil
 }
 
-// ExtractDeviceKey 从标准 /sys/{deviceKey}/... 路径中提取 deviceKey
+// ExtractDeviceKey 统一从主题路径中提取设备唯一标识符 deviceKey。
+// 支持格式：
+// 1. 标准属性与事件上报: /sys/{deviceKey}/thing/...
+// 2. OTA 进度上报: /sys/{deviceKey}/ota/...
 func ExtractDeviceKey(topic string) string {
-	parts := strings.Split(strings.Trim(topic, "/"), "/")
-	if len(parts) >= 2 && parts[0] == "sys" {
-		return parts[1]
+	parts := strings.Split(topic, "/")
+	if len(parts) >= 3 && parts[1] == "sys" {
+		return parts[2]
 	}
 	return ""
 }

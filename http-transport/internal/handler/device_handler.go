@@ -9,6 +9,7 @@ import (
 
 	"http-transport/internal/kafka"
 	"http-transport/internal/model"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -29,13 +30,13 @@ func NewDeviceHandler(producer *kafka.Producer, logger *zap.Logger) *DeviceHandl
 // PostTelemetry 处理设备时序遥测数据上报
 // 接口：POST /api/v1/:deviceKey/telemetry ➔ 投递到 device.telemetry.v1
 func (h *DeviceHandler) PostTelemetry(c *gin.Context) {
-	h.handleIngress(c, "telemetry")
+	h.handleIngress(c, "telemetry", nil)
 }
 
 // PostAttributes 处理设备属性更新上报
 // 接口：POST /api/v1/:deviceKey/attributes ➔ 投递到 device.telemetry.v1
 func (h *DeviceHandler) PostAttributes(c *gin.Context) {
-	h.handleIngress(c, "attributes")
+	h.handleIngress(c, "attributes", nil)
 }
 
 // PostEvent 处理设备特定事件上报（如告警、故障）
@@ -45,13 +46,13 @@ func (h *DeviceHandler) PostEvent(c *gin.Context) {
 	if eventType == "" {
 		eventType = "event"
 	}
-	h.handleIngress(c, "event")
+	h.handleIngress(c, "event", map[string]string{"event_type": eventType})
 }
 
 // PostOtaProgress 处理设备 OTA 升级进度上报
 // 接口：POST /api/v1/:deviceKey/ota/progress ➔ 投递到 ota.report.v1
 func (h *DeviceHandler) PostOtaProgress(c *gin.Context) {
-	h.handleIngress(c, "ota_report")
+	h.handleIngress(c, "ota_report", nil)
 }
 
 // DeviceIngressLegacy 兼容老网关上报路径
@@ -61,11 +62,11 @@ func (h *DeviceHandler) DeviceIngressLegacy(c *gin.Context) {
 	if msgType == "" {
 		msgType = "telemetry"
 	}
-	h.handleIngress(c, msgType)
+	h.handleIngress(c, msgType, nil)
 }
 
 // handleIngress 统一校验请求参数，组装 DeviceMessage 并异步投递 Kafka，快速返回 202 Accepted 避免设备端等待。
-func (h *DeviceHandler) handleIngress(c *gin.Context, msgType string) {
+func (h *DeviceHandler) handleIngress(c *gin.Context, msgType string, extraHeaders map[string]string) {
 	deviceKey := strings.TrimSpace(c.Param("deviceKey"))
 	if deviceKey == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "deviceKey is required"})
@@ -78,6 +79,14 @@ func (h *DeviceHandler) handleIngress(c *gin.Context, msgType string) {
 		return
 	}
 
+	headers := map[string]string{
+		"content-type": c.ContentType(),
+		"remote-ip":    c.ClientIP(),
+	}
+	for k, v := range extraHeaders {
+		headers[k] = v
+	}
+
 	msg := model.DeviceMessage{
 		DeviceKey:   deviceKey,
 		ProductKey:  c.GetHeader("X-Product-Key"),
@@ -85,10 +94,7 @@ func (h *DeviceHandler) handleIngress(c *gin.Context, msgType string) {
 		MessageType: msgType,
 		Payload:     json.RawMessage(body),
 		Timestamp:   time.Now().UTC(),
-		Headers: map[string]string{
-			"content-type": c.ContentType(),
-			"remote-ip":    c.ClientIP(),
-		},
+		Headers:     headers,
 	}
 
 	if err := h.producer.SendDeviceMessage(c.Request.Context(), msg); err != nil {

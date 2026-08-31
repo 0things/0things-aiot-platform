@@ -13,8 +13,10 @@ import (
 
 	"http-transport/internal/handler"
 	"http-transport/internal/kafka"
+	"http-transport/internal/middleware"
 	"http-transport/pkg/config"
 	"http-transport/pkg/log"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -41,9 +43,11 @@ func main() {
 	r.Use(gin.Recovery())
 
 	deviceHandler := handler.NewDeviceHandler(producer, logger.Logger)
+	authMiddleware := middleware.DeviceAuthMiddleware(conf, logger.Logger)
 
 	// 注册标准设备上报路由
 	apiV1 := r.Group("/api/v1")
+	apiV1.Use(authMiddleware)
 	{
 		apiV1.POST("/:deviceKey/telemetry", deviceHandler.PostTelemetry)
 		apiV1.POST("/:deviceKey/attributes", deviceHandler.PostAttributes)
@@ -51,7 +55,7 @@ func main() {
 		apiV1.POST("/:deviceKey/ota/progress", deviceHandler.PostOtaProgress) // 新增 OTA 进度上报接口
 	}
 	// 兼容老网关路由
-	r.POST("/v1/device-ingress/:deviceKey", deviceHandler.DeviceIngressLegacy)
+	r.POST("/v1/device-ingress/:deviceKey", authMiddleware, deviceHandler.DeviceIngressLegacy)
 
 	// 健康检查探针接口
 	r.GET("/health", func(c *gin.Context) {

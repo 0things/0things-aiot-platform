@@ -85,8 +85,6 @@ func (c *TimescaleDBClient) WriteBatch(ctx context.Context, records []Record) er
 		return nil
 	}
 
-	batch := &pgxpool.Pool{} // logic check
-	_ = batch
 	sql := fmt.Sprintf("INSERT INTO %s (time, device_key, property_id, num_value, str_value, bool_value, json_value) VALUES ($1, $2, $3, $4, $5, $6, $7)", c.tableName)
 
 	conn, err := c.pool.Acquire(ctx)

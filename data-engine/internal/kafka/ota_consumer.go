@@ -9,6 +9,7 @@ import (
 	"data-engine/internal/enum"
 	"data-engine/internal/model"
 	"data-engine/internal/service"
+
 	"github.com/spf13/viper"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.uber.org/zap"
@@ -68,6 +69,9 @@ func (c *OTAConsumer) Start(ctx context.Context) error {
 	for ctx.Err() == nil {
 		fetches := c.client.PollFetches(ctx)
 		if errs := fetches.Errors(); len(errs) > 0 {
+			for _, err := range errs {
+				c.logger.Warn("OTA kafka poll error", zap.Error(err.Err), zap.String("topic", err.Topic))
+			}
 			continue
 		}
 
@@ -80,11 +84,15 @@ func (c *OTAConsumer) Start(ctx context.Context) error {
 
 			if err := c.processor.HandleOTAReport(ctx, report); err != nil {
 				c.logger.Error("failed to process OTA report", zap.String("device_key", report.DeviceKey), zap.Error(err))
-				return
 			}
 
 			c.client.MarkCommitRecords(record)
 		})
+
+		// 触发持久化提交到 Kafka Broker
+		if err := c.client.CommitMarkedOffsets(ctx); err != nil {
+			c.logger.Warn("failed to commit OTA kafka offsets", zap.Error(err))
+		}
 	}
 	return nil
 }

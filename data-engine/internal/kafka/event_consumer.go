@@ -67,24 +67,31 @@ func (c *EventConsumer) Start(ctx context.Context) error {
 	for ctx.Err() == nil {
 		fetches := c.client.PollFetches(ctx)
 		if errs := fetches.Errors(); len(errs) > 0 {
+			for _, err := range errs {
+				c.logger.Warn("event kafka poll error", zap.Error(err.Err), zap.String("topic", err.Topic))
+			}
 			continue
 		}
 
 		fetches.EachRecord(func(record *kgo.Record) {
 			var msg model.DeviceMessage
 			if err := json.Unmarshal(record.Value, &msg); err != nil {
-				c.logger.Error("failed to unmarshal device event message", zap.Error(err))
+				c.logger.Error("failed to unmarshal device event message (poison pill skipped)", zap.Error(err))
 				c.client.MarkCommitRecords(record)
 				return
 			}
 
 			if err := c.processor.HandleEvent(ctx, msg); err != nil {
 				c.logger.Error("failed to process device event", zap.String("device_key", msg.DeviceKey), zap.Error(err))
-				return
 			}
 
 			c.client.MarkCommitRecords(record)
 		})
+
+		// 触发持久化提交到 Kafka Broker
+		if err := c.client.CommitMarkedOffsets(ctx); err != nil {
+			c.logger.Warn("failed to commit event kafka offsets", zap.Error(err))
+		}
 	}
 	return nil
 }

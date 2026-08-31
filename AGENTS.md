@@ -46,10 +46,6 @@ cd frontend && pnpm dev
 
 提交前先运行最小范围的检查，再跑整个包的构建。Go 测试以 `*_test.go` 文件名放在被测包旁边；服务级测试沿用 `test/server` 的现有约定。前端目前没有专用测试脚本，已有集成测试文件仍需按项目配置执行，并在本地浏览器验证可见流程。前端至少执行受影响文件的 Prettier 检查，条件允许时执行 `pnpm build`、`pnpm lint` 和 `pnpm format:check`；后端条件允许时执行 `make test` 和 `make build`。
 
-## 提交与 Pull Request 规范
-
-提交说明使用简洁的 Conventional Commit 主题，例如 `fix: preserve OTA batch history` 或 `chore: update project configuration`。每次提交只关注一个主题；用户明确要求“全部提交”时才合并无关改动。PR 应说明受影响的服务或路由、描述行为变更、关联相关 Issue，并附带改动前后的截图（针对可见的前端变更）。切勿提交凭据、`config/local.yml`、`.env.local`、本地工具目录、覆盖率/构建产物或生成文件，除非本次提交的目的就是重新生成这些文件。推送后需核对远程分支和提交哈希。
-
 
 Tradeoff: These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 

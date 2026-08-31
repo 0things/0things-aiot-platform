@@ -3,6 +3,7 @@ package tsdb
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
@@ -118,6 +119,10 @@ func (c *InfluxDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 	}
 
 	if c.enabled && c.queryAPI != nil {
+		escapedBucket := strings.ReplaceAll(strings.ReplaceAll(c.bucket, `\`, `\\`), `"`, `\"`)
+		escapedDevKey := strings.ReplaceAll(strings.ReplaceAll(filter.DeviceKey, `\`, `\\`), `"`, `\"`)
+		escapedMetric := strings.ReplaceAll(strings.ReplaceAll(filter.Metric, `\`, `\\`), `"`, `\"`)
+
 		fluxQuery := fmt.Sprintf(`
 			from(bucket: "%s")
 			|> range(start: %s, stop: %s)
@@ -125,10 +130,10 @@ func (c *InfluxDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 			|> filter(fn: (r) => r["device_key"] == "%s")
 			|> filter(fn: (r) => r["property_id"] == "%s")
 			|> limit(n: %d)
-		`, c.bucket,
+		`, escapedBucket,
 			time.UnixMilli(startTime).UTC().Format(time.RFC3339),
 			time.UnixMilli(endTime).UTC().Format(time.RFC3339),
-			filter.DeviceKey, filter.Metric, limit,
+			escapedDevKey, escapedMetric, limit,
 		)
 
 		result, err := c.queryAPI.Query(ctx, fluxQuery)

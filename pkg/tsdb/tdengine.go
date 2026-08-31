@@ -191,8 +191,9 @@ func (c *TDengineClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 	}
 
 	tableName := SanitizeTableName(filter.DeviceKey)
+	escapedMetric := strings.ReplaceAll(filter.Metric, "'", "''")
 	sqlStr := fmt.Sprintf("SELECT ts, property_id, num_value, str_value, bool_value, json_value FROM %s.%s WHERE property_id = '%s' AND ts >= %d AND ts <= %d ORDER BY ts ASC LIMIT %d;",
-		c.dbName, tableName, filter.Metric, startTime, endTime, limit)
+		c.dbName, tableName, escapedMetric, startTime, endTime, limit)
 
 	if c.enabled && c.db != nil {
 		rows, err := c.db.QueryContext(ctx, sqlStr)
@@ -298,8 +299,11 @@ func (c *TDengineClient) flushBatch(batch []Record) {
 			jsonStr = fmt.Sprintf("'%s'", strings.ReplaceAll(*jsonVal, "'", "''"))
 		}
 
+		escapedDevKey := strings.ReplaceAll(rec.DeviceKey, "'", "''")
+		escapedMetric := strings.ReplaceAll(rec.Metric, "'", "''")
+
 		sqlBuilder.WriteString(fmt.Sprintf("%s.%s USING %s.device_properties TAGS ('%s') VALUES (%d, '%s', %s, %s, %s, %s) ",
-			c.dbName, tableName, c.dbName, rec.DeviceKey, ts, rec.Metric, numStr, strStr, boolStr, jsonStr))
+			c.dbName, tableName, c.dbName, escapedDevKey, ts, escapedMetric, numStr, strStr, boolStr, jsonStr))
 	}
 
 	sqlStr := sqlBuilder.String()
