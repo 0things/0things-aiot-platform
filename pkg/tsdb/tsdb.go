@@ -2,6 +2,7 @@ package tsdb
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -19,7 +20,7 @@ type Record struct {
 type Point struct {
 	Timestamp int64       `json:"timestamp"` // 毫秒时间戳
 	Metric    string      `json:"metric"`    // 属性标识符
-	Value     interface{} `json:"value"`     // 采样值
+	Value     interface{} `json:"value"`     // 采样值 (可能为 float64, string, bool, 或 map[string]interface{})
 }
 
 // QueryFilter 描述时序历史曲线查询参数。
@@ -48,48 +49,64 @@ func SanitizeTableName(deviceKey string) string {
 	return "d_" + clean
 }
 
-// SplitValue 将任意类型的变量拆分为合法的 SQL 数值槽或字符串槽 (用于 SQL 模板拼接)
-func SplitValue(v interface{}) (numVal string, strVal string) {
+// ToTypedValue 将通用 interface{} 智能分流为 4 种基础形态 (*numVal, *strVal, *boolVal, *jsonVal)
+func ToTypedValue(v interface{}) (numVal *float64, strVal *string, boolVal *bool, jsonVal *string) {
+	if v == nil {
+		return nil, nil, nil, nil
+	}
+
 	switch val := v.(type) {
 	case float64:
-		return fmt.Sprintf("%.4f", val), "NULL"
+		return &val, nil, nil, nil
+	case float32:
+		f := float64(val)
+		return &f, nil, nil, nil
 	case int:
-		return fmt.Sprintf("%d", val), "NULL"
+		f := float64(val)
+		return &f, nil, nil, nil
+	case int32:
+		f := float64(val)
+		return &f, nil, nil, nil
 	case int64:
-		return fmt.Sprintf("%d", val), "NULL"
-	case string:
-		return "NULL", fmt.Sprintf("'%s'", strings.ReplaceAll(val, "'", "''"))
+		f := float64(val)
+		return &f, nil, nil, nil
 	case bool:
-		if val {
-			return "1", "NULL"
+		return nil, nil, &val, nil
+	case map[string]interface{}, []interface{}:
+		// 复合对象/GPS定位/数组/结构体 -> 存入 json_v
+		if bytes, err := json.Marshal(val); err == nil {
+			s := string(bytes)
+			return nil, nil, nil, &s
 		}
-		return "0", "NULL"
+		s := fmt.Sprintf("%v", val)
+		return nil, &s, nil, nil
+	case string:
+		trimmed := strings.TrimSpace(val)
+		// 如果字符串本身是合法的 JSON 对象/数组，优先作为 json_v 处理
+		if (strings.HasPrefix(trimmed, "{") && strings.HasSuffix(trimmed, "}")) ||
+			(strings.HasPrefix(trimmed, "[") && strings.HasSuffix(trimmed, "]")) {
+			var js interface{}
+			if err := json.Unmarshal([]byte(trimmed), &js); err == nil {
+				return nil, nil, nil, &trimmed
+			}
+		}
+		return nil, &val, nil, nil
 	default:
-		return "NULL", fmt.Sprintf("'%v'", val)
+		// 其他未知复合类型尝试 JSON 序列化
+		if bytes, err := json.Marshal(val); err == nil && len(bytes) > 0 && (bytes[0] == '{' || bytes[0] == '[') {
+			s := string(bytes)
+			return nil, nil, nil, &s
+		}
+		s := fmt.Sprintf("%v", val)
+		return nil, &s, nil, nil
 	}
 }
 
-// ToTypedValue 将通用 interface{} 统一解析为强类型指针 (*float64, *string)，供各大官方原生 SDK 批量绑定复用
-func ToTypedValue(v interface{}) (numVal *float64, strVal *string) {
-	switch val := v.(type) {
-	case float64:
-		return &val, nil
-	case int:
-		f := float64(val)
-		return &f, nil
-	case int64:
-		f := float64(val)
-		return &f, nil
-	case string:
-		return nil, &val
-	case bool:
-		var f float64
-		if val {
-			f = 1
-		}
-		return &f, nil
-	default:
-		s := fmt.Sprintf("%v", val)
-		return nil, &s
+// UnmarshalJSONValue 将从数据库取出的 json_v 字符串反序列化为具体的 Go 对象
+func UnmarshalJSONValue(raw string) interface{} {
+	var result interface{}
+	if err := json.Unmarshal([]byte(raw), &result); err == nil {
+		return result
 	}
+	return raw
 }

@@ -96,7 +96,9 @@ func initSQLiteSchema(db *sql.DB, tableName string, logger *zap.Logger) {
 		device_key TEXT NOT NULL,
 		property_id TEXT NOT NULL,
 		num_value REAL,
-		str_value TEXT
+		str_value TEXT,
+		bool_value INTEGER,
+		json_value TEXT
 	);
 	CREATE INDEX IF NOT EXISTS idx_%s_dev_prop_time ON %s (device_key, property_id, time DESC);
 	`, tableName, tableName, tableName)
@@ -142,7 +144,7 @@ func (c *SQLiteClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]P
 
 	if c.enabled && c.db != nil {
 		query := fmt.Sprintf(`
-		SELECT time, property_id, num_value, str_value FROM %s 
+		SELECT time, property_id, num_value, str_value, bool_value, json_value FROM %s 
 		WHERE device_key = ? AND property_id = ? AND time >= ? AND time <= ? 
 		ORDER BY time ASC LIMIT ?
 		`, c.tableName)
@@ -156,10 +158,16 @@ func (c *SQLiteClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]P
 				var propID string
 				var numVal sql.NullFloat64
 				var strVal sql.NullString
+				var boolVal sql.NullInt64
+				var jsonVal sql.NullString
 
-				if err := rows.Scan(&ts, &propID, &numVal, &strVal); err == nil {
+				if err := rows.Scan(&ts, &propID, &numVal, &strVal, &boolVal, &jsonVal); err == nil {
 					var val interface{}
-					if numVal.Valid {
+					if jsonVal.Valid && jsonVal.String != "" {
+						val = UnmarshalJSONValue(jsonVal.String)
+					} else if boolVal.Valid {
+						val = boolVal.Int64 == 1
+					} else if numVal.Valid {
 						val = numVal.Float64
 					} else if strVal.Valid {
 						val = strVal.String
@@ -221,7 +229,7 @@ func (c *SQLiteClient) flushBatch(batch []Record) {
 	}
 	defer tx.Rollback()
 
-	sqlStr := fmt.Sprintf("INSERT INTO %s (time, device_key, property_id, num_value, str_value) VALUES (?, ?, ?, ?, ?)", c.tableName)
+	sqlStr := fmt.Sprintf("INSERT INTO %s (time, device_key, property_id, num_value, str_value, bool_value, json_value) VALUES (?, ?, ?, ?, ?, ?, ?)", c.tableName)
 	stmt, err := tx.Prepare(sqlStr)
 	if err != nil {
 		c.logger.Error("failed to prepare statement for SQLite TSDB", zap.Error(err))
@@ -230,9 +238,17 @@ func (c *SQLiteClient) flushBatch(batch []Record) {
 	defer stmt.Close()
 
 	for _, rec := range batch {
-		numVal, strVal := ToTypedValue(rec.Value)
+		numVal, strVal, boolVal, jsonVal := ToTypedValue(rec.Value)
+		var boolInt *int
+		if boolVal != nil {
+			val := 0
+			if *boolVal {
+				val = 1
+			}
+			boolInt = &val
+		}
 		ts := rec.Timestamp.UnixMilli()
-		if _, err := stmt.Exec(ts, rec.DeviceKey, rec.Metric, numVal, strVal); err != nil {
+		if _, err := stmt.Exec(ts, rec.DeviceKey, rec.Metric, numVal, strVal, boolInt, jsonVal); err != nil {
 			c.logger.Warn("failed to insert point into SQLite", zap.Error(err))
 		}
 	}

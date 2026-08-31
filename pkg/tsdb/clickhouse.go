@@ -79,15 +79,15 @@ func (c *ClickHouseClient) WriteBatch(ctx context.Context, records []Record) err
 		return nil
 	}
 
-	query := fmt.Sprintf("INSERT INTO %s.%s (ts, device_key, property_id, num_value, str_value)", c.database, c.tableName)
+	query := fmt.Sprintf("INSERT INTO %s.%s (ts, device_key, property_id, num_value, str_value, bool_value, json_value)", c.database, c.tableName)
 	batch, err := c.conn.PrepareBatch(ctx, query)
 	if err != nil {
 		return fmt.Errorf("clickhouse prepare batch error: %w", err)
 	}
 
 	for _, rec := range records {
-		numVal, strVal := ToTypedValue(rec.Value)
-		if err := batch.Append(rec.Timestamp, rec.DeviceKey, rec.Metric, numVal, strVal); err != nil {
+		numVal, strVal, boolVal, jsonVal := ToTypedValue(rec.Value)
+		if err := batch.Append(rec.Timestamp, rec.DeviceKey, rec.Metric, numVal, strVal, boolVal, jsonVal); err != nil {
 			c.logger.Warn("failed to append point to ClickHouse batch", zap.Error(err))
 		}
 	}
@@ -118,7 +118,7 @@ func (c *ClickHouseClient) QueryPoints(ctx context.Context, filter QueryFilter) 
 	}
 
 	if c.enabled && c.conn != nil {
-		query := fmt.Sprintf(`SELECT ts, property_id, num_value, str_value FROM %s.%s 
+		query := fmt.Sprintf(`SELECT ts, property_id, num_value, str_value, bool_value, json_value FROM %s.%s 
 			WHERE device_key = ? AND property_id = ? AND ts >= toDateTime64(? / 1000.0, 3) AND ts <= toDateTime64(? / 1000.0, 3) 
 			ORDER BY ts ASC LIMIT ?`, c.database, c.tableName)
 
@@ -131,10 +131,16 @@ func (c *ClickHouseClient) QueryPoints(ctx context.Context, filter QueryFilter) 
 				var propID string
 				var numVal *float64
 				var strVal *string
+				var boolVal *bool
+				var jsonVal *string
 
-				if err := rows.Scan(&ts, &propID, &numVal, &strVal); err == nil {
+				if err := rows.Scan(&ts, &propID, &numVal, &strVal, &boolVal, &jsonVal); err == nil {
 					var val interface{}
-					if numVal != nil {
+					if jsonVal != nil && *jsonVal != "" {
+						val = UnmarshalJSONValue(*jsonVal)
+					} else if boolVal != nil {
+						val = *boolVal
+					} else if numVal != nil {
 						val = *numVal
 					} else if strVal != nil {
 						val = *strVal

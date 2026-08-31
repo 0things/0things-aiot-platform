@@ -144,7 +144,9 @@ func initTDengineSTable(db *sql.DB, dbName string, logger *zap.Logger) {
 		ts TIMESTAMP,
 		property_id VARCHAR(64),
 		num_value DOUBLE,
-		str_value VARCHAR(1024)
+		str_value VARCHAR(1024),
+		bool_value TINYINT,
+		json_value NCHAR(4096)
 	) TAGS (
 		device_key VARCHAR(64)
 	);`, dbName)
@@ -189,7 +191,7 @@ func (c *TDengineClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 	}
 
 	tableName := SanitizeTableName(filter.DeviceKey)
-	sqlStr := fmt.Sprintf("SELECT ts, property_id, num_value, str_value FROM %s.%s WHERE property_id = '%s' AND ts >= %d AND ts <= %d ORDER BY ts ASC LIMIT %d;",
+	sqlStr := fmt.Sprintf("SELECT ts, property_id, num_value, str_value, bool_value, json_value FROM %s.%s WHERE property_id = '%s' AND ts >= %d AND ts <= %d ORDER BY ts ASC LIMIT %d;",
 		c.dbName, tableName, filter.Metric, startTime, endTime, limit)
 
 	if c.enabled && c.db != nil {
@@ -202,10 +204,16 @@ func (c *TDengineClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 				var propID string
 				var numVal sql.NullFloat64
 				var strVal sql.NullString
+				var boolVal sql.NullInt64
+				var jsonVal sql.NullString
 
-				if scanErr := rows.Scan(&ts, &propID, &numVal, &strVal); scanErr == nil {
+				if scanErr := rows.Scan(&ts, &propID, &numVal, &strVal, &boolVal, &jsonVal); scanErr == nil {
 					var val interface{}
-					if numVal.Valid {
+					if jsonVal.Valid && jsonVal.String != "" {
+						val = UnmarshalJSONValue(jsonVal.String)
+					} else if boolVal.Valid {
+						val = boolVal.Int64 == 1
+					} else if numVal.Valid {
 						val = numVal.Float64
 					} else if strVal.Valid {
 						val = strVal.String
@@ -267,10 +275,31 @@ func (c *TDengineClient) flushBatch(batch []Record) {
 	for _, rec := range batch {
 		tableName := SanitizeTableName(rec.DeviceKey)
 		ts := rec.Timestamp.UnixMilli()
-		numVal, strVal := SplitValue(rec.Value)
+		numVal, strVal, boolVal, jsonVal := ToTypedValue(rec.Value)
 
-		sqlBuilder.WriteString(fmt.Sprintf("%s.%s USING %s.device_properties TAGS ('%s') VALUES (%d, '%s', %s, %s) ",
-			c.dbName, tableName, c.dbName, rec.DeviceKey, ts, rec.Metric, numVal, strVal))
+		numStr := "NULL"
+		if numVal != nil {
+			numStr = fmt.Sprintf("%.4f", *numVal)
+		}
+		strStr := "NULL"
+		if strVal != nil {
+			strStr = fmt.Sprintf("'%s'", strings.ReplaceAll(*strVal, "'", "''"))
+		}
+		boolStr := "NULL"
+		if boolVal != nil {
+			if *boolVal {
+				boolStr = "1"
+			} else {
+				boolStr = "0"
+			}
+		}
+		jsonStr := "NULL"
+		if jsonVal != nil {
+			jsonStr = fmt.Sprintf("'%s'", strings.ReplaceAll(*jsonVal, "'", "''"))
+		}
+
+		sqlBuilder.WriteString(fmt.Sprintf("%s.%s USING %s.device_properties TAGS ('%s') VALUES (%d, '%s', %s, %s, %s, %s) ",
+			c.dbName, tableName, c.dbName, rec.DeviceKey, ts, rec.Metric, numStr, strStr, boolStr, jsonStr))
 	}
 
 	sqlStr := sqlBuilder.String()

@@ -87,12 +87,8 @@ func (c *TimescaleDBClient) WriteBatch(ctx context.Context, records []Record) er
 
 	batch := &pgxpool.Pool{} // logic check
 	_ = batch
-	sql := fmt.Sprintf("INSERT INTO %s (time, device_key, property_id, num_value, str_value) VALUES ($1, $2, $3, $4, $5)", c.tableName)
+	sql := fmt.Sprintf("INSERT INTO %s (time, device_key, property_id, num_value, str_value, bool_value, json_value) VALUES ($1, $2, $3, $4, $5, $6, $7)", c.tableName)
 
-	pgxBatch := &pgxpool.Tx{}
-	_ = pgxBatch
-
-	// 使用 pool 获取连接批量写入
 	conn, err := c.pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to acquire connection from pgxpool: %w", err)
@@ -100,8 +96,8 @@ func (c *TimescaleDBClient) WriteBatch(ctx context.Context, records []Record) er
 	defer conn.Release()
 
 	for _, rec := range records {
-		numVal, strVal := ToTypedValue(rec.Value)
-		if _, err := conn.Exec(ctx, sql, rec.Timestamp, rec.DeviceKey, rec.Metric, numVal, strVal); err != nil {
+		numVal, strVal, boolVal, jsonVal := ToTypedValue(rec.Value)
+		if _, err := conn.Exec(ctx, sql, rec.Timestamp, rec.DeviceKey, rec.Metric, numVal, strVal, boolVal, jsonVal); err != nil {
 			c.logger.Warn("failed to insert record into TimescaleDB", zap.Error(err))
 		}
 	}
@@ -128,7 +124,7 @@ func (c *TimescaleDBClient) QueryPoints(ctx context.Context, filter QueryFilter)
 	}
 
 	if c.enabled && c.pool != nil {
-		sql := fmt.Sprintf(`SELECT time, property_id, num_value, str_value FROM %s 
+		sql := fmt.Sprintf(`SELECT time, property_id, num_value, str_value, bool_value, json_value FROM %s 
 			WHERE device_key = $1 AND property_id = $2 AND time >= to_timestamp($3 / 1000.0) AND time <= to_timestamp($4 / 1000.0) 
 			ORDER BY time ASC LIMIT $5`, c.tableName)
 
@@ -141,10 +137,16 @@ func (c *TimescaleDBClient) QueryPoints(ctx context.Context, filter QueryFilter)
 				var propID string
 				var numVal *float64
 				var strVal *string
+				var boolVal *bool
+				var jsonVal *string
 
-				if err := rows.Scan(&ts, &propID, &numVal, &strVal); err == nil {
+				if err := rows.Scan(&ts, &propID, &numVal, &strVal, &boolVal, &jsonVal); err == nil {
 					var val interface{}
-					if numVal != nil {
+					if jsonVal != nil && *jsonVal != "" {
+						val = UnmarshalJSONValue(*jsonVal)
+					} else if boolVal != nil {
+						val = *boolVal
+					} else if numVal != nil {
 						val = *numVal
 					} else if strVal != nil {
 						val = *strVal

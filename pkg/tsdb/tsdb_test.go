@@ -10,6 +10,35 @@ import (
 	"go.uber.org/zap"
 )
 
+func TestTSDB_ToTypedValue_JSON(t *testing.T) {
+	// 1. 验证复合 Map -> json_v
+	locationMap := map[string]interface{}{
+		"lng":   121.4737,
+		"lat":   31.2304,
+		"speed": 60.5,
+	}
+	numVal, strVal, boolVal, jsonVal := ToTypedValue(locationMap)
+	if numVal != nil || strVal != nil || boolVal != nil || jsonVal == nil {
+		t.Fatalf("expected jsonVal for map, got num=%v str=%v bool=%v json=%v", numVal, strVal, boolVal, jsonVal)
+	}
+	unmarshaled := UnmarshalJSONValue(*jsonVal).(map[string]interface{})
+	if unmarshaled["lng"] != 121.4737 {
+		t.Fatalf("unmarshaled GPS lng mismatch: %v", unmarshaled["lng"])
+	}
+
+	// 2. 验证布尔 -> bool_v
+	_, _, bVal, _ := ToTypedValue(true)
+	if bVal == nil || !*bVal {
+		t.Fatalf("expected boolVal = true")
+	}
+
+	// 3. 验证数值 -> num_v
+	nVal, _, _, _ := ToTypedValue(42.5)
+	if nVal == nil || *nVal != 42.5 {
+		t.Fatalf("expected numVal = 42.5")
+	}
+}
+
 func TestTSDB_DedicatedConfigs(t *testing.T) {
 	yamlConfig := []byte(`
 tsdb:
@@ -81,6 +110,8 @@ func TestTSDB_EnumAndAllDrivers(t *testing.T) {
 	records := []Record{
 		{DeviceKey: "dev_all_01", Metric: "temperature", Value: 26.5, Timestamp: time.Now()},
 		{DeviceKey: "dev_all_01", Metric: "door_state", Value: "CLOSED", Timestamp: time.Now()},
+		{DeviceKey: "dev_all_01", Metric: "power_switch", Value: true, Timestamp: time.Now()},
+		{DeviceKey: "dev_all_01", Metric: "location", Value: map[string]interface{}{"lng": 121.47, "lat": 31.23}, Timestamp: time.Now()},
 	}
 
 	filter := QueryFilter{
