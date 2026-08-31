@@ -6,5 +6,6 @@ use (
 	./data-engine
 	./http-transport
 	./mqtt-transport
+	./pkg/protocol
 	./pkg/tsdb
 )

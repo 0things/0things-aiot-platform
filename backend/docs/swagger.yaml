@@ -3505,6 +3505,41 @@ paths:
       summary: 修改用户信息
       tags:
       - 用户模块
+  /v1/devices/{deviceKey}/telemetry/history:
+    get:
+      parameters:
+      - description: 设备Key
+        in: path
+        name: deviceKey
+        required: true
+        type: string
+      - description: 物模型属性标识 (如 temperature)
+        in: query
+        name: property
+        required: true
+        type: string
+      - description: 起始时间戳(ms)
+        in: query
+        name: start_time
+        type: integer
+      - description: 结束时间戳(ms)
+        in: query
+        name: end_time
+        type: integer
+      - description: 返回点数上限
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiSuccessResponse'
+      summary: 查询设备时序历史数据
+      tags:
+      - 时序数据 (Telemetry)
 securityDefinitions:
   Bearer:
     in: header

@@ -56,26 +56,3 @@ func (h *TelemetryHandler) QueryHistory(c *gin.Context) {
 
 	apiV1.HandleSuccess(c, points)
 }
-
-// GetShadow 查询单台设备的实时最新属性影子
-// @Summary      查询设备影子最新状态快照
-// @Tags         设备影子 (Device Shadow)
-// @Produce      json
-// @Param        deviceKey  path      string  true  "设备Key"
-// @Success      200        {object}  apiV1.Response
-// @Router       /v1/devices/{deviceKey}/shadow [get]
-func (h *TelemetryHandler) GetShadow(c *gin.Context) {
-	deviceKey := c.Param("deviceKey")
-	if deviceKey == "" {
-		apiV1.HandleError(c, http.StatusBadRequest, errors.New("deviceKey is required"), nil)
-		return
-	}
-
-	shadow, err := h.telemetryService.GetShadow(c.Request.Context(), deviceKey)
-	if err != nil {
-		apiV1.HandleError(c, http.StatusInternalServerError, err, nil)
-		return
-	}
-
-	apiV1.HandleSuccess(c, shadow)
-}

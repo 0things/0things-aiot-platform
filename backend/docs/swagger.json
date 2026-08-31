@@ -2971,6 +2971,59 @@
                     }
                 }
             }
+        },
+        "/v1/devices/{deviceKey}/telemetry/history": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "时序数据 (Telemetry)"
+                ],
+                "summary": "查询设备时序历史数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备Key",
+                        "name": "deviceKey",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "物模型属性标识 (如 temperature)",
+                        "name": "property",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "起始时间戳(ms)",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "结束时间戳(ms)",
+                        "name": "end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "返回点数上限",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiSuccessResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

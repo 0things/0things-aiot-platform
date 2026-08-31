@@ -14,6 +14,7 @@ restart: stop start
 # 运行所有微服务单元测试
 test:
 	@echo "🧪 Running unit tests across all microservices and shared packages..."
+	@(cd pkg/protocol && go test ./...)
 	@(cd pkg/tsdb && go test ./...)
 	@(cd mqtt-transport && go test ./internal/...)
 	@(cd http-transport && go test ./internal/...)

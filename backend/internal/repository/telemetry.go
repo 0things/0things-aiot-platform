@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"time"
 
 	"0things/pkg/tsdb"
 	"aiot-backend/internal/model"
@@ -60,21 +59,4 @@ func (r *TelemetryRepository) QueryHistory(ctx context.Context, req model.Teleme
 		})
 	}
 	return res, nil
-}
-
-// GetShadow 查询单台设备的实时设备影子快照。
-func (r *TelemetryRepository) GetShadow(ctx context.Context, deviceKey string) (*model.DeviceShadowSnapshot, error) {
-	r.logger.Info("fetching device shadow snapshot", zap.String("device_key", deviceKey))
-
-	// 返回最新设备影子快照
-	return &model.DeviceShadowSnapshot{
-		DeviceKey: deviceKey,
-		Attributes: map[string]interface{}{
-			"temperature": 26.5,
-			"humidity":    58.0,
-			"voltage":     220.4,
-			"status":      "ONLINE",
-		},
-		LastSeen: time.Now(),
-	}, nil
 }
