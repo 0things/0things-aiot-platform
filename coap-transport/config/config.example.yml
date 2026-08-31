@@ -1,0 +1,18 @@
+env: local
+
+coap:
+  addr: ":5683"
+
+kafka:
+  brokers:
+    - "127.0.0.1:9092"
+
+log:
+  log_level: debug
+  mode: console
+  encoding: console
+  log_file_name: "./storage/logs/coap-transport.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true

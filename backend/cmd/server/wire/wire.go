@@ -5,13 +5,10 @@ package wire
 
 import (
 	"aiot-backend/internal/handler"
-	"aiot-backend/internal/job"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/router"
 	"aiot-backend/internal/server"
 	"aiot-backend/internal/service"
-	"aiot-backend/internal/transport"
-	coaptransport "aiot-backend/internal/transport/coap"
 	"aiot-backend/pkg/app"
 	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
@@ -24,8 +21,6 @@ import (
 
 var repositorySet = wire.NewSet(
 	repository.NewDB,
-	//repository.NewRedis,
-	//repository.NewMongo,
 	repository.NewRepository,
 	repository.NewIoTDB,
 	repository.NewIoTRedis,
@@ -43,6 +38,7 @@ var repositorySet = wire.NewSet(
 	repository.NewOTARepository,
 	repository.NewDeviceEventRepository,
 	repository.NewProtocolRepository,
+	repository.NewTelemetryRepository,
 	repository.NewTransaction,
 	repository.NewUserRepository,
 	repository.NewOrganizationRepository,
@@ -62,6 +58,7 @@ var serviceSet = wire.NewSet(
 	service.NewMQTTService,
 	service.NewSceneLinkageService,
 	service.NewSceneLinkageDetailService,
+	service.NewTelemetryService,
 	provideOTAService,
 	service.NewFileService,
 	service.NewDeviceEventService,
@@ -76,6 +73,7 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)),
 	wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)),
 	wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)),
+	wire.Bind(new(service.TelemetryServiceInterface), new(*service.TelemetryService)),
 	wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)),
 	wire.Bind(new(service.FileServiceInterface), new(*service.FileService)),
 	wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)),
@@ -97,23 +95,8 @@ var handlerSet = wire.NewSet(
 	handler.NewFileHandler,
 	handler.NewDeviceEventHandler,
 	handler.NewProtocolHandler,
+	handler.NewTelemetryHandler,
 )
-
-var jobSet = wire.NewSet(
-	job.NewJob,
-	job.NewUserJob,
-	job.NewDeviceEventConsumer,
-	job.NewDeviceMessageConsumer,
-	job.NewMQTTTransportAdapterForWire,
-	provideTransportRegistry,
-	provideOTACommandConsumer,
-	job.NewOTAMQTTReportBridge,
-	job.NewOTAReportConsumer,
-)
-
-func provideOTACommandConsumer(config *viper.Viper, mqtt service.MQTTServiceInterface, ota *service.OTAService, logger *log.Logger, registry *transport.Registry) (*job.OTACommandConsumer, error) {
-	return job.NewOTACommandConsumer(config, mqtt, ota, logger, registry)
-}
 
 func provideOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, kafka service.KafkaServiceInterface, protocols *repository.ProtocolRepository) *service.OTAService {
 	return service.NewOTAServiceWithProtocol(repo, productRepo, deviceRepo, kafka, protocols)
@@ -121,11 +104,6 @@ func provideOTAService(repo *repository.OTARepository, productRepo *repository.P
 
 func provideProtocolService(repo *repository.ProtocolRepository, config *viper.Viper) *service.ProtocolService {
 	return service.NewProtocolService(repo, config)
-}
-
-func provideTransportRegistry(adapter transport.Adapter) (*transport.Registry, error) {
-	// 管理服务只负责消费 OTA 命令，协议连接由对应适配器执行；CoAP 适配器无需在此监听端口。
-	return transport.NewRegistry(adapter, coaptransport.NewAdapter(""))
 }
 
 var serverSet = wire.NewSet(
@@ -137,11 +115,10 @@ var serverSet = wire.NewSet(
 func newApp(
 	httpServer *http.Server,
 	jobServer *server.JobServer,
-	// task *server.Task,
 ) *app.App {
 	return app.NewApp(
 		app.WithServer(httpServer, jobServer),
-		app.WithName("demo-server"),
+		app.WithName("0things-backend"),
 	)
 }
 
@@ -150,7 +127,6 @@ func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
 		repositorySet,
 		serviceSet,
 		handlerSet,
-		jobSet,
 		serverSet,
 		wire.Struct(new(router.RouterDeps), "*"),
 		sid.NewSid,

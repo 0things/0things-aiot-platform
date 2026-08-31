@@ -14,7 +14,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "knip": "knip",
-    "generate:api": "orval --config orval.config.ts"
+    "generate:api": "orval --config orval.config.ts && prettier --write src/api/generated"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.58.1",
