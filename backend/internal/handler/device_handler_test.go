@@ -49,7 +49,6 @@ func mountDevice(r *gin.Engine, h *DeviceHandler) {
 	g.DELETE("/:deviceKey/tags", h.DeleteTags)
 	g.GET("/:deviceKey/shadow", h.GetShadow)
 	g.PUT("/:deviceKey/shadow/desired", h.Desired)
-	g.PUT("/:deviceKey/shadow/reported", h.Reported)
 	g.DELETE("/:deviceKey/shadow/desired", h.ClearDesired)
 	g.GET("/:deviceKey/shadow/history", h.History)
 	g.POST("/:deviceKey/simulate-push", h.SimulatePush)
@@ -259,17 +258,6 @@ func TestDeviceHandler_Desired(t *testing.T) {
 	m.EXPECT().MutateShadow(gomock.Any(), "1", int64(1), "app", gomock.Any(), gomock.Nil(), false).
 		Return(&model.DeviceShadow{Desired: `{"a":1}`, Reported: "{}", Metadata: "{}", Version: 2}, nil)
 	w := doDeviceReq(h, http.MethodPut, "/devices/1/shadow/desired", []byte(`{"desired":{"a":1},"version":1}`), nil)
-	if w.Code != http.StatusOK {
-		t.Fatalf("got %d", w.Code)
-	}
-}
-
-func TestDeviceHandler_Reported(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().MutateShadow(gomock.Any(), "1", int64(1), "device", gomock.Nil(), gomock.Any(), false).
-		Return(&model.DeviceShadow{Desired: "{}", Reported: `{"a":1}`, Metadata: "{}", Version: 2}, nil)
-	w := doDeviceReq(h, http.MethodPut, "/devices/1/shadow/reported", []byte(`{"reported":{"a":1},"version":1}`), nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
 	}

@@ -482,7 +482,30 @@
     "telemetryTab": {
       "title": "最新遥测",
       "noData": "暂无遥测数据",
-      "error": "获取遥测数据失败"
+      "error": "获取遥测数据失败",
+      "snapshotTitle": "实时设备影子与遥测快照",
+      "snapshotDescription": "实时汇聚设备最新上报的物模型遥测数据（Redis 影子每 3 秒自动同步）。",
+      "lastSeen": "最后在线活跃：{{time}}",
+      "refreshShadow": "刷新影子",
+      "noShadowData": "暂无设备影子实时遥测数据",
+      "liveReport": "实时上报",
+      "historyTitle": "时序历史趋势分析（{{property}}）",
+      "historyDescription": "查看设备属性在不同时间跨度下的历史变化曲线与统计聚合指标。",
+      "selectProperty": "选择指标",
+      "timeRanges": {
+        "1h": "最近 1 小时",
+        "6h": "最近 6 小时",
+        "24h": "最近 24 小时",
+        "7d": "最近 7 天"
+      },
+      "latestValue": "最新采样值",
+      "maxValue": "最大值（Max）",
+      "minValue": "最小值（Min）",
+      "avgValue": "平均值（Avg）",
+      "sampleCount": "采样点数量",
+      "pointsUnit": "点",
+      "noHistoryData": "该时间范围内暂无历史时序数据",
+      "noHistoryDataDescription": "可通过设备上报或在线调试工具推送时序点。"
     },
     "fileManagementTab": {
       "comingSoon": "文件管理功能即将推出"
@@ -491,7 +514,33 @@
       "comingSoon": "日志服务功能即将推出"
     },
     "onlineDebugTab": {
-      "comingSoon": "在线调试功能即将推出"
+      "comingSoon": "在线调试功能即将推出",
+      "title": "在线调试与远程控制",
+      "description": "支持模拟设备上行遥测上报与云端下发 MQTT/HTTP 控制命令。",
+      "telemetryPayload": "上报 JSON 负载（Payload）",
+      "commandPayload": "控制指令负载（Command Payload）",
+      "telemetryTab": "遥测上报模拟",
+      "commandTab": "远程指令下发",
+      "resetSample": "重置样例",
+      "sendTelemetry": "发送模拟遥测",
+      "sendCommand": "下发控制命令",
+      "logTitle": "交互记录与响应日志",
+      "logDescription": "实时记录客户端与设备的交互流（共 {{count}} 条）",
+      "clearLogs": "清空日志",
+      "emptyLogs": "暂无调试日志记录",
+      "emptyLogsDescription": "在左侧点击发送后将在此处实时打印往返数据。",
+      "request": "请求",
+      "response": "响应",
+      "invalidJson": "JSON 语法格式错误：{{error}}",
+      "telemetrySuccessTitle": "上报遥测数据（Telemetry Ingress）",
+      "telemetrySuccess": "模拟遥测数据上报成功，时序已写入 TSDB",
+      "telemetryFailureTitle": "上报遥测数据（失败）",
+      "telemetryFailure": "上报失败：{{error}}",
+      "invalidCommandJson": "指令 JSON 格式错误：{{error}}",
+      "commandSuccessTitle": "下发控制指令",
+      "commandSuccess": "控制指令下发成功",
+      "commandFailureTitle": "下发控制指令（失败）",
+      "commandFailure": "指令下发失败：{{error}}"
     },
     "groupsTab": {
       "loading": "加载分组中...",

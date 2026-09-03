@@ -1233,52 +1233,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{deviceKey}/shadow/reported": {
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "由设备侧更新 Reported 影子",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "设备模块"
-                ],
-                "summary": "更新设备影子上报值",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "设备 Key",
-                        "name": "deviceKey",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/DeviceUpdateReportedShadowRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-DeviceShadow"
-                        }
-                    }
-                }
-            }
-        },
         "/devices/{deviceKey}/simulate-push": {
             "post": {
                 "security": [
@@ -4280,6 +4234,12 @@ const docTemplate = `{
                 "desired": {},
                 "metadata": {},
                 "reported": {},
+                "state": {
+                    "$ref": "#/definitions/DeviceShadowState"
+                },
+                "timestamp": {
+                    "type": "integer"
+                },
                 "updatedAt": {
                     "type": "string"
                 },
@@ -4308,6 +4268,17 @@ const docTemplate = `{
                 "version": {
                     "type": "integer"
                 }
+            }
+        },
+        "DeviceShadowState": {
+            "type": "object",
+            "properties": {
+                "delta": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "desired": {},
+                "reported": {}
             }
         },
         "DeviceSimulatePushRequest": {
@@ -4434,21 +4405,6 @@ const docTemplate = `{
             "properties": {
                 "device": {
                     "$ref": "#/definitions/Device"
-                }
-            }
-        },
-        "DeviceUpdateReportedShadowRequest": {
-            "type": "object",
-            "required": [
-                "reported"
-            ],
-            "properties": {
-                "reported": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "version": {
-                    "type": "integer"
                 }
             }
         },

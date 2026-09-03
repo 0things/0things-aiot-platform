@@ -482,7 +482,30 @@
     "telemetryTab": {
       "title": "Last Telemetry",
       "noData": "No telemetry data available",
-      "error": "Failed to fetch telemetry data"
+      "error": "Failed to fetch telemetry data",
+      "snapshotTitle": "Live Device Shadow and Telemetry Snapshot",
+      "snapshotDescription": "Latest reported device-model telemetry data, synchronized from the Redis shadow every 3 seconds.",
+      "lastSeen": "Last active: {{time}}",
+      "refreshShadow": "Refresh shadow",
+      "noShadowData": "No live device shadow telemetry data",
+      "liveReport": "Live report",
+      "historyTitle": "Time-series Trend Analysis ({{property}})",
+      "historyDescription": "View historical property changes and aggregate statistics across different time ranges.",
+      "selectProperty": "Select property",
+      "timeRanges": {
+        "1h": "Last hour",
+        "6h": "Last 6 hours",
+        "24h": "Last 24 hours",
+        "7d": "Last 7 days"
+      },
+      "latestValue": "Latest sample",
+      "maxValue": "Maximum (Max)",
+      "minValue": "Minimum (Min)",
+      "avgValue": "Average (Avg)",
+      "sampleCount": "Sample count",
+      "pointsUnit": "pts",
+      "noHistoryData": "No historical time-series data in this range",
+      "noHistoryDataDescription": "Send telemetry through the device or online debug tool to create time-series points."
     },
     "fileManagementTab": {
       "comingSoon": "File management coming soon"
@@ -491,7 +514,33 @@
       "comingSoon": "Log service coming soon"
     },
     "onlineDebugTab": {
-      "comingSoon": "Online debugging coming soon"
+      "comingSoon": "Online debugging coming soon",
+      "title": "Online Debug and Remote Control",
+      "description": "Simulate device telemetry uploads and send MQTT/HTTP control commands from the cloud.",
+      "telemetryPayload": "Telemetry JSON payload",
+      "commandPayload": "Command JSON payload",
+      "telemetryTab": "Telemetry simulation",
+      "commandTab": "Remote command",
+      "resetSample": "Reset sample",
+      "sendTelemetry": "Send simulated telemetry",
+      "sendCommand": "Send control command",
+      "logTitle": "Interaction and Response Logs",
+      "logDescription": "Live client-device interaction stream ({{count}} entries)",
+      "clearLogs": "Clear logs",
+      "emptyLogs": "No debug logs yet",
+      "emptyLogsDescription": "Send a request from the left panel to see the round-trip data here.",
+      "request": "Request",
+      "response": "Response",
+      "invalidJson": "Invalid JSON syntax: {{error}}",
+      "telemetrySuccessTitle": "Telemetry upload (Telemetry Ingress)",
+      "telemetrySuccess": "Simulated telemetry uploaded and written to TSDB",
+      "telemetryFailureTitle": "Telemetry upload (failed)",
+      "telemetryFailure": "Upload failed: {{error}}",
+      "invalidCommandJson": "Invalid command JSON: {{error}}",
+      "commandSuccessTitle": "Remote control command",
+      "commandSuccess": "Control command sent successfully",
+      "commandFailureTitle": "Remote control command (failed)",
+      "commandFailure": "Command failed: {{error}}"
     },
     "groupsTab": {
       "loading": "Loading groups...",

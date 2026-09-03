@@ -84,7 +84,6 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 	r.DELETE("/devices/:deviceKey/tags", dh.DeleteTags)
 	r.GET("/devices/:deviceKey/shadow", dh.GetShadow)
 	r.PUT("/devices/:deviceKey/shadow/desired", dh.Desired)
-	r.PUT("/devices/:deviceKey/shadow/reported", dh.Reported)
 	r.DELETE("/devices/:deviceKey/shadow/desired", dh.ClearDesired)
 	r.GET("/devices/:deviceKey/shadow/history", dh.History)
 	r.POST("/devices/:deviceKey/simulate-push", dh.SimulatePush)
@@ -212,27 +211,6 @@ func TestCoverage_Device_Desired_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.device.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "app", gomock.Any(), nil, false).Return(nil, repository.ErrNotFound)
 	w := cr.do("PUT", "/devices/1/shadow/desired", map[string]any{"version": 0, "desired": map[string]any{"k": "v"}})
-	assert.True(t, w.Code >= 400, "expected error status code")
-}
-
-func TestCoverage_Device_Reported_Success(t *testing.T) {
-	cr := newCoverageRouters(t)
-	shadow := &model.DeviceShadow{Desired: `{}`, Reported: `{"temp":25}`, Metadata: `{}`, Version: 1}
-	cr.device.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "device", nil, gomock.Any(), false).Return(shadow, nil)
-	w := cr.do("PUT", "/devices/1/shadow/reported", map[string]any{"version": 0, "reported": map[string]any{"temp": 25}})
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestCoverage_Device_Reported_InvalidJSON(t *testing.T) {
-	cr := newCoverageRouters(t)
-	w := cr.doRaw("PUT", "/devices/1/shadow/reported", []byte("bad"))
-	assert.True(t, w.Code >= 400, "expected error status code")
-}
-
-func TestCoverage_Device_Reported_Error(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.device.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "device", nil, gomock.Any(), false).Return(nil, errors.New("version conflict"))
-	w := cr.do("PUT", "/devices/1/shadow/reported", map[string]any{"version": 0, "reported": map[string]any{"k": "v"}})
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 

@@ -22,7 +22,6 @@ func InitDeviceRouter(deps RouterDeps, r *gin.RouterGroup) {
 	r.DELETE("/devices/:deviceKey/tags", device.DeleteTags)
 	r.GET("/devices/:deviceKey/shadow", device.GetShadow)
 	r.PUT("/devices/:deviceKey/shadow/desired", device.Desired)
-	r.PUT("/devices/:deviceKey/shadow/reported", device.Reported)
 	r.DELETE("/devices/:deviceKey/shadow/desired", device.ClearDesired)
 	r.GET("/devices/:deviceKey/shadow/history", device.History)
 	r.POST("/devices/:deviceKey/simulate-push", device.SimulatePush)

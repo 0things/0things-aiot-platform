@@ -36,11 +36,6 @@ type UpdateDesiredShadowRequest struct {
 	Version int64          `json:"version"`
 } //@name DeviceUpdateDesiredShadowRequest
 
-type UpdateReportedShadowRequest struct {
-	Reported map[string]any `json:"reported" binding:"required"`
-	Version  int64          `json:"version"`
-} //@name DeviceUpdateReportedShadowRequest
-
 type ClearDesiredShadowRequest struct {
 	Version int64 `json:"version"`
 } //@name DeviceClearDesiredShadowRequest
@@ -113,12 +108,20 @@ type DeviceStatisticsResponse struct {
 	InactiveDevices  int64 `json:"inactiveDevices"`
 } //@name DeviceStatisticsResponse
 
+type ShadowState struct {
+	Desired  any            `json:"desired"`
+	Reported any            `json:"reported"`
+	Delta    map[string]any `json:"delta"`
+} //@name DeviceShadowState
+
 type Shadow struct {
-	Desired   any            `json:"desired"`
-	Reported  any            `json:"reported"`
-	Delta     map[string]any `json:"delta"`
+	State     ShadowState    `json:"state"`
+	Desired   any            `json:"desired,omitempty"`
+	Reported  any            `json:"reported,omitempty"`
+	Delta     map[string]any `json:"delta,omitempty"`
 	Metadata  any            `json:"metadata"`
 	Version   int64          `json:"version"`
+	Timestamp int64          `json:"timestamp"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 } //@name DeviceShadow
 

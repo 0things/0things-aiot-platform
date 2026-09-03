@@ -806,6 +806,10 @@ definitions:
       desired: {}
       metadata: {}
       reported: {}
+      state:
+        $ref: '#/definitions/DeviceShadowState'
+      timestamp:
+        type: integer
       updatedAt:
         type: string
       version:
@@ -825,6 +829,14 @@ definitions:
         type: string
       version:
         type: integer
+    type: object
+  DeviceShadowState:
+    properties:
+      delta:
+        additionalProperties: {}
+        type: object
+      desired: {}
+      reported: {}
     type: object
   DeviceSimulatePushRequest:
     properties:
@@ -907,16 +919,6 @@ definitions:
     properties:
       device:
         $ref: '#/definitions/Device'
-    type: object
-  DeviceUpdateReportedShadowRequest:
-    properties:
-      reported:
-        additionalProperties: {}
-        type: object
-      version:
-        type: integer
-    required:
-    - reported
     type: object
   FileUploadOTAFileResponse:
     properties:
@@ -2344,35 +2346,6 @@ paths:
       security:
       - Bearer: []
       summary: 获取设备影子历史
-      tags:
-      - 设备模块
-  /devices/{deviceKey}/shadow/reported:
-    put:
-      consumes:
-      - application/json
-      description: 由设备侧更新 Reported 影子
-      parameters:
-      - description: 设备 Key
-        in: path
-        name: deviceKey
-        required: true
-        type: string
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/DeviceUpdateReportedShadowRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ApiResponse-DeviceShadow'
-      security:
-      - Bearer: []
-      summary: 更新设备影子上报值
       tags:
       - 设备模块
   /devices/{deviceKey}/simulate-push:

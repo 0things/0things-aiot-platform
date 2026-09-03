@@ -11,6 +11,7 @@ import (
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -420,7 +421,46 @@ func shadowJSON(x *model.DeviceShadow) deviceV1.Shadow {
 			}
 		}
 	}
-	return deviceV1.Shadow{Desired: d, Reported: r, Delta: dm, Metadata: m, Version: x.Version, UpdatedAt: x.UpdatedAt}
+	// When metadata is absent, synthesize the standard per-property timestamp structure.
+	if m == nil || m == "" {
+		metaMap := map[string]any{
+			"desired":  map[string]any{},
+			"reported": map[string]any{},
+		}
+		nowTs := x.UpdatedAt.Unix()
+		if ds, ok := d.(map[string]any); ok {
+			dMeta := map[string]any{}
+			for k := range ds {
+				dMeta[k] = map[string]any{"timestamp": nowTs}
+			}
+			metaMap["desired"] = dMeta
+		}
+		if rs, ok := r.(map[string]any); ok {
+			rMeta := map[string]any{}
+			for k := range rs {
+				rMeta[k] = map[string]any{"timestamp": nowTs}
+			}
+			metaMap["reported"] = rMeta
+		}
+		m = metaMap
+	}
+
+	state := deviceV1.ShadowState{
+		Desired:  d,
+		Reported: r,
+		Delta:    dm,
+	}
+
+	return deviceV1.Shadow{
+		State:     state,
+		Desired:   d,
+		Reported:  r,
+		Delta:     dm,
+		Metadata:  m,
+		Version:   x.Version,
+		Timestamp: x.UpdatedAt.Unix(),
+		UpdatedAt: x.UpdatedAt,
+	}
 }
 
 // GetShadow godoc
@@ -461,32 +501,6 @@ func (h *DeviceHandler) Desired(c *gin.Context) {
 	var x *model.DeviceShadow
 	if e == nil {
 		x, e = h.svc.MutateShadow(c, c.Param("deviceKey"), req.Version, "app", &req.Desired, nil, false)
-	}
-	if e != nil {
-		deviceError(c, e)
-		return
-	}
-	v1.HandleSuccess(c, shadowJSON(x))
-}
-
-// Reported godoc
-// @Summary 更新设备影子上报值
-// @Schemes
-// @Description 由设备侧更新 Reported 影子
-// @Tags 设备模块
-// @Accept json
-// @Produce json
-// @Security Bearer
-// @Param deviceKey path string true "设备 Key"
-// @Param request body deviceV1.UpdateReportedShadowRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.Shadow]
-// @Router /devices/{deviceKey}/shadow/reported [put]
-func (h *DeviceHandler) Reported(c *gin.Context) {
-	var req deviceV1.UpdateReportedShadowRequest
-	e := c.ShouldBindJSON(&req)
-	var x *model.DeviceShadow
-	if e == nil {
-		x, e = h.svc.MutateShadow(c, c.Param("deviceKey"), req.Version, "device", nil, &req.Reported, false)
 	}
 	if e != nil {
 		deviceError(c, e)

@@ -11,7 +11,6 @@ import { DeviceInfoTab } from './device-info-tab'
 import { FileManagementTab } from './file-management-tab'
 import { LogServiceTab } from './log-service-tab'
 import { OnlineDebugTab } from './online-debug-tab'
-import { ShadowTab } from './shadow-tab'
 import { TasksTab } from './tasks-tab'
 import { TelemetryTab } from './telemetry-tab'
 import { ThingModelDataTab } from './thing-model-data-tab'
@@ -71,9 +70,7 @@ export function DeviceDetailPage() {
             <TabsTrigger value='thingModel'>
               {t('deviceDetail.tabs.thingModel')}
             </TabsTrigger>
-            <TabsTrigger value='shadow'>
-              {t('deviceDetail.tabs.shadow')}
-            </TabsTrigger>
+            {/* Shadow tab is temporarily hidden until device shadow protocol support is complete. */}
             <TabsTrigger value='telemetry'>
               {t('deviceDetail.tabs.telemetry')}
             </TabsTrigger>
@@ -98,9 +95,7 @@ export function DeviceDetailPage() {
               <ThingModelDataTab />
             </TabsContent>
 
-            <TabsContent value='shadow' className='mt-0'>
-              <ShadowTab deviceKey={device.deviceKey || ''} />
-            </TabsContent>
+            {/* Shadow content is temporarily hidden; keep the implementation for later restoration. */}
 
             <TabsContent value='telemetry' className='mt-0'>
               <TelemetryTab />

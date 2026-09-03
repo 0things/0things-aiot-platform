@@ -784,27 +784,6 @@ func TestDeviceHandler_Desired_ServiceError(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
-func TestDeviceHandler_Reported_ServiceError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.PUT("/devices/:deviceKey/shadow/reported", deviceHandler.Reported)
-
-	reported := map[string]any{"temp": float64(25)}
-	mockService.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "device", nil, &reported, false).Return(nil, errors.New("not found"))
-	body, _ := json.Marshal(map[string]any{"version": 0, "reported": reported})
-	req, _ := http.NewRequest("PUT", "/devices/1/shadow/reported", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-}
-
 func TestDeviceHandler_ClearDesired_ServiceError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

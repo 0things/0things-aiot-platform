@@ -6,12 +6,15 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { DeviceShadowDelta } from './deviceShadowDelta'
+import type { DeviceShadowState } from './deviceShadowState'
 
 export interface DeviceShadow {
   delta?: DeviceShadowDelta
   desired?: unknown
   metadata?: unknown
   reported?: unknown
+  state?: DeviceShadowState
+  timestamp?: number
   updatedAt?: string
   version?: number
 }

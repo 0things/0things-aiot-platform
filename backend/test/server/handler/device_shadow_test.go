@@ -28,7 +28,6 @@ func setupDeviceRouterRemaining(mockService *mock_service.MockDeviceServiceInter
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 
 	router.PUT("/devices/:deviceKey/shadow/desired", deviceHandler.Desired)
-	router.PUT("/devices/:deviceKey/shadow/reported", deviceHandler.Reported)
 	router.DELETE("/devices/:deviceKey/shadow/desired", deviceHandler.ClearDesired)
 	router.GET("/devices/:deviceKey/shadow/history", deviceHandler.History)
 	router.POST("/devices/batch-upload", deviceHandler.BatchUpload)
@@ -50,26 +49,6 @@ func TestDeviceHandler_Desired(t *testing.T) {
 
 	body, _ := json.Marshal(map[string]interface{}{"version": 1, "desired": map[string]any{"temperature": 25}})
 	req, _ := http.NewRequest("PUT", "/devices/D001/shadow/desired", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestDeviceHandler_Reported(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	router := setupDeviceRouterRemaining(mockService)
-
-	shadow := &model.DeviceShadow{ID: 1, DeviceID: 1}
-	mockService.EXPECT().MutateShadow(gomock.Any(), "D001", int64(1), "device", gomock.Any(), gomock.Any(), false).Return(shadow, nil)
-
-	body, _ := json.Marshal(map[string]interface{}{"version": 1, "reported": map[string]any{"status": "online"}})
-	req, _ := http.NewRequest("PUT", "/devices/D001/shadow/reported", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()

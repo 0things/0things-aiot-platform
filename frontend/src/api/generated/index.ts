@@ -95,7 +95,6 @@ import type {
   DeviceSimulatePushRequest,
   DeviceUpdateDesiredShadowRequest,
   DeviceUpdateDeviceRequest,
-  DeviceUpdateReportedShadowRequest,
   GetDeviceEventsParams,
   GetDeviceGroupsGroupUuidDevicesParams,
   GetDeviceGroupsParams,
@@ -3928,96 +3927,6 @@ export function useGetDevicesDeviceKeyShadowHistory<
   > & { queryKey: DataTag<QueryKey, TData, TError> }
 
   return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * 由设备侧更新 Reported 影子
- * @summary 更新设备影子上报值
- */
-export const putDevicesDeviceKeyShadowReported = (
-  deviceKey: string,
-  deviceUpdateReportedShadowRequest: BodyType<DeviceUpdateReportedShadowRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseDeviceShadow>({
-    url: `/devices/${deviceKey}/shadow/reported`,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    data: deviceUpdateReportedShadowRequest,
-    signal,
-  })
-}
-
-export const getPutDevicesDeviceKeyShadowReportedMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
-    TError,
-    { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
-  TError,
-  { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> },
-  TContext
-> => {
-  const mutationKey = ['putDevicesDeviceKeyShadowReported']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
-    { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> }
-  > = (props) => {
-    const { deviceKey, data } = props ?? {}
-
-    return putDevicesDeviceKeyShadowReported(deviceKey, data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PutDevicesDeviceKeyShadowReportedMutationResult = NonNullable<
-  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>
->
-export type PutDevicesDeviceKeyShadowReportedMutationBody =
-  BodyType<DeviceUpdateReportedShadowRequest>
-export type PutDevicesDeviceKeyShadowReportedMutationError = ErrorType<unknown>
-
-/**
- * @summary 更新设备影子上报值
- */
-export const usePutDevicesDeviceKeyShadowReported = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
-      TError,
-      { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof putDevicesDeviceKeyShadowReported>>,
-  TError,
-  { deviceKey: string; data: BodyType<DeviceUpdateReportedShadowRequest> },
-  TContext
-> => {
-  return useMutation(
-    getPutDevicesDeviceKeyShadowReportedMutationOptions(options),
-    queryClient
-  )
 }
 
 /**
