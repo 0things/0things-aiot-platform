@@ -301,16 +301,6 @@ func (h *DeviceHandler) Telemetry(c *gin.Context) {
 	v1.HandleSuccess(c, deviceV1.TelemetryResponse{Telemetry: x})
 }
 
-// Restore 保留旧调用兼容，设备恢复路由不再注册。
-func (h *DeviceHandler) Restore(c *gin.Context) {
-	d, err := h.svc.RestoreDeviceByKey(c, c.Param("deviceKey"))
-	if err != nil {
-		deviceError(c, err)
-		return
-	}
-	v1.HandleSuccess(c, deviceV1.RestoreDeviceResponse{Device: deviceJSON(*d)})
-}
-
 // GetTags godoc
 // @Summary 获取设备标签
 // @Schemes

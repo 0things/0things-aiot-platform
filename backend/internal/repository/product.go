@@ -132,9 +132,3 @@ func (r *ProductRepository) List(ctx context.Context, page, size int, category, 
 	}
 	return result, total, nil
 }
-
-func (r *ProductRepository) Restore(ctx context.Context, id int64) error {
-	q := useIoTQuery(r.db)
-	_, err := q.Product.WithContext(ctx).Unscoped().Where(q.Product.ID.Eq(id), q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).UpdateSimple(q.Product.DeletedAt.Null())
-	return err
-}

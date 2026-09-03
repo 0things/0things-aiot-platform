@@ -213,13 +213,3 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 	}
 	v1.HandleSuccess(c, productV1.SuccessResponse{Success: true})
 }
-
-// Restore 保留旧调用兼容，产品恢复路由不再注册。
-func (h *ProductHandler) Restore(c *gin.Context) {
-	product, err := h.svc.RestoreByKey(c, c.Param("productKey"))
-	if err != nil {
-		deviceError(c, err)
-		return
-	}
-	v1.HandleSuccess(c, productV1.RestoreProductResponse{Product: productJSON(*product, 0)})
-}

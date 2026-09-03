@@ -3,10 +3,11 @@ package service_test
 import (
 	"context"
 	"testing"
-	"time"
 
-	"aiot-backend/internal/model"
+	eventV1 "aiot-backend/api/event/v1"
+	"aiot-backend/internal/dto"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -33,14 +34,12 @@ func TestDeviceEventService_List(t *testing.T) {
 	mockEventRepo := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	ctx := context.Background()
 
-	expectedEvents := []model.DeviceEvent{{ID: 1, EventType: "temperature"}}
+	expectedEvents := []dto.DeviceEventListItem{{ID: 1, EventType: "temperature"}}
 	var total int64 = 1
-	startAt := time.Now().Add(-time.Hour)
-	endAt := time.Now()
+	req := &eventV1.ListDeviceEventsRequest{}
+	mockEventRepo.EXPECT().List(ctx, req).Return(expectedEvents, total, nil)
 
-	mockEventRepo.EXPECT().List(ctx, 1, 10, "", "", "", &startAt, &endAt).Return(expectedEvents, total, nil)
-
-	events, total, err := mockEventRepo.List(ctx, 1, 10, "", "", "", &startAt, &endAt)
+	events, total, err := mockEventRepo.List(ctx, req)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedEvents, events)
 	assert.Equal(t, int64(1), total)

@@ -243,25 +243,6 @@ func TestDeviceHandler_Telemetry_NotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
-func TestDeviceHandler_Restore_Success(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:deviceKey/restore", deviceHandler.Restore)
-
-	device := &model.Device{ID: 1}
-	mockService.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(device, nil)
-	req, _ := http.NewRequest("POST", "/devices/1/restore", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
 func TestDeviceHandler_GetTags_NotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -555,24 +536,6 @@ func TestDeviceHandler_Stats_Error(t *testing.T) {
 
 	mockService.EXPECT().Stats(gomock.Any()).Return(service.DeviceStatistics{}, errors.New("db error"))
 	req, _ := http.NewRequest("GET", "/devices/stats", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-}
-
-func TestDeviceHandler_Restore_ServiceError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	h := &handler.Handler{}
-	config := viper.New()
-	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
-	router.POST("/devices/:deviceKey/restore", deviceHandler.Restore)
-
-	mockService.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(nil, errors.New("not found"))
-	req, _ := http.NewRequest("POST", "/devices/1/restore", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)

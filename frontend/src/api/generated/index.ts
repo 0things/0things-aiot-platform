@@ -369,8 +369,8 @@ export function useGetCategoriesTree<
 }
 
 /**
- * 分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选
- * @summary 获取设备事件列表
+ * Paginated query for thing model device events with keyword, deviceKey, eventType and date range filters
+ * @summary List device events
  */
 export const getDeviceEvents = (
   params?: GetDeviceEventsParams,
@@ -494,7 +494,7 @@ export function useGetDeviceEvents<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备事件列表
+ * @summary List device events
  */
 
 export function useGetDeviceEvents<

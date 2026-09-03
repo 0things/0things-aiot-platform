@@ -5,9 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/handler"
-	"aiot-backend/internal/model"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -31,10 +32,10 @@ func TestDeviceEventHandler_ListWithFilters(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventRouterFull(mockService)
 
-	events := []model.DeviceEvent{{ID: 1, EventType: "temperature"}}
-	mockService.EXPECT().List(gomock.Any(), 1, 20, "sensor", "D001", "temperature", nil, nil).Return(events, int64(1), nil)
+	events := []dto.DeviceEventListItem{{ID: 1, EventType: "temperature"}}
+	mockService.EXPECT().List(gomock.Any(), gomock.Any()).Return(events, int64(1), nil)
 
-	req, _ := http.NewRequest("GET", "/device-events?keyword=sensor&device_key=D001&event_type=temperature", nil)
+	req, _ := http.NewRequest("GET", "/device-events?keyword=sensor&deviceKey=D001&eventType=temperature", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -48,10 +49,10 @@ func TestDeviceEventHandler_ListWithTime(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventRouterFull(mockService)
 
-	events := []model.DeviceEvent{{ID: 1, EventType: "temperature"}}
-	mockService.EXPECT().List(gomock.Any(), 1, 20, "", "", "", gomock.Any(), gomock.Any()).Return(events, int64(1), nil)
+	events := []dto.DeviceEventListItem{{ID: 1, EventType: "temperature"}}
+	mockService.EXPECT().List(gomock.Any(), gomock.Any()).Return(events, int64(1), nil)
 
-	req, _ := http.NewRequest("GET", "/device-events?start_at=2026-08-15T04:00:00Z&end_at=2026-08-15T05:00:00Z", nil)
+	req, _ := http.NewRequest("GET", "/device-events?startAt=2026-08-15%2004:00:00&endAt=2026-08-15%2005:00:00", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -65,7 +66,7 @@ func TestDeviceEventHandler_ListWithInvalidStartTime(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventRouterFull(mockService)
 
-	req, _ := http.NewRequest("GET", "/device-events?start_at=invalid-time", nil)
+	req, _ := http.NewRequest("GET", "/device-events?startAt=invalid-time", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -79,7 +80,7 @@ func TestDeviceEventHandler_ListWithInvalidEndTime(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventRouterFull(mockService)
 
-	req, _ := http.NewRequest("GET", "/device-events?end_at=invalid-time", nil)
+	req, _ := http.NewRequest("GET", "/device-events?endAt=invalid-time", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

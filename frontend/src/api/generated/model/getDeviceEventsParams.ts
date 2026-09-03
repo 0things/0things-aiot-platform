@@ -8,31 +8,34 @@
 
 export type GetDeviceEventsParams = {
   /**
-   * 页码
+   * Device key filter
    */
-  page?: number
+  deviceKey?: string
   /**
-   * 每页数量
+   * End time filter (yyyy-MM-dd HH:mm:ss)
    */
-  pageSize?: number
+  endAt?: string
   /**
-   * 关键词
+   * Event type filter (e.g. INFO, WARN, ERROR)
+   */
+  eventType?: string
+  /**
+   * Search keyword across deviceKey, deviceName, or eventIdentifier
    */
   keyword?: string
   /**
-   * 设备 Key
+   * Page number (1-based, default 1)
+   * @minimum 1
    */
-  device_key?: string
+  page?: number
   /**
-   * 事件类型
+   * Page size (1-100, default 10)
+   * @minimum 1
+   * @maximum 100
    */
-  event_type?: string
+  pageSize?: number
   /**
-   * 开始时间 RFC3339
+   * Start time filter (yyyy-MM-dd HH:mm:ss)
    */
-  start_at?: string
-  /**
-   * 结束时间 RFC3339
-   */
-  end_at?: string
+  startAt?: string
 }

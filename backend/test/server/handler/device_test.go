@@ -34,7 +34,6 @@ func setupDeviceRouter(mockService *mock_service.MockDeviceServiceInterface) *gi
 	router.POST("/devices/:deviceKey/activate", deviceHandler.Activate)
 	router.POST("/devices/:deviceKey/enabled", deviceHandler.Enabled)
 	router.GET("/devices/stats", deviceHandler.Stats)
-	router.POST("/devices/:deviceKey/restore", deviceHandler.Restore)
 
 	return router
 }
@@ -120,23 +119,6 @@ func TestDeviceHandler_Stats(t *testing.T) {
 	mockService.EXPECT().Stats(gomock.Any()).Return(stats, nil)
 
 	req, _ := http.NewRequest("GET", "/devices/stats", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestDeviceHandler_RestoreDevice(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	router := setupDeviceRouter(mockService)
-
-	device := &model.Device{ID: 1, Name: "Restored Device"}
-	mockService.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(device, nil)
-
-	req, _ := http.NewRequest("POST", "/devices/1/restore", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

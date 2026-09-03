@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { endOfDay, format, startOfDay, subDays } from 'date-fns'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -44,7 +44,7 @@ import {
 import {
   deviceEventKeys,
   type DeviceEvent,
-  type DeviceEventFilters,
+  type GetDeviceEventsParams,
   useDeviceEvents,
 } from '../api/queries'
 import { EventsBulkActions } from './events-bulk-actions'
@@ -71,24 +71,38 @@ const defaultDraft: EventFiltersDraft = {
   dateRange: defaultDateRange(),
 }
 
-const buildFilters = (draft: EventFiltersDraft): DeviceEventFilters => {
+const buildFilters = (
+  draft: EventFiltersDraft,
+  deviceKey?: string,
+  pageSizeOverride?: number
+): GetDeviceEventsParams => {
   const range = draft.dateRange
   return {
     page: 1,
-    pageSize,
+    pageSize: pageSizeOverride || pageSize,
+    deviceKey,
     keyword: draft.keyword || undefined,
     eventType: draft.eventType || undefined,
-    startAt: range?.from ? startOfDay(range.from).toISOString() : undefined,
-    endAt: range?.to ? endOfDay(range.to).toISOString() : undefined,
+    startAt: range?.from
+      ? format(startOfDay(range.from), 'yyyy-MM-dd HH:mm:ss')
+      : undefined,
+    endAt: range?.to
+      ? format(endOfDay(range.to), 'yyyy-MM-dd HH:mm:ss')
+      : undefined,
   }
 }
 
-export function DeviceEvents() {
+export function DeviceEvents({ deviceKey }: { deviceKey?: string }) {
   const { t } = useTranslation('operationsMonitoring')
   const [draft, setDraft] = useState<EventFiltersDraft>(defaultDraft)
-  const [filters, setFilters] = useState<DeviceEventFilters>(() =>
-    buildFilters(defaultDraft)
+  const [filters, setFilters] = useState<GetDeviceEventsParams>(() =>
+    buildFilters(defaultDraft, deviceKey)
   )
+
+  useEffect(() => {
+    setDraft(defaultDraft)
+    setFilters(buildFilters(defaultDraft, deviceKey))
+  }, [deviceKey])
   const [selectedEvent, setSelectedEvent] = useState<DeviceEvent | null>(null)
   const { data, isLoading, isError, refetch } = useDeviceEvents(filters)
   const queryClient = useQueryClient()
@@ -124,7 +138,9 @@ export function DeviceEvents() {
       header: t('events.columns.eventAt'),
       cell: ({ row }) => (
         <span className='whitespace-nowrap'>
-          {format(new Date(row.original.eventAt), 'yyyy-MM-dd HH:mm:ss')}
+          {row.original.eventAt
+            ? format(new Date(row.original.eventAt), 'yyyy-MM-dd HH:mm:ss')
+            : '-'}
         </span>
       ),
     },
@@ -176,19 +192,25 @@ export function DeviceEvents() {
     data: data?.events || [],
     columns,
     state: {
-      pagination: { pageIndex: filters.page - 1, pageSize: filters.pageSize },
+      pagination: {
+        pageIndex: (filters.page ?? 1) - 1,
+        pageSize: filters.pageSize ?? pageSize,
+      },
       rowSelection,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     manualPagination: true,
-    pageCount: Math.max(1, Math.ceil((data?.total || 0) / filters.pageSize)),
+    pageCount: Math.max(
+      1,
+      Math.ceil((data?.total || 0) / (filters.pageSize ?? pageSize))
+    ),
     onPaginationChange: (updater) => {
       const pagination = functionalUpdate(updater, {
-        pageIndex: filters.page - 1,
-        pageSize: filters.pageSize,
+        pageIndex: (filters.page ?? 1) - 1,
+        pageSize: filters.pageSize ?? pageSize,
       })
-      setFilters((current) => ({
+      setFilters((current: GetDeviceEventsParams) => ({
         ...current,
         page: pagination.pageIndex + 1,
         pageSize: pagination.pageSize,
@@ -198,10 +220,9 @@ export function DeviceEvents() {
     getFilteredRowModel: getFilteredRowModel(),
   })
   const applySearch = () => {
-    setFilters((current) => ({
-      ...buildFilters(draft),
-      pageSize: current.pageSize,
-    }))
+    setFilters((current: GetDeviceEventsParams) =>
+      buildFilters(draft, deviceKey, current.pageSize)
+    )
     queryClient.invalidateQueries({ queryKey: deviceEventKeys.all })
   }
   const handleRefresh = () =>
@@ -280,7 +301,7 @@ export function DeviceEvents() {
             size='sm'
             onClick={() => {
               setDraft(defaultDraft)
-              setFilters(buildFilters(defaultDraft))
+              setFilters(buildFilters(defaultDraft, deviceKey))
             }}
           >
             {t('common:reset')}

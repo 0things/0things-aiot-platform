@@ -86,55 +86,58 @@
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选",
+                "description": "Paginated query for thing model device events with keyword, deviceKey, eventType and date range filters",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "事件管理"
+                    "Events"
                 ],
-                "summary": "获取设备事件列表",
+                "summary": "List device events",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Device key filter",
+                        "name": "deviceKey",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End time filter (yyyy-MM-dd HH:mm:ss)",
+                        "name": "endAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event type filter (e.g. INFO, WARN, ERROR)",
+                        "name": "eventType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search keyword across deviceKey, deviceName, or eventIdentifier",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "页码",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "关键词",
-                        "name": "keyword",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "设备 Key",
-                        "name": "device_key",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "事件类型",
-                        "name": "event_type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "开始时间 RFC3339",
-                        "name": "start_at",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "结束时间 RFC3339",
-                        "name": "end_at",
+                        "description": "Start time filter (yyyy-MM-dd HH:mm:ss)",
+                        "name": "startAt",
                         "in": "query"
                     }
                 ],
@@ -4035,22 +4038,36 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "JSON string payload of event parameters",
                     "type": "string"
                 },
                 "deviceKey": {
+                    "description": "Unique device key",
                     "type": "string"
                 },
                 "deviceName": {
+                    "description": "Human-readable device name",
                     "type": "string"
                 },
                 "eventAt": {
+                    "description": "Event timestamp",
+                    "type": "string"
+                },
+                "eventIdentifier": {
+                    "description": "Thing model event identifier",
                     "type": "string"
                 },
                 "eventType": {
+                    "description": "Event type (INFO, WARN, ERROR)",
                     "type": "string"
                 },
                 "id": {
+                    "description": "Event primary ID",
                     "type": "integer"
+                },
+                "uuid": {
+                    "description": "Globally unique event UUID",
+                    "type": "string"
                 }
             }
         },
@@ -4058,18 +4075,22 @@
             "type": "object",
             "properties": {
                 "events": {
+                    "description": "List of device events",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/DeviceEvent"
                     }
                 },
                 "page": {
+                    "description": "Current page number",
                     "type": "integer"
                 },
                 "pageSize": {
+                    "description": "Current page size",
                     "type": "integer"
                 },
                 "total": {
+                    "description": "Total count of matching events",
                     "type": "integer"
                 }
             }

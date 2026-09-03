@@ -8,6 +8,7 @@ import (
 	"aiot-backend/internal/dal/query"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
+
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
@@ -166,12 +167,6 @@ func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, er
 func (r *DeviceRepository) Delete(ctx context.Context, device *model.Device) error {
 	q := useQuery(r.db)
 	_, err := q.Device.WithContext(ctx).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Delete(device)
-	return err
-}
-
-func (r *DeviceRepository) Restore(ctx context.Context, id int64) error {
-	q := useQuery(r.db)
-	_, err := q.Device.WithContext(ctx).Unscoped().Where(q.Device.ID.Eq(id), q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).UpdateSimple(q.Device.DeletedAt.Null())
 	return err
 }
 

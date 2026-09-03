@@ -31,10 +31,6 @@ type DeviceServiceInterface interface {
 	DeleteDevice(ctx context.Context, id int64) error
 	DeleteDeviceByKey(ctx context.Context, deviceKey string) error
 	Stats(ctx context.Context) (DeviceStatistics, error)
-	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
-	RestoreDevice(ctx context.Context, id int64) (*model.Device, error)
-	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
-	RestoreDeviceByKey(ctx context.Context, deviceKey string) (*model.Device, error)
 	Tags(ctx context.Context, key string) ([]model.DeviceTag, error)
 	SetTags(ctx context.Context, key string, tags map[string]string, replace bool) ([]model.DeviceTag, error)
 	RemoveTags(ctx context.Context, key string, keys []string) error
@@ -403,21 +399,4 @@ func (s *DeviceService) BatchCreate(ctx context.Context, content []byte) (int, [
 		}
 	}
 	return success, errs, nil
-}
-
-// Deprecated: 设备恢复接口已下线。
-func (s *DeviceService) RestoreDevice(ctx context.Context, id int64) (*model.Device, error) {
-	if err := s.repo.Restore(ctx, id); err != nil {
-		return nil, err
-	}
-	return s.Device(ctx, id)
-}
-
-// Deprecated: 设备恢复接口已下线。
-func (s *DeviceService) RestoreDeviceByKey(ctx context.Context, deviceKey string) (*model.Device, error) {
-	d, err := s.DeviceByKey(ctx, deviceKey)
-	if err != nil {
-		return nil, err
-	}
-	return s.RestoreDevice(ctx, d.ID)
 }

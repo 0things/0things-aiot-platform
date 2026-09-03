@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	eventV1 "aiot-backend/api/event/v1"
+	apiV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 	"aiot-backend/test/server/testutil"
@@ -142,7 +144,7 @@ func TestIntegrationDeviceService_SetEnabled(t *testing.T) {
 	assert.False(t, device.Enabled)
 }
 
-func TestIntegrationDeviceService_DeleteAndRestore(t *testing.T) {
+func TestIntegrationDeviceService_Delete(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
@@ -150,9 +152,8 @@ func TestIntegrationDeviceService_DeleteAndRestore(t *testing.T) {
 	err := svc.DeleteDevice(ctx(), 1)
 	require.NoError(t, err)
 
-	device, err := svc.RestoreDevice(ctx(), 1)
-	require.NoError(t, err)
-	assert.NotNil(t, device)
+	_, err = svc.Device(ctx(), 1)
+	require.Error(t, err)
 }
 
 func TestIntegrationDeviceService_Tags(t *testing.T) {
@@ -357,13 +358,11 @@ func TestIntegrationProductService_CRUD(t *testing.T) {
 	require.NoError(t, err)
 
 	// Delete new product (no devices)
-	err = svc.Delete(ctx(), newProduct.ID)
+	err = svc.DeleteByKey(ctx(), newProduct.ProductKey)
 	require.NoError(t, err)
 
-	// Restore
-	restored, err := svc.Restore(ctx(), newProduct.ID)
-	require.NoError(t, err)
-	assert.NotNil(t, restored)
+	_, err = svc.GetByKey(ctx(), newProduct.ProductKey)
+	require.Error(t, err)
 }
 
 func TestIntegrationOTAService_CRUD(t *testing.T) {
@@ -433,7 +432,7 @@ func TestIntegrationDeviceEventService_List(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx(), 1, 10, "", "", "", nil, nil)
+	events, total, err := svc.List(ctx(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events // May be nil for empty results

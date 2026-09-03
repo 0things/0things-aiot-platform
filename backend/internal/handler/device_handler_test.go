@@ -42,7 +42,6 @@ func mountDevice(r *gin.Engine, h *DeviceHandler) {
 	g.POST("/:deviceKey/activate", h.Activate)
 	g.POST("/:deviceKey/enabled", h.Enabled)
 	g.GET("/:deviceKey/telemetry", h.Telemetry)
-	g.POST("/:deviceKey/restore", h.Restore)
 	g.GET("/:deviceKey/tags", h.GetTags)
 	g.PUT("/:deviceKey/tags", h.PutTags)
 	g.POST("/:deviceKey/tags", h.PostTags)
@@ -187,16 +186,6 @@ func TestDeviceHandler_Telemetry(t *testing.T) {
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
 	m.EXPECT().Telemetry(gomock.Any(), "1").Return("{}", nil)
 	w := doDeviceReq(h, http.MethodGet, "/devices/1/telemetry", nil, nil)
-	if w.Code != http.StatusOK {
-		t.Fatalf("got %d", w.Code)
-	}
-}
-
-func TestDeviceHandler_Restore(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(sampleDevice(), nil)
-	w := doDeviceReq(h, http.MethodPost, "/devices/1/restore", nil, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)
 	}

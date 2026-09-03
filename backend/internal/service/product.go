@@ -20,14 +20,8 @@ type ProductServiceInterface interface {
 	Get(ctx context.Context, id int64) (*model.Product, error)
 	GetByKey(ctx context.Context, key string) (*model.Product, error)
 	Save(ctx context.Context, product *model.Product) error
-	// Deprecated: 外部删除接口统一使用 productKey，保留供旧测试兼容。
-	Delete(ctx context.Context, id int64) error
 	DeleteByKey(ctx context.Context, key string) error
 	List(ctx context.Context, page, size int, category, status, search string) ([]dto.ProductListItem, int64, error)
-	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
-	Restore(ctx context.Context, id int64) (*model.Product, error)
-	// Deprecated: 恢复路由已移除，保留旧测试和内部迁移兼容。
-	RestoreByKey(ctx context.Context, key string) (*model.Product, error)
 }
 
 // ProductListItem 是产品列表专用结果，包含分类名称但不污染产品领域模型。
@@ -128,39 +122,6 @@ func (s *ProductService) DeleteByKey(ctx context.Context, key string) error {
 	return s.repo.Delete(ctx, product)
 }
 
-// Deprecated: 外部删除接口统一使用 productKey。
-func (s *ProductService) Delete(ctx context.Context, id int64) error {
-	product, err := s.Get(ctx, id)
-	if err != nil {
-		return err
-	}
-	count, err := s.repo.CountDevices(ctx, id)
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return errors.New("product has devices")
-	}
-	return s.repo.Delete(ctx, product)
-}
-
 func (s *ProductService) List(ctx context.Context, page, size int, category, status, search string) ([]dto.ProductListItem, int64, error) {
 	return s.repo.List(ctx, page, size, category, status, search)
-}
-
-// Deprecated: 产品恢复接口已下线。
-func (s *ProductService) Restore(ctx context.Context, id int64) (*model.Product, error) {
-	if err := s.repo.Restore(ctx, id); err != nil {
-		return nil, err
-	}
-	return s.Get(ctx, id)
-}
-
-// Deprecated: 产品恢复接口已下线。
-func (s *ProductService) RestoreByKey(ctx context.Context, key string) (*model.Product, error) {
-	product, err := s.GetByKey(ctx, key)
-	if err != nil {
-		return nil, err
-	}
-	return s.Restore(ctx, product.ID)
 }

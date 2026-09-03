@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 	"time"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/handler"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
@@ -77,7 +79,6 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 	r.DELETE("/devices/:deviceKey", dh.DeleteDevice)
 	r.POST("/devices/:deviceKey/activate", dh.Activate)
 	r.POST("/devices/:deviceKey/enabled", dh.Enabled)
-	r.POST("/devices/:deviceKey/restore", dh.Restore)
 	r.GET("/devices/:deviceKey/tags", dh.GetTags)
 	r.PUT("/devices/:deviceKey/tags", dh.PutTags)
 	r.POST("/devices/:deviceKey/tags", dh.PostTags)
@@ -97,7 +98,6 @@ func newCoverageRouters(t *testing.T) *coverageRouters {
 	r.GET("/products", ph.List)
 	r.PUT("/products/:productKey", ph.Update)
 	r.DELETE("/products/:productKey", ph.Delete)
-	r.POST("/products/:productKey/restore", ph.Restore)
 
 	r.GET("/ota/packages", oh.ListOTA)
 	r.GET("/ota/packages/:uuid", oh.GetOTA)
@@ -377,27 +377,6 @@ func TestCoverage_Product_Delete_Success(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func TestCoverage_Product_Restore_InvalidID(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.product.EXPECT().RestoreByKey(gomock.Any(), "abc").Return(nil, repository.ErrNotFound)
-	w := cr.do("POST", "/products/abc/restore", nil)
-	assert.True(t, w.Code >= 400, "expected error status code")
-}
-
-func TestCoverage_Product_Restore_Error(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.product.EXPECT().RestoreByKey(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
-	w := cr.do("POST", "/products/1/restore", nil)
-	assert.Equal(t, http.StatusNotFound, w.Code)
-}
-
-func TestCoverage_Product_Restore_Success(t *testing.T) {
-	cr := newCoverageRouters(t)
-	cr.product.EXPECT().RestoreByKey(gomock.Any(), "1").Return(&model.Product{ID: 1}, nil)
-	w := cr.do("POST", "/products/1/restore", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
 // --- OTA Handler Tests ---
 
 func TestCoverage_OTA_List_Error(t *testing.T) {
@@ -487,36 +466,36 @@ func TestCoverage_OTA_Deployments_WithStatus(t *testing.T) {
 
 func TestCoverage_DeviceEvent_List_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.deviceEvent.EXPECT().List(gomock.Any(), 1, 20, "", "", "", gomock.Any(), gomock.Any()).Return(nil, int64(0), errors.New("db error"))
+	cr.deviceEvent.EXPECT().List(gomock.Any(), gomock.Any()).Return(nil, int64(0), errors.New("db error"))
 	w := cr.do("GET", "/device-events", nil)
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 
 func TestCoverage_DeviceEvent_List_Success(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.deviceEvent.EXPECT().List(gomock.Any(), 1, 20, "temp", "D001", "temperature", gomock.Any(), gomock.Any()).Return([]model.DeviceEvent{{ID: 1, EventType: "temperature"}}, int64(1), nil)
-	w := cr.do("GET", "/device-events?keyword=temp&device_key=D001&event_type=temperature", nil)
+	cr.deviceEvent.EXPECT().List(gomock.Any(), gomock.Any()).Return([]dto.DeviceEventListItem{{ID: 1, EventType: "temperature"}}, int64(1), nil)
+	w := cr.do("GET", "/device-events?keyword=temp&deviceKey=D001&eventType=temperature", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_DeviceEvent_List_InvalidStartAt(t *testing.T) {
 	cr := newCoverageRouters(t)
-	w := cr.do("GET", "/device-events?start_at=bad", nil)
+	w := cr.do("GET", "/device-events?startAt=bad", nil)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestCoverage_DeviceEvent_List_InvalidEndAt(t *testing.T) {
 	cr := newCoverageRouters(t)
-	w := cr.do("GET", "/device-events?end_at=bad", nil)
+	w := cr.do("GET", "/device-events?endAt=bad", nil)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestCoverage_DeviceEvent_List_WithTimeRange(t *testing.T) {
 	cr := newCoverageRouters(t)
-	start := time.Now().Add(-time.Hour).UTC().Format(time.RFC3339)
-	end := time.Now().UTC().Format(time.RFC3339)
-	cr.deviceEvent.EXPECT().List(gomock.Any(), 1, 20, "", "", "", gomock.Any(), gomock.Any()).Return([]model.DeviceEvent{}, int64(0), nil)
-	w := cr.do("GET", fmt.Sprintf("/device-events?start_at=%s&end_at=%s", start, end), nil)
+	start := url.QueryEscape(time.Now().Add(-time.Hour).Format("2006-01-02 15:04:05"))
+	end := url.QueryEscape(time.Now().Format("2006-01-02 15:04:05"))
+	cr.deviceEvent.EXPECT().List(gomock.Any(), gomock.Any()).Return([]dto.DeviceEventListItem{}, int64(0), nil)
+	w := cr.do("GET", fmt.Sprintf("/device-events?startAt=%s&endAt=%s", start, end), nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 

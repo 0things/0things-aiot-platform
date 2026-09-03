@@ -81,10 +81,6 @@ type SetDeviceEnabledResponse struct {
 	Device Device `json:"device"`
 } //@name DeviceSetDeviceEnabledResponse
 
-type RestoreDeviceResponse struct {
-	Device Device `json:"device"`
-} //@name DeviceRestoreDeviceResponse
-
 type ListDevicesResponse struct {
 	Devices  []Device `json:"devices"`
 	Total    int64    `json:"total"`

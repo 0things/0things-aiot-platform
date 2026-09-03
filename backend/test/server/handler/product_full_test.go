@@ -10,6 +10,7 @@ import (
 	"aiot-backend/internal/handler"
 	"aiot-backend/internal/model"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +27,6 @@ func setupProductRouterFull(mockService *mock_service.MockProductServiceInterfac
 	router.GET("/products", productHandler.List)
 	router.PUT("/products/:productKey", productHandler.Update)
 	router.DELETE("/products/:productKey", productHandler.Delete)
-	router.POST("/products/:productKey/restore", productHandler.Restore)
 
 	return router
 }

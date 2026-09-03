@@ -34,7 +34,6 @@ func setupDeviceRouterFull(mockService *mock_service.MockDeviceServiceInterface)
 	router.POST("/devices/:deviceKey/enabled", deviceHandler.Enabled)
 	router.GET("/devices/stats", deviceHandler.Stats)
 	router.GET("/devices/:deviceKey/telemetry", deviceHandler.Telemetry)
-	router.POST("/devices/:deviceKey/restore", deviceHandler.Restore)
 	router.GET("/devices/:deviceKey/tags", deviceHandler.GetTags)
 	router.PUT("/devices/:deviceKey/tags", deviceHandler.PutTags)
 	router.POST("/devices/:deviceKey/tags", deviceHandler.PostTags)
@@ -316,23 +315,6 @@ func TestDeviceHandler_BatchTemplate(t *testing.T) {
 	mockService.EXPECT().BatchTemplate().Return([]byte("template"), nil)
 
 	req, _ := http.NewRequest("GET", "/devices/batch-template", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestDeviceHandler_Restore(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockService := mock_service.NewMockDeviceServiceInterface(ctrl)
-	router := setupDeviceRouterFull(mockService)
-
-	device := &model.Device{ID: 1, Name: "Restored Device"}
-	mockService.EXPECT().RestoreDeviceByKey(gomock.Any(), "1").Return(device, nil)
-
-	req, _ := http.NewRequest("POST", "/devices/1/restore", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

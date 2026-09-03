@@ -681,29 +681,45 @@ definitions:
   DeviceEvent:
     properties:
       data:
+        description: JSON string payload of event parameters
         type: string
       deviceKey:
+        description: Unique device key
         type: string
       deviceName:
+        description: Human-readable device name
         type: string
       eventAt:
+        description: Event timestamp
+        type: string
+      eventIdentifier:
+        description: Thing model event identifier
         type: string
       eventType:
+        description: Event type (INFO, WARN, ERROR)
         type: string
       id:
+        description: Event primary ID
         type: integer
+      uuid:
+        description: Globally unique event UUID
+        type: string
     type: object
   DeviceEventListDeviceEventsResponse:
     properties:
       events:
+        description: List of device events
         items:
           $ref: '#/definitions/DeviceEvent'
         type: array
       page:
+        description: Current page number
         type: integer
       pageSize:
+        description: Current page size
         type: integer
       total:
+        description: Total count of matching events
         type: integer
     type: object
   DeviceGetDeviceResponse:
@@ -1682,35 +1698,39 @@ paths:
       - 产品分类
   /device-events:
     get:
-      description: 分页获取物模型设备事件，支持关键词、设备、事件类型与时间范围筛选
+      description: Paginated query for thing model device events with keyword, deviceKey,
+        eventType and date range filters
       parameters:
-      - description: 页码
+      - description: Device key filter
         in: query
-        name: page
-        type: integer
-      - description: 每页数量
+        name: deviceKey
+        type: string
+      - description: End time filter (yyyy-MM-dd HH:mm:ss)
         in: query
-        name: pageSize
-        type: integer
-      - description: 关键词
+        name: endAt
+        type: string
+      - description: Event type filter (e.g. INFO, WARN, ERROR)
+        in: query
+        name: eventType
+        type: string
+      - description: Search keyword across deviceKey, deviceName, or eventIdentifier
         in: query
         name: keyword
         type: string
-      - description: 设备 Key
+      - description: Page number (1-based, default 1)
         in: query
-        name: device_key
-        type: string
-      - description: 事件类型
+        minimum: 1
+        name: page
+        type: integer
+      - description: Page size (1-100, default 10)
         in: query
-        name: event_type
-        type: string
-      - description: 开始时间 RFC3339
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      - description: Start time filter (yyyy-MM-dd HH:mm:ss)
         in: query
-        name: start_at
-        type: string
-      - description: 结束时间 RFC3339
-        in: query
-        name: end_at
+        name: startAt
         type: string
       produces:
       - application/json
@@ -1721,9 +1741,9 @@ paths:
             $ref: '#/definitions/ApiResponse-DeviceEventListDeviceEventsResponse'
       security:
       - Bearer: []
-      summary: 获取设备事件列表
+      summary: List device events
       tags:
-      - 事件管理
+      - Events
   /device-groups:
     get:
       parameters:

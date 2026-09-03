@@ -13,6 +13,7 @@ import (
 	productTSLV1 "aiot-backend/api/product_tsl/v1"
 	sceneLinkageV1 "aiot-backend/api/scene_linkage/v1"
 	v1 "aiot-backend/api/v1"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
 	"aiot-backend/pkg/jwt"
@@ -168,13 +169,6 @@ func TestProductHandler_CRUD(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("Delete got %d", w.Code)
 	}
-
-	m.EXPECT().RestoreByKey(gomock.Any(), "P001").Return(&model.Product{ID: 1}, nil)
-	c, w = hctx(http.MethodPost, "/products/P001/restore", nil, nil, productKeyParam("P001"))
-	h.Restore(c)
-	if w.Code != http.StatusOK {
-		t.Fatalf("Restore got %d", w.Code)
-	}
 }
 
 func TestProductHandler_Get_InvalidID(t *testing.T) {
@@ -194,8 +188,8 @@ func TestDeviceEventHandler_List(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	m := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	h := NewDeviceEventHandler(baseHandler(t), m)
-	m.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-		Return([]model.DeviceEvent{}, int64(0), nil)
+	m.EXPECT().List(gomock.Any(), gomock.Any()).
+		Return([]dto.DeviceEventListItem{}, int64(0), nil)
 	c, w := hctx(http.MethodGet, "/device-events", nil, nil, nil)
 	h.ListDeviceEvents(c)
 	if w.Code != http.StatusOK {
@@ -207,7 +201,7 @@ func TestDeviceEventHandler_List_BadTime(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	m := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	h := NewDeviceEventHandler(baseHandler(t), m)
-	c, w := hctx(http.MethodGet, "/device-events?start_at=not-a-time", nil, nil, nil)
+	c, w := hctx(http.MethodGet, "/device-events?startAt=not-a-time", nil, nil, nil)
 	h.ListDeviceEvents(c)
 	if w.Code == http.StatusOK {
 		t.Fatalf("expected bad request")

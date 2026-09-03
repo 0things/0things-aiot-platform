@@ -7,10 +7,20 @@
  */
 
 export interface DeviceEvent {
+  /** JSON string payload of event parameters */
   data?: string
+  /** Unique device key */
   deviceKey?: string
+  /** Human-readable device name */
   deviceName?: string
+  /** Event timestamp */
   eventAt?: string
+  /** Thing model event identifier */
+  eventIdentifier?: string
+  /** Event type (INFO, WARN, ERROR) */
   eventType?: string
+  /** Event primary ID */
   id?: number
+  /** Globally unique event UUID */
+  uuid?: string
 }

@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	eventV1 "aiot-backend/api/event/v1"
+	apiV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
@@ -188,14 +190,6 @@ func TestIntegrationDeviceService_DeleteDevice_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestIntegrationDeviceService_RestoreDevice_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestDeviceService(db)
-
-	_, err := svc.RestoreDevice(ctx2(), 999)
-	assert.Error(t, err)
-}
-
 func TestIntegrationDeviceService_Shadow_NotFound(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestDeviceService(db)
@@ -287,15 +281,7 @@ func TestIntegrationProductService_Delete_NotFound(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestProductService(db)
 
-	err := svc.Delete(ctx2(), 999)
-	assert.Error(t, err)
-}
-
-func TestIntegrationProductService_Restore_NotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestProductService(db)
-
-	_, err := svc.Restore(ctx2(), 999)
+	err := svc.DeleteByKey(ctx2(), "NONEXIST")
 	assert.Error(t, err)
 }
 
@@ -397,7 +383,7 @@ func TestIntegrationDeviceEventService_List_WithKeyword(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), 1, 10, "test", "", "", nil, nil)
+	events, total, err := svc.List(ctx2(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, Keyword: "test"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -408,7 +394,7 @@ func TestIntegrationDeviceEventService_List_WithDeviceKey(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), 1, 10, "", "D001", "", nil, nil)
+	events, total, err := svc.List(ctx2(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -419,7 +405,7 @@ func TestIntegrationDeviceEventService_List_WithEventType(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), 1, 10, "", "", "temperature", nil, nil)
+	events, total, err := svc.List(ctx2(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, EventType: "temperature"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -433,7 +419,7 @@ func TestIntegrationDeviceEventService_Record_Valid(t *testing.T) {
 	err := svc.Record(ctx2(), "P001", "D001", "temperature", 0, map[string]any{"temp": 25})
 	require.NoError(t, err)
 
-	events, total, err := svc.List(ctx2(), 1, 10, "", "D001", "temperature", nil, nil)
+	events, total, err := svc.List(ctx2(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001", EventType: "temperature"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, events, 1)
@@ -783,7 +769,7 @@ func TestIntegrationProductService_Delete_HasDevices(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestProductService(db)
 
-	err := svc.Delete(ctx2(), 1)
+	err := svc.DeleteByKey(ctx2(), "P001")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "has devices")
 }
@@ -1031,19 +1017,6 @@ func TestIntegrationDeviceService_MutateShadow_UpdateExisting(t *testing.T) {
 	assert.NotNil(t, shadow2)
 }
 
-func TestIntegrationDeviceService_RestoreDevice(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	err := svc.DeleteDevice(ctx2(), 1)
-	require.NoError(t, err)
-
-	device, err := svc.RestoreDevice(ctx2(), 1)
-	require.NoError(t, err)
-	assert.NotNil(t, device)
-}
-
 func TestIntegrationProductService_Delete_Success(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
@@ -1055,22 +1028,8 @@ func TestIntegrationProductService_Delete_Success(t *testing.T) {
 	err := productRepo.Create(ctx2(), p2)
 	require.NoError(t, err)
 
-	err = svc.Delete(ctx2(), p2.ID)
+	err = svc.DeleteByKey(ctx2(), p2.ProductKey)
 	require.NoError(t, err)
-}
-
-func TestIntegrationProductService_Restore_Success(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
-	svc := service.NewProductService(productRepo)
-
-	err := productRepo.Delete(ctx2(), &model.Product{ID: 1})
-	require.NoError(t, err)
-
-	product, err := svc.Restore(ctx2(), 1)
-	require.NoError(t, err)
-	assert.NotNil(t, product)
 }
 
 func TestIntegrationDeviceService_CreateDevice_InvalidLegacyMetadata(t *testing.T) {

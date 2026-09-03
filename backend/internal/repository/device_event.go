@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"strings"
-	"time"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 	"gorm.io/gen/field"
@@ -15,34 +15,37 @@ type DeviceEventRepository struct{ db *IoTDB }
 func NewDeviceEventRepository(db *IoTDB) *DeviceEventRepository {
 	return &DeviceEventRepository{db: db}
 }
+
 func (r *DeviceEventRepository) Create(ctx context.Context, event *model.DeviceEvent) error {
 	return useIoTQuery(r.db).DeviceEvent.WithContext(ctx).Create(event)
 }
 
-func (r *DeviceEventRepository) List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error) {
+func (r *DeviceEventRepository) List(ctx context.Context, query dto.ListDeviceEventsQuery) ([]dto.DeviceEventListItem, int64, error) {
 	q := useIoTQuery(r.db)
 	base := q.DeviceEvent.WithContext(ctx).Join(q.Device, q.Device.ID.EqCol(q.DeviceEvent.DeviceID)).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
-	if keyword != "" {
-		term := "%" + strings.ToLower(keyword) + "%"
+	if query.Keyword != "" {
+		term := "%" + strings.ToLower(query.Keyword) + "%"
 		base = base.Where(field.Or(q.Device.DeviceKey.Lower().Like(term), q.Device.Name.Lower().Like(term), q.DeviceEvent.EventType.Lower().Like(term)))
 	}
-	if deviceKey != "" {
-		base = base.Where(q.Device.DeviceKey.Eq(deviceKey))
+	if query.DeviceKey != "" {
+		base = base.Where(q.Device.DeviceKey.Eq(query.DeviceKey))
 	}
-	if eventType != "" {
-		base = base.Where(q.DeviceEvent.EventType.Lower().Like("%" + strings.ToLower(eventType) + "%"))
+	if query.EventType != "" {
+		base = base.Where(q.DeviceEvent.EventType.Lower().Like("%" + strings.ToLower(query.EventType) + "%"))
 	}
-	if startAt != nil {
-		base = base.Where(q.DeviceEvent.EventAt.Gte(*startAt))
+	if query.StartAt != nil {
+		base = base.Where(q.DeviceEvent.EventAt.Gte(*query.StartAt))
 	}
-	if endAt != nil {
-		base = base.Where(q.DeviceEvent.EventAt.Lte(*endAt))
+	if query.EndAt != nil {
+		base = base.Where(q.DeviceEvent.EventAt.Lte(*query.EndAt))
 	}
 	total, err := base.Count()
 	if err != nil {
 		return nil, 0, err
 	}
-	var events []model.DeviceEvent
-	err = base.Select(q.DeviceEvent.ALL, q.Device.DeviceKey.As("device_key"), q.Device.Name.As("device_name")).Order(q.DeviceEvent.EventAt.Desc()).Offset((page - 1) * size).Limit(size).Scan(&events)
+	var events []dto.DeviceEventListItem
+	eventUUID := field.NewString("device_events", "uuid")
+	eventIdentifier := field.NewString("device_events", "event_identifier")
+	err = base.Select(q.DeviceEvent.ALL, eventUUID, eventIdentifier, q.Device.DeviceKey.As("device_key"), q.Device.Name.As("device_name")).Order(q.DeviceEvent.ID.Desc()).Offset((query.Page - 1) * query.PageSize).Limit(query.PageSize).Scan(&events)
 	return events, total, err
 }

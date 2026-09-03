@@ -28,7 +28,6 @@ func setupProductRouter(mockService *mock_service.MockProductServiceInterface) *
 	router.GET("/products", productHandler.List)
 	router.PUT("/products/:productKey", productHandler.Update)
 	router.DELETE("/products/:productKey", productHandler.Delete)
-	router.POST("/products/:productKey/restore", productHandler.Restore)
 
 	return router
 }
@@ -97,23 +96,6 @@ func TestProductHandler_Delete(t *testing.T) {
 	mockService.EXPECT().DeleteByKey(gomock.Any(), "P001").Return(nil)
 
 	req, _ := http.NewRequest("DELETE", "/products/P001", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestProductHandler_Restore(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockService := mock_service.NewMockProductServiceInterface(ctrl)
-	router := setupProductRouter(mockService)
-
-	product := &model.Product{ID: 1, Name: "Restored Product"}
-	mockService.EXPECT().RestoreByKey(gomock.Any(), "P001").Return(product, nil)
-
-	req, _ := http.NewRequest("POST", "/products/P001/restore", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

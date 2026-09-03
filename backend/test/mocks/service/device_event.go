@@ -5,10 +5,10 @@
 package mock_service
 
 import (
-	model "aiot-backend/internal/model"
+	eventV1 "aiot-backend/api/event/v1"
+	dto "aiot-backend/internal/dto"
 	context "context"
 	reflect "reflect"
-	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -37,19 +37,19 @@ func (m *MockDeviceEventServiceInterface) EXPECT() *MockDeviceEventServiceInterf
 }
 
 // List mocks base method.
-func (m *MockDeviceEventServiceInterface) List(ctx context.Context, page, size int, keyword, deviceKey, eventType string, startAt, endAt *time.Time) ([]model.DeviceEvent, int64, error) {
+func (m *MockDeviceEventServiceInterface) List(ctx context.Context, req *eventV1.ListDeviceEventsRequest) ([]dto.DeviceEventListItem, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", ctx, page, size, keyword, deviceKey, eventType, startAt, endAt)
-	ret0, _ := ret[0].([]model.DeviceEvent)
+	ret := m.ctrl.Call(m, "List", ctx, req)
+	ret0, _ := ret[0].([]dto.DeviceEventListItem)
 	ret1, _ := ret[1].(int64)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
 // List indicates an expected call of List.
-func (mr *MockDeviceEventServiceInterfaceMockRecorder) List(ctx, page, size, keyword, deviceKey, eventType, startAt, endAt interface{}) *gomock.Call {
+func (mr *MockDeviceEventServiceInterfaceMockRecorder) List(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDeviceEventServiceInterface)(nil).List), ctx, page, size, keyword, deviceKey, eventType, startAt, endAt)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDeviceEventServiceInterface)(nil).List), ctx, req)
 }
 
 // Record mocks base method.

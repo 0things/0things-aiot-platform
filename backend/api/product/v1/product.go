@@ -61,9 +61,6 @@ type GetProductByKeyResponse struct {
 type UpdateProductResponse struct {
 	Product Product `json:"product"`
 } //@name ProductUpdateProductResponse
-type RestoreProductResponse struct {
-	Product Product `json:"product"`
-} //@name ProductRestoreProductResponse
 type ListProductsResponse struct {
 	Products []ProductListItem `json:"products"`
 	Total    int64             `json:"total"`

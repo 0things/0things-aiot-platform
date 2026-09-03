@@ -170,14 +170,11 @@ func TestDeviceService_Telemetry_NoRedis(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestDeviceService_DeleteAndRestore(t *testing.T) {
+func TestDeviceService_Delete(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
 	require.NoError(t, svc.DeleteDevice(ctx, 1))
 	_, err := svc.Device(ctx, 1)
 	require.Error(t, err)
-	d, err := svc.RestoreDevice(ctx, 1)
-	require.NoError(t, err)
-	require.Equal(t, int64(1), d.ID)
 }
 
 func TestDeviceService_SimulatePush(t *testing.T) {

@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
@@ -395,7 +396,7 @@ func TestDeviceEventRepository_List_WithFilters(t *testing.T) {
 	mock.ExpectQuery("SELECT .+ FROM `device_events`").WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
 	mock.ExpectQuery("SELECT .+ FROM `device_events`").WillReturnRows(sqlmock.NewRows([]string{"id"}))
 
-	events, total, err := eventRepo.List(ctx, 1, 10, "temp", "D001", "temperature", nil, nil)
+	events, total, err := eventRepo.List(ctx, dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, Keyword: "temp", DeviceKey: "D001", EventType: "temperature"})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	assert.Empty(t, events)
@@ -662,26 +663,6 @@ func setupSQLiteProductRepo(t *testing.T) (*repository.ProductRepository, *repos
 	repo := repository.NewRepository(nil, db)
 	productRepo := repository.NewProductRepository(iotDB)
 	return productRepo, repo
-}
-
-func TestProductRepository_Restore(t *testing.T) {
-	productRepo, repo := setupSQLiteProductRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
-
-	// Create a product
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
-	err := productRepo.Create(ctx, product)
-	require.NoError(t, err)
-
-	// Delete it
-	err = productRepo.Delete(ctx, product)
-	require.NoError(t, err)
-
-	// Restore it
-	err = productRepo.Restore(ctx, product.ID)
-	assert.NoError(t, err)
-
-	_ = repo
 }
 
 func TestProductRepository_List_WithFilters(t *testing.T) {
@@ -969,24 +950,6 @@ func TestDeviceRepository_Statistics_WithData(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), stats.TotalDevices)
 	assert.Equal(t, int64(1), stats.InactiveDevices)
-}
-
-func TestDeviceRepository_Restore_SQLite(t *testing.T) {
-	deviceRepo, productRepo := setupSQLiteDeviceRepo(t)
-	ctx := tenant.WithTenant(context.Background(), 1)
-
-	product := &model.Product{ProductKey: "P001", Name: "Test", Status: "active", OrganizationID: 1}
-	productRepo.Create(ctx, product)
-
-	device := &model.Device{DeviceKey: "D001", Name: "Device 1", ProductID: product.ID, OrganizationID: 1}
-	deviceRepo.Create(ctx, device)
-
-	// Delete
-	deviceRepo.Delete(ctx, device)
-
-	// Restore
-	err := deviceRepo.Restore(ctx, device.ID)
-	assert.NoError(t, err)
 }
 
 func TestDeviceRepository_DB_SQLite(t *testing.T) {

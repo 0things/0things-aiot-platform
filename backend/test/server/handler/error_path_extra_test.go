@@ -7,11 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/handler"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -208,7 +210,7 @@ func TestDeviceEventHandler_ListDeviceEvents_Empty(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventFullErrRouter(mockService)
 
-	mockService.EXPECT().List(gomock.Any(), 1, 20, "", "", "", nil, nil).Return([]model.DeviceEvent{}, int64(0), nil)
+	mockService.EXPECT().List(gomock.Any(), gomock.Any()).Return([]dto.DeviceEventListItem{}, int64(0), nil)
 	req, _ := http.NewRequest("GET", "/device-events", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -221,8 +223,8 @@ func TestDeviceEventHandler_ListDeviceEvents_WithFilters(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventFullErrRouter(mockService)
 
-	mockService.EXPECT().List(gomock.Any(), 1, 20, "test", "D001", "temperature", nil, nil).Return([]model.DeviceEvent{}, int64(0), nil)
-	req, _ := http.NewRequest("GET", "/device-events?keyword=test&device_key=D001&event_type=temperature", nil)
+	mockService.EXPECT().List(gomock.Any(), gomock.Any()).Return([]dto.DeviceEventListItem{}, int64(0), nil)
+	req, _ := http.NewRequest("GET", "/device-events?keyword=test&deviceKey=D001&eventType=temperature", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -234,7 +236,7 @@ func TestDeviceEventHandler_ListDeviceEvents_InvalidStartAt(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventFullErrRouter(mockService)
 
-	req, _ := http.NewRequest("GET", "/device-events?start_at=invalid", nil)
+	req, _ := http.NewRequest("GET", "/device-events?startAt=invalid", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -246,7 +248,7 @@ func TestDeviceEventHandler_ListDeviceEvents_InvalidEndAt(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventFullErrRouter(mockService)
 
-	req, _ := http.NewRequest("GET", "/device-events?end_at=invalid", nil)
+	req, _ := http.NewRequest("GET", "/device-events?endAt=invalid", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)

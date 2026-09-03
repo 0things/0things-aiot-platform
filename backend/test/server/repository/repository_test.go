@@ -7,6 +7,7 @@ import (
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -61,18 +62,6 @@ func TestDeviceRepository_Delete(t *testing.T) {
 
 	device := &model.Device{ID: 1}
 	err := deviceRepo.Delete(ctx, device)
-	assert.NoError(t, err)
-}
-
-func TestDeviceRepository_Restore(t *testing.T) {
-	deviceRepo, mock := setupDeviceRepository(t)
-	ctx := context.Background()
-
-	mock.ExpectBegin()
-	mock.ExpectExec("UPDATE `devices`").WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectCommit()
-
-	err := deviceRepo.Restore(ctx, 1)
 	assert.NoError(t, err)
 }
 
@@ -152,5 +141,3 @@ func TestOTARepository_Delete(t *testing.T) {
 	err := otaRepo.Delete(ctx, 1)
 	assert.NoError(t, err)
 }
-
-

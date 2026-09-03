@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/handler"
-	"aiot-backend/internal/model"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -32,8 +32,8 @@ func TestDeviceEventHandler_List(t *testing.T) {
 	mockService := mock_service.NewMockDeviceEventServiceInterface(ctrl)
 	router := setupDeviceEventRouter(mockService)
 
-	events := []model.DeviceEvent{{ID: 1, EventType: "temperature"}}
-	mockService.EXPECT().List(gomock.Any(), 1, 20, "", "", "", (*time.Time)(nil), (*time.Time)(nil)).Return(events, int64(1), nil)
+	events := []dto.DeviceEventListItem{{ID: 1, EventType: "temperature"}}
+	mockService.EXPECT().List(gomock.Any(), gomock.Any()).Return(events, int64(1), nil)
 
 	req, _ := http.NewRequest("GET", "/device-events", nil)
 	w := httptest.NewRecorder()

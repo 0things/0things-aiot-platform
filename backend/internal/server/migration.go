@@ -123,6 +123,28 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 	if !m.deviceDB.Migrator().HasTable(&model.DeviceEvent{}) {
 		return fmt.Errorf("device_events migration did not create the table")
 	}
+	if err := m.deviceDB.Exec("UPDATE device_events SET event_identifier = event_type WHERE event_identifier IS NULL OR event_identifier = ''").Error; err != nil {
+		return fmt.Errorf("backfill device event identifiers: %w", err)
+	}
+	// Preserve UUIDs from the legacy column before removing it; each missing UUID
+	// is generated separately so the unique index remains valid for every row.
+	if m.deviceDB.Migrator().HasColumn("device_events", "event_uuid") {
+		if err := m.deviceDB.Exec("UPDATE device_events SET uuid = event_uuid WHERE uuid IS NULL OR uuid = ''").Error; err != nil {
+			return fmt.Errorf("migrate device event uuids: %w", err)
+		}
+		if err := m.deviceDB.Migrator().DropColumn(&model.DeviceEvent{}, "event_uuid"); err != nil {
+			return fmt.Errorf("drop legacy device event uuid column: %w", err)
+		}
+	}
+	var eventsWithoutUUID []model.DeviceEvent
+	if err := m.deviceDB.Select("id").Where("uuid IS NULL OR uuid = ''").Find(&eventsWithoutUUID).Error; err != nil {
+		return fmt.Errorf("find device events without uuid: %w", err)
+	}
+	for _, event := range eventsWithoutUUID {
+		if err := m.deviceDB.Model(&model.DeviceEvent{}).Where("id = ?", event.ID).Update("uuid", uuid.NewString()).Error; err != nil {
+			return fmt.Errorf("backfill device event uuid for %d: %w", event.ID, err)
+		}
+	}
 	// Backfill the uuid column for any existing OTA packages that lack one.
 	if err := m.backfillPackageUUIDs(); err != nil {
 		return fmt.Errorf("backfill package uuid: %w", err)

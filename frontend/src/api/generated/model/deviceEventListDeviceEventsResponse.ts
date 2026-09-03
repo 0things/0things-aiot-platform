@@ -8,8 +8,12 @@
 import type { DeviceEvent } from './deviceEvent'
 
 export interface DeviceEventListDeviceEventsResponse {
+  /** List of device events */
   events?: DeviceEvent[]
+  /** Current page number */
   page?: number
+  /** Current page size */
   pageSize?: number
+  /** Total count of matching events */
   total?: number
 }

@@ -1,10 +1,13 @@
+import { Route } from '@/routes/_authenticated/device-management/devices/$deviceKey'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { DeviceEvents } from '@/features/operations-monitoring/events'
 import { TelemetryTab } from './telemetry-tab'
 
 export function ThingModelDataTab() {
   const { t } = useTranslation('deviceManagement')
+  const { deviceKey } = Route.useParams()
 
   return (
     <Tabs defaultValue='properties' className='gap-4'>
@@ -24,12 +27,7 @@ export function ThingModelDataTab() {
         <TelemetryTab />
       </TabsContent>
       <TabsContent value='eventManagement' className='mt-0'>
-        <ThingModelSubPage
-          title={t('deviceDetail.thingModelDataTab.eventManagement')}
-          description={t(
-            'deviceDetail.thingModelDataTab.eventManagementComingSoon'
-          )}
-        />
+        <DeviceEvents deviceKey={deviceKey} />
       </TabsContent>
       <TabsContent value='serviceInvocation' className='mt-0'>
         <ThingModelSubPage
