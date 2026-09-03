@@ -1,54 +1,29 @@
-# 仓库协作指南
-
-## 项目结构与模块组织
-
-本仓库当前维护前端和后端两个部分：
-
-- `frontend/`：Vite + React 19 + TypeScript 管理后台。路由位于 `src/routes/`，业务模块位于 `src/features/`，通用 UI 位于 `src/components/`，API 客户端位于 `src/api/`，中英文资源位于 `public/locales/{zh,en}/`。
-- `backend/`：Go + Gin REST API。启动入口在 `cmd/server/`，业务代码在 `internal/`，公共包在 `pkg/`；单元测试分布在 `internal/**/*_test.go`，服务级测试位于 `test/server/`，Swagger 产物在 `docs/`。
-
-前端 `src/api/generated/` 和后端 Swagger 文档不可手工修改；契约变化后使用对应生成命令更新，并检查生成差异。
-
-## 构建、测试与开发命令
-
-请在对应包目录下执行命令。首次运行后端前，先准备本地配置和依赖服务：
+## 1. 项目结构与核心命令
 
 ```bash
-cd frontend && pnpm dev          # 启动本地 Vite 开发服务器
-cd frontend && pnpm build        # TypeScript 类型检查并产出生产构建
-cd frontend && pnpm lint         # 运行 ESLint
-cd frontend && pnpm format:check # Prettier 格式校验
-cd frontend && pnpm generate:api # 根据 orval.config.ts 重新生成 API 客户端
-cd backend && make test          # 运行 Go 服务端测试并生成覆盖率报告
-cd backend && make build         # 构建 bin/server
-cd backend && make gen           # 生成 GORM DAL 代码
-cd backend && make swag          # 根据 handler 注释生成 Swagger 文档
+# 核心验证（无需切目录，根目录直接执行）
+make test && make build                             # 验证所有微服务与共享包
+pnpm -C frontend format && pnpm -C frontend build   # 前端代码格式化、类型检查与生产构建
+
+# 契约与代码生成
+make -C backend swag && pnpm -C frontend generate:api # 同步 Swagger 文档与前端 API 客户端
+make -C backend gen                                   # 生成 GORM DAL 代码
 ```
 
-后端完整测试由 `make test` 调用 `go test ./test/server/...`，修改业务代码时还应先运行受影响包的 `go test ./internal/...`。前端没有专用 `test` script，关键流程需要浏览器验收；`pnpm build` 会执行 `tsc -b` 和 Vite 生产构建。
+## 2. 核心架构与分层铁律
 
-本地启动通常为：
+### 依赖方向与生成代码禁令
+- **单向向内依赖**：`Router/Handler` $\rightarrow$ `Service` $\rightarrow$ `Repository` (持数据库连接)。禁止跨层逆向依赖（如 Repository 依赖 API 契约）。
+- **禁止手工修改生成产物**：
+  - 前端 `src/api/generated/`
+  - 后端 `wire_gen.go`、`internal/dal/query/*.gen.go`、`docs/` (Swagger)
+  - 契约或依赖变动时，必须通过对应命令重新生成并验证差异。
 
-```bash
-cd backend && go run ./cmd/server -conf ./config/local.yml
-cd frontend && pnpm dev
-```
+## 3. 代码风格与多语言规范
+- **多语言（i18n）**：UI 新增或调整文案必须同步维护 `public/locales/zh/*.json` 与 `public/locales/en/*.json`，跨 namespace 引用遵循 `namespace:key`。
+- **必要英文注释**：涉及复杂业务逻辑、状态流转、异常分支或关键架构约束处补充简明英文注释，自解释代码不加冗余注释。
 
-后端也提供 `make bootstrap`（启动 Docker Compose 依赖、执行迁移并启动服务），使用前确认本地配置可用。
-
-## 代码风格与命名约定
-
-沿用既有格式：TypeScript 使用 2 空格缩进、单引号、不加分号；Go 使用 `gofmt`。React 组件使用 `PascalCase`，Hook 文件沿用现有 `use-*.ts` 命名，特性目录使用 kebab-case，Go 文件使用小写下划线。UI 文案需要同时维护中英文资源，跨 namespace 使用 `namespace:key`（例如 `common:createdAt`），不要硬编码特定语言。优先复用现有 shadcn 组件和 Lucide 图标，再考虑新增依赖。
-
-涉及业务逻辑、状态流转、外部依赖、异常处理或非直观行为的修改，必须补充必要的英文注释；简单自解释代码不添加冗余注释。注释应说明业务意图或关键约束，不要逐行翻译代码。
-
-## 测试指南
-
-提交前先运行最小范围的检查，再跑整个包的构建。Go 测试以 `*_test.go` 文件名放在被测包旁边；服务级测试沿用 `test/server` 的现有约定。前端目前没有专用测试脚本，已有集成测试文件仍需按项目配置执行，并在本地浏览器验证可见流程。前端至少执行受影响文件的 Prettier 检查，条件允许时执行 `pnpm build`、`pnpm lint` 和 `pnpm format:check`；后端条件允许时执行 `make test` 和 `make build`。
-
-
-Tradeoff: These guidelines bias toward caution over speed. For trivial tasks, use judgment.
-
+## 4. Agent 行为准则
 1. Think Before Coding
 Don't assume. Don't hide confusion. Surface tradeoffs.
 
