@@ -475,7 +475,12 @@
       "comingSoon": "Topic 列表功能即将推出"
     },
     "thingModelDataTab": {
-      "comingSoon": "物模型数据功能即将推出"
+      "comingSoon": "物模型数据功能即将推出",
+      "properties": "属性",
+      "eventManagement": "事件管理",
+      "serviceInvocation": "服务调用",
+      "eventManagementComingSoon": "设备事件数据功能即将推出",
+      "serviceInvocationComingSoon": "设备服务调用功能即将推出"
     },
     "deviceShadowTab": {
       "comingSoon": "设备影子功能即将推出"

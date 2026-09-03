@@ -475,7 +475,12 @@
       "comingSoon": "Topic list coming soon"
     },
     "thingModelDataTab": {
-      "comingSoon": "Thing model data coming soon"
+      "comingSoon": "Thing model data coming soon",
+      "properties": "Properties",
+      "eventManagement": "Event Management",
+      "serviceInvocation": "Service Invocation",
+      "eventManagementComingSoon": "Device event data coming soon",
+      "serviceInvocationComingSoon": "Device service invocation coming soon"
     },
     "deviceShadowTab": {
       "comingSoon": "Device shadow coming soon"
