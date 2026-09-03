@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -110,9 +111,18 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
               <div className='space-y-1'>
                 <p className='text-sm text-muted-foreground'>ProductKey</p>
                 <div className='flex items-center gap-2'>
-                  <p className='font-mono text-sm'>
-                    {device.productKey || '-'}
-                  </p>
+                  {device.productKey ? (
+                    <Link
+                      to='/device-management/products/$productKey'
+                      params={{ productKey: device.productKey }}
+                      aria-label={t('deviceDetail.info.viewProduct')}
+                      className='font-mono text-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                    >
+                      {device.productKey}
+                    </Link>
+                  ) : (
+                    <p className='font-mono text-sm'>-</p>
+                  )}
                   {device.productKey && (
                     <Button
                       variant='ghost'

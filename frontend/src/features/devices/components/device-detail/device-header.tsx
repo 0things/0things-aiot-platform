@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Copy, Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -93,7 +93,18 @@ export function DeviceHeader({ device, onBack }: DeviceHeaderProps) {
           <span className='text-muted-foreground'>
             {t('deviceDetail.header.productKey')}:
           </span>
-          <span className='font-mono'>{device.productKey || '-'}</span>
+          {device.productKey ? (
+            <Link
+              to='/device-management/products/$productKey'
+              params={{ productKey: device.productKey }}
+              aria-label={t('deviceDetail.header.viewProduct')}
+              className='font-mono text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+            >
+              {device.productKey}
+            </Link>
+          ) : (
+            <span className='font-mono'>-</span>
+          )}
           <Button
             variant='ghost'
             size='icon'

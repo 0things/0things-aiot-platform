@@ -454,6 +454,7 @@
       "deviceSecret": "DeviceSecret",
       "productKey": "ProductKey",
       "view": "View",
+      "viewProduct": "View product details",
       "copy": "Copy",
       "copySuccess": "Copied to clipboard"
     },
@@ -563,6 +564,7 @@
     "info": {
       "title": "Device Information",
       "edit": "Edit",
+      "viewProduct": "View product details",
       "test": "Test",
       "copySuccess": "Copied",
       "testingLatency": "Testing latency...",

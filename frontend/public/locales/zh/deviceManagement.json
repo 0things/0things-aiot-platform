@@ -454,6 +454,7 @@
       "deviceSecret": "DeviceSecret",
       "productKey": "ProductKey",
       "view": "查看",
+      "viewProduct": "查看产品详情",
       "copy": "复制",
       "copySuccess": "已复制到剪贴板"
     },
@@ -563,6 +564,7 @@
     "info": {
       "title": "设备信息",
       "edit": "编辑",
+      "viewProduct": "查看产品详情",
       "test": "测试",
       "copySuccess": "已复制",
       "testingLatency": "正在测试延迟...",
