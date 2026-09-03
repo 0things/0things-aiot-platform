@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Route } from '@/routes/_authenticated/device-management/devices/$deviceKey'
-import { useTranslation } from 'react-i18next'
 import {
   CheckCircle2,
   Code2,
@@ -12,6 +11,7 @@ import {
   Trash2,
   XCircle,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { usePutDevicesDeviceKeyShadowDesired } from '@/api/generated'
 import { Button } from '@/components/ui/button'
@@ -77,7 +77,11 @@ export function OnlineDebugTab() {
     try {
       JSON.parse(telemetryPayload)
     } catch (e) {
-      toast.error(t('deviceDetail.onlineDebugTab.invalidJson', { error: (e as Error).message }))
+      toast.error(
+        t('deviceDetail.onlineDebugTab.invalidJson', {
+          error: (e as Error).message,
+        })
+      )
       return
     }
 
@@ -120,7 +124,11 @@ export function OnlineDebugTab() {
               durationMs: duration,
             },
           ])
-          toast.error(t('deviceDetail.onlineDebugTab.telemetryFailure', { error: (err as Error).message }))
+          toast.error(
+            t('deviceDetail.onlineDebugTab.telemetryFailure', {
+              error: (err as Error).message,
+            })
+          )
         },
       }
     )
@@ -132,7 +140,11 @@ export function OnlineDebugTab() {
     try {
       parsed = JSON.parse(commandPayload)
     } catch (e) {
-      toast.error(t('deviceDetail.onlineDebugTab.invalidCommandJson', { error: (e as Error).message }))
+      toast.error(
+        t('deviceDetail.onlineDebugTab.invalidCommandJson', {
+          error: (e as Error).message,
+        })
+      )
       return
     }
 
@@ -177,7 +189,11 @@ export function OnlineDebugTab() {
               durationMs: duration,
             },
           ])
-          toast.error(t('deviceDetail.onlineDebugTab.commandFailure', { error: (err as Error).message }))
+          toast.error(
+            t('deviceDetail.onlineDebugTab.commandFailure', {
+              error: (err as Error).message,
+            })
+          )
         },
       }
     )
@@ -307,7 +323,9 @@ export function OnlineDebugTab() {
                 {t('deviceDetail.onlineDebugTab.logTitle')}
               </CardTitle>
               <CardDescription className='text-xs'>
-                {t('deviceDetail.onlineDebugTab.logDescription', { count: logs.length })}
+                {t('deviceDetail.onlineDebugTab.logDescription', {
+                  count: logs.length,
+                })}
               </CardDescription>
             </div>
             {logs.length > 0 && (

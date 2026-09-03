@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { format } from 'date-fns'
 import { Route } from '@/routes/_authenticated/device-management/devices/$deviceKey'
-import { useTranslation } from 'react-i18next'
 import { Activity, Database, Loader2, Radio, RotateCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {

@@ -116,7 +116,7 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
                       to='/device-management/products/$productKey'
                       params={{ productKey: device.productKey }}
                       aria-label={t('deviceDetail.info.viewProduct')}
-                      className='font-mono text-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                      className='font-mono text-sm text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none'
                     >
                       {device.productKey}
                     </Link>

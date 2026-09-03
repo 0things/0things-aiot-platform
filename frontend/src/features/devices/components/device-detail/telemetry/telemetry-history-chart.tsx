@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { format } from 'date-fns'
-import { useTranslation } from 'react-i18next'
 import {
   Activity,
   ArrowDown,
@@ -11,6 +10,7 @@ import {
   RotateCw,
   TrendingUp,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   Area,
   AreaChart,
@@ -158,7 +158,9 @@ export function TelemetryHistoryChart({
             <div className='flex items-center gap-2'>
               <TrendingUp className='size-5 text-primary' />
               <CardTitle className='text-lg font-semibold'>
-              {t('deviceDetail.telemetryTab.historyTitle', { property: propName })}
+                {t('deviceDetail.telemetryTab.historyTitle', {
+                  property: propName,
+                })}
               </CardTitle>
             </div>
             <CardDescription className='mt-1'>
