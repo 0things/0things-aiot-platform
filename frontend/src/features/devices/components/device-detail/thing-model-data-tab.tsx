@@ -30,32 +30,21 @@ export function ThingModelDataTab() {
         <DeviceEvents deviceKey={deviceKey} />
       </TabsContent>
       <TabsContent value='serviceInvocation' className='mt-0'>
-        <ThingModelSubPage
-          title={t('deviceDetail.thingModelDataTab.serviceInvocation')}
-          description={t(
-            'deviceDetail.thingModelDataTab.serviceInvocationComingSoon'
-          )}
-        />
+        <Card>
+          <CardContent className='flex min-h-[400px] items-center justify-center'>
+            <div className='text-center'>
+              <p className='text-lg text-muted-foreground'>
+                {t('deviceDetail.thingModelDataTab.serviceInvocation')}
+              </p>
+              <p className='mt-2 text-sm text-muted-foreground'>
+                {t(
+                  'deviceDetail.thingModelDataTab.serviceInvocationComingSoon'
+                )}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </TabsContent>
     </Tabs>
-  )
-}
-
-function ThingModelSubPage({
-  title,
-  description,
-}: {
-  title: string
-  description: string
-}) {
-  return (
-    <Card>
-      <CardContent className='flex min-h-[400px] items-center justify-center'>
-        <div className='text-center'>
-          <p className='text-lg text-muted-foreground'>{title}</p>
-          <p className='mt-2 text-sm text-muted-foreground'>{description}</p>
-        </div>
-      </CardContent>
-    </Card>
   )
 }

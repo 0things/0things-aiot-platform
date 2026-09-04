@@ -41,12 +41,12 @@ export function DeviceHeader({ device, onBack }: DeviceHeaderProps) {
           variant='ghost'
           size='icon'
           onClick={onBack}
-          aria-label='Back to device list'
+          aria-label={t('deviceDetail.header.backToList')}
         >
           <ArrowLeft className='h-4 w-4' />
         </Button>
         <h1 className='text-2xl font-bold'>
-          {device.name || 'Unnamed Device'}
+          {device.name || t('deviceDetail.header.unnamedDevice')}
         </h1>
       </div>
 

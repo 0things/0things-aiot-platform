@@ -6,8 +6,7 @@ import (
 	"testing"
 	"time"
 
-	apiV1 "aiot-backend/api/v1"
-	eventV1 "aiot-backend/api/v1"
+	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
@@ -383,7 +382,7 @@ func TestIntegrationDeviceEventService_List_WithKeyword(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, Keyword: "test"})
+	events, total, err := svc.List(ctx2(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, Keyword: "test"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -394,7 +393,7 @@ func TestIntegrationDeviceEventService_List_WithDeviceKey(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001"})
+	events, total, err := svc.List(ctx2(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -405,7 +404,7 @@ func TestIntegrationDeviceEventService_List_WithEventType(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, EventType: "temperature"})
+	events, total, err := svc.List(ctx2(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, EventType: "temperature"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -419,7 +418,7 @@ func TestIntegrationDeviceEventService_Record_Valid(t *testing.T) {
 	err := svc.Record(ctx2(), "P001", "D001", "temperature", 0, map[string]any{"temp": 25})
 	require.NoError(t, err)
 
-	events, total, err := svc.List(ctx2(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001", EventType: "temperature"})
+	events, total, err := svc.List(ctx2(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001", EventType: "temperature"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, events, 1)
@@ -1020,7 +1019,7 @@ func TestIntegrationDeviceService_MutateShadow_UpdateExisting(t *testing.T) {
 func TestIntegrationProductService_Delete_Success(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
 	// Create a second product with no devices
@@ -1066,7 +1065,7 @@ func TestIntegrationDeviceService_CreateDevice_EmptyMetadata(t *testing.T) {
 
 func TestIntegrationProductService_Create_InvalidLegacyMetadata(t *testing.T) {
 	db := testutil.SetupTestDB(t)
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
 	product := &model.Product{Name: "Bad Legacy", ProductKey: "P999", Metadata: `"{\"bad\")"`, OrganizationID: 1}
@@ -1076,7 +1075,7 @@ func TestIntegrationProductService_Create_InvalidLegacyMetadata(t *testing.T) {
 
 func TestIntegrationProductService_Create_InvalidRawMetadata(t *testing.T) {
 	db := testutil.SetupTestDB(t)
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
 	product := &model.Product{Name: "Bad Raw", ProductKey: "P999", Metadata: `{bad}`, OrganizationID: 1}
@@ -1086,7 +1085,7 @@ func TestIntegrationProductService_Create_InvalidRawMetadata(t *testing.T) {
 
 func TestIntegrationProductService_Create_EmptyMetadata(t *testing.T) {
 	db := testutil.SetupTestDB(t)
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
 	product := &model.Product{Name: "No Meta", ProductKey: "P999", Metadata: "", OrganizationID: 1}
@@ -1098,7 +1097,7 @@ func TestIntegrationProductService_Create_EmptyMetadata(t *testing.T) {
 func TestIntegrationProductService_Save_InvalidLegacyMetadata(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
 	product := &model.Product{ID: 1, Name: "Updated", ProductKey: "P001", Metadata: `"{\"bad\")"`, OrganizationID: 1}
@@ -1109,7 +1108,7 @@ func TestIntegrationProductService_Save_InvalidLegacyMetadata(t *testing.T) {
 func TestIntegrationProductService_GetByKey(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
 	product, err := svc.GetByKey(ctx2(), "P001")
@@ -1120,7 +1119,7 @@ func TestIntegrationProductService_GetByKey(t *testing.T) {
 func TestIntegrationProductService_List(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
 	products, total, err := svc.List(ctx2(), 1, 10, "", "", "")
@@ -1132,9 +1131,9 @@ func TestIntegrationProductService_List(t *testing.T) {
 func TestIntegrationOTAService_Create(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
-	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
+	otaRepo := repository.NewOTARepository(db)
+	productRepo := repository.NewProductRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", OrganizationID: 1}
@@ -1145,9 +1144,9 @@ func TestIntegrationOTAService_Create(t *testing.T) {
 func TestIntegrationOTAService_Create_ProductNotFound(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
-	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
+	otaRepo := repository.NewOTARepository(db)
+	productRepo := repository.NewProductRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0", OrganizationID: 1}
@@ -1158,9 +1157,9 @@ func TestIntegrationOTAService_Create_ProductNotFound(t *testing.T) {
 func TestIntegrationOTAService_Batches(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
-	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
+	otaRepo := repository.NewOTARepository(db)
+	productRepo := repository.NewProductRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	// Create a package first
@@ -1176,9 +1175,9 @@ func TestIntegrationOTAService_Batches(t *testing.T) {
 func TestIntegrationOTAService_Deployments(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
-	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
-	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
+	otaRepo := repository.NewOTARepository(db)
+	productRepo := repository.NewProductRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	// Create a package first

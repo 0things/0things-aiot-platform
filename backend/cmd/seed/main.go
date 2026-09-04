@@ -3,11 +3,14 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"aiot-backend/pkg/config"
 
 	_ "github.com/glebarez/sqlite"
 	"github.com/google/uuid"
@@ -17,36 +20,67 @@ import (
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	userDB, err := sql.Open("sqlite", "storage/aiot-test.db?_busy_timeout=5000")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer userDB.Close()
+	var envConf = flag.String("conf", "config/local.yml", "config path, eg: -conf ./config/local.yml")
+	flag.Parse()
 
-	deviceDB, err := sql.Open("sqlite", "storage/aiot-device.db?_busy_timeout=5000")
+	conf := config.NewConfig(*envConf)
+	driver := conf.GetString("data.db.aiot.driver")
+	dsn := conf.GetString("data.db.aiot.dsn")
+	if driver == "" {
+		driver = "sqlite"
+	}
+	if dsn == "" {
+		dsn = "storage/aiot-device.db?_busy_timeout=5000"
+	}
+
+	db, err := sql.Open(driver, dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer deviceDB.Close()
+	defer db.Close()
+
+	userDB := db
+	deviceDB := db
 
 	// Clear existing data
 	fmt.Println("Clearing existing data...")
 	userDB.Exec("DELETE FROM organization_users")
 	userDB.Exec("DELETE FROM organizations")
 	userDB.Exec("DELETE FROM users")
+	deviceDB.Exec("DELETE FROM scene_linkage_detail")
+	deviceDB.Exec("DELETE FROM scene_linkage")
+	deviceDB.Exec("DELETE FROM device_group_members")
+	deviceDB.Exec("DELETE FROM device_groups")
+	deviceDB.Exec("DELETE FROM device_push_records")
+	deviceDB.Exec("DELETE FROM device_endpoints")
 	deviceDB.Exec("DELETE FROM device_events")
 	deviceDB.Exec("DELETE FROM device_tags")
 	deviceDB.Exec("DELETE FROM device_shadow_histories")
 	deviceDB.Exec("DELETE FROM device_shadows")
 	deviceDB.Exec("DELETE FROM device_states")
 	deviceDB.Exec("DELETE FROM devices")
-	deviceDB.Exec("DELETE FROM products")
+	deviceDB.Exec("DELETE FROM product_message_parsers")
+	deviceDB.Exec("DELETE FROM product_protocols")
 	deviceDB.Exec("DELETE FROM product_ts_ls")
+	deviceDB.Exec("DELETE FROM products")
+	deviceDB.Exec("DELETE FROM categories")
 	deviceDB.Exec("DELETE FROM ota_device_upgrade_status")
 	deviceDB.Exec("DELETE FROM ota_upgrade_batches")
 	deviceDB.Exec("DELETE FROM ota_packages")
 	userDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('users','organizations','organization_users')")
-	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','product_ts_ls','ota_packages','ota_upgrade_batches','ota_device_upgrade_status')")
+	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','categories','product_protocols','product_message_parsers','product_ts_ls','device_endpoints','device_push_records','device_groups','device_group_members','scene_linkage','scene_linkage_detail','ota_packages','ota_upgrade_batches','ota_device_upgrade_status')")
+
+	// --- categories ---
+	fmt.Println("Seeding categories...")
+	defaultCategories := []string{"传感器", "执行器", "网关", "控制器", "显示设备", "摄像头", "其他"}
+	for i, name := range defaultCategories {
+		_, err := deviceDB.Exec(`INSERT OR REPLACE INTO categories (id, name, sort, enabled) VALUES (?, ?, ?, ?)`,
+			i+1, name, i, true,
+		)
+		if err != nil {
+			log.Printf("category insert error: %v", err)
+		}
+	}
 
 	// --- organizations (3) ---
 	fmt.Println("Seeding organizations...")
@@ -115,7 +149,6 @@ func main() {
 
 	// --- products (50) ---
 	fmt.Println("Seeding products...")
-	categories := []string{"传感器", "网关", "摄像头", "温控器", "电表", "水表", "气体检测", "门锁", "开关", "插座"}
 	statuses := []string{"active", "inactive", "draft"}
 	nodeTypes := []string{"device", "gateway", "sub_device"}
 	connMethods := []string{"wifi", "ble", "zigbee", "lora", "4g", "ethernet"}
@@ -124,16 +157,17 @@ func main() {
 	productOrgMap := make(map[int]int64)
 	for i := 1; i <= 50; i++ {
 		orgID := int64(rand.Intn(3) + 1)
+		categoryID := int64(rand.Intn(len(defaultCategories)) + 1)
 		productOrgMap[i] = orgID
 		metadata, _ := json.Marshal(map[string]interface{}{
 			"manufacturer": fmt.Sprintf("厂商%d", rand.Intn(10)+1),
 			"model":        fmt.Sprintf("MODEL-%c%c%c", 'A'+rand.Intn(26), 'A'+rand.Intn(26), 'A'+rand.Intn(26)),
 		})
-		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO products (product_key, name, description, category, status, metadata, node_type, connectivity_method, access_protocol, organization_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO products (product_key, name, description, category_id, status, metadata, node_type, connectivity_method, access_protocol, organization_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			fmt.Sprintf("pk_product_%03d", i),
 			fmt.Sprintf("产品%d", i),
 			fmt.Sprintf("这是产品%d的描述信息", i),
-			categories[rand.Intn(len(categories))],
+			categoryID,
 			statuses[rand.Intn(len(statuses))],
 			string(metadata),
 			nodeTypes[rand.Intn(len(nodeTypes))],
@@ -282,6 +316,50 @@ func main() {
 		}
 	}
 
+	// --- product_protocols (50) ---
+	fmt.Println("Seeding product_protocols...")
+	for i := 1; i <= 50; i++ {
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO product_protocols (id, product_id, transport_protocol, application_protocol, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+			i,
+			int64(i),
+			protocols[rand.Intn(len(protocols))],
+			"json",
+			time.Now().Add(-time.Duration(rand.Intn(365))*24*time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("product_protocol insert error: %v", err)
+		}
+	}
+
+	// --- product_message_parsers (10) ---
+	fmt.Println("Seeding product_message_parsers...")
+	sampleScript := `function parse(payload, topic) {
+  var data = JSON.parse(payload);
+  return {
+    temperature: data.temp || 0,
+    humidity: data.hum || 0
+  };
+}`
+	for i := 1; i <= 10; i++ {
+		orgID := productOrgMap[i]
+		if orgID == 0 {
+			orgID = 1
+		}
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO product_message_parsers (id, organization_id, product_id, language, script, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+			i,
+			orgID,
+			int64(i),
+			"javascript",
+			sampleScript,
+			time.Now().Add(-time.Duration(rand.Intn(100))*24*time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("product_message_parser insert error: %v", err)
+		}
+	}
+
 	// --- product_ts_ls (50) ---
 	fmt.Println("Seeding product_ts_ls...")
 	for i := 1; i <= 50; i++ {
@@ -296,6 +374,11 @@ func main() {
 					"name":       "温度",
 					"type":       "float",
 				},
+				map[string]interface{}{
+					"identifier": "humidity",
+					"name":       "湿度",
+					"type":       "float",
+				},
 			},
 		})
 		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO product_ts_ls (product_key, tsl, created_at, updated_at) VALUES (?, ?, ?, ?)`,
@@ -306,6 +389,158 @@ func main() {
 		)
 		if err != nil {
 			log.Printf("product_tsl insert error: %v", err)
+		}
+	}
+
+	// --- device_endpoints (50) ---
+	fmt.Println("Seeding device_endpoints...")
+	for i := 1; i <= 50; i++ {
+		prodID := int64((i-1)%10 + 1)
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO device_endpoints (id, device_id, product_protocol_id, endpoint, credentials, protocol_config, enabled, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			i,
+			int64(i),
+			prodID,
+			fmt.Sprintf("mqtt://broker.0things.com:1883/devices/dk_device_%03d", i),
+			fmt.Sprintf(`{"token":"tok_%03d"}`, i),
+			`{"qos":1}`,
+			true,
+			"active",
+			time.Now().Add(-time.Duration(rand.Intn(100))*24*time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("device_endpoint insert error: %v", err)
+		}
+	}
+
+	// --- device_push_records (50) ---
+	fmt.Println("Seeding device_push_records...")
+	opTypes := []string{"command", "property_set", "config_update", "reboot"}
+	for i := 1; i <= 50; i++ {
+		dID := int64(rand.Intn(50) + 1)
+		op := opTypes[rand.Intn(len(opTypes))]
+		status := []string{"success", "failed", "pending"}[rand.Intn(3)]
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO device_push_records (id, device_id, operation_type, operation_name, payload, status, error_message, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			i,
+			dID,
+			op,
+			fmt.Sprintf("下发指令-%s", op),
+			fmt.Sprintf(`{"action":"%s","val":%d}`, op, rand.Intn(100)),
+			status,
+			"",
+			"system",
+			time.Now().Add(-time.Duration(rand.Intn(30))*24*time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("device_push_record insert error: %v", err)
+		}
+	}
+
+	// --- device_groups & members ---
+	fmt.Println("Seeding device_groups & members...")
+	groups := []struct {
+		name      string
+		groupType string
+		desc      string
+		rule      string
+		orgID     int64
+	}{
+		{name: "1号车间温湿度传感器组", groupType: "manual", desc: "生产车间关键温湿度监测", orgID: 1},
+		{name: "智能电表集中控制组", groupType: "manual", desc: "厂区各配电箱智能电表", orgID: 1},
+		{name: "在线设备动态分组", groupType: "dynamic", desc: "自动匹配在线状态设备", rule: `{"state":"online"}`, orgID: 1},
+		{name: "研发测试设备组", groupType: "manual", desc: "研发实验室设备", orgID: 2},
+		{name: "测试环境仿真组", groupType: "manual", desc: "QA自动化测试仿真设备", orgID: 3},
+	}
+	for gIdx, g := range groups {
+		gID := int64(gIdx + 1)
+		gUUID := uuid.NewString()
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO device_groups (id, group_uuid, organization_id, name, type, description, rule, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			gID,
+			gUUID,
+			g.orgID,
+			g.name,
+			g.groupType,
+			g.desc,
+			g.rule,
+			time.Now().Add(-20*24*time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("device_group insert error: %v", err)
+		}
+		if g.groupType == "manual" {
+			for m := 1; m <= 4; m++ {
+				devID := int64((gIdx*4+m)%50 + 1)
+				_, _ = deviceDB.Exec(`INSERT OR IGNORE INTO device_group_members (group_id, device_id, created_at, updated_at) VALUES (?, ?, ?, ?)`,
+					gID,
+					devID,
+					time.Now().Add(-15*24*time.Hour),
+					time.Now(),
+				)
+			}
+		}
+	}
+
+	// --- scene_linkage & detail ---
+	fmt.Println("Seeding scene_linkage & details...")
+	scenes := []struct {
+		name    string
+		desc    string
+		orgID   int64
+		enable  int
+		trigger string
+		action  string
+	}{
+		{
+			name:    "高温自动联动排风",
+			desc:    "当车间温度超过35℃时，自动开启排风机并发送预警通知",
+			orgID:   1,
+			enable:  1,
+			trigger: `{"type":"property","property":"temperature","operator":">=","value":35}`,
+			action:  `{"type":"device_command","command":"open_fan","notify":"webhook"}`,
+		},
+		{
+			name:    "夜间安防布防告警",
+			desc:    "夜间时段红外或门锁异常开启时，立即联动声光报警",
+			orgID:   1,
+			enable:  1,
+			trigger: `{"type":"event","event":"door_opened","time_range":"22:00-06:00"}`,
+			action:  `{"type":"alarm","level":"critical","push":true}`,
+		},
+		{
+			name:    "电量超载保护联动",
+			desc:    "检测到瞬时功率大于设定阈值时执行分闸保护",
+			orgID:   2,
+			enable:  0,
+			trigger: `{"type":"property","property":"power","operator":">","value":5000}`,
+			action:  `{"type":"device_command","command":"power_off"}`,
+		},
+	}
+	for sIdx, sc := range scenes {
+		sID := int64(sIdx + 1)
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO scene_linkage (id, organization_id, name, description, enable, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+			sID,
+			sc.orgID,
+			sc.name,
+			sc.desc,
+			sc.enable,
+			time.Now().Add(-10*24*time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("scene_linkage insert error: %v", err)
+		}
+		_, err = deviceDB.Exec(`INSERT OR IGNORE INTO scene_linkage_detail (id, scene_id, trigger_config, action_config, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+			sID,
+			sID,
+			sc.trigger,
+			sc.action,
+			time.Now().Add(-10*24*time.Hour),
+			time.Now(),
+		)
+		if err != nil {
+			log.Printf("scene_linkage_detail insert error: %v", err)
 		}
 	}
 

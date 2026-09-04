@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 
-	messageParserV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -28,7 +27,7 @@ func NewProductMessageParserHandler(h *Handler, svc service.ProductMessageParser
 // @Produce json
 // @Security Bearer
 // @Param productKey path string true "Product key"
-// @Success 200 {object} v1.ApiResponse[messageParserV1.ProductMessageParser] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.ProductMessageParser] "Successful response"
 // @Router /products/key/{productKey}/message-parser [get]
 func (h *ProductMessageParserHandler) Get(c *gin.Context) {
 	parser, isDefault, err := h.svc.Get(c, c.Param("productKey"))
@@ -47,11 +46,11 @@ func (h *ProductMessageParserHandler) Get(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param productKey path string true "Product key"
-// @Param request body messageParserV1.UpsertProductMessageParserRequest true "params"
-// @Success 200 {object} v1.ApiResponse[messageParserV1.ProductMessageParser] "Successful response"
+// @Param request body v1.UpsertProductMessageParserRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.ProductMessageParser] "Successful response"
 // @Router /products/key/{productKey}/message-parser [put]
 func (h *ProductMessageParserHandler) Put(c *gin.Context) {
-	var req messageParserV1.UpsertProductMessageParserRequest
+	var req v1.UpsertProductMessageParserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
@@ -72,11 +71,11 @@ func (h *ProductMessageParserHandler) Put(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param productKey path string true "Product key"
-// @Param request body messageParserV1.ExecuteProductMessageParserRequest true "params"
-// @Success 200 {object} v1.ApiResponse[messageParserV1.ExecuteProductMessageParserResponse] "Successful response"
+// @Param request body v1.ExecuteProductMessageParserRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.ExecuteProductMessageParserResponse] "Successful response"
 // @Router /products/key/{productKey}/message-parser/execute [post]
 func (h *ProductMessageParserHandler) Execute(c *gin.Context) {
-	var req messageParserV1.ExecuteProductMessageParserRequest
+	var req v1.ExecuteProductMessageParserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
@@ -89,8 +88,8 @@ func (h *ProductMessageParserHandler) Execute(c *gin.Context) {
 	v1.HandleSuccess(c, result)
 }
 
-func toProductMessageParserResponse(productKey string, parser *model.ProductMessageParser, isDefault bool) messageParserV1.ProductMessageParser {
-	return messageParserV1.ProductMessageParser{
+func toProductMessageParserResponse(productKey string, parser *model.ProductMessageParser, isDefault bool) v1.ProductMessageParser {
+	return v1.ProductMessageParser{
 		ProductKey: productKey,
 		Language:   parser.Language,
 		Script:     parser.Script,

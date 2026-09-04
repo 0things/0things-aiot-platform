@@ -450,6 +450,8 @@
       ,"subscribeTopic": "Subscribe topic"
     },
     "header": {
+      "backToList": "Back to device list",
+      "unnamedDevice": "Unnamed Device",
       "product": "Product",
       "deviceSecret": "DeviceSecret",
       "productKey": "ProductKey",

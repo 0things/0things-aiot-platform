@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 
-	eventV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/service"
@@ -20,8 +19,17 @@ func NewDeviceEventHandler(h *Handler, svc service.DeviceEventServiceInterface) 
 	return &DeviceEventHandler{Handler: h, svc: svc}
 }
 
-func deviceEventResponse(event dto.DeviceEventListItem) eventV1.DeviceEvent {
-	return eventV1.DeviceEvent{ID: event.ID, UUID: event.UUID, DeviceKey: event.DeviceKey, DeviceName: event.DeviceName, EventIdentifier: event.EventIdentifier, EventType: event.EventType, EventAt: event.EventAt, Data: string(event.Data)}
+func deviceEventResponse(event dto.DeviceEventListItem) v1.DeviceEvent {
+	return v1.DeviceEvent{
+		ID:              event.ID,
+		UUID:            event.UUID,
+		DeviceKey:       event.DeviceKey,
+		DeviceName:      event.DeviceName,
+		EventIdentifier: event.EventIdentifier,
+		EventType:       event.EventType,
+		EventAt:         event.EventAt,
+		Data:            string(event.Data),
+	}
 }
 
 // ListDeviceEvents godoc
@@ -30,11 +38,11 @@ func deviceEventResponse(event dto.DeviceEventListItem) eventV1.DeviceEvent {
 // @Tags Events
 // @Produce json
 // @Security Bearer
-// @Param request query eventV1.ListDeviceEventsRequest false "Query parameters"
-// @Success 200 {object} v1.ApiResponse[eventV1.ListDeviceEventsResponse] "Successful response"
+// @Param request query v1.ListDeviceEventsRequest false "Query parameters"
+// @Success 200 {object} v1.ApiResponse[v1.ListDeviceEventsResponse] "Successful response"
 // @Router /device-events [get]
 func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) {
-	var req eventV1.ListDeviceEventsRequest
+	var req v1.ListDeviceEventsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": err.Error()})
 		return
@@ -44,9 +52,9 @@ func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	out := make([]eventV1.DeviceEvent, 0, len(events))
+	out := make([]v1.DeviceEvent, 0, len(events))
 	for _, event := range events {
 		out = append(out, deviceEventResponse(event))
 	}
-	v1.HandleSuccess(c, eventV1.ListDeviceEventsResponse{Events: out, Total: total, Page: req.Page, PageSize: req.PageSize})
+	v1.HandleSuccess(c, v1.ListDeviceEventsResponse{Events: out, Total: total, Page: req.Page, PageSize: req.PageSize})
 }

@@ -7,6 +7,7 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
+
 	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
@@ -62,14 +63,11 @@ func SeedTestData(t *testing.T, db *gorm.DB) {
 }
 
 func NewTestRepositories(db *gorm.DB) (*repository.DeviceRepository, *repository.ProductRepository, *repository.DeviceTagRepository, *repository.DeviceShadowRepository, *repository.PushRecordRepository) {
-	iotDB := &repository.IoTDB{DB: db}
-	iotRedis := &repository.IoTRedis{Client: nil}
-
-	deviceRepo := repository.NewDeviceRepository(iotDB, iotRedis)
-	productRepo := repository.NewProductRepository(iotDB)
-	tagRepo := repository.NewDeviceTagRepository(iotDB)
-	shadowRepo := repository.NewDeviceShadowRepository(iotDB)
-	pushRepo := repository.NewPushRecordRepository(iotDB)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
+	productRepo := repository.NewProductRepository(db)
+	tagRepo := repository.NewDeviceTagRepository(db)
+	shadowRepo := repository.NewDeviceShadowRepository(db)
+	pushRepo := repository.NewPushRecordRepository(db)
 
 	return deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo
 }
@@ -80,31 +78,31 @@ func NewTestDeviceService(db *gorm.DB) *service.DeviceService {
 }
 
 func NewTestProductService(db *gorm.DB) *service.ProductService {
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	return service.NewProductService(productRepo)
 }
 
 func NewTestOTATotalService(db *gorm.DB) *service.OTAService {
-	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
-	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
+	otaRepo := repository.NewOTARepository(db)
+	productRepo := repository.NewProductRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 	return service.NewOTAService(otaRepo, productRepo, deviceRepo, testKafkaService{})
 }
 
 func NewTestSceneLinkageService(db *gorm.DB) *service.SceneLinkageService {
-	sceneRepo := repository.NewSceneLinkageRepository(&repository.IoTDB{DB: db})
+	sceneRepo := repository.NewSceneLinkageRepository(db)
 	return service.NewSceneLinkageService(sceneRepo)
 }
 
 func NewTestDeviceEventService(db *gorm.DB) *service.DeviceEventService {
-	eventRepo := repository.NewDeviceEventRepository(&repository.IoTDB{DB: db})
-	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
+	eventRepo := repository.NewDeviceEventRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 	return service.NewDeviceEventService(eventRepo, deviceRepo)
 }
 
 func NewTestProductTSLService(db *gorm.DB) *service.ProductTSLService {
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
-	tslRepo := repository.NewProductTSLRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
+	tslRepo := repository.NewProductTSLRepository(db)
 	return service.NewProductTSLService(productRepo, tslRepo)
 }
 

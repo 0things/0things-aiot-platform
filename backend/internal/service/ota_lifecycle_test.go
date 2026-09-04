@@ -6,6 +6,7 @@ import (
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
+
 	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
@@ -36,10 +37,9 @@ func newOTATestDB(t *testing.T) *gorm.DB {
 
 func newOTAServiceForTest(t *testing.T) (*OTAService, *gorm.DB) {
 	db := newOTATestDB(t)
-	iotDB := &repository.IoTDB{DB: db}
-	repo := repository.NewOTARepository(iotDB)
-	productRepo := repository.NewProductRepository(iotDB)
-	deviceRepo := repository.NewDeviceRepository(iotDB, &repository.IoTRedis{})
+	repo := repository.NewOTARepository(db)
+	productRepo := repository.NewProductRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 	return NewOTAService(repo, productRepo, deviceRepo, testKafkaService{}), db
 }
 

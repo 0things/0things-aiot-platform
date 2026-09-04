@@ -7,21 +7,23 @@ import (
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
+
 	"gorm.io/gen/field"
+	"gorm.io/gorm"
 )
 
-type DeviceEventRepository struct{ db *IoTDB }
+type DeviceEventRepository struct{ db *gorm.DB }
 
-func NewDeviceEventRepository(db *IoTDB) *DeviceEventRepository {
+func NewDeviceEventRepository(db *gorm.DB) *DeviceEventRepository {
 	return &DeviceEventRepository{db: db}
 }
 
 func (r *DeviceEventRepository) Create(ctx context.Context, event *model.DeviceEvent) error {
-	return useIoTQuery(r.db).DeviceEvent.WithContext(ctx).Create(event)
+	return useQuery(r.db).DeviceEvent.WithContext(ctx).Create(event)
 }
 
 func (r *DeviceEventRepository) List(ctx context.Context, query dto.ListDeviceEventsQuery) ([]dto.DeviceEventListItem, int64, error) {
-	q := useIoTQuery(r.db)
+	q := useQuery(r.db)
 	base := q.DeviceEvent.WithContext(ctx).Join(q.Device, q.Device.ID.EqCol(q.DeviceEvent.DeviceID)).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
 	if query.Keyword != "" {
 		term := "%" + strings.ToLower(query.Keyword) + "%"

@@ -1,14 +1,14 @@
 package handler
 
 import (
-	protocolV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
 // Keep this response type reference so swag can resolve the generic response annotation.
-var _ = protocolV1.DeviceEndpoints{}
+var _ = v1.DeviceEndpoints{}
 
 type ProtocolHandler struct {
 	*Handler
@@ -25,7 +25,7 @@ func NewProtocolHandler(h *Handler, svc service.ProtocolServiceInterface) *Proto
 // @Tags Device connections
 // @Produce json
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[protocolV1.DeviceEndpoints] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.DeviceEndpoints] "Successful response"
 // @Router /devices/{deviceKey}/endpoints [get]
 func (h *ProtocolHandler) ListDeviceEndpoints(c *gin.Context) {
 	items, err := h.svc.ListDeviceEndpoints(c, c.Param("deviceKey"))

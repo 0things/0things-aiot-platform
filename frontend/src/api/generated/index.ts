@@ -1655,7 +1655,7 @@ export const usePostDeviceGroupsGroupUuidPreview = <
 }
 
 /**
- * Handles requests to get device statistics.
+ * Returns device statistics.
  * @summary Get device statistics
  */
 export const getDeviceStatistics = (signal?: AbortSignal) => {
@@ -1935,7 +1935,7 @@ export function useGetDevices<
 }
 
 /**
- * Handles requests to create device.
+ * Creates device.
  * @summary Create device
  */
 export const postDevices = (
@@ -2017,7 +2017,7 @@ export const usePostDevices = <TError = ErrorType<unknown>, TContext = unknown>(
 }
 
 /**
- * Handles requests to download device import template.
+ * Downloads device import template.
  * @summary Download device import template
  */
 export const getDevicesBatchTemplate = (signal?: AbortSignal) => {
@@ -2165,7 +2165,7 @@ export function useGetDevicesBatchTemplate<
 }
 
 /**
- * Handles requests to import devices in bulk.
+ * Imports devices in bulk.
  * @summary Import devices in bulk
  */
 export const postDevicesBatchUpload = (
@@ -2259,7 +2259,7 @@ export const usePostDevicesBatchUpload = <
 }
 
 /**
- * Handles requests to get downstream push record.
+ * Returns downstream push record.
  * @summary Get downstream push record
  */
 export const getDevicesPushRecordsPushRecordId = (
@@ -2427,7 +2427,7 @@ export function useGetDevicesPushRecordsPushRecordId<
 }
 
 /**
- * Handles requests to get device.
+ * Returns device.
  * @summary Get device
  */
 export const getDevicesDeviceKey = (
@@ -2589,7 +2589,7 @@ export function useGetDevicesDeviceKey<
 }
 
 /**
- * Handles requests to update device.
+ * Updates device.
  * @summary Update device
  */
 export const putDevicesDeviceKey = (
@@ -2679,7 +2679,7 @@ export const usePutDevicesDeviceKey = <
 }
 
 /**
- * Handles requests to delete device.
+ * Deletes Device.
  * @summary Delete Device
  */
 export const deleteDevicesDeviceKey = (
@@ -2765,7 +2765,7 @@ export const useDeleteDevicesDeviceKey = <
 }
 
 /**
- * Handles requests to activate device.
+ * Activates device.
  * @summary Activate device
  */
 export const postDevicesDeviceKeyActivate = (
@@ -2851,7 +2851,7 @@ export const usePostDevicesDeviceKeyActivate = <
 }
 
 /**
- * Handles requests to set device enabled state.
+ * Sets device enabled state.
  * @summary Set device enabled state
  */
 export const postDevicesDeviceKeyEnabled = (
@@ -3106,7 +3106,7 @@ export function useGetDevicesDeviceKeyEndpoints<
 }
 
 /**
- * Handles requests to list downstream push records.
+ * Lists downstream push records.
  * @summary List downstream push records
  */
 export const getDevicesDeviceKeyPushRecords = (
@@ -3286,7 +3286,7 @@ export function useGetDevicesDeviceKeyPushRecords<
 }
 
 /**
- * Handles requests to clear downstream push records.
+ * Clears downstream push records.
  * @summary Clear downstream push records
  */
 export const deleteDevicesDeviceKeyPushRecords = (
@@ -3374,7 +3374,7 @@ export const useDeleteDevicesDeviceKeyPushRecords = <
 }
 
 /**
- * Handles requests to get device shadow.
+ * Returns device shadow.
  * @summary Get device shadow
  */
 export const getDevicesDeviceKeyShadow = (
@@ -3539,7 +3539,7 @@ export function useGetDevicesDeviceKeyShadow<
 }
 
 /**
- * Handles requests to update desired device shadow.
+ * Updates desired device shadow.
  * @summary Update desired device shadow
  */
 export const putDevicesDeviceKeyShadowDesired = (
@@ -3629,7 +3629,7 @@ export const usePutDevicesDeviceKeyShadowDesired = <
 }
 
 /**
- * Handles requests to clear desired device shadow.
+ * Clears desired device shadow.
  * @summary Clear desired device shadow
  */
 export const deleteDevicesDeviceKeyShadowDesired = (
@@ -3720,7 +3720,7 @@ export const useDeleteDevicesDeviceKeyShadowDesired = <
 }
 
 /**
- * Handles requests to list device shadow history.
+ * Lists device shadow history.
  * @summary List device shadow history
  */
 export const getDevicesDeviceKeyShadowHistory = (
@@ -3888,7 +3888,7 @@ export function useGetDevicesDeviceKeyShadowHistory<
 }
 
 /**
- * Handles requests to simulate downstream push.
+ * Simulates downstream push.
  * @summary Simulate downstream push
  */
 export const postDevicesDeviceKeySimulatePush = (
@@ -3978,7 +3978,7 @@ export const usePostDevicesDeviceKeySimulatePush = <
 }
 
 /**
- * Handles requests to list device tags.
+ * Lists device tags.
  * @summary List device tags
  */
 export const getDevicesDeviceKeyTags = (
@@ -4143,7 +4143,7 @@ export function useGetDevicesDeviceKeyTags<
 }
 
 /**
- * Handles requests to replace device tags.
+ * Replaces device tags.
  * @summary Replace device tags
  */
 export const putDevicesDeviceKeyTags = (
@@ -4233,7 +4233,7 @@ export const usePutDevicesDeviceKeyTags = <
 }
 
 /**
- * Handles requests to add device tags.
+ * Adds device tags.
  * @summary Add device tags
  */
 export const postDevicesDeviceKeyTags = (
@@ -4323,7 +4323,7 @@ export const usePostDevicesDeviceKeyTags = <
 }
 
 /**
- * Handles requests to delete device tags.
+ * Deletes device tags.
  * @summary Delete device tags
  */
 export const deleteDevicesDeviceKeyTags = (
@@ -4413,7 +4413,7 @@ export const useDeleteDevicesDeviceKeyTags = <
 }
 
 /**
- * Handles requests to get device telemetry.
+ * Returns device telemetry.
  * @summary Get device telemetry
  */
 export const getDevicesDeviceKeyTelemetry = (
@@ -4578,7 +4578,7 @@ export function useGetDevicesDeviceKeyTelemetry<
 }
 
 /**
- * Handles requests to upload ota update file.
+ * Uploads OTA update file.
  * @summary Upload OTA update file
  */
 export const postFilesOta = (
@@ -4892,7 +4892,7 @@ export function useGetOrganizations<
 }
 
 /**
- * Handles requests to list ota packages.
+ * Lists OTA packages.
  * @summary List OTA packages
  */
 export const getOtaPackages = (
@@ -5029,7 +5029,7 @@ export function useGetOtaPackages<
 }
 
 /**
- * Handles requests to create ota package.
+ * Creates OTA package.
  * @summary Create OTA package
  */
 export const postOtaPackages = (
@@ -5114,7 +5114,7 @@ export const usePostOtaPackages = <
 }
 
 /**
- * Handles requests to get ota package.
+ * Returns OTA package.
  * @summary Get OTA package
  */
 export const getOtaPackagesUuid = (uuid: string, signal?: AbortSignal) => {
@@ -5272,7 +5272,7 @@ export function useGetOtaPackagesUuid<
 }
 
 /**
- * Handles requests to update ota package.
+ * Updates OTA package.
  * @summary Update OTA package
  */
 export const putOtaPackagesUuid = (
@@ -5358,7 +5358,7 @@ export const usePutOtaPackagesUuid = <
 }
 
 /**
- * Handles requests to delete ota package.
+ * Deletes OTA package.
  * @summary Delete OTA package
  */
 export const deleteOtaPackagesUuid = (uuid: string, signal?: AbortSignal) => {
@@ -5441,7 +5441,7 @@ export const useDeleteOtaPackagesUuid = <
 }
 
 /**
- * Handles requests to create ota upgrade batch.
+ * Creates OTA upgrade batch.
  * @summary Create OTA upgrade batch
  */
 export const postOtaPackagesUuidBatchUpgrade = (
@@ -5531,7 +5531,7 @@ export const usePostOtaPackagesUuidBatchUpgrade = <
 }
 
 /**
- * Handles requests to list ota upgrade batches.
+ * Lists OTA upgrade batches.
  * @summary List OTA upgrade batches
  */
 export const getOtaPackagesUuidBatches = (
@@ -5693,7 +5693,7 @@ export function useGetOtaPackagesUuidBatches<
 }
 
 /**
- * Handles requests to list ota device deployments.
+ * Lists OTA device deployments.
  * @summary List OTA device deployments
  */
 export const getOtaPackagesUuidDeviceDeployments = (
@@ -5873,7 +5873,7 @@ export function useGetOtaPackagesUuidDeviceDeployments<
 }
 
 /**
- * Handles requests to report ota upgrade status.
+ * Reports OTA upgrade status.
  * @summary Report OTA upgrade status
  */
 export const postOtaPackagesUuidReport = (
@@ -5963,7 +5963,7 @@ export const usePostOtaPackagesUuidReport = <
 }
 
 /**
- * Handles requests to get ota upgrade statistics.
+ * Returns OTA upgrade statistics.
  * @summary Get OTA upgrade statistics
  */
 export const getOtaPackagesUuidUpgradeStatistics = (
@@ -6533,7 +6533,7 @@ export function useGetProductsKeyProductKeyMessageParser<
 }
 
 /**
- * Handles requests to save product message parser.
+ * Saves product message parser.
  * @summary Save product message parser
  */
 export const putProductsKeyProductKeyMessageParser = (
@@ -6639,7 +6639,7 @@ export const usePutProductsKeyProductKeyMessageParser = <
 }
 
 /**
- * Handles requests to execute product message parser.
+ * Executes product message parser.
  * @summary Execute product message parser
  */
 export const postProductsKeyProductKeyMessageParserExecute = (
@@ -7517,7 +7517,7 @@ export const useDeleteProductsProductKeyTsl = <
 }
 
 /**
- * Handles requests to register user.
+ * Registers user.
  * @summary Register user
  */
 export const postRegister = (
@@ -7602,7 +7602,7 @@ export const usePostRegister = <
 }
 
 /**
- * Handles requests to list scene linkages.
+ * Lists scene linkages.
  * @summary List scene linkages
  */
 export const getSceneLinkages = (
@@ -7761,7 +7761,7 @@ export function useGetSceneLinkages<
 }
 
 /**
- * Handles requests to create scene linkage.
+ * Creates scene linkage.
  * @summary Create scene linkage
  */
 export const postSceneLinkages = (
@@ -7846,7 +7846,7 @@ export const usePostSceneLinkages = <
 }
 
 /**
- * Handles requests to get scene linkage.
+ * Returns scene linkage.
  * @summary Get scene linkage
  */
 export const getSceneLinkagesId = (id: number, signal?: AbortSignal) => {
@@ -8004,7 +8004,7 @@ export function useGetSceneLinkagesId<
 }
 
 /**
- * Handles requests to update scene linkage.
+ * Updates scene linkage.
  * @summary Update scene linkage
  */
 export const putSceneLinkagesId = (
@@ -8090,7 +8090,7 @@ export const usePutSceneLinkagesId = <
 }
 
 /**
- * Handles requests to delete scene linkage.
+ * Deletes scene linkage.
  * @summary Delete scene linkage
  */
 export const deleteSceneLinkagesId = (id: number, signal?: AbortSignal) => {
@@ -8173,7 +8173,7 @@ export const useDeleteSceneLinkagesId = <
 }
 
 /**
- * Handles requests to get scene linkage configuration.
+ * Returns scene linkage configuration.
  * @summary Get scene linkage configuration
  */
 export const getSceneLinkagesIdDetail = (id: number, signal?: AbortSignal) => {
@@ -8332,7 +8332,7 @@ export function useGetSceneLinkagesIdDetail<
 }
 
 /**
- * Handles requests to update scene linkage configuration.
+ * Updates scene linkage configuration.
  * @summary Update scene linkage configuration
  */
 export const putSceneLinkagesIdDetail = (
@@ -8422,7 +8422,7 @@ export const usePutSceneLinkagesIdDetail = <
 }
 
 /**
- * Handles requests to create scene linkage configuration.
+ * Creates scene linkage configuration.
  * @summary Create scene linkage configuration
  */
 export const postSceneLinkagesIdDetail = (

@@ -6,14 +6,15 @@ import (
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
+
 	"gorm.io/gorm"
 )
 
 type SceneLinkageRepository struct {
-	db *IoTDB
+	db *gorm.DB
 }
 
-func NewSceneLinkageRepository(db *IoTDB) *SceneLinkageRepository {
+func NewSceneLinkageRepository(db *gorm.DB) *SceneLinkageRepository {
 	return &SceneLinkageRepository{db: db}
 }
 
@@ -22,7 +23,7 @@ func (r *SceneLinkageRepository) DB(ctx context.Context) *gorm.DB {
 }
 
 func (r *SceneLinkageRepository) Find(ctx context.Context, id int64) (*model.SceneLinkage, error) {
-	q := useIoTQuery(r.db)
+	q := useQuery(r.db)
 	scene, err := q.SceneLinkage.WithContext(ctx).Where(q.SceneLinkage.ID.Eq(id), q.SceneLinkage.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -34,7 +35,7 @@ func (r *SceneLinkageRepository) Find(ctx context.Context, id int64) (*model.Sce
 }
 
 func (r *SceneLinkageRepository) List(ctx context.Context, page, size int, search string, enable int) ([]model.SceneLinkage, int64, error) {
-	q := useIoTQuery(r.db)
+	q := useQuery(r.db)
 	scenes := q.SceneLinkage.WithContext(ctx).Where(q.SceneLinkage.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
 	if search != "" {
 		scenes = scenes.Where(q.SceneLinkage.Name.Like("%" + search + "%"))
@@ -55,14 +56,14 @@ func (r *SceneLinkageRepository) List(ctx context.Context, page, size int, searc
 
 func (r *SceneLinkageRepository) Create(ctx context.Context, scene *model.SceneLinkage) error {
 	scene.OrganizationID = tenant.GetOrganizationID(ctx)
-	return useIoTQuery(r.db).SceneLinkage.WithContext(ctx).Create(scene)
+	return useQuery(r.db).SceneLinkage.WithContext(ctx).Create(scene)
 }
 
 func (r *SceneLinkageRepository) Save(ctx context.Context, scene *model.SceneLinkage) error {
 	if _, err := r.Find(ctx, scene.ID); err != nil {
 		return err
 	}
-	return useIoTQuery(r.db).SceneLinkage.WithContext(ctx).Save(scene)
+	return useQuery(r.db).SceneLinkage.WithContext(ctx).Save(scene)
 }
 
 func (r *SceneLinkageRepository) Delete(ctx context.Context, id int64) error {
@@ -70,6 +71,6 @@ func (r *SceneLinkageRepository) Delete(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
-	_, err = useIoTQuery(r.db).SceneLinkage.WithContext(ctx).Delete(scene)
+	_, err = useQuery(r.db).SceneLinkage.WithContext(ctx).Delete(scene)
 	return err
 }

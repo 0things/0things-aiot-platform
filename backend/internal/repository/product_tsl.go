@@ -5,14 +5,15 @@ import (
 	"errors"
 
 	"aiot-backend/internal/model"
+
 	"gorm.io/gorm"
 )
 
 type ProductTSLRepository struct {
-	db *IoTDB
+	db *gorm.DB
 }
 
-func NewProductTSLRepository(db *IoTDB) *ProductTSLRepository {
+func NewProductTSLRepository(db *gorm.DB) *ProductTSLRepository {
 	return &ProductTSLRepository{db: db}
 }
 

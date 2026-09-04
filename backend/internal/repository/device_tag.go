@@ -5,14 +5,15 @@ import (
 	"errors"
 
 	"aiot-backend/internal/model"
+
 	"gorm.io/gorm"
 )
 
 type DeviceTagRepository struct {
-	db *IoTDB
+	db *gorm.DB
 }
 
-func NewDeviceTagRepository(db *IoTDB) *DeviceTagRepository {
+func NewDeviceTagRepository(db *gorm.DB) *DeviceTagRepository {
 	return &DeviceTagRepository{db: db}
 }
 

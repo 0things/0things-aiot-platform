@@ -1,10 +1,10 @@
 package handler
 
 import (
-	sceneLinkageV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,8 +17,8 @@ func NewSceneLinkageHandler(h *Handler, svc service.SceneLinkageServiceInterface
 	return &SceneLinkageHandler{Handler: h, svc: svc}
 }
 
-func sceneLinkageJSON(scene model.SceneLinkage) sceneLinkageV1.SceneLinkage {
-	return sceneLinkageV1.SceneLinkage{
+func sceneLinkageJSON(scene model.SceneLinkage) v1.SceneLinkage {
+	return v1.SceneLinkage{
 		ID:             scene.ID,
 		OrganizationID: scene.OrganizationID,
 		Name:           scene.Name,
@@ -48,11 +48,11 @@ func parseEnable(c *gin.Context) int {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query sceneLinkageV1.ListSceneLinkagesRequest false "Query parameters"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.ListSceneLinkagesResponse] "Successful response"
+// @Param request query v1.ListSceneLinkagesRequest false "Query parameters"
+// @Success 200 {object} v1.ApiResponse[v1.ListSceneLinkagesResponse] "Successful response"
 // @Router /scene-linkages [get]
 func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
-	var req sceneLinkageV1.ListSceneLinkagesRequest
+	var req v1.ListSceneLinkagesRequest
 	_ = c.ShouldBindQuery(&req)
 	pageNumber, pageSize := pageRequest(req.PageRequest, 20)
 	enable := -1
@@ -64,11 +64,11 @@ func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	items := make([]sceneLinkageV1.SceneLinkage, len(scenes))
+	items := make([]v1.SceneLinkage, len(scenes))
 	for i, scene := range scenes {
 		items[i] = sceneLinkageJSON(scene)
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.ListSceneLinkagesResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, v1.ListSceneLinkagesResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
 // GetSceneLinkage godoc
@@ -80,7 +80,7 @@ func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "Scene linkage ID"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.GetSceneLinkageResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.GetSceneLinkageResponse] "Successful response"
 // @Router /scene-linkages/{id} [get]
 func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -93,7 +93,7 @@ func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.GetSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
+	v1.HandleSuccess(c, v1.GetSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
 }
 
 // CreateSceneLinkage godoc
@@ -104,11 +104,11 @@ func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body sceneLinkageV1.SceneLinkageRequest true "params"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.CreateSceneLinkageResponse] "Successful response"
+// @Param request body v1.SceneLinkageRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.CreateSceneLinkageResponse] "Successful response"
 // @Router /scene-linkages [post]
 func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
-	var req sceneLinkageV1.SceneLinkageRequest
+	var req v1.SceneLinkageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
@@ -121,7 +121,7 @@ func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.CreateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
+	v1.HandleSuccess(c, v1.CreateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
 }
 
 // UpdateSceneLinkage godoc
@@ -133,8 +133,8 @@ func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "Scene linkage ID"
-// @Param request body sceneLinkageV1.SceneLinkageRequest true "params"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.UpdateSceneLinkageResponse] "Successful response"
+// @Param request body v1.SceneLinkageRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.UpdateSceneLinkageResponse] "Successful response"
 // @Router /scene-linkages/{id} [put]
 func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -142,7 +142,7 @@ func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	var req sceneLinkageV1.SceneLinkageRequest
+	var req v1.SceneLinkageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
@@ -160,7 +160,7 @@ func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.UpdateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
+	v1.HandleSuccess(c, v1.UpdateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
 }
 
 // DeleteSceneLinkage godoc
@@ -172,7 +172,7 @@ func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "Scene linkage ID"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.SceneLinkageSuccessResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.SceneLinkageSuccessResponse] "Successful response"
 // @Router /scene-linkages/{id} [delete]
 func (h *SceneLinkageHandler) DeleteSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -183,5 +183,5 @@ func (h *SceneLinkageHandler) DeleteSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.SceneLinkageSuccessResponse{Success: true})
+	v1.HandleSuccess(c, v1.SceneLinkageSuccessResponse{Success: true})
 }

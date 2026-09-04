@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -9,8 +10,10 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
+
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -53,7 +56,7 @@ func defaultOrgName(email string) string {
 func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) error {
 	// check username
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return v1.ErrInternalServerError
 	}
 	if err == nil && user != nil {
@@ -230,7 +233,13 @@ func (s *userService) SwitchOrganization(ctx context.Context, userId string, org
 func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error) {
 	user, err := s.userRepo.GetByID(ctx, userId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, v1.ErrNotFound
+		}
 		return nil, err
+	}
+	if user == nil {
+		return nil, v1.ErrNotFound
 	}
 
 	return &v1.GetProfileResponseData{
@@ -243,7 +252,13 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetPro
 func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error {
 	user, err := s.userRepo.GetByID(ctx, userId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return v1.ErrNotFound
+		}
 		return err
+	}
+	if user == nil {
+		return v1.ErrNotFound
 	}
 
 	user.Email = req.Email

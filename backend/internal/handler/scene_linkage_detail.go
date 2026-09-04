@@ -3,10 +3,10 @@ package handler
 import (
 	"encoding/json"
 
-	sceneLinkageV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,8 +19,8 @@ func NewSceneLinkageDetailHandler(h *Handler, svc service.SceneLinkageDetailServ
 	return &SceneLinkageDetailHandler{Handler: h, svc: svc}
 }
 
-func sceneLinkageDetailJSON(detail model.SceneLinkageDetail) sceneLinkageV1.SceneLinkageDetail {
-	return sceneLinkageV1.SceneLinkageDetail{
+func sceneLinkageDetailJSON(detail model.SceneLinkageDetail) v1.SceneLinkageDetail {
+	return v1.SceneLinkageDetail{
 		SceneID:       detail.SceneID,
 		TriggerConfig: detail.TriggerConfig,
 		ActionConfig:  detail.ActionConfig,
@@ -36,7 +36,7 @@ func sceneLinkageDetailJSON(detail model.SceneLinkageDetail) sceneLinkageV1.Scen
 // @Produce json
 // @Security Bearer
 // @Param id path int true "Scene linkage ID"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.GetSceneLinkageDetailResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.GetSceneLinkageDetailResponse] "Successful response"
 // @Router /scene-linkages/{id}/detail [get]
 func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
@@ -49,7 +49,7 @@ func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.GetSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
+	v1.HandleSuccess(c, v1.GetSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
 }
 
 // CreateSceneLinkageDetail godoc
@@ -61,8 +61,8 @@ func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "Scene linkage ID"
-// @Param request body sceneLinkageV1.SceneLinkageDetailRequest true "params"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.CreateSceneLinkageDetailResponse] "Successful response"
+// @Param request body v1.SceneLinkageDetailRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.CreateSceneLinkageDetailResponse] "Successful response"
 // @Router /scene-linkages/{id}/detail [post]
 func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
@@ -70,7 +70,7 @@ func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	var req sceneLinkageV1.SceneLinkageDetailRequest
+	var req v1.SceneLinkageDetailRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
@@ -90,7 +90,7 @@ func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.CreateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
+	v1.HandleSuccess(c, v1.CreateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
 }
 
 // UpdateSceneLinkageDetail godoc
@@ -102,8 +102,8 @@ func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "Scene linkage ID"
-// @Param request body sceneLinkageV1.SceneLinkageDetailRequest true "params"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.UpdateSceneLinkageDetailResponse] "Successful response"
+// @Param request body v1.SceneLinkageDetailRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.UpdateSceneLinkageDetailResponse] "Successful response"
 // @Router /scene-linkages/{id}/detail [put]
 func (h *SceneLinkageDetailHandler) UpdateSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
@@ -111,7 +111,7 @@ func (h *SceneLinkageDetailHandler) UpdateSceneLinkageDetail(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	var req sceneLinkageV1.SceneLinkageDetailRequest
+	var req v1.SceneLinkageDetailRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
@@ -133,5 +133,5 @@ func (h *SceneLinkageDetailHandler) UpdateSceneLinkageDetail(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.UpdateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
+	v1.HandleSuccess(c, v1.UpdateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
 }

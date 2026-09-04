@@ -12,12 +12,9 @@ security:
   device_credentials_key: change-me-to-a-random-device-credentials-key
 data:
   db:
-    user:
+    aiot:
       driver: sqlite
-      dsn: storage/nunu-test.db
-    device:
-      driver: postgres
-      dsn: host=127.0.0.1 port=5432 user=postgres dbname=device_service sslmode=disable
+      dsn: storage/aiot-device.db
   storage:
     r2:
       endpoint: "https://<account-id>.r2.cloudflarestorage.com"
@@ -28,15 +25,11 @@ data:
       public_base_url: ""
       prefix: "ota"
   redis:
-    addr: 127.0.0.1:6350
+    addr: 127.0.0.1:6379
     password: ""
     db: 0
     read_timeout: 0.2s
     write_timeout: 0.2s
-    device:
-      addr: 127.0.0.1:6379
-      password: ""
-      db: 0
   kafka:
     device:
       # Used by the mock endpoint and the iotEvent consumer.

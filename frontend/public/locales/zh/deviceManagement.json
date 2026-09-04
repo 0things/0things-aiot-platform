@@ -450,6 +450,8 @@
       ,"subscribeTopic": "订阅主题"
     },
     "header": {
+      "backToList": "返回设备列表",
+      "unnamedDevice": "未命名设备",
       "product": "产品",
       "deviceSecret": "DeviceSecret",
       "productKey": "ProductKey",

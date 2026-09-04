@@ -28,13 +28,13 @@ func newDeviceEvent(db *gorm.DB, opts ...gen.DOOption) deviceEvent {
 	tableName := _deviceEvent.deviceEventDo.TableName()
 	_deviceEvent.ALL = field.NewAsterisk(tableName)
 	_deviceEvent.ID = field.NewInt64(tableName, "id")
+	_deviceEvent.UUID = field.NewString(tableName, "uuid")
 	_deviceEvent.DeviceID = field.NewInt64(tableName, "device_id")
+	_deviceEvent.EventIdentifier = field.NewString(tableName, "event_identifier")
 	_deviceEvent.EventType = field.NewString(tableName, "event_type")
 	_deviceEvent.EventAt = field.NewTime(tableName, "event_at")
 	_deviceEvent.Data = field.NewString(tableName, "data")
 	_deviceEvent.CreatedAt = field.NewTime(tableName, "created_at")
-	_deviceEvent.DeviceKey = field.NewString(tableName, "device_key")
-	_deviceEvent.DeviceName = field.NewString(tableName, "device_name")
 
 	_deviceEvent.fillFieldMap()
 
@@ -44,15 +44,15 @@ func newDeviceEvent(db *gorm.DB, opts ...gen.DOOption) deviceEvent {
 type deviceEvent struct {
 	deviceEventDo deviceEventDo
 
-	ALL        field.Asterisk
-	ID         field.Int64
-	DeviceID   field.Int64
-	EventType  field.String
-	EventAt    field.Time
-	Data       field.String
-	CreatedAt  field.Time
-	DeviceKey  field.String
-	DeviceName field.String
+	ALL             field.Asterisk
+	ID              field.Int64
+	UUID            field.String
+	DeviceID        field.Int64
+	EventIdentifier field.String
+	EventType       field.String
+	EventAt         field.Time
+	Data            field.String
+	CreatedAt       field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -70,13 +70,13 @@ func (d deviceEvent) As(alias string) *deviceEvent {
 func (d *deviceEvent) updateTableName(table string) *deviceEvent {
 	d.ALL = field.NewAsterisk(table)
 	d.ID = field.NewInt64(table, "id")
+	d.UUID = field.NewString(table, "uuid")
 	d.DeviceID = field.NewInt64(table, "device_id")
+	d.EventIdentifier = field.NewString(table, "event_identifier")
 	d.EventType = field.NewString(table, "event_type")
 	d.EventAt = field.NewTime(table, "event_at")
 	d.Data = field.NewString(table, "data")
 	d.CreatedAt = field.NewTime(table, "created_at")
-	d.DeviceKey = field.NewString(table, "device_key")
-	d.DeviceName = field.NewString(table, "device_name")
 
 	d.fillFieldMap()
 
@@ -105,13 +105,13 @@ func (d *deviceEvent) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (d *deviceEvent) fillFieldMap() {
 	d.fieldMap = make(map[string]field.Expr, 8)
 	d.fieldMap["id"] = d.ID
+	d.fieldMap["uuid"] = d.UUID
 	d.fieldMap["device_id"] = d.DeviceID
+	d.fieldMap["event_identifier"] = d.EventIdentifier
 	d.fieldMap["event_type"] = d.EventType
 	d.fieldMap["event_at"] = d.EventAt
 	d.fieldMap["data"] = d.Data
 	d.fieldMap["created_at"] = d.CreatedAt
-	d.fieldMap["device_key"] = d.DeviceKey
-	d.fieldMap["device_name"] = d.DeviceName
 }
 
 func (d deviceEvent) clone(db *gorm.DB) deviceEvent {

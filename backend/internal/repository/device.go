@@ -32,8 +32,8 @@ type DeviceStatistics struct {
 	InactiveDevices  int64
 }
 
-func NewDeviceRepository(db *IoTDB, redis *IoTRedis) *DeviceRepository {
-	return &DeviceRepository{db: db.DB, redis: redis.Client}
+func NewDeviceRepository(db *gorm.DB, redis *redis.Client) *DeviceRepository {
+	return &DeviceRepository{db: db, redis: redis}
 }
 
 func (r *DeviceRepository) DB(ctx context.Context) *gorm.DB {

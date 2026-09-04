@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type OTARepository struct{ db *IoTDB }
+type OTARepository struct{ db *gorm.DB }
 
 type UpgradeStatistics struct {
 	Total      int64
@@ -24,7 +24,7 @@ type UpgradeStatistics struct {
 	InProgress int64
 }
 
-func NewOTARepository(db *IoTDB) *OTARepository          { return &OTARepository{db: db} }
+func NewOTARepository(db *gorm.DB) *OTARepository        { return &OTARepository{db: db} }
 func (r *OTARepository) DB(ctx context.Context) *gorm.DB { return r.db.WithContext(ctx) }
 
 func (r *OTARepository) selectWithProduct(ctx context.Context, query *gorm.DB) *gorm.DB {

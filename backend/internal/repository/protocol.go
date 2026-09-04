@@ -7,10 +7,11 @@ import (
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
+
 	"gorm.io/gorm"
 )
 
-type ProtocolRepository struct{ db *IoTDB }
+type ProtocolRepository struct{ db *gorm.DB }
 
 func (r *ProtocolRepository) DeviceByKey(ctx context.Context, deviceKey string) (*model.Device, error) {
 	var device model.Device
@@ -47,7 +48,7 @@ func (r *ProtocolRepository) MarkStaleEndpointsOffline(ctx context.Context, cuto
 		Updates(map[string]any{"status": "offline", "updated_at": time.Now().UTC()}).Error
 }
 
-func NewProtocolRepository(db *IoTDB) *ProtocolRepository { return &ProtocolRepository{db: db} }
+func NewProtocolRepository(db *gorm.DB) *ProtocolRepository { return &ProtocolRepository{db: db} }
 
 func (r *ProtocolRepository) ProductProtocols(ctx context.Context, productID int64) ([]model.ProductProtocol, error) {
 	var product model.Product

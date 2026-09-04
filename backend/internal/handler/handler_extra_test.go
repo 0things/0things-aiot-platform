@@ -8,10 +8,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	eventV1 "aiot-backend/api/v1"
-	messageParserV1 "aiot-backend/api/v1"
-	productTSLV1 "aiot-backend/api/v1"
-	sceneLinkageV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
@@ -206,7 +202,7 @@ func TestDeviceEventHandler_List_BadTime(t *testing.T) {
 	if w.Code == http.StatusOK {
 		t.Fatalf("expected bad request")
 	}
-	_ = eventV1.DeviceEvent{}
+	_ = v1.DeviceEvent{}
 }
 
 // ---------------- ProductTSLHandler ----------------
@@ -235,7 +231,7 @@ func TestProductTSLHandler_CRUD(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("Delete got %d", w.Code)
 	}
-	_ = productTSLV1.ProductTSL{}
+	_ = v1.ProductTSL{}
 }
 
 // ---------------- ProductMessageParserHandler ----------------
@@ -258,7 +254,7 @@ func TestProductMessageParserHandler_CRUD(t *testing.T) {
 		t.Fatalf("Put got %d", w.Code)
 	}
 
-	m.EXPECT().Execute(gomock.Any(), "P001", gomock.Any()).Return(&messageParserV1.ExecuteProductMessageParserResponse{}, nil)
+	m.EXPECT().Execute(gomock.Any(), "P001", gomock.Any()).Return(&v1.ExecuteProductMessageParserResponse{}, nil)
 	c, w = hctx(http.MethodPost, "/products/key/P001/message-parser/execute", []byte(`{"mode":"custom","topic":"t","rawData":"00"}`), nil, gin.Params{{Key: "productKey", Value: "P001"}})
 	h.Execute(c)
 	if w.Code != http.StatusOK {
@@ -307,7 +303,7 @@ func TestSceneLinkageHandler_CRUD(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("Delete got %d", w.Code)
 	}
-	_ = sceneLinkageV1.SceneLinkage{}
+	_ = v1.SceneLinkage{}
 }
 
 // ---------------- SceneLinkageDetailHandler ----------------

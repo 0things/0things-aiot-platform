@@ -1,7 +1,6 @@
 package handler
 
 import (
-	productV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -9,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func productJSON(product model.Product, count int64) productV1.Product {
-	return productV1.Product{
+func productJSON(product model.Product, count int64) v1.Product {
+	return v1.Product{
 		ID:                 product.ID,
 		ProductKey:         product.ProductKey,
 		Name:               product.Name,
@@ -21,10 +20,10 @@ func productJSON(product model.Product, count int64) productV1.Product {
 		NodeType:           product.NodeType,
 		ConnectivityMethod: product.ConnectivityMethod,
 		AccessProtocol:     product.AccessProtocol,
-		Protocols: func() []productV1.ProductProtocolInput {
-			items := make([]productV1.ProductProtocolInput, len(product.Protocols))
+		Protocols: func() []v1.ProductProtocolInput {
+			items := make([]v1.ProductProtocolInput, len(product.Protocols))
 			for i, protocol := range product.Protocols {
-				items[i] = productV1.ProductProtocolInput{TransportProtocol: protocol.TransportProtocol, ApplicationProtocol: protocol.ApplicationProtocol}
+				items[i] = v1.ProductProtocolInput{TransportProtocol: protocol.TransportProtocol, ApplicationProtocol: protocol.ApplicationProtocol}
 			}
 			return items
 		}(),
@@ -52,11 +51,11 @@ func NewProductHandler(h *Handler, svc service.ProductServiceInterface) *Product
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body productV1.CreateProductRequest true "params"
-// @Success 200 {object} v1.ApiResponse[productV1.CreateProductResponse] "Successful response"
+// @Param request body v1.CreateProductRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.CreateProductResponse] "Successful response"
 // @Router /products [post]
 func (h *ProductHandler) Create(c *gin.Context) {
-	var req productV1.CreateProductRequest
+	var req v1.CreateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
@@ -77,7 +76,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, productV1.CreateProductResponse{Product: productJSON(*product, 0)})
+	v1.HandleSuccess(c, v1.CreateProductResponse{Product: productJSON(*product, 0)})
 }
 
 // Get godoc
@@ -89,7 +88,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param productKey path string true "Product key"
-// @Success 200 {object} v1.ApiResponse[productV1.GetProductResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.GetProductResponse] "Successful response"
 // @Router /products/{productKey} [get]
 func (h *ProductHandler) Get(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
@@ -97,7 +96,7 @@ func (h *ProductHandler) Get(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, productV1.GetProductResponse{Product: productJSON(*product, 0)})
+	v1.HandleSuccess(c, v1.GetProductResponse{Product: productJSON(*product, 0)})
 }
 
 // List godoc
@@ -108,11 +107,11 @@ func (h *ProductHandler) Get(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query productV1.ListProductsRequest false "Query parameters"
-// @Success 200 {object} v1.ApiResponse[productV1.ListProductsResponse] "Successful response"
+// @Param request query v1.ListProductsRequest false "Query parameters"
+// @Success 200 {object} v1.ApiResponse[v1.ListProductsResponse] "Successful response"
 // @Router /products [get]
 func (h *ProductHandler) List(c *gin.Context) {
-	var req productV1.ListProductsRequest
+	var req v1.ListProductsRequest
 	_ = c.ShouldBindQuery(&req)
 	pageNumber, pageSize := pageRequest(req.PageRequest, 10)
 	products, total, err := h.svc.List(c, pageNumber, pageSize, req.Category, req.Status, req.SearchText)
@@ -120,12 +119,12 @@ func (h *ProductHandler) List(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	items := make([]productV1.ProductListItem, 0, len(products))
+	items := make([]v1.ProductListItem, 0, len(products))
 	for _, product := range products {
-		item := productV1.ProductListItem{Product: productJSON(product.Product, 0), CategoryName: product.CategoryName}
+		item := v1.ProductListItem{Product: productJSON(product.Product, 0), CategoryName: product.CategoryName}
 		items = append(items, item)
 	}
-	v1.HandleSuccess(c, productV1.ListProductsResponse{Products: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, v1.ListProductsResponse{Products: items, Total: total, Page: pageNumber, PageSize: pageSize})
 }
 
 // Update godoc
@@ -137,8 +136,8 @@ func (h *ProductHandler) List(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param productKey path string true "Product key"
-// @Param request body productV1.UpdateProductRequest true "params"
-// @Success 200 {object} v1.ApiResponse[productV1.UpdateProductResponse] "Successful response"
+// @Param request body v1.UpdateProductRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.UpdateProductResponse] "Successful response"
 // @Router /products/{productKey} [put]
 func (h *ProductHandler) Update(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
@@ -146,7 +145,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	var req productV1.UpdateProductRequest
+	var req v1.UpdateProductRequest
 	if err = c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
@@ -189,7 +188,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, productV1.UpdateProductResponse{Product: productJSON(*product, 0)})
+	v1.HandleSuccess(c, v1.UpdateProductResponse{Product: productJSON(*product, 0)})
 }
 
 // Delete godoc
@@ -201,7 +200,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param productKey path string true "Product key"
-// @Success 200 {object} v1.ApiResponse[productV1.ProductSuccessResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.ProductSuccessResponse] "Successful response"
 // @Router /products/{productKey} [delete]
 func (h *ProductHandler) Delete(c *gin.Context) {
 	err := h.svc.DeleteByKey(c, c.Param("productKey"))
@@ -209,5 +208,5 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, productV1.ProductSuccessResponse{Success: true})
+	v1.HandleSuccess(c, v1.ProductSuccessResponse{Success: true})
 }

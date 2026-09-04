@@ -19,8 +19,7 @@ import (
 
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
 	db := repository.NewDB(viperViper, logger)
-	ioTDB := repository.NewIoTDB(viperViper, logger)
-	migrateServer := server.NewMigrateServer(db, ioTDB, logger)
+	migrateServer := server.NewMigrateServer(db, logger)
 	appApp := newApp(migrateServer)
 	return appApp, func() {
 	}, nil
@@ -28,7 +27,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewIoTDB, repository.NewUserRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewUserRepository)
 
 var serverSet = wire.NewSet(server.NewMigrateServer)
 

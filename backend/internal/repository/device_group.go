@@ -13,9 +13,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type DeviceGroupRepository struct{ db *IoTDB }
+type DeviceGroupRepository struct{ db *gorm.DB }
 
-func NewDeviceGroupRepository(db *IoTDB) *DeviceGroupRepository {
+func NewDeviceGroupRepository(db *gorm.DB) *DeviceGroupRepository {
 	return &DeviceGroupRepository{db: db}
 }
 

@@ -10,17 +10,16 @@ import (
 	"aiot-backend/pkg/app"
 	"aiot-backend/pkg/log"
 	"aiot-backend/pkg/sid"
+
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
 
 var repositorySet = wire.NewSet(
 	repository.NewDB,
-	//repository.NewRedis,
 	repository.NewRepository,
 	repository.NewTransaction,
 	repository.NewUserRepository,
-	repository.NewIoTDB,
 	repository.NewOTARepository,
 )
 

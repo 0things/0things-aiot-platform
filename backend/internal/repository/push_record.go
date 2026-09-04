@@ -6,14 +6,15 @@ import (
 	"time"
 
 	"aiot-backend/internal/model"
+
 	"gorm.io/gorm"
 )
 
 type PushRecordRepository struct {
-	db *IoTDB
+	db *gorm.DB
 }
 
-func NewPushRecordRepository(db *IoTDB) *PushRecordRepository {
+func NewPushRecordRepository(db *gorm.DB) *PushRecordRepository {
 	return &PushRecordRepository{db: db}
 }
 

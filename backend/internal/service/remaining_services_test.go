@@ -5,9 +5,6 @@ import (
 	"testing"
 	"time"
 
-	apiV1 "aiot-backend/api/v1"
-	eventV1 "aiot-backend/api/v1"
-	messageParserV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
@@ -23,8 +20,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func iotDB(db *gorm.DB) *repository.IoTDB { return &repository.IoTDB{DB: db} }
-
 func TestDeviceEventService_RecordAndList(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
@@ -34,8 +29,8 @@ func TestDeviceEventService_RecordAndList(t *testing.T) {
 	require.NoError(t, db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"}).Error)
 
 	svc := NewDeviceEventService(
-		repository.NewDeviceEventRepository(iotDB(db)),
-		repository.NewDeviceRepository(iotDB(db), &repository.IoTRedis{}),
+		repository.NewDeviceEventRepository(db),
+		repository.NewDeviceRepository(db, nil),
 	)
 	ctx := context.Background()
 
@@ -46,7 +41,7 @@ func TestDeviceEventService_RecordAndList(t *testing.T) {
 	// missing fields
 	require.Error(t, svc.Record(ctx, "", "D001", "online", 0, nil))
 
-	list, n, err := svc.List(ctx, &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001"})
+	list, n, err := svc.List(ctx, &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001"})
 	require.NoError(t, err)
 	require.Equal(t, int64(1), n)
 	require.NotEmpty(t, list)
@@ -59,8 +54,8 @@ func TestProductTSLService_CRUD(t *testing.T) {
 	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "p", OrganizationID: 1}).Error)
 
 	svc := NewProductTSLService(
-		repository.NewProductRepository(iotDB(db)),
-		repository.NewProductTSLRepository(iotDB(db)),
+		repository.NewProductRepository(db),
+		repository.NewProductTSLRepository(db),
 	)
 	ctx := context.Background()
 
@@ -86,8 +81,8 @@ func TestProductMessageParserService(t *testing.T) {
 	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "p", OrganizationID: 1}).Error)
 
 	svc := NewProductMessageParserService(
-		repository.NewProductRepository(iotDB(db)),
-		repository.NewProductMessageParserRepository(iotDB(db)),
+		repository.NewProductRepository(db),
+		repository.NewProductMessageParserRepository(db),
 	)
 	ctx := context.Background()
 
@@ -96,16 +91,16 @@ func TestProductMessageParserService(t *testing.T) {
 	require.True(t, isDefault)
 	require.NotEmpty(t, parser.Script)
 
-	saved, err := svc.Save(ctx, "P001", messageParserV1.LanguageJavaScriptES5, defaultProductMessageParserScript)
+	saved, err := svc.Save(ctx, "P001", v1.LanguageJavaScriptES5, defaultProductMessageParserScript)
 	require.NoError(t, err)
-	require.Equal(t, messageParserV1.LanguageJavaScriptES5, saved.Language)
+	require.Equal(t, v1.LanguageJavaScriptES5, saved.Language)
 
 	// unsupported language
 	_, err = svc.Save(ctx, "P001", "python", defaultProductMessageParserScript)
 	require.Error(t, err)
 
 	// Execute should run the default script without panicking.
-	_, _ = svc.Execute(ctx, "P001", messageParserV1.ExecuteProductMessageParserRequest{
+	_, _ = svc.Execute(ctx, "P001", v1.ExecuteProductMessageParserRequest{
 		Mode:    "custom",
 		Topic:   "t",
 		RawData: "00",

@@ -26,7 +26,7 @@ func setupDeviceRepository(t *testing.T) (*repository.DeviceRepository, sqlmock.
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	deviceRepo := repository.NewDeviceRepository(&repository.IoTDB{DB: db}, &repository.IoTRedis{Client: nil})
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 	return deviceRepo, mock
 }
 
@@ -78,7 +78,7 @@ func setupOTARespository(t *testing.T) (*repository.OTARepository, sqlmock.Sqlmo
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
+	otaRepo := repository.NewOTARepository(db)
 	return otaRepo, mock
 }
 

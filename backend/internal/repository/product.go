@@ -13,10 +13,10 @@ import (
 )
 
 type ProductRepository struct {
-	db *IoTDB
+	db *gorm.DB
 }
 
-func NewProductRepository(db *IoTDB) *ProductRepository {
+func NewProductRepository(db *gorm.DB) *ProductRepository {
 	return &ProductRepository{db: db}
 }
 
@@ -25,7 +25,7 @@ func (r *ProductRepository) DB(ctx context.Context) *gorm.DB {
 }
 
 func (r *ProductRepository) Find(ctx context.Context, id int64) (*model.Product, error) {
-	q := useIoTQuery(r.db)
+	q := useQuery(r.db)
 	product, err := q.Product.WithContext(ctx).Where(q.Product.ID.Eq(id), q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -40,7 +40,7 @@ func (r *ProductRepository) Find(ctx context.Context, id int64) (*model.Product,
 }
 
 func (r *ProductRepository) FindByKey(ctx context.Context, key string) (*model.Product, error) {
-	q := useIoTQuery(r.db)
+	q := useQuery(r.db)
 	product, err := q.Product.WithContext(ctx).Where(q.Product.ProductKey.Eq(key), q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -96,12 +96,12 @@ func (r *ProductRepository) Save(ctx context.Context, product *model.Product) er
 }
 
 func (r *ProductRepository) CountDevices(ctx context.Context, productID int64) (int64, error) {
-	q := useIoTQuery(r.db)
+	q := useQuery(r.db)
 	return q.Device.WithContext(ctx).Where(q.Device.ProductID.Eq(productID), q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Count()
 }
 
 func (r *ProductRepository) Delete(ctx context.Context, product *model.Product) error {
-	_, err := useIoTQuery(r.db).Product.WithContext(ctx).Where(useIoTQuery(r.db).Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Delete(product)
+	_, err := useQuery(r.db).Product.WithContext(ctx).Where(useQuery(r.db).Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Delete(product)
 	return err
 }
 

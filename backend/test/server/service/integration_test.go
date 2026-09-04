@@ -5,8 +5,7 @@ import (
 	"testing"
 	"time"
 
-	apiV1 "aiot-backend/api/v1"
-	eventV1 "aiot-backend/api/v1"
+	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 	"aiot-backend/test/server/testutil"
@@ -432,7 +431,7 @@ func TestIntegrationDeviceEventService_List(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx(), &eventV1.ListDeviceEventsRequest{PageRequest: apiV1.PageRequest{Page: 1, PageSize: 10}})
+	events, total, err := svc.List(ctx(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events // May be nil for empty results

@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	deviceV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -28,8 +27,8 @@ func NewDeviceHandler(h *Handler, svc service.DeviceServiceInterface, config *vi
 	return &DeviceHandler{Handler: h, svc: svc, config: config}
 }
 
-func deviceJSON(device model.Device) deviceV1.Device {
-	return deviceV1.Device{
+func deviceJSON(device model.Device) v1.Device {
+	return v1.Device{
 		ID:              device.ID,
 		DeviceKey:       device.DeviceKey,
 		Name:            device.Name,
@@ -47,33 +46,33 @@ func deviceJSON(device model.Device) deviceV1.Device {
 	}
 }
 
-func deviceTagJSON(tag model.DeviceTag) deviceV1.DeviceTag {
-	return deviceV1.DeviceTag{
+func deviceTagJSON(tag model.DeviceTag) v1.DeviceTag {
+	return v1.DeviceTag{
 		ID: tag.ID, DeviceID: tag.DeviceID, Key: tag.Key, Value: tag.Value, Source: tag.Source,
 		CreatedAt: tag.CreatedAt, UpdatedAt: tag.UpdatedAt, DeletedAt: deletedAt(tag.DeletedAt),
 	}
 }
 
-func deviceTagsJSON(tags []model.DeviceTag) []deviceV1.DeviceTag {
-	items := make([]deviceV1.DeviceTag, len(tags))
+func deviceTagsJSON(tags []model.DeviceTag) []v1.DeviceTag {
+	items := make([]v1.DeviceTag, len(tags))
 	for i, tag := range tags {
 		items[i] = deviceTagJSON(tag)
 	}
 	return items
 }
 
-func shadowHistoryJSON(history model.DeviceShadowHistory) deviceV1.DeviceShadowHistory {
+func shadowHistoryJSON(history model.DeviceShadowHistory) v1.DeviceShadowHistory {
 	var desired, reported any
 	_ = json.Unmarshal([]byte(history.Desired), &desired)
 	_ = json.Unmarshal([]byte(history.Reported), &reported)
-	return deviceV1.DeviceShadowHistory{
+	return v1.DeviceShadowHistory{
 		ID: history.ID, DeviceID: history.DeviceID, Version: history.Version, Source: history.Source,
 		Desired: desired, Reported: reported, CreatedAt: history.CreatedAt,
 	}
 }
 
-func pushRecordJSON(record model.DevicePushRecord) deviceV1.PushRecord {
-	return deviceV1.PushRecord{
+func pushRecordJSON(record model.DevicePushRecord) v1.PushRecord {
+	return v1.PushRecord{
 		ID: record.ID, DeviceID: record.DeviceID, OperationType: record.OperationType, OperationName: record.OperationName,
 		Payload: record.Payload, Status: record.Status, ErrorMessage: record.ErrorMessage, CreatedBy: record.CreatedBy,
 		CreatedAt: record.CreatedAt, UpdatedAt: record.UpdatedAt,
@@ -88,11 +87,11 @@ func pushRecordJSON(record model.DevicePushRecord) deviceV1.PushRecord {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body deviceV1.CreateDeviceRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.CreateDeviceResponse] "Successful response"
+// @Param request body v1.CreateDeviceRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.CreateDeviceResponse] "Successful response"
 // @Router /devices [post]
 func (h *DeviceHandler) CreateDevice(c *gin.Context) {
-	var req deviceV1.CreateDeviceRequest
+	var req v1.CreateDeviceRequest
 	if e := c.ShouldBindJSON(&req); e != nil {
 		deviceError(c, e)
 		return
@@ -102,7 +101,7 @@ func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.CreateDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, v1.CreateDeviceResponse{Device: deviceJSON(*d)})
 }
 
 // GetDevice godoc
@@ -114,7 +113,7 @@ func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[deviceV1.GetDeviceResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.GetDeviceResponse] "Successful response"
 // @Router /devices/{deviceKey} [get]
 func (h *DeviceHandler) GetDevice(c *gin.Context) {
 	d, e := h.svc.DeviceByKey(c, c.Param("deviceKey"))
@@ -122,7 +121,7 @@ func (h *DeviceHandler) GetDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.GetDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, v1.GetDeviceResponse{Device: deviceJSON(*d)})
 }
 
 // GetDeviceByKey preserves the internal entry point; the public route uses /devices/:deviceKey.
@@ -138,11 +137,11 @@ func (h *DeviceHandler) GetDeviceByKey(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query deviceV1.ListDevicesRequest false "Query parameters"
-// @Success 200 {object} v1.ApiResponse[deviceV1.ListDevicesResponse] "Successful response"
+// @Param request query v1.ListDevicesRequest false "Query parameters"
+// @Success 200 {object} v1.ApiResponse[v1.ListDevicesResponse] "Successful response"
 // @Router /devices [get]
 func (h *DeviceHandler) ListDevices(c *gin.Context) {
-	var req deviceV1.ListDevicesRequest
+	var req v1.ListDevicesRequest
 	_ = c.ShouldBindQuery(&req)
 	p, s := pageRequest(req.PageRequest, 10)
 	d, n, e := h.svc.ListDevices(c, p, s, req.ProductID, req.States, req.Enabled, req.SearchText)
@@ -150,11 +149,11 @@ func (h *DeviceHandler) ListDevices(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	out := make([]deviceV1.Device, 0, len(d))
+	out := make([]v1.Device, 0, len(d))
 	for _, v := range d {
 		out = append(out, deviceJSON(v))
 	}
-	v1.HandleSuccess(c, deviceV1.ListDevicesResponse{Devices: out, Total: n, Page: p, PageSize: s})
+	v1.HandleSuccess(c, v1.ListDevicesResponse{Devices: out, Total: n, Page: p, PageSize: s})
 }
 
 // UpdateDevice godoc
@@ -166,11 +165,11 @@ func (h *DeviceHandler) ListDevices(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request body deviceV1.UpdateDeviceRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.UpdateDeviceResponse] "Successful response"
+// @Param request body v1.UpdateDeviceRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.UpdateDeviceResponse] "Successful response"
 // @Router /devices/{deviceKey} [put]
 func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
-	var req deviceV1.UpdateDeviceRequest
+	var req v1.UpdateDeviceRequest
 	if e := c.ShouldBindJSON(&req); e != nil {
 		deviceError(c, e)
 		return
@@ -180,7 +179,7 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.UpdateDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, v1.UpdateDeviceResponse{Device: deviceJSON(*d)})
 }
 
 // DeleteDevice godoc
@@ -192,7 +191,7 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[deviceV1.DeviceSuccessResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.DeviceSuccessResponse] "Successful response"
 // @Router /devices/{deviceKey} [delete]
 func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 	e := h.svc.DeleteDeviceByKey(c, c.Param("deviceKey"))
@@ -200,7 +199,7 @@ func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.DeviceSuccessResponse{Success: true})
+	v1.HandleSuccess(c, v1.DeviceSuccessResponse{Success: true})
 }
 
 // Activate godoc
@@ -212,7 +211,7 @@ func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[deviceV1.ActivateDeviceResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.ActivateDeviceResponse] "Successful response"
 // @Router /devices/{deviceKey}/activate [post]
 func (h *DeviceHandler) Activate(c *gin.Context) {
 	d, e := h.svc.ActivateByKey(c, c.Param("deviceKey"))
@@ -220,7 +219,7 @@ func (h *DeviceHandler) Activate(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.ActivateDeviceResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, v1.ActivateDeviceResponse{Device: deviceJSON(*d)})
 }
 
 // Enabled godoc
@@ -232,11 +231,11 @@ func (h *DeviceHandler) Activate(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request body deviceV1.SetDeviceEnabledRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.SetDeviceEnabledResponse] "Successful response"
+// @Param request body v1.SetDeviceEnabledRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.SetDeviceEnabledResponse] "Successful response"
 // @Router /devices/{deviceKey}/enabled [post]
 func (h *DeviceHandler) Enabled(c *gin.Context) {
-	var req deviceV1.SetDeviceEnabledRequest
+	var req v1.SetDeviceEnabledRequest
 	e := c.ShouldBindJSON(&req)
 	if e != nil {
 		deviceError(c, e)
@@ -247,7 +246,7 @@ func (h *DeviceHandler) Enabled(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.SetDeviceEnabledResponse{Device: deviceJSON(*d)})
+	v1.HandleSuccess(c, v1.SetDeviceEnabledResponse{Device: deviceJSON(*d)})
 }
 
 // Stats godoc
@@ -258,7 +257,7 @@ func (h *DeviceHandler) Enabled(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} v1.ApiResponse[deviceV1.DeviceStatisticsResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.DeviceStatisticsResponse] "Successful response"
 // @Router /device-statistics [get]
 func (h *DeviceHandler) Stats(c *gin.Context) {
 	x, e := h.svc.Stats(c)
@@ -266,7 +265,7 @@ func (h *DeviceHandler) Stats(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.DeviceStatisticsResponse{
+	v1.HandleSuccess(c, v1.DeviceStatisticsResponse{
 		TotalDevices: x.TotalDevices, ActivatedDevices: x.ActivatedDevices, OnlineDevices: x.OnlineDevices,
 		OfflineDevices: x.OfflineDevices, InactiveDevices: x.InactiveDevices,
 	})
@@ -281,7 +280,7 @@ func (h *DeviceHandler) Stats(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[deviceV1.TelemetryResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.TelemetryResponse] "Successful response"
 // @Router /devices/{deviceKey}/telemetry [get]
 func (h *DeviceHandler) Telemetry(c *gin.Context) {
 	x, e := h.svc.Telemetry(c, c.Param("deviceKey"))
@@ -289,7 +288,7 @@ func (h *DeviceHandler) Telemetry(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.TelemetryResponse{Telemetry: x})
+	v1.HandleSuccess(c, v1.TelemetryResponse{Telemetry: x})
 }
 
 // GetTags godoc
@@ -301,7 +300,7 @@ func (h *DeviceHandler) Telemetry(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[deviceV1.ListDeviceTagsResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.ListDeviceTagsResponse] "Successful response"
 // @Router /devices/{deviceKey}/tags [get]
 func (h *DeviceHandler) GetTags(c *gin.Context) {
 	x, e := h.svc.Tags(c, c.Param("deviceKey"))
@@ -309,7 +308,7 @@ func (h *DeviceHandler) GetTags(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
+	v1.HandleSuccess(c, v1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
 }
 
 // PutTags godoc
@@ -321,11 +320,11 @@ func (h *DeviceHandler) GetTags(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request body deviceV1.SetDeviceTagsRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.ListDeviceTagsResponse] "Successful response"
+// @Param request body v1.SetDeviceTagsRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.ListDeviceTagsResponse] "Successful response"
 // @Router /devices/{deviceKey}/tags [put]
 func (h *DeviceHandler) PutTags(c *gin.Context) {
-	var req deviceV1.SetDeviceTagsRequest
+	var req v1.SetDeviceTagsRequest
 	e := c.ShouldBindJSON(&req)
 	var x []model.DeviceTag
 	if e == nil {
@@ -335,7 +334,7 @@ func (h *DeviceHandler) PutTags(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
+	v1.HandleSuccess(c, v1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
 }
 
 // PostTags godoc
@@ -347,11 +346,11 @@ func (h *DeviceHandler) PutTags(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request body deviceV1.SetDeviceTagsRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.ListDeviceTagsResponse] "Successful response"
+// @Param request body v1.SetDeviceTagsRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.ListDeviceTagsResponse] "Successful response"
 // @Router /devices/{deviceKey}/tags [post]
 func (h *DeviceHandler) PostTags(c *gin.Context) {
-	var req deviceV1.SetDeviceTagsRequest
+	var req v1.SetDeviceTagsRequest
 	e := c.ShouldBindJSON(&req)
 	var x []model.DeviceTag
 	if e == nil {
@@ -361,7 +360,7 @@ func (h *DeviceHandler) PostTags(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
+	v1.HandleSuccess(c, v1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
 }
 
 // DeleteTags godoc
@@ -373,11 +372,11 @@ func (h *DeviceHandler) PostTags(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request body deviceV1.DeleteDeviceTagsRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.DeviceSuccessResponse] "Successful response"
+// @Param request body v1.DeleteDeviceTagsRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.DeviceSuccessResponse] "Successful response"
 // @Router /devices/{deviceKey}/tags [delete]
 func (h *DeviceHandler) DeleteTags(c *gin.Context) {
-	var req deviceV1.DeleteDeviceTagsRequest
+	var req v1.DeleteDeviceTagsRequest
 	e := c.ShouldBindJSON(&req)
 	if e == nil {
 		e = h.svc.RemoveTags(c, c.Param("deviceKey"), req.Keys)
@@ -386,9 +385,9 @@ func (h *DeviceHandler) DeleteTags(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.DeviceSuccessResponse{Success: true})
+	v1.HandleSuccess(c, v1.DeviceSuccessResponse{Success: true})
 }
-func shadowJSON(x *model.DeviceShadow) deviceV1.Shadow {
+func shadowJSON(x *model.DeviceShadow) v1.Shadow {
 	var d, r, m any
 	_ = json.Unmarshal([]byte(x.Desired), &d)
 	_ = json.Unmarshal([]byte(x.Reported), &r)
@@ -426,13 +425,13 @@ func shadowJSON(x *model.DeviceShadow) deviceV1.Shadow {
 		m = metaMap
 	}
 
-	state := deviceV1.ShadowState{
+	state := v1.ShadowState{
 		Desired:  d,
 		Reported: r,
 		Delta:    dm,
 	}
 
-	return deviceV1.Shadow{
+	return v1.Shadow{
 		State:     state,
 		Desired:   d,
 		Reported:  r,
@@ -453,7 +452,7 @@ func shadowJSON(x *model.DeviceShadow) deviceV1.Shadow {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[deviceV1.Shadow] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.Shadow] "Successful response"
 // @Router /devices/{deviceKey}/shadow [get]
 func (h *DeviceHandler) GetShadow(c *gin.Context) {
 	x, e := h.svc.Shadow(c, c.Param("deviceKey"))
@@ -473,11 +472,11 @@ func (h *DeviceHandler) GetShadow(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request body deviceV1.UpdateDesiredShadowRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.Shadow] "Successful response"
+// @Param request body v1.UpdateDesiredShadowRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.Shadow] "Successful response"
 // @Router /devices/{deviceKey}/shadow/desired [put]
 func (h *DeviceHandler) Desired(c *gin.Context) {
-	var req deviceV1.UpdateDesiredShadowRequest
+	var req v1.UpdateDesiredShadowRequest
 	e := c.ShouldBindJSON(&req)
 	var x *model.DeviceShadow
 	if e == nil {
@@ -499,11 +498,11 @@ func (h *DeviceHandler) Desired(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request body deviceV1.ClearDesiredShadowRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.Shadow] "Successful response"
+// @Param request body v1.ClearDesiredShadowRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.Shadow] "Successful response"
 // @Router /devices/{deviceKey}/shadow/desired [delete]
 func (h *DeviceHandler) ClearDesired(c *gin.Context) {
-	var req deviceV1.ClearDesiredShadowRequest
+	var req v1.ClearDesiredShadowRequest
 	_ = c.ShouldBindJSON(&req)
 	x, e := h.svc.MutateShadow(c, c.Param("deviceKey"), req.Version, "app", nil, nil, true)
 	if e != nil {
@@ -522,7 +521,7 @@ func (h *DeviceHandler) ClearDesired(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[deviceV1.ListDeviceShadowHistoryResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.ListDeviceShadowHistoryResponse] "Successful response"
 // @Router /devices/{deviceKey}/shadow/history [get]
 func (h *DeviceHandler) History(c *gin.Context) {
 	x, e := h.svc.ShadowHistory(c, c.Param("deviceKey"))
@@ -530,11 +529,11 @@ func (h *DeviceHandler) History(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	items := make([]deviceV1.DeviceShadowHistory, len(x))
+	items := make([]v1.DeviceShadowHistory, len(x))
 	for i, history := range x {
 		items[i] = shadowHistoryJSON(history)
 	}
-	v1.HandleSuccess(c, deviceV1.ListDeviceShadowHistoryResponse{History: items})
+	v1.HandleSuccess(c, v1.ListDeviceShadowHistoryResponse{History: items})
 }
 
 // SimulatePush godoc
@@ -546,11 +545,11 @@ func (h *DeviceHandler) History(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request body deviceV1.SimulatePushRequest true "params"
-// @Success 200 {object} v1.ApiResponse[deviceV1.SimulatePushResponse] "Successful response"
+// @Param request body v1.SimulatePushRequest true "params"
+// @Success 200 {object} v1.ApiResponse[v1.SimulatePushResponse] "Successful response"
 // @Router /devices/{deviceKey}/simulate-push [post]
 func (h *DeviceHandler) SimulatePush(c *gin.Context) {
-	var req deviceV1.SimulatePushRequest
+	var req v1.SimulatePushRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		deviceError(c, err)
 		return
@@ -560,7 +559,7 @@ func (h *DeviceHandler) SimulatePush(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.SimulatePushResponse{PushRecordID: strconv.FormatInt(record.ID, 10), Timestamp: record.CreatedAt.UnixMilli(), Status: record.Status, Message: "success"})
+	v1.HandleSuccess(c, v1.SimulatePushResponse{PushRecordID: strconv.FormatInt(record.ID, 10), Timestamp: record.CreatedAt.UnixMilli(), Status: record.Status, Message: "success"})
 }
 
 // PushRecords godoc
@@ -572,11 +571,11 @@ func (h *DeviceHandler) SimulatePush(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
-// @Param request query deviceV1.ListPushRecordsRequest false "Query parameters"
-// @Success 200 {object} v1.ApiResponse[deviceV1.ListPushRecordsResponse] "Successful response"
+// @Param request query v1.ListPushRecordsRequest false "Query parameters"
+// @Success 200 {object} v1.ApiResponse[v1.ListPushRecordsResponse] "Successful response"
 // @Router /devices/{deviceKey}/push-records [get]
 func (h *DeviceHandler) PushRecords(c *gin.Context) {
-	var req deviceV1.ListPushRecordsRequest
+	var req v1.ListPushRecordsRequest
 	_ = c.ShouldBindQuery(&req)
 	p, s := pageRequest(req.PageRequest, 20)
 	records, total, err := h.svc.ListPushRecords(c, c.Param("deviceKey"), p, s, req.OperationType, req.Status)
@@ -584,11 +583,11 @@ func (h *DeviceHandler) PushRecords(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	items := make([]deviceV1.PushRecord, len(records))
+	items := make([]v1.PushRecord, len(records))
 	for i, record := range records {
 		items[i] = pushRecordJSON(record)
 	}
-	v1.HandleSuccess(c, deviceV1.ListPushRecordsResponse{Records: items, Total: total, Page: p, PageSize: s})
+	v1.HandleSuccess(c, v1.ListPushRecordsResponse{Records: items, Total: total, Page: p, PageSize: s})
 }
 
 // PushRecord godoc
@@ -600,7 +599,7 @@ func (h *DeviceHandler) PushRecords(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param pushRecordId path int true "Push record ID"
-// @Success 200 {object} v1.ApiResponse[deviceV1.GetPushRecordResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.GetPushRecordResponse] "Successful response"
 // @Router /devices/push-records/{pushRecordId} [get]
 func (h *DeviceHandler) PushRecord(c *gin.Context) {
 	pushRecordID, err := strconv.ParseInt(c.Param("pushRecordId"), 10, 64)
@@ -613,7 +612,7 @@ func (h *DeviceHandler) PushRecord(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.GetPushRecordResponse{Record: pushRecordJSON(*record)})
+	v1.HandleSuccess(c, v1.GetPushRecordResponse{Record: pushRecordJSON(*record)})
 }
 
 // ClearPushRecords godoc
@@ -626,7 +625,7 @@ func (h *DeviceHandler) PushRecord(c *gin.Context) {
 // @Security Bearer
 // @Param deviceKey path string true "Device key"
 // @Param beforeTimestamp query int false "Cutoff timestamp"
-// @Success 200 {object} v1.ApiResponse[deviceV1.ClearPushRecordsResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.ClearPushRecordsResponse] "Successful response"
 // @Router /devices/{deviceKey}/push-records [delete]
 func (h *DeviceHandler) ClearPushRecords(c *gin.Context) {
 	var before *time.Time
@@ -641,7 +640,7 @@ func (h *DeviceHandler) ClearPushRecords(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, deviceV1.ClearPushRecordsResponse{DeletedCount: deletedCount, Success: true})
+	v1.HandleSuccess(c, v1.ClearPushRecordsResponse{DeletedCount: deletedCount, Success: true})
 }
 
 // BatchTemplate godoc
@@ -672,7 +671,7 @@ func (h *DeviceHandler) BatchTemplate(c *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param file formData file true "Upload file"
-// @Success 200 {object} v1.ApiResponse[deviceV1.BatchUploadDevicesResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.BatchUploadDevicesResponse] "Successful response"
 // @Router /devices/batch/upload [post]
 func (h *DeviceHandler) BatchUpload(c *gin.Context) {
 	f, _, e := c.Request.FormFile("file")
@@ -691,9 +690,9 @@ func (h *DeviceHandler) BatchUpload(c *gin.Context) {
 		deviceError(c, e)
 		return
 	}
-	items := make([]deviceV1.BatchUploadError, len(errs))
+	items := make([]v1.BatchUploadError, len(errs))
 	for i, item := range errs {
-		items[i] = deviceV1.BatchUploadError{Row: item.Row, ProductKey: item.ProductKey, DeviceName: item.DeviceName, Error: item.Error}
+		items[i] = v1.BatchUploadError{Row: item.Row, ProductKey: item.ProductKey, DeviceName: item.DeviceName, Error: item.Error}
 	}
-	v1.HandleSuccess(c, deviceV1.BatchUploadDevicesResponse{SuccessCount: n, FailureCount: len(items), Errors: items})
+	v1.HandleSuccess(c, v1.BatchUploadDevicesResponse{SuccessCount: n, FailureCount: len(items), Errors: items})
 }

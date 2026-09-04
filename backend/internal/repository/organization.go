@@ -1,12 +1,8 @@
 package repository
 
 import (
-	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"context"
-	"errors"
-
-	"gorm.io/gorm"
 )
 
 type OrganizationRepository interface {
@@ -32,9 +28,6 @@ func (r *organizationRepository) Create(ctx context.Context, org *model.Organiza
 func (r *organizationRepository) GetByID(ctx context.Context, id int64) (*model.Organization, error) {
 	var org model.Organization
 	if err := r.DB(ctx).Where("id = ?", id).First(&org).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, v1.ErrNotFound
-		}
 		return nil, err
 	}
 	return &org, nil

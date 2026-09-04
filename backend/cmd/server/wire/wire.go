@@ -22,8 +22,7 @@ import (
 var repositorySet = wire.NewSet(
 	repository.NewDB,
 	repository.NewRepository,
-	repository.NewIoTDB,
-	repository.NewIoTRedis,
+	repository.NewRedis,
 	repository.NewProductRepository,
 	repository.NewCategoryRepository,
 	repository.NewProductTSLRepository,

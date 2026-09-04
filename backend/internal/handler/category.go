@@ -1,10 +1,10 @@
 package handler
 
 import (
-	categoryv1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,8 +16,8 @@ type CategoryHandler struct {
 func NewCategoryHandler(h *Handler, svc service.CategoryServiceInterface) *CategoryHandler {
 	return &CategoryHandler{Handler: h, svc: svc}
 }
-func categoryJSON(item model.Category) categoryv1.Category {
-	out := categoryv1.Category{ID: item.ID, ParentID: item.ParentID, Name: item.Name, Sort: item.Sort, Enabled: item.Enabled}
+func categoryJSON(item model.Category) v1.Category {
+	out := v1.Category{ID: item.ID, ParentID: item.ParentID, Name: item.Name, Sort: item.Sort, Enabled: item.Enabled}
 	for _, child := range item.Children {
 		out.Children = append(out.Children, categoryJSON(child))
 	}
@@ -29,7 +29,7 @@ func categoryJSON(item model.Category) categoryv1.Category {
 // @Tags Product categories
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} v1.ApiResponse[[]categoryv1.Category] "Successful response"
+// @Success 200 {object} v1.ApiResponse[[]v1.Category] "Successful response"
 // @Router /categories/tree [get]
 func (h *CategoryHandler) Tree(c *gin.Context) {
 	items, err := h.svc.Tree(c)
@@ -37,7 +37,7 @@ func (h *CategoryHandler) Tree(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	out := make([]categoryv1.Category, len(items))
+	out := make([]v1.Category, len(items))
 	for i := range items {
 		out[i] = categoryJSON(items[i])
 	}

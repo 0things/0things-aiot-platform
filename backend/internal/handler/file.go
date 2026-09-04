@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	fileV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,7 +44,7 @@ func NewFileHandler(h *Handler, svc service.FileServiceInterface) *FileHandler {
 // @Produce json
 // @Security Bearer
 // @Param file formData file true "OTA upgrade file (.bin, .dav, .tar, .gz, .zip, .gzip, .apk, .tar.gz, .tar.xz, .pack; max 100 MB)"
-// @Success 200 {object} v1.ApiResponse[fileV1.UploadOTAFileResponse] "Successful response"
+// @Success 200 {object} v1.ApiResponse[v1.UploadOTAFileResponse] "Successful response"
 // @Router /files/ota [post]
 func (h *FileHandler) UploadOTAFile(c *gin.Context) {
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxOTAFileSize+1)
@@ -81,7 +81,7 @@ func (h *FileHandler) UploadOTAFile(c *gin.Context) {
 		return
 	}
 
-	v1.HandleSuccess(c, fileV1.UploadOTAFileResponse{
+	v1.HandleSuccess(c, v1.UploadOTAFileResponse{
 		FileURL:  result.FileURL,
 		FileSize: result.FileSize,
 		Checksum: result.Checksum,

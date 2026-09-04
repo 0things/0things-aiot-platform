@@ -7,14 +7,15 @@ import (
 	"time"
 
 	"aiot-backend/internal/model"
+
 	"gorm.io/gorm"
 )
 
 type DeviceShadowRepository struct {
-	db *IoTDB
+	db *gorm.DB
 }
 
-func NewDeviceShadowRepository(db *IoTDB) *DeviceShadowRepository {
+func NewDeviceShadowRepository(db *gorm.DB) *DeviceShadowRepository {
 	return &DeviceShadowRepository{db: db}
 }
 

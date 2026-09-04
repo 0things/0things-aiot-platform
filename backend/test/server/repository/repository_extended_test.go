@@ -33,7 +33,7 @@ func setupPushRecordRepository(t *testing.T) (*repository.PushRecordRepository, 
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	pushRepo := repository.NewPushRecordRepository(&repository.IoTDB{DB: db})
+	pushRepo := repository.NewPushRecordRepository(db)
 	return pushRepo, mock
 }
 
@@ -182,7 +182,7 @@ func TestExtendedUserRepository_GetByEmail_NotFound(t *testing.T) {
 	mock.ExpectQuery("SELECT .+ FROM `users`").WillReturnError(gorm.ErrRecordNotFound)
 
 	user, err := (*userRepo).GetByEmail(ctx, "nonexistent@test.com")
-	assert.NoError(t, err)
+	assert.Error(t, err)
 	assert.Nil(t, user)
 }
 
@@ -199,7 +199,7 @@ func setupDeviceShadowRepository(t *testing.T) (*repository.DeviceShadowReposito
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	shadowRepo := repository.NewDeviceShadowRepository(&repository.IoTDB{DB: db})
+	shadowRepo := repository.NewDeviceShadowRepository(db)
 	return shadowRepo, mock
 }
 
@@ -260,7 +260,7 @@ func setupDeviceTagRepository(t *testing.T) (*repository.DeviceTagRepository, sq
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	tagRepo := repository.NewDeviceTagRepository(&repository.IoTDB{DB: db})
+	tagRepo := repository.NewDeviceTagRepository(db)
 	return tagRepo, mock
 }
 
@@ -331,7 +331,7 @@ func setupExtendedOTARespository(t *testing.T) (*repository.OTARepository, sqlmo
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	otaRepo := repository.NewOTARepository(&repository.IoTDB{DB: db})
+	otaRepo := repository.NewOTARepository(db)
 	return otaRepo, mock
 }
 
@@ -372,7 +372,7 @@ func setupDeviceEventRepository(t *testing.T) (*repository.DeviceEventRepository
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	eventRepo := repository.NewDeviceEventRepository(&repository.IoTDB{DB: db})
+	eventRepo := repository.NewDeviceEventRepository(db)
 	return eventRepo, mock
 }
 
@@ -415,7 +415,7 @@ func setupProductRepository(t *testing.T) (*repository.ProductRepository, sqlmoc
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	productRepo := repository.NewProductRepository(&repository.IoTDB{DB: db})
+	productRepo := repository.NewProductRepository(db)
 	return productRepo, mock
 }
 
@@ -486,7 +486,7 @@ func setupProductTSLRepository(t *testing.T) (*repository.ProductTSLRepository, 
 	}), &gorm.Config{})
 	require.NoError(t, err)
 
-	tslRepo := repository.NewProductTSLRepository(&repository.IoTDB{DB: db})
+	tslRepo := repository.NewProductTSLRepository(db)
 	return tslRepo, mock
 }
 
@@ -659,7 +659,7 @@ func setupSQLiteProductRepo(t *testing.T) (*repository.ProductRepository, *repos
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.Device{}, &model.Category{}, &model.ProductProtocol{}))
-	iotDB := &repository.IoTDB{DB: db}
+	iotDB := db
 	repo := repository.NewRepository(nil, db)
 	productRepo := repository.NewProductRepository(iotDB)
 	return productRepo, repo
@@ -718,7 +718,7 @@ func setupSQLiteOTARepo(t *testing.T) (*repository.OTARepository, *repository.Pr
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.Device{}, &model.OTAPackage{}, &model.UpgradeBatch{}, &model.DeviceUpgradeStatus{}))
-	iotDB := &repository.IoTDB{DB: db}
+	iotDB := db
 	otaRepo := repository.NewOTARepository(iotDB)
 	productRepo := repository.NewProductRepository(iotDB)
 	return otaRepo, productRepo
@@ -783,7 +783,7 @@ func TestOTARepository_CreateBatchDeployments(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.OTAPackage{}, &model.DeviceUpgradeStatus{}, &model.UpgradeBatch{}))
 
-	iotDB := &repository.IoTDB{DB: db}
+	iotDB := db
 	otaRepo := repository.NewOTARepository(iotDB)
 	productRepo := repository.NewProductRepository(iotDB)
 	ctx := tenant.WithTenant(context.Background(), 1)
@@ -838,9 +838,8 @@ func setupSQLiteDeviceRepo(t *testing.T) (*repository.DeviceRepository, *reposit
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.Device{}, &model.DeviceState{}))
-	iotDB := &repository.IoTDB{DB: db}
-	iotRedis := &repository.IoTRedis{Client: nil}
-	deviceRepo := repository.NewDeviceRepository(iotDB, iotRedis)
+	iotDB := db
+	deviceRepo := repository.NewDeviceRepository(iotDB, nil)
 	productRepo := repository.NewProductRepository(iotDB)
 	return deviceRepo, productRepo
 }
@@ -874,8 +873,8 @@ func TestDeviceRepository_FindByKeys(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Device{}))
 
-	iotDB := &repository.IoTDB{DB: db}
-	deviceRepo := repository.NewDeviceRepository(iotDB, &repository.IoTRedis{Client: nil})
+	iotDB := db
+	deviceRepo := repository.NewDeviceRepository(iotDB, nil)
 	ctx := tenant.WithTenant(context.Background(), 1)
 
 	require.NoError(t, db.Create(&model.Device{DeviceKey: "D001", Name: "dev1", OrganizationID: 1, Enabled: true}).Error)
@@ -966,7 +965,7 @@ func setupSQLitePushRecordRepo(t *testing.T) *repository.PushRecordRepository {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.DevicePushRecord{}))
-	iotDB := &repository.IoTDB{DB: db}
+	iotDB := db
 	return repository.NewPushRecordRepository(iotDB)
 }
 
@@ -1032,7 +1031,7 @@ func setupSQLiteShadowRepo(t *testing.T) *repository.DeviceShadowRepository {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.DeviceShadow{}, &model.DeviceShadowHistory{}))
-	iotDB := &repository.IoTDB{DB: db}
+	iotDB := db
 	return repository.NewDeviceShadowRepository(iotDB)
 }
 
@@ -1148,7 +1147,7 @@ func setupSQLiteTagRepo(t *testing.T) *repository.DeviceTagRepository {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.DeviceTag{}))
-	iotDB := &repository.IoTDB{DB: db}
+	iotDB := db
 	return repository.NewDeviceTagRepository(iotDB)
 }
 
@@ -1252,7 +1251,7 @@ func TestUserRepository_GetByEmail_NotFound(t *testing.T) {
 	ctx := context.Background()
 
 	user, err := userRepo.GetByEmail(ctx, "nonexistent@test.com")
-	assert.NoError(t, err)
+	assert.Error(t, err)
 	assert.Nil(t, user)
 }
 
@@ -1263,7 +1262,7 @@ func setupSQLiteEventRepo(t *testing.T) (*repository.DeviceEventRepository, *gor
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.DeviceEvent{}))
-	iotDB := &repository.IoTDB{DB: db}
+	iotDB := db
 	return repository.NewDeviceEventRepository(iotDB), db
 }
 

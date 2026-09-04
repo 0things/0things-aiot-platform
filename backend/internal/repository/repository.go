@@ -7,11 +7,13 @@ import (
 
 	"aiot-backend/pkg/log"
 	"aiot-backend/pkg/zapgorm2"
+
 	"github.com/glebarez/sqlite"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,23 +22,16 @@ import (
 const ctxTxKey = "TxKey"
 
 type Repository struct {
-	db *gorm.DB
-	//rdb    *redis.Client
-	//mongo  *mongo.Client
+	db     *gorm.DB
 	logger *log.Logger
 }
 
 func NewRepository(
 	logger *log.Logger,
 	db *gorm.DB,
-	// rdb *redis.Client,
-	//
-	//	mongo *mongo.Client,
 ) *Repository {
 	return &Repository{
-		db: db,
-		//rdb:    rdb,
-		//mongo:  mongo,
+		db:     db,
 		logger: logger,
 	}
 }
@@ -69,15 +64,7 @@ func (r *Repository) Transaction(ctx context.Context, fn func(ctx context.Contex
 }
 
 func NewDB(conf *viper.Viper, l *log.Logger) *gorm.DB {
-	return newDB(conf, l, "data.db.user")
-}
-
-// NewIoTDB opens the independent legacy device-service database. Keeping it
-// separate prevents this migration from changing the user service datasource.
-type IoTDB struct{ *gorm.DB }
-
-func NewIoTDB(conf *viper.Viper, l *log.Logger) *IoTDB {
-	return &IoTDB{newDB(conf, l, "data.db.device")}
+	return newDB(conf, l, "data.db.aiot")
 }
 
 func newDB(conf *viper.Viper, l *log.Logger, key string) *gorm.DB {
@@ -124,36 +111,33 @@ func newDB(conf *viper.Viper, l *log.Logger, key string) *gorm.DB {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 	return db
 }
-func NewRedis(conf *viper.Viper) *redis.Client {
+
+// NewRedis creates a unified Redis client using "data.redis" config.
+// It is intentionally tolerant: if Redis is unconfigured or unreachable,
+// it logs a warning and returns the client without blocking service startup.
+func NewRedis(conf *viper.Viper, l *log.Logger) *redis.Client {
+	addr := conf.GetString("data.redis.addr")
+	if addr == "" {
+		return nil
+	}
+
+	password := conf.GetString("data.redis.password")
+	db := conf.GetInt("data.redis.db")
+
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     conf.GetString("data.redis.addr"),
-		Password: conf.GetString("data.redis.password"),
-		DB:       conf.GetInt("data.redis.db"),
+		Addr:     addr,
+		Password: password,
+		DB:       db,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	_, err := rdb.Ping(ctx).Result()
-	if err != nil {
-		panic(fmt.Sprintf("redis error: %s", err.Error()))
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		l.Warn("redis ping failed, continuing without redis caching", zap.Error(err))
 	}
 
 	return rdb
-}
-
-type IoTRedis struct{ *redis.Client }
-
-// NewIoTRedis is intentionally lazy: device CRUD must remain usable when
-// telemetry storage is unavailable, just as the legacy service did.
-func NewIoTRedis(conf *viper.Viper) *IoTRedis {
-	addr := conf.GetString("data.redis.device.addr")
-	if addr == "" {
-		return &IoTRedis{}
-	}
-	return &IoTRedis{redis.NewClient(&redis.Options{
-		Addr: addr, Password: conf.GetString("data.redis.device.password"), DB: conf.GetInt("data.redis.device.db"),
-	})}
 }
 func NewMongo(conf *viper.Viper) (*mongo.Client, func(), error) {
 	// https://www.mongodb.com/zh-cn/docs/drivers/go/current/

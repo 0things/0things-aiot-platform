@@ -5,19 +5,20 @@ import (
 	"errors"
 
 	"aiot-backend/internal/model"
+
 	"gorm.io/gorm"
 )
 
 type SceneLinkageDetailRepository struct {
-	db *IoTDB
+	db *gorm.DB
 }
 
-func NewSceneLinkageDetailRepository(db *IoTDB) *SceneLinkageDetailRepository {
+func NewSceneLinkageDetailRepository(db *gorm.DB) *SceneLinkageDetailRepository {
 	return &SceneLinkageDetailRepository{db: db}
 }
 
 func (r *SceneLinkageDetailRepository) FindBySceneID(ctx context.Context, sceneID int64) (*model.SceneLinkageDetail, error) {
-	q := useIoTQuery(r.db)
+	q := useQuery(r.db)
 	detail, err := q.SceneLinkageDetail.WithContext(ctx).Where(q.SceneLinkageDetail.SceneID.Eq(sceneID)).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -29,9 +30,9 @@ func (r *SceneLinkageDetailRepository) FindBySceneID(ctx context.Context, sceneI
 }
 
 func (r *SceneLinkageDetailRepository) Create(ctx context.Context, detail *model.SceneLinkageDetail) error {
-	return useIoTQuery(r.db).SceneLinkageDetail.WithContext(ctx).Create(detail)
+	return useQuery(r.db).SceneLinkageDetail.WithContext(ctx).Create(detail)
 }
 
 func (r *SceneLinkageDetailRepository) Save(ctx context.Context, detail *model.SceneLinkageDetail) error {
-	return useIoTQuery(r.db).SceneLinkageDetail.WithContext(ctx).Save(detail)
+	return useQuery(r.db).SceneLinkageDetail.WithContext(ctx).Save(detail)
 }

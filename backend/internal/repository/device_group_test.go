@@ -32,7 +32,7 @@ func TestDeviceGroupRepositoryDevices_DynamicRuleWithOR(t *testing.T) {
 		{DeviceKey: "device-b", Name: "B", ProductID: products[1].ID, OrganizationID: 1, Enabled: true},
 	}).Error)
 
-	repo := NewDeviceGroupRepository(&IoTDB{DB: db})
+	repo := NewDeviceGroupRepository(db)
 	group := &model.DeviceGroup{
 		ID:             1,
 		OrganizationID: 1,
@@ -57,7 +57,7 @@ func TestDeviceGroupRepositoryDevicesPage_Paginates(t *testing.T) {
 		{DeviceKey: "device-b", Name: "B", ProductID: product.ID, OrganizationID: 1, Enabled: true},
 	}).Error)
 
-	repo := NewDeviceGroupRepository(&IoTDB{DB: db})
+	repo := NewDeviceGroupRepository(db)
 	group := &model.DeviceGroup{Type: "dynamic", Rule: "product_key = 'product-a'"}
 	devices, total, err := repo.DevicesPage(context.Background(), group, 2, 1, "", "")
 	require.NoError(t, err)

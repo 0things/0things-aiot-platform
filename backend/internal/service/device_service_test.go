@@ -26,13 +26,12 @@ func newDeviceSvc(t *testing.T) (*DeviceService, *gorm.DB, context.Context) {
 	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "D001", Name: "Test Device", ProductID: 1, OrganizationID: 1, Enabled: true}).Error)
 	require.NoError(t, db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"}).Error)
 
-	iotDB := &repository.IoTDB{DB: db}
 	svc := NewDeviceService(
-		repository.NewDeviceRepository(iotDB, &repository.IoTRedis{}),
-		repository.NewProductRepository(iotDB),
-		repository.NewDeviceTagRepository(iotDB),
-		repository.NewDeviceShadowRepository(iotDB),
-		repository.NewPushRecordRepository(iotDB),
+		repository.NewDeviceRepository(db, nil),
+		repository.NewProductRepository(db),
+		repository.NewDeviceTagRepository(db),
+		repository.NewDeviceShadowRepository(db),
+		repository.NewPushRecordRepository(db),
 	)
 	return svc, db, context.Background()
 }
