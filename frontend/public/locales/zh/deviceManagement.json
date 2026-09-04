@@ -591,7 +591,6 @@
         "productKey": "ProductKey",
         "deviceKey": "DeviceKey",
         "nodeType": "节点类型",
-        "notes": "备注名称",
         "createdAt": "创建时间",
         "currentStatus": "当前状态",
         "ipAddress": "IP地址",

@@ -77,18 +77,6 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
 
               <div className='space-y-1'>
                 <p className='text-sm text-muted-foreground'>
-                  {t('deviceDetail.info.fields.notes')}
-                </p>
-                <div className='flex items-center gap-2'>
-                  <p className='font-medium'>{device.metadata || '-'}</p>
-                  <Button variant='link' size='sm' className='h-auto p-0'>
-                    {t('deviceDetail.info.edit')}
-                  </Button>
-                </div>
-              </div>
-
-              <div className='space-y-1'>
-                <p className='text-sm text-muted-foreground'>
                   {t('deviceDetail.info.fields.createdAt')}
                 </p>
                 <p className='font-medium'>{formatDate(device.createdAt)}</p>

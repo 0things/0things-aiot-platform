@@ -591,7 +591,6 @@
         "productKey": "ProductKey",
         "deviceKey": "DeviceKey",
         "nodeType": "Node Type",
-        "notes": "Notes",
         "createdAt": "Created At",
         "currentStatus": "Current Status",
         "ipAddress": "IP Address",
