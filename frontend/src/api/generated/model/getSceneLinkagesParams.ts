@@ -7,20 +7,17 @@
  */
 
 export type GetSceneLinkagesParams = {
+  enable?: number
   /**
-   * 页码
+   * Page number (1-based, default 1)
+   * @minimum 1
    */
   page?: number
   /**
-   * 每页数量
+   * Page size (1-100, default 10)
+   * @minimum 1
+   * @maximum 100
    */
   pageSize?: number
-  /**
-   * 搜索关键字
-   */
   search?: string
-  /**
-   * 启用状态：1 启用，0 停用
-   */
-  enable?: number
 }

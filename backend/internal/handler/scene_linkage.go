@@ -1,7 +1,7 @@
 package handler
 
 import (
-	sceneLinkageV1 "aiot-backend/api/scene_linkage/v1"
+	sceneLinkageV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -19,13 +19,13 @@ func NewSceneLinkageHandler(h *Handler, svc service.SceneLinkageServiceInterface
 
 func sceneLinkageJSON(scene model.SceneLinkage) sceneLinkageV1.SceneLinkage {
 	return sceneLinkageV1.SceneLinkage{
-		ID:          scene.ID,
-		OrganizationID:    scene.OrganizationID,
-		Name:        scene.Name,
-		Description: scene.Description,
-		Enable:      scene.Enable,
-		CreatedAt:   scene.CreatedAt,
-		UpdatedAt:   scene.UpdatedAt,
+		ID:             scene.ID,
+		OrganizationID: scene.OrganizationID,
+		Name:           scene.Name,
+		Description:    scene.Description,
+		Enable:         scene.Enable,
+		CreatedAt:      scene.CreatedAt,
+		UpdatedAt:      scene.UpdatedAt,
 	}
 }
 
@@ -41,22 +41,25 @@ func parseEnable(c *gin.Context) int {
 }
 
 // ListSceneLinkages godoc
-// @Summary 获取场景联动列表
+// @Summary List scene linkages
 // @Schemes
-// @Description 分页获取场景联动列表，支持按 search、enable 过滤
-// @Tags 场景联动模块
+// @Description Lists scene linkages.
+// @Tags Scene linkages
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param page query int false "页码"
-// @Param pageSize query int false "每页数量"
-// @Param search query string false "搜索关键字"
-// @Param enable query int false "启用状态：1 启用，0 停用"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.ListSceneLinkagesResponse]
+// @Param request query sceneLinkageV1.ListSceneLinkagesRequest false "Query parameters"
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.ListSceneLinkagesResponse] "Successful response"
 // @Router /scene-linkages [get]
 func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
-	pageNumber, pageSize := page(c, 20)
-	scenes, total, err := h.svc.List(c, pageNumber, pageSize, c.Query("search"), parseEnable(c))
+	var req sceneLinkageV1.ListSceneLinkagesRequest
+	_ = c.ShouldBindQuery(&req)
+	pageNumber, pageSize := pageRequest(req.PageRequest, 20)
+	enable := -1
+	if req.Enable != nil {
+		enable = *req.Enable
+	}
+	scenes, total, err := h.svc.List(c, pageNumber, pageSize, req.Search, enable)
 	if err != nil {
 		deviceError(c, err)
 		return
@@ -69,15 +72,15 @@ func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
 }
 
 // GetSceneLinkage godoc
-// @Summary 获取场景联动详情
+// @Summary Get scene linkage
 // @Schemes
-// @Description 通过 ID 获取场景联动
-// @Tags 场景联动模块
+// @Description Returns scene linkage.
+// @Tags Scene linkages
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "场景联动 ID"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.GetSceneLinkageResponse]
+// @Param id path int true "Scene linkage ID"
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.GetSceneLinkageResponse] "Successful response"
 // @Router /scene-linkages/{id} [get]
 func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -94,15 +97,15 @@ func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 }
 
 // CreateSceneLinkage godoc
-// @Summary 创建场景联动
+// @Summary Create scene linkage
 // @Schemes
-// @Description 创建一条新的场景联动
-// @Tags 场景联动模块
+// @Description Creates scene linkage.
+// @Tags Scene linkages
 // @Accept json
 // @Produce json
 // @Security Bearer
 // @Param request body sceneLinkageV1.SceneLinkageRequest true "params"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.CreateSceneLinkageResponse]
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.CreateSceneLinkageResponse] "Successful response"
 // @Router /scene-linkages [post]
 func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 	var req sceneLinkageV1.SceneLinkageRequest
@@ -122,16 +125,16 @@ func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 }
 
 // UpdateSceneLinkage godoc
-// @Summary 更新场景联动
+// @Summary Update scene linkage
 // @Schemes
-// @Description 通过 ID 更新场景联动
-// @Tags 场景联动模块
+// @Description Updates scene linkage.
+// @Tags Scene linkages
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "场景联动 ID"
+// @Param id path int true "Scene linkage ID"
 // @Param request body sceneLinkageV1.SceneLinkageRequest true "params"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.UpdateSceneLinkageResponse]
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.UpdateSceneLinkageResponse] "Successful response"
 // @Router /scene-linkages/{id} [put]
 func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -161,15 +164,15 @@ func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 }
 
 // DeleteSceneLinkage godoc
-// @Summary 删除场景联动
+// @Summary Delete scene linkage
 // @Schemes
-// @Description 通过 ID 删除场景联动
-// @Tags 场景联动模块
+// @Description Deletes scene linkage.
+// @Tags Scene linkages
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "场景联动 ID"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.SuccessResponse]
+// @Param id path int true "Scene linkage ID"
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.SceneLinkageSuccessResponse] "Successful response"
 // @Router /scene-linkages/{id} [delete]
 func (h *SceneLinkageHandler) DeleteSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
@@ -180,5 +183,5 @@ func (h *SceneLinkageHandler) DeleteSceneLinkage(c *gin.Context) {
 		deviceError(c, err)
 		return
 	}
-	v1.HandleSuccess(c, sceneLinkageV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, sceneLinkageV1.SceneLinkageSuccessResponse{Success: true})
 }

@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	messageParserV1 "aiot-backend/api/message_parser/v1"
+	messageParserV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -21,14 +21,14 @@ func NewProductMessageParserHandler(h *Handler, svc service.ProductMessageParser
 }
 
 // Get godoc
-// @Summary 获取产品消息解析器
-// @Description 获取产品唯一的消息解析脚本；尚未配置时返回默认模板。
-// @Tags 产品模块
+// @Summary Get product message parser
+// @Description Gets the product message parser or its default template.
+// @Tags Products
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param productKey path string true "产品 Key"
-// @Success 200 {object} v1.ApiResponse[messageParserV1.ProductMessageParser]
+// @Param productKey path string true "Product key"
+// @Success 200 {object} v1.ApiResponse[messageParserV1.ProductMessageParser] "Successful response"
 // @Router /products/key/{productKey}/message-parser [get]
 func (h *ProductMessageParserHandler) Get(c *gin.Context) {
 	parser, isDefault, err := h.svc.Get(c, c.Param("productKey"))
@@ -40,15 +40,15 @@ func (h *ProductMessageParserHandler) Get(c *gin.Context) {
 }
 
 // Put godoc
-// @Summary 保存产品消息解析器
-// @Description 按产品覆盖保存 JavaScript ES5 消息解析脚本。
-// @Tags 产品模块
+// @Summary Save product message parser
+// @Description Saves product message parser.
+// @Tags Products
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param productKey path string true "产品 Key"
+// @Param productKey path string true "Product key"
 // @Param request body messageParserV1.UpsertProductMessageParserRequest true "params"
-// @Success 200 {object} v1.ApiResponse[messageParserV1.ProductMessageParser]
+// @Success 200 {object} v1.ApiResponse[messageParserV1.ProductMessageParser] "Successful response"
 // @Router /products/key/{productKey}/message-parser [put]
 func (h *ProductMessageParserHandler) Put(c *gin.Context) {
 	var req messageParserV1.UpsertProductMessageParserRequest
@@ -65,15 +65,15 @@ func (h *ProductMessageParserHandler) Put(c *gin.Context) {
 }
 
 // Execute godoc
-// @Summary 模拟执行产品消息解析器
-// @Description 仅在受限 JavaScript ES5 运行时中执行保存的产品脚本。
-// @Tags 产品模块
+// @Summary Execute product message parser
+// @Description Executes product message parser.
+// @Tags Products
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param productKey path string true "产品 Key"
+// @Param productKey path string true "Product key"
 // @Param request body messageParserV1.ExecuteProductMessageParserRequest true "params"
-// @Success 200 {object} v1.ApiResponse[messageParserV1.ExecuteProductMessageParserResponse]
+// @Success 200 {object} v1.ApiResponse[messageParserV1.ExecuteProductMessageParserResponse] "Successful response"
 // @Router /products/key/{productKey}/message-parser/execute [post]
 func (h *ProductMessageParserHandler) Execute(c *gin.Context) {
 	var req messageParserV1.ExecuteProductMessageParserRequest

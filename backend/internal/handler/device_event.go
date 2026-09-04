@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	eventV1 "aiot-backend/api/event/v1"
+	eventV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/service"
@@ -31,7 +31,7 @@ func deviceEventResponse(event dto.DeviceEventListItem) eventV1.DeviceEvent {
 // @Produce json
 // @Security Bearer
 // @Param request query eventV1.ListDeviceEventsRequest false "Query parameters"
-// @Success 200 {object} v1.ApiResponse[eventV1.ListDeviceEventsResponse]
+// @Success 200 {object} v1.ApiResponse[eventV1.ListDeviceEventsResponse] "Successful response"
 // @Router /device-events [get]
 func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) {
 	var req eventV1.ListDeviceEventsRequest

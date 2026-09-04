@@ -1,7 +1,7 @@
 package handler
 
 import (
-	categoryv1 "aiot-backend/api/category/v1"
+	categoryv1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -25,11 +25,11 @@ func categoryJSON(item model.Category) categoryv1.Category {
 }
 
 // Tree godoc
-// @Summary 获取产品分类树
-// @Tags 产品分类
+// @Summary Get product category tree
+// @Tags Product categories
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} v1.ApiResponse[[]categoryv1.Category]
+// @Success 200 {object} v1.ApiResponse[[]categoryv1.Category] "Successful response"
 // @Router /categories/tree [get]
 func (h *CategoryHandler) Tree(c *gin.Context) {
 	items, err := h.svc.Tree(c)

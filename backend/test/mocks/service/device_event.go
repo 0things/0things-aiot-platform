@@ -5,7 +5,7 @@
 package mock_service
 
 import (
-	eventV1 "aiot-backend/api/event/v1"
+	eventV1 "aiot-backend/api/v1"
 	dto "aiot-backend/internal/dto"
 	context "context"
 	reflect "reflect"

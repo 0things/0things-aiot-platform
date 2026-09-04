@@ -8,7 +8,7 @@
 
 export type DeleteDevicesDeviceKeyPushRecordsParams = {
   /**
-   * 清理此时间戳之前的记录（毫秒）
+   * Cutoff timestamp
    */
   beforeTimestamp?: number
 }

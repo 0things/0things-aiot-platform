@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	protocolV1 "aiot-backend/api/protocol/v1"
+	protocolV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/enum"
 	"aiot-backend/internal/repository"
 	"github.com/spf13/viper"

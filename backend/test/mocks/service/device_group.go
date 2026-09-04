@@ -5,7 +5,7 @@
 package mock_service
 
 import (
-	devicegroupv1 "aiot-backend/api/device_group/v1"
+	devicegroupv1 "aiot-backend/api/v1"
 	model "aiot-backend/internal/model"
 	context "context"
 	reflect "reflect"

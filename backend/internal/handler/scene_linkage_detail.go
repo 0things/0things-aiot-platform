@@ -3,10 +3,10 @@ package handler
 import (
 	"encoding/json"
 
-	sceneLinkageV1 "aiot-backend/api/scene_linkage/v1"
+	sceneLinkageV1 "aiot-backend/api/v1"
+	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
-	v1 "aiot-backend/api/v1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,15 +28,15 @@ func sceneLinkageDetailJSON(detail model.SceneLinkageDetail) sceneLinkageV1.Scen
 }
 
 // GetSceneLinkageDetail godoc
-// @Summary 获取场景联动详情配置
+// @Summary Get scene linkage configuration
 // @Schemes
-// @Description 通过场景联动 ID 获取触发器与动作配置
-// @Tags 场景联动模块
+// @Description Returns scene linkage configuration.
+// @Tags Scene linkages
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "场景联动 ID"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.GetSceneLinkageDetailResponse]
+// @Param id path int true "Scene linkage ID"
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.GetSceneLinkageDetailResponse] "Successful response"
 // @Router /scene-linkages/{id}/detail [get]
 func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
@@ -53,16 +53,16 @@ func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 }
 
 // CreateSceneLinkageDetail godoc
-// @Summary 创建场景联动详情配置
+// @Summary Create scene linkage configuration
 // @Schemes
-// @Description 为指定场景联动创建触发器与动作配置
-// @Tags 场景联动模块
+// @Description Creates scene linkage configuration.
+// @Tags Scene linkages
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "场景联动 ID"
+// @Param id path int true "Scene linkage ID"
 // @Param request body sceneLinkageV1.SceneLinkageDetailRequest true "params"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.CreateSceneLinkageDetailResponse]
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.CreateSceneLinkageDetailResponse] "Successful response"
 // @Router /scene-linkages/{id}/detail [post]
 func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
@@ -94,16 +94,16 @@ func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 }
 
 // UpdateSceneLinkageDetail godoc
-// @Summary 更新场景联动详情配置
+// @Summary Update scene linkage configuration
 // @Schemes
-// @Description 通过场景联动 ID 更新触发器与动作配置
-// @Tags 场景联动模块
+// @Description Updates scene linkage configuration.
+// @Tags Scene linkages
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param id path int true "场景联动 ID"
+// @Param id path int true "Scene linkage ID"
 // @Param request body sceneLinkageV1.SceneLinkageDetailRequest true "params"
-// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.UpdateSceneLinkageDetailResponse]
+// @Success 200 {object} v1.ApiResponse[sceneLinkageV1.UpdateSceneLinkageDetailResponse] "Successful response"
 // @Router /scene-linkages/{id}/detail [put]
 func (h *SceneLinkageDetailHandler) UpdateSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)

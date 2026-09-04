@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	fileV1 "aiot-backend/api/file/v1"
+	fileV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -37,14 +37,14 @@ func NewFileHandler(h *Handler, svc service.FileServiceInterface) *FileHandler {
 }
 
 // UploadOTAFile godoc
-// @Summary 上传 OTA 升级文件
-// @Description 上传受支持的 OTA 文件到 Cloudflare R2，并返回创建 OTA 升级包所需的文件元数据
-// @Tags 文件模块
+// @Summary Upload OTA update file
+// @Description Uploads OTA update file.
+// @Tags Files
 // @Accept multipart/form-data
 // @Produce json
 // @Security Bearer
 // @Param file formData file true "OTA upgrade file (.bin, .dav, .tar, .gz, .zip, .gzip, .apk, .tar.gz, .tar.xz, .pack; max 100 MB)"
-// @Success 200 {object} v1.ApiResponse[fileV1.UploadOTAFileResponse]
+// @Success 200 {object} v1.ApiResponse[fileV1.UploadOTAFileResponse] "Successful response"
 // @Router /files/ota [post]
 func (h *FileHandler) UploadOTAFile(c *gin.Context) {
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxOTAFileSize+1)

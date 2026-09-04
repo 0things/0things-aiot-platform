@@ -7,28 +7,19 @@
  */
 
 export type GetDevicesParams = {
+  enabled?: boolean
   /**
-   * 页码
+   * Page number (1-based, default 1)
+   * @minimum 1
    */
   page?: number
   /**
-   * 每页数量
+   * Page size (1-100, default 10)
+   * @minimum 1
+   * @maximum 100
    */
   pageSize?: number
-  /**
-   * 产品 ID
-   */
   productId?: number
-  /**
-   * 设备状态
-   */
-  states?: string[]
-  /**
-   * 是否启用
-   */
-  enabled?: boolean
-  /**
-   * 搜索关键字
-   */
   searchText?: string
+  states?: string[]
 }

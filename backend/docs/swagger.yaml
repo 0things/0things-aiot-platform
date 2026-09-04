@@ -462,48 +462,48 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup:
+  ApiResponse-aiot-backend_api_v1_DeviceEndpoints:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceGroup'
+        $ref: '#/definitions/aiot-backend_api_v1.DeviceEndpoints'
       message:
         type: string
     type: object
-  ApiResponse-aiot-backend_api_device_group_v1_DeviceGroupDevicesResponse:
+  ApiResponse-aiot-backend_api_v1_DeviceGroup:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceGroupDevicesResponse'
+        $ref: '#/definitions/aiot-backend_api_v1.DeviceGroup'
       message:
         type: string
     type: object
-  ApiResponse-aiot-backend_api_device_group_v1_ListDeviceGroupsResponse:
+  ApiResponse-aiot-backend_api_v1_DeviceGroupDevicesResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/aiot-backend_api_device_group_v1.ListDeviceGroupsResponse'
+        $ref: '#/definitions/aiot-backend_api_v1.DeviceGroupDevicesResponse'
       message:
         type: string
     type: object
-  ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse:
+  ApiResponse-aiot-backend_api_v1_ListDeviceGroupsResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/aiot-backend_api_device_group_v1.PreviewResponse'
+        $ref: '#/definitions/aiot-backend_api_v1.ListDeviceGroupsResponse'
       message:
         type: string
     type: object
-  ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints:
+  ApiResponse-aiot-backend_api_v1_PreviewResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/aiot-backend_api_protocol_v1.DeviceEndpoints'
+        $ref: '#/definitions/aiot-backend_api_v1.PreviewResponse'
       message:
         type: string
     type: object
@@ -518,13 +518,13 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-array_aiot-backend_api_category_v1_Category:
+  ApiResponse-array_aiot-backend_api_v1_Category:
     properties:
       code:
         type: integer
       data:
         items:
-          $ref: '#/definitions/aiot-backend_api_category_v1.Category'
+          $ref: '#/definitions/aiot-backend_api_v1.Category'
         type: array
       message:
         type: string
@@ -1256,7 +1256,7 @@ definitions:
         type: string
       protocols:
         items:
-          $ref: '#/definitions/aiot-backend_api_product_v1.ProductProtocolInput'
+          $ref: '#/definitions/aiot-backend_api_v1.ProductProtocolInput'
         type: array
       status:
         type: string
@@ -1279,7 +1279,7 @@ definitions:
         type: string
       protocols:
         items:
-          $ref: '#/definitions/aiot-backend_api_product_v1.ProductProtocolInput'
+          $ref: '#/definitions/aiot-backend_api_v1.ProductProtocolInput'
         type: array
       status:
         type: string
@@ -1327,7 +1327,7 @@ definitions:
         type: string
       protocols:
         items:
-          $ref: '#/definitions/aiot-backend_api_product_v1.ProductProtocolInput'
+          $ref: '#/definitions/aiot-backend_api_v1.ProductProtocolInput'
         type: array
       status:
         type: string
@@ -1396,7 +1396,7 @@ definitions:
         type: string
       protocols:
         items:
-          $ref: '#/definitions/aiot-backend_api_product_v1.ProductProtocolInput'
+          $ref: '#/definitions/aiot-backend_api_v1.ProductProtocolInput'
         type: array
       status:
         type: string
@@ -1473,11 +1473,11 @@ definitions:
       sceneLinkage:
         $ref: '#/definitions/SceneLinkage'
     type: object
-  aiot-backend_api_category_v1.Category:
+  aiot-backend_api_v1.Category:
     properties:
       children:
         items:
-          $ref: '#/definitions/aiot-backend_api_category_v1.Category'
+          $ref: '#/definitions/aiot-backend_api_v1.Category'
         type: array
       enabled:
         type: boolean
@@ -1490,7 +1490,21 @@ definitions:
       sort:
         type: integer
     type: object
-  aiot-backend_api_device_group_v1.CreateDeviceGroupRequest:
+  aiot-backend_api_v1.CoAPDockerExample:
+    properties:
+      coap:
+        type: string
+    type: object
+  aiot-backend_api_v1.CoAPEndpoint:
+    properties:
+      coap:
+        type: string
+      docker:
+        $ref: '#/definitions/aiot-backend_api_v1.CoAPDockerExample'
+      rpcSubscribe:
+        type: string
+    type: object
+  aiot-backend_api_v1.CreateDeviceGroupRequest:
     properties:
       description:
         type: string
@@ -1504,7 +1518,16 @@ definitions:
     - name
     - type
     type: object
-  aiot-backend_api_device_group_v1.DeviceGroup:
+  aiot-backend_api_v1.DeviceEndpoints:
+    properties:
+      coap:
+        $ref: '#/definitions/aiot-backend_api_v1.CoAPEndpoint'
+      http:
+        $ref: '#/definitions/aiot-backend_api_v1.HTTPEndpoint'
+      mqtt:
+        $ref: '#/definitions/aiot-backend_api_v1.MQTTEndpoint'
+    type: object
+  aiot-backend_api_v1.DeviceGroup:
     properties:
       createdAt:
         type: string
@@ -1523,7 +1546,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  aiot-backend_api_device_group_v1.DeviceGroupDevicesResponse:
+  aiot-backend_api_v1.DeviceGroupDevicesResponse:
     properties:
       devices:
         items:
@@ -1536,7 +1559,7 @@ definitions:
       total:
         type: integer
     type: object
-  aiot-backend_api_device_group_v1.DeviceKeysRequest:
+  aiot-backend_api_v1.DeviceKeysRequest:
     properties:
       deviceKeys:
         items:
@@ -1546,11 +1569,18 @@ definitions:
     required:
     - deviceKeys
     type: object
-  aiot-backend_api_device_group_v1.ListDeviceGroupsResponse:
+  aiot-backend_api_v1.HTTPEndpoint:
+    properties:
+      http:
+        type: string
+      rpcSubscribe:
+        type: string
+    type: object
+  aiot-backend_api_v1.ListDeviceGroupsResponse:
     properties:
       items:
         items:
-          $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceGroup'
+          $ref: '#/definitions/aiot-backend_api_v1.DeviceGroup'
         type: array
       page:
         type: integer
@@ -1559,74 +1589,7 @@ definitions:
       total:
         type: integer
     type: object
-  aiot-backend_api_device_group_v1.PreviewRequest:
-    properties:
-      rule:
-        type: string
-    required:
-    - rule
-    type: object
-  aiot-backend_api_device_group_v1.PreviewResponse:
-    properties:
-      devices:
-        items:
-          $ref: '#/definitions/Device'
-        type: array
-      total:
-        type: integer
-    type: object
-  aiot-backend_api_device_group_v1.UpdateDeviceGroupRequest:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      rule:
-        type: string
-    required:
-    - name
-    type: object
-  aiot-backend_api_product_v1.ProductProtocolInput:
-    properties:
-      applicationProtocol:
-        type: string
-      transportProtocol:
-        type: string
-    required:
-    - applicationProtocol
-    - transportProtocol
-    type: object
-  aiot-backend_api_protocol_v1.CoAPDockerExample:
-    properties:
-      coap:
-        type: string
-    type: object
-  aiot-backend_api_protocol_v1.CoAPEndpoint:
-    properties:
-      coap:
-        type: string
-      docker:
-        $ref: '#/definitions/aiot-backend_api_protocol_v1.CoAPDockerExample'
-      rpcSubscribe:
-        type: string
-    type: object
-  aiot-backend_api_protocol_v1.DeviceEndpoints:
-    properties:
-      coap:
-        $ref: '#/definitions/aiot-backend_api_protocol_v1.CoAPEndpoint'
-      http:
-        $ref: '#/definitions/aiot-backend_api_protocol_v1.HTTPEndpoint'
-      mqtt:
-        $ref: '#/definitions/aiot-backend_api_protocol_v1.MQTTEndpoint'
-    type: object
-  aiot-backend_api_protocol_v1.HTTPEndpoint:
-    properties:
-      http:
-        type: string
-      rpcSubscribe:
-        type: string
-    type: object
-  aiot-backend_api_protocol_v1.MQTTEndpoint:
+  aiot-backend_api_v1.MQTTEndpoint:
     properties:
       attributesSubscribeTopic:
         type: string
@@ -1640,6 +1603,43 @@ definitions:
         type: string
       telemetryTopic:
         type: string
+    type: object
+  aiot-backend_api_v1.PreviewRequest:
+    properties:
+      rule:
+        type: string
+    required:
+    - rule
+    type: object
+  aiot-backend_api_v1.PreviewResponse:
+    properties:
+      devices:
+        items:
+          $ref: '#/definitions/Device'
+        type: array
+      total:
+        type: integer
+    type: object
+  aiot-backend_api_v1.ProductProtocolInput:
+    properties:
+      applicationProtocol:
+        type: string
+      transportProtocol:
+        type: string
+    required:
+    - applicationProtocol
+    - transportProtocol
+    type: object
+  aiot-backend_api_v1.UpdateDeviceGroupRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      rule:
+        type: string
+    required:
+    - name
     type: object
   map_string_bool:
     additionalProperties:
@@ -1663,6 +1663,7 @@ paths:
     post:
       consumes:
       - application/json
+      description: Switches the current organization and returns a new access token.
       parameters:
       - description: params
         in: body
@@ -1674,28 +1675,28 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ApiSwitchOrgResponseData'
       security:
       - Bearer: []
-      summary: 切换组织
+      summary: Switch organization
       tags:
-      - 用户模块
+      - Users
   /categories/tree:
     get:
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-array_aiot-backend_api_category_v1_Category'
+            $ref: '#/definitions/ApiResponse-array_aiot-backend_api_v1_Category'
       security:
       - Bearer: []
-      summary: 获取产品分类树
+      summary: Get product category tree
       tags:
-      - 产品分类
+      - Product categories
   /device-events:
     get:
       description: Paginated query for thing model device events with keyword, deviceKey,
@@ -1736,7 +1737,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceEventListDeviceEventsResponse'
       security:
@@ -1747,71 +1748,72 @@ paths:
   /device-groups:
     get:
       parameters:
-      - description: 页码
+      - description: Page number (1-based, default 1)
         in: query
+        minimum: 1
         name: page
         type: integer
-      - description: 每页数量
+      - description: Page size (1-100, default 10)
         in: query
+        maximum: 100
+        minimum: 1
         name: pageSize
         type: integer
-      - description: 分组名称
-        in: query
+      - in: query
         name: search
         type: string
-      - description: 分组类型
-        in: query
+      - in: query
         name: type
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_ListDeviceGroupsResponse'
-      summary: 查询设备分组
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_ListDeviceGroupsResponse'
+      summary: List device groups
       tags:
-      - 设备分组
+      - Device groups
     post:
       consumes:
       - application/json
       parameters:
-      - description: 分组参数
+      - description: Request payload
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/aiot-backend_api_device_group_v1.CreateDeviceGroupRequest'
+          $ref: '#/definitions/aiot-backend_api_v1.CreateDeviceGroupRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup'
-      summary: 创建设备分组
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_DeviceGroup'
+      summary: Create device group
       tags:
-      - 设备分组
+      - Device groups
   /device-groups/{groupUuid}:
     delete:
       parameters:
-      - description: 分组 UUID
+      - description: Device group UUID
         in: path
         name: groupUuid
         required: true
         type: string
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-map_string_bool'
-      summary: 删除设备分组
+      summary: Delete device group
       tags:
-      - 设备分组
+      - Device groups
     get:
       parameters:
-      - description: 分组 UUID
+      - description: Device group UUID
         in: path
         name: groupUuid
         required: true
@@ -1820,224 +1822,225 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup'
-      summary: 查询设备分组详情
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_DeviceGroup'
+      summary: Get device group
       tags:
-      - 设备分组
+      - Device groups
     put:
       consumes:
       - application/json
       parameters:
-      - description: 分组 UUID
+      - description: Device group UUID
         in: path
         name: groupUuid
         required: true
         type: string
-      - description: 分组参数
+      - description: Request payload
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/aiot-backend_api_device_group_v1.UpdateDeviceGroupRequest'
+          $ref: '#/definitions/aiot-backend_api_v1.UpdateDeviceGroupRequest'
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup'
-      summary: 更新设备分组
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_DeviceGroup'
+      summary: Update device group
       tags:
-      - 设备分组
+      - Device groups
   /device-groups/{groupUuid}/devices:
     delete:
       consumes:
       - application/json
       parameters:
-      - description: 分组 UUID
+      - description: Device group UUID
         in: path
         name: groupUuid
         required: true
         type: string
-      - description: 设备 Key 列表
+      - description: Request payload
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceKeysRequest'
+          $ref: '#/definitions/aiot-backend_api_v1.DeviceKeysRequest'
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-map_string_bool'
-      summary: 移除分组设备
+      summary: Remove devices from group
       tags:
-      - 设备分组
+      - Device groups
     get:
       parameters:
-      - description: 分组 UUID
+      - description: Device group UUID
         in: path
         name: groupUuid
         required: true
         type: string
-      - description: 页码
+      - description: Page number (1-based, default 1)
         in: query
+        minimum: 1
         name: page
         type: integer
-      - description: 每页数量
+      - description: Page size (1-100, default 10)
         in: query
+        maximum: 100
+        minimum: 1
         name: pageSize
         type: integer
-      - description: 产品 Key
-        in: query
+      - in: query
         name: productKey
         type: string
-      - description: 设备 Key 或名称
-        in: query
+      - in: query
         name: search
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroupDevicesResponse'
-      summary: 查询分组设备
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_DeviceGroupDevicesResponse'
+      summary: List devices in group
       tags:
-      - 设备分组
+      - Device groups
     post:
       consumes:
       - application/json
       parameters:
-      - description: 分组 UUID
+      - description: Device group UUID
         in: path
         name: groupUuid
         required: true
         type: string
-      - description: 设备 Key 列表
+      - description: Request payload
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/aiot-backend_api_device_group_v1.DeviceKeysRequest'
+          $ref: '#/definitions/aiot-backend_api_v1.DeviceKeysRequest'
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-map_string_bool'
-      summary: 添加分组设备
+      summary: Add devices to group
       tags:
-      - 设备分组
+      - Device groups
   /device-groups/{groupUuid}/preview:
     post:
       consumes:
       - application/json
       parameters:
-      - description: 分组 UUID
+      - description: Device group UUID
         in: path
         name: groupUuid
         required: true
         type: string
-      - description: 动态规则
+      - description: Request payload
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/aiot-backend_api_device_group_v1.PreviewRequest'
+          $ref: '#/definitions/aiot-backend_api_v1.PreviewRequest'
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse'
-      summary: 预览已保存动态规则
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_PreviewResponse'
+      summary: Preview saved device group rule
       tags:
-      - 设备分组
+      - Device groups
   /device-groups/preview:
     post:
       consumes:
       - application/json
       parameters:
-      - description: 动态规则
+      - description: Request payload
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/aiot-backend_api_device_group_v1.PreviewRequest'
+          $ref: '#/definitions/aiot-backend_api_v1.PreviewRequest'
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse'
-      summary: 预览未保存动态规则
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_PreviewResponse'
+      summary: Preview device group rule
       tags:
-      - 设备分组
+      - Device groups
   /device-statistics:
     get:
       consumes:
       - application/json
-      description: 获取设备统计信息（总数、已激活、在线、离线、未激活）
+      description: Returns device statistics.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceStatisticsResponse'
       security:
       - Bearer: []
-      summary: 设备统计
+      summary: Get device statistics
       tags:
-      - 设备模块
+      - Devices
   /devices:
     get:
       consumes:
       - application/json
-      description: 分页获取设备列表，支持按 productId、states、enabled、searchText 过滤
+      description: Lists devices with pagination and optional product, state, enabled,
+        and text filters.
       parameters:
-      - description: 页码
+      - in: query
+        name: enabled
+        type: boolean
+      - description: Page number (1-based, default 1)
         in: query
+        minimum: 1
         name: page
         type: integer
-      - description: 每页数量
+      - description: Page size (1-100, default 10)
         in: query
+        maximum: 100
+        minimum: 1
         name: pageSize
         type: integer
-      - description: 产品 ID
-        in: query
+      - in: query
         name: productId
         type: integer
+      - in: query
+        name: searchText
+        type: string
       - collectionFormat: csv
-        description: 设备状态
         in: query
         items:
           type: string
         name: states
         type: array
-      - description: 是否启用
-        in: query
-        name: enabled
-        type: boolean
-      - description: 搜索关键字
-        in: query
-        name: searchText
-        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceListDevicesResponse'
       security:
       - Bearer: []
-      summary: 获取设备列表
+      summary: List devices
       tags:
-      - 设备模块
+      - Devices
     post:
       consumes:
       - application/json
-      description: 创建一个新的设备
+      description: Creates device.
       parameters:
       - description: params
         in: body
@@ -2049,21 +2052,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceCreateDeviceResponse'
       security:
       - Bearer: []
-      summary: 创建设备
+      summary: Create device
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}:
     delete:
       consumes:
       - application/json
-      description: 通过设备 Key 软删除设备
+      description: Deletes Device.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2072,20 +2075,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceSuccessResponse'
       security:
       - Bearer: []
-      summary: 删除设备
+      summary: Delete Device
       tags:
-      - 设备模块
+      - Devices
     get:
       consumes:
       - application/json
-      description: 通过设备 Key 获取设备详情
+      description: Returns device.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2094,20 +2097,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceGetDeviceResponse'
       security:
       - Bearer: []
-      summary: 通过 deviceKey 获取设备
+      summary: Get device
       tags:
-      - 设备模块
+      - Devices
     put:
       consumes:
       - application/json
-      description: 通过设备 Key 更新设备
+      description: Updates device.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2122,21 +2125,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceUpdateDeviceResponse'
       security:
       - Bearer: []
-      summary: 更新设备
+      summary: Update device
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/activate:
     post:
       consumes:
       - application/json
-      description: 通过设备 Key 激活设备
+      description: Activates device.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2145,21 +2148,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceActivateDeviceResponse'
       security:
       - Bearer: []
-      summary: 激活设备
+      summary: Activate device
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/enabled:
     post:
       consumes:
       - application/json
-      description: 通过设备 Key 启用或禁用设备
+      description: Sets device enabled state.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2174,16 +2177,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceSetDeviceEnabledResponse'
       security:
       - Bearer: []
-      summary: 设置设备启用/禁用
+      summary: Set device enabled state
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/endpoints:
     get:
+      description: Returns protocol-specific connection endpoints for a device.
       parameters:
       - description: Device key
         in: path
@@ -2194,24 +2198,24 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints'
-      summary: 获取设备连接数据
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_DeviceEndpoints'
+      summary: Get device connection endpoints
       tags:
-      - devices
+      - Device connections
   /devices/{deviceKey}/push-records:
     delete:
       consumes:
       - application/json
-      description: 清理设备指定时间戳之前的下行推送记录
+      description: Clears downstream push records.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
         type: string
-      - description: 清理此时间戳之前的记录（毫秒）
+      - description: Cutoff timestamp
         in: query
         name: beforeTimestamp
         type: integer
@@ -2219,59 +2223,60 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceClearPushRecordsResponse'
       security:
       - Bearer: []
-      summary: 清理设备下行推送记录
+      summary: Clear downstream push records
       tags:
-      - 设备模块
+      - Devices
     get:
       consumes:
       - application/json
-      description: 分页获取设备的下行推送记录
+      description: Lists downstream push records.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
         type: string
-      - description: 页码
-        in: query
-        name: page
-        type: integer
-      - description: 每页数量
-        in: query
-        name: pageSize
-        type: integer
-      - description: 操作类型
-        in: query
+      - in: query
         name: operationType
         type: string
-      - description: 状态
+      - description: Page number (1-based, default 1)
         in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Page size (1-100, default 10)
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      - in: query
         name: status
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceListPushRecordsResponse'
       security:
       - Bearer: []
-      summary: 获取设备下行推送记录列表
+      summary: List downstream push records
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/shadow:
     get:
       consumes:
       - application/json
-      description: 获取设备影子（Desired、Reported、Delta、Metadata、Version）
+      description: Returns device shadow.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2280,21 +2285,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceShadow'
       security:
       - Bearer: []
-      summary: 获取设备影子
+      summary: Get device shadow
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/shadow/desired:
     delete:
       consumes:
       - application/json
-      description: 清空设备影子的 Desired 部分
+      description: Clears desired device shadow.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2309,20 +2314,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceShadow'
       security:
       - Bearer: []
-      summary: 清空设备影子期望值
+      summary: Clear desired device shadow
       tags:
-      - 设备模块
+      - Devices
     put:
       consumes:
       - application/json
-      description: 由应用侧更新设备的 Desired 影子
+      description: Updates desired device shadow.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2337,21 +2342,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceShadow'
       security:
       - Bearer: []
-      summary: 更新设备影子期望值
+      summary: Update desired device shadow
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/shadow/history:
     get:
       consumes:
       - application/json
-      description: 获取设备影子的变更历史记录
+      description: Lists device shadow history.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2360,21 +2365,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceListDeviceShadowHistoryResponse'
       security:
       - Bearer: []
-      summary: 获取设备影子历史
+      summary: List device shadow history
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/simulate-push:
     post:
       consumes:
       - application/json
-      description: 模拟服务端向设备发起一次下行推送
+      description: Simulates downstream push.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2389,21 +2394,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceSimulatePushResponse'
       security:
       - Bearer: []
-      summary: 模拟下行推送
+      summary: Simulate downstream push
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/tags:
     delete:
       consumes:
       - application/json
-      description: 删除设备指定的标签键
+      description: Deletes device tags.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2418,20 +2423,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceSuccessResponse'
       security:
       - Bearer: []
-      summary: 删除设备标签
+      summary: Delete device tags
       tags:
-      - 设备模块
+      - Devices
     get:
       consumes:
       - application/json
-      description: 获取设备的所有标签
+      description: Lists device tags.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2440,20 +2445,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
-      summary: 获取设备标签
+      summary: List device tags
       tags:
-      - 设备模块
+      - Devices
     post:
       consumes:
       - application/json
-      description: 增量式添加设备的标签（POST 语义，保留已存在的标签）
+      description: Adds device tags.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2468,20 +2473,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
-      summary: 增量添加设备标签
+      summary: Add device tags
       tags:
-      - 设备模块
+      - Devices
     put:
       consumes:
       - application/json
-      description: 覆盖式设置设备的标签集合（PUT 语义）
+      description: Replaces device tags.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2496,21 +2501,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceListDeviceTagsResponse'
       security:
       - Bearer: []
-      summary: 全量覆盖设置设备标签
+      summary: Replace device tags
       tags:
-      - 设备模块
+      - Devices
   /devices/{deviceKey}/telemetry:
     get:
       consumes:
       - application/json
-      description: 获取设备的遥测（Telemetry）数据
+      description: Returns device telemetry.
       parameters:
-      - description: 设备 Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
@@ -2519,36 +2524,36 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceTelemetryResponse'
       security:
       - Bearer: []
-      summary: 获取设备遥测数据
+      summary: Get device telemetry
       tags:
-      - 设备模块
+      - Devices
   /devices/batch/template:
     get:
-      description: 下载设备批量导入的 Excel 模板
+      description: Downloads device import template.
       produces:
       - application/octet-stream
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             type: file
       security:
       - Bearer: []
-      summary: 下载设备批量导入模板
+      summary: Download device import template
       tags:
-      - 设备模块
+      - Devices
   /devices/batch/upload:
     post:
       consumes:
       - multipart/form-data
-      description: 通过 Excel 文件批量导入设备
+      description: Imports devices in bulk.
       parameters:
-      - description: Excel 模板文件
+      - description: Upload file
         in: formData
         name: file
         required: true
@@ -2557,21 +2562,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceBatchUploadDevicesResponse'
       security:
       - Bearer: []
-      summary: 批量上传设备
+      summary: Import devices in bulk
       tags:
-      - 设备模块
+      - Devices
   /devices/push-records/{pushRecordId}:
     get:
       consumes:
       - application/json
-      description: 通过推送记录 ID 获取单个下行推送记录
+      description: Returns downstream push record.
       parameters:
-      - description: 推送记录 ID
+      - description: Push record ID
         in: path
         name: pushRecordId
         required: true
@@ -2580,19 +2585,19 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-DeviceGetPushRecordResponse'
       security:
       - Bearer: []
-      summary: 获取设备下行推送记录
+      summary: Get downstream push record
       tags:
-      - 设备模块
+      - Devices
   /files/ota:
     post:
       consumes:
       - multipart/form-data
-      description: 上传受支持的 OTA 文件到 Cloudflare R2，并返回创建 OTA 升级包所需的文件元数据
+      description: Uploads OTA update file.
       parameters:
       - description: OTA upgrade file (.bin, .dav, .tar, .gz, .zip, .gzip, .apk, .tar.gz,
           .tar.xz, .pack; max 100 MB)
@@ -2604,18 +2609,19 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-FileUploadOTAFileResponse'
       security:
       - Bearer: []
-      summary: 上传 OTA 升级文件
+      summary: Upload OTA update file
       tags:
-      - 文件模块
+      - Files
   /login:
     post:
       consumes:
       - application/json
+      description: Authenticates a user and returns an access token.
       parameters:
       - description: params
         in: body
@@ -2627,58 +2633,62 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ApiLoginResponseData'
-      summary: 账号登录
+      summary: Log in
       tags:
-      - 用户模块
+      - Users
   /organizations:
     get:
       consumes:
       - application/json
+      description: Lists organizations available to the authenticated user.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-array_ApiOrganizationItem'
       security:
       - Bearer: []
-      summary: 获取我的组织列表
+      summary: List user organizations
       tags:
-      - 用户模块
+      - Users
   /ota-packages:
     get:
       consumes:
       - application/json
-      description: 分页获取 OTA 升级包列表
+      description: Lists OTA packages.
       parameters:
-      - description: 页码
+      - description: Page number (1-based, default 1)
         in: query
+        minimum: 1
         name: page
         type: integer
-      - description: 每页数量
+      - description: Page size (1-100, default 10)
         in: query
+        maximum: 100
+        minimum: 1
         name: pageSize
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaListOTAPackagesResponse'
       security:
       - Bearer: []
-      summary: 获取 OTA 升级包列表
+      summary: List OTA packages
       tags:
-      - OTA 模块
+      - OTA
     post:
       consumes:
       - application/json
-      description: 创建一个新的 OTA 升级包
+      description: Creates OTA package.
       parameters:
       - description: params
         in: body
@@ -2690,21 +2700,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaOTAPackage'
       security:
       - Bearer: []
-      summary: 创建 OTA 升级包
+      summary: Create OTA package
       tags:
-      - OTA 模块
+      - OTA
   /ota-packages/{uuid}:
     delete:
       consumes:
       - application/json
-      description: 通过升级包 ID 删除 OTA 升级包
+      description: Deletes OTA package.
       parameters:
-      - description: 升级包 UUID
+      - description: OTA package UUID
         in: path
         name: uuid
         required: true
@@ -2713,20 +2723,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaSuccessResponse'
       security:
       - Bearer: []
-      summary: 删除 OTA 升级包
+      summary: Delete OTA package
       tags:
-      - OTA 模块
+      - OTA
     get:
       consumes:
       - application/json
-      description: 通过升级包 ID 获取 OTA 升级包详情
+      description: Returns OTA package.
       parameters:
-      - description: 升级包 UUID
+      - description: OTA package UUID
         in: path
         name: uuid
         required: true
@@ -2735,20 +2745,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaOTAPackage'
       security:
       - Bearer: []
-      summary: 获取 OTA 升级包详情
+      summary: Get OTA package
       tags:
-      - OTA 模块
+      - OTA
     put:
       consumes:
       - application/json
-      description: 通过升级包 ID 更新 OTA 升级包
+      description: Updates OTA package.
       parameters:
-      - description: 升级包 UUID
+      - description: OTA package UUID
         in: path
         name: uuid
         required: true
@@ -2763,26 +2773,26 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaOTAPackage'
       security:
       - Bearer: []
-      summary: 更新 OTA 升级包
+      summary: Update OTA package
       tags:
-      - OTA 模块
+      - OTA
   /ota-packages/{uuid}/batch-upgrade:
     post:
       consumes:
       - application/json
-      description: 为指定升级包创建一个静态升级批次，并将所选设备加入该批次的升级（状态 pending），升级包状态置为 deploying
+      description: Creates OTA upgrade batch.
       parameters:
-      - description: 升级包 UUID
+      - description: OTA package UUID
         in: path
         name: uuid
         required: true
         type: string
-      - description: 目标设备 deviceKey 列表
+      - description: Request payload
         in: body
         name: request
         required: true
@@ -2792,21 +2802,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaUpgradeBatch'
       security:
       - Bearer: []
-      summary: 批量升级 OTA 升级包
+      summary: Create OTA upgrade batch
       tags:
-      - OTA 模块
+      - OTA
   /ota-packages/{uuid}/batches:
     get:
       consumes:
       - application/json
-      description: 获取指定 OTA 升级包下的升级批次
+      description: Lists OTA upgrade batches.
       parameters:
-      - description: 升级包 UUID
+      - description: OTA package UUID
         in: path
         name: uuid
         required: true
@@ -2815,56 +2825,61 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaListUpgradeBatchesResponse'
       security:
       - Bearer: []
-      summary: 获取 OTA 升级批次列表
+      summary: List OTA upgrade batches
       tags:
-      - OTA 模块
+      - OTA
   /ota-packages/{uuid}/device-deployments:
     get:
       consumes:
       - application/json
-      description: 分页获取指定升级包下的设备部署记录
+      description: Lists OTA device deployments.
       parameters:
-      - description: 升级包 UUID
+      - description: OTA package UUID
         in: path
         name: uuid
         required: true
         type: string
-      - description: 页码
+      - in: query
+        name: batchId
+        type: string
+      - description: Page number (1-based, default 1)
         in: query
+        minimum: 1
         name: page
         type: integer
-      - description: 每页数量
+      - description: Page size (1-100, default 10)
         in: query
+        maximum: 100
+        minimum: 1
         name: pageSize
         type: integer
-      - description: 部署状态
-        in: query
+      - in: query
         name: status
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse'
       security:
       - Bearer: []
-      summary: 获取 OTA 设备部署列表
+      summary: List OTA device deployments
       tags:
-      - OTA 模块
+      - OTA
   /ota-packages/{uuid}/report:
     post:
       consumes:
       - application/json
-      description: 设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态
+      description: Reports OTA upgrade status.
       parameters:
-      - description: 升级包 UUID
+      - description: OTA package UUID
         in: path
         name: uuid
         required: true
@@ -2879,26 +2894,26 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaSuccessResponse'
       security:
       - Bearer: []
-      summary: 上报设备 OTA 升级结果
+      summary: Report OTA upgrade status
       tags:
-      - OTA 模块
+      - OTA
   /ota-packages/{uuid}/upgrade-statistics:
     get:
       consumes:
       - application/json
-      description: 获取指定 OTA 升级包的升级统计数据
+      description: Returns OTA upgrade statistics.
       parameters:
-      - description: 升级包 UUID
+      - description: OTA package UUID
         in: path
         name: uuid
         required: true
         type: string
-      - description: 批次 ID
+      - description: Upgrade batch ID
         in: query
         name: batchId
         type: string
@@ -2906,56 +2921,56 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-OtaGetUpgradeStatisticsResponse'
       security:
       - Bearer: []
-      summary: 获取 OTA 升级统计
+      summary: Get OTA upgrade statistics
       tags:
-      - OTA 模块
+      - OTA
   /products:
     get:
       consumes:
       - application/json
-      description: 分页获取产品列表，支持按 category、status、searchText 过滤
+      description: Lists products with pagination and optional filters.
       parameters:
-      - description: 页码
-        in: query
-        name: page
-        type: integer
-      - description: 每页数量
-        in: query
-        name: pageSize
-        type: integer
-      - description: 产品分类
-        in: query
+      - in: query
         name: category
         type: string
-      - description: 产品状态
+      - description: Page number (1-based, default 1)
         in: query
-        name: status
-        type: string
-      - description: 搜索关键字
+        minimum: 1
+        name: page
+        type: integer
+      - description: Page size (1-100, default 10)
         in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      - in: query
         name: searchText
+        type: string
+      - in: query
+        name: status
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductListProductsResponse'
       security:
       - Bearer: []
-      summary: 获取产品列表
+      summary: List products
       tags:
-      - 产品模块
+      - Products
     post:
       consumes:
       - application/json
-      description: 创建一个新的产品
+      description: Creates a product with its protocol configuration.
       parameters:
       - description: params
         in: body
@@ -2967,21 +2982,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductCreateProductResponse'
       security:
       - Bearer: []
-      summary: 创建产品
+      summary: Create product
       tags:
-      - 产品模块
+      - Products
   /products/{productKey}:
     delete:
       consumes:
       - application/json
-      description: 通过产品 Key 软删除产品
+      description: Soft-deletes a product by its product key.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -2990,20 +3005,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductSuccessResponse'
       security:
       - Bearer: []
-      summary: 删除产品
+      summary: Delete product
       tags:
-      - 产品模块
+      - Products
     get:
       consumes:
       - application/json
-      description: 通过产品 Key 获取产品详情
+      description: Gets a product by its product key.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3012,20 +3027,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductGetProductResponse'
       security:
       - Bearer: []
-      summary: 通过 productKey 获取产品
+      summary: Get product
       tags:
-      - 产品模块
+      - Products
     put:
       consumes:
       - application/json
-      description: 通过 productKey 更新产品
+      description: Updates a product by its product key.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3040,21 +3055,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductUpdateProductResponse'
       security:
       - Bearer: []
-      summary: 更新产品
+      summary: Update product
       tags:
-      - 产品模块
+      - Products
   /products/{productKey}/tsl:
     delete:
       consumes:
       - application/json
-      description: 通过产品 Key 删除其物模型定义
+      description: Deletes the thing specification language definition for a product.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3063,20 +3078,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
       security:
       - Bearer: []
-      summary: 删除产品物模型（TSL）
+      summary: Delete product TSL
       tags:
-      - 产品模块
+      - Products
     get:
       consumes:
       - application/json
-      description: 通过产品 Key 获取其物模型定义（TSL）
+      description: Gets the thing specification language definition for a product.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3085,20 +3100,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductTslGetProductTSLResponse'
       security:
       - Bearer: []
-      summary: 获取产品物模型（TSL）
+      summary: Get product TSL
       tags:
-      - 产品模块
+      - Products
     post:
       consumes:
       - application/json
-      description: 通过产品 Key 上传或更新物模型定义
+      description: Creates or updates the thing specification language definition
+        for a product.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3113,20 +3129,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
       security:
       - Bearer: []
-      summary: 上传/更新产品物模型（TSL）
+      summary: Save product TSL
       tags:
-      - 产品模块
+      - Products
     put:
       consumes:
       - application/json
-      description: 通过产品 Key 上传或更新物模型定义
+      description: Creates or updates the thing specification language definition
+        for a product.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3141,21 +3158,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ProductTslSuccessResponse'
       security:
       - Bearer: []
-      summary: 上传/更新产品物模型（TSL）
+      summary: Save product TSL
       tags:
-      - 产品模块
+      - Products
   /products/key/{productKey}/message-parser:
     get:
       consumes:
       - application/json
-      description: 获取产品唯一的消息解析脚本；尚未配置时返回默认模板。
+      description: Gets the product message parser or its default template.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3164,20 +3181,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-MessageParserProductMessageParser'
       security:
       - Bearer: []
-      summary: 获取产品消息解析器
+      summary: Get product message parser
       tags:
-      - 产品模块
+      - Products
     put:
       consumes:
       - application/json
-      description: 按产品覆盖保存 JavaScript ES5 消息解析脚本。
+      description: Saves product message parser.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3192,21 +3209,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-MessageParserProductMessageParser'
       security:
       - Bearer: []
-      summary: 保存产品消息解析器
+      summary: Save product message parser
       tags:
-      - 产品模块
+      - Products
   /products/key/{productKey}/message-parser/execute:
     post:
       consumes:
       - application/json
-      description: 仅在受限 JavaScript ES5 运行时中执行保存的产品脚本。
+      description: Executes product message parser.
       parameters:
-      - description: 产品 Key
+      - description: Product key
         in: path
         name: productKey
         required: true
@@ -3221,19 +3238,19 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-MessageParserExecuteProductMessageParserResponse'
       security:
       - Bearer: []
-      summary: 模拟执行产品消息解析器
+      summary: Execute product message parser
       tags:
-      - 产品模块
+      - Products
   /register:
     post:
       consumes:
       - application/json
-      description: 目前只支持邮箱登录
+      description: Registers user.
       parameters:
       - description: params
         in: body
@@ -3245,50 +3262,51 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiSuccessResponse'
-      summary: 用户注册
+      summary: Register user
       tags:
-      - 用户模块
+      - Users
   /scene-linkages:
     get:
       consumes:
       - application/json
-      description: 分页获取场景联动列表，支持按 search、enable 过滤
+      description: Lists scene linkages.
       parameters:
-      - description: 页码
-        in: query
-        name: page
-        type: integer
-      - description: 每页数量
-        in: query
-        name: pageSize
-        type: integer
-      - description: 搜索关键字
-        in: query
-        name: search
-        type: string
-      - description: 启用状态：1 启用，0 停用
-        in: query
+      - in: query
         name: enable
         type: integer
+      - description: Page number (1-based, default 1)
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Page size (1-100, default 10)
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      - in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ListSceneLinkagesResponse'
       security:
       - Bearer: []
-      summary: 获取场景联动列表
+      summary: List scene linkages
       tags:
-      - 场景联动模块
+      - Scene linkages
     post:
       consumes:
       - application/json
-      description: 创建一条新的场景联动
+      description: Creates scene linkage.
       parameters:
       - description: params
         in: body
@@ -3300,21 +3318,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-CreateSceneLinkageResponse'
       security:
       - Bearer: []
-      summary: 创建场景联动
+      summary: Create scene linkage
       tags:
-      - 场景联动模块
+      - Scene linkages
   /scene-linkages/{id}:
     delete:
       consumes:
       - application/json
-      description: 通过 ID 删除场景联动
+      description: Deletes scene linkage.
       parameters:
-      - description: 场景联动 ID
+      - description: Scene linkage ID
         in: path
         name: id
         required: true
@@ -3323,20 +3341,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-SceneLinkageSuccessResponse'
       security:
       - Bearer: []
-      summary: 删除场景联动
+      summary: Delete scene linkage
       tags:
-      - 场景联动模块
+      - Scene linkages
     get:
       consumes:
       - application/json
-      description: 通过 ID 获取场景联动
+      description: Returns scene linkage.
       parameters:
-      - description: 场景联动 ID
+      - description: Scene linkage ID
         in: path
         name: id
         required: true
@@ -3345,20 +3363,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-GetSceneLinkageResponse'
       security:
       - Bearer: []
-      summary: 获取场景联动详情
+      summary: Get scene linkage
       tags:
-      - 场景联动模块
+      - Scene linkages
     put:
       consumes:
       - application/json
-      description: 通过 ID 更新场景联动
+      description: Updates scene linkage.
       parameters:
-      - description: 场景联动 ID
+      - description: Scene linkage ID
         in: path
         name: id
         required: true
@@ -3373,21 +3391,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-UpdateSceneLinkageResponse'
       security:
       - Bearer: []
-      summary: 更新场景联动
+      summary: Update scene linkage
       tags:
-      - 场景联动模块
+      - Scene linkages
   /scene-linkages/{id}/detail:
     get:
       consumes:
       - application/json
-      description: 通过场景联动 ID 获取触发器与动作配置
+      description: Returns scene linkage configuration.
       parameters:
-      - description: 场景联动 ID
+      - description: Scene linkage ID
         in: path
         name: id
         required: true
@@ -3396,20 +3414,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-GetSceneLinkageDetailResponse'
       security:
       - Bearer: []
-      summary: 获取场景联动详情配置
+      summary: Get scene linkage configuration
       tags:
-      - 场景联动模块
+      - Scene linkages
     post:
       consumes:
       - application/json
-      description: 为指定场景联动创建触发器与动作配置
+      description: Creates scene linkage configuration.
       parameters:
-      - description: 场景联动 ID
+      - description: Scene linkage ID
         in: path
         name: id
         required: true
@@ -3424,20 +3442,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-CreateSceneLinkageDetailResponse'
       security:
       - Bearer: []
-      summary: 创建场景联动详情配置
+      summary: Create scene linkage configuration
       tags:
-      - 场景联动模块
+      - Scene linkages
     put:
       consumes:
       - application/json
-      description: 通过场景联动 ID 更新触发器与动作配置
+      description: Updates scene linkage configuration.
       parameters:
-      - description: 场景联动 ID
+      - description: Scene linkage ID
         in: path
         name: id
         required: true
@@ -3452,33 +3470,35 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-UpdateSceneLinkageDetailResponse'
       security:
       - Bearer: []
-      summary: 更新场景联动详情配置
+      summary: Update scene linkage configuration
       tags:
-      - 场景联动模块
+      - Scene linkages
   /user:
     get:
       consumes:
       - application/json
+      description: Returns the profile of the authenticated user.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiResponse-ApiGetProfileResponseData'
       security:
       - Bearer: []
-      summary: 获取用户信息
+      summary: Get user profile
       tags:
-      - 用户模块
+      - Users
     put:
       consumes:
       - application/json
+      description: Updates the profile of the authenticated user.
       parameters:
       - description: params
         in: body
@@ -3490,36 +3510,37 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiSuccessResponse'
       security:
       - Bearer: []
-      summary: 修改用户信息
+      summary: Update user profile
       tags:
-      - 用户模块
+      - Users
   /v1/devices/{deviceKey}/telemetry/history:
     get:
+      description: Returns telemetry data points within the requested time range.
       parameters:
-      - description: 设备Key
+      - description: Device key
         in: path
         name: deviceKey
         required: true
         type: string
-      - description: 物模型属性标识 (如 temperature)
+      - description: Property identifier
         in: query
         name: property
         required: true
         type: string
-      - description: 起始时间戳(ms)
+      - description: Start timestamp
         in: query
         name: start_time
         type: integer
-      - description: 结束时间戳(ms)
+      - description: End timestamp
         in: query
         name: end_time
         type: integer
-      - description: 返回点数上限
+      - description: Maximum result count
         in: query
         name: limit
         type: integer
@@ -3527,12 +3548,12 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
             $ref: '#/definitions/ApiSuccessResponse'
-      summary: 查询设备时序历史数据
+      summary: Query device telemetry history
       tags:
-      - 时序数据 (Telemetry)
+      - Telemetry
 securityDefinitions:
   Bearer:
     in: header

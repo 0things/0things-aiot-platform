@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	eventV1 "aiot-backend/api/event/v1"
-	messageParserV1 "aiot-backend/api/message_parser/v1"
 	apiV1 "aiot-backend/api/v1"
+	eventV1 "aiot-backend/api/v1"
+	messageParserV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"

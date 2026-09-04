@@ -7,24 +7,18 @@
  */
 
 export type GetProductsParams = {
+  category?: string
   /**
-   * 页码
+   * Page number (1-based, default 1)
+   * @minimum 1
    */
   page?: number
   /**
-   * 每页数量
+   * Page size (1-100, default 10)
+   * @minimum 1
+   * @maximum 100
    */
   pageSize?: number
-  /**
-   * 产品分类
-   */
-  category?: string
-  /**
-   * 产品状态
-   */
-  status?: string
-  /**
-   * 搜索关键字
-   */
   searchText?: string
+  status?: string
 }

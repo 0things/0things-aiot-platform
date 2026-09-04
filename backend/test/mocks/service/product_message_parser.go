@@ -5,7 +5,7 @@
 package mock_service
 
 import (
-	messageparserv1 "aiot-backend/api/message_parser/v1"
+	messageparserv1 "aiot-backend/api/v1"
 	model "aiot-backend/internal/model"
 	context "context"
 	reflect "reflect"

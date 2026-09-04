@@ -23,16 +23,17 @@ func NewTelemetryHandler(telemetryService service.TelemetryServiceInterface, log
 	}
 }
 
-// QueryHistory 查询指定设备的时序历史折线数据点
-// @Summary      查询设备时序历史数据
-// @Tags         时序数据 (Telemetry)
+// QueryHistory returns historical telemetry data points for a device property.
+// @Summary Query device telemetry history
+// @Description Returns telemetry data points within the requested time range.
+// @Tags Telemetry
 // @Produce      json
-// @Param        deviceKey  path      string  true  "设备Key"
-// @Param        property   query     string  true  "物模型属性标识 (如 temperature)"
-// @Param        start_time query     int     false "起始时间戳(ms)"
-// @Param        end_time   query     int     false "结束时间戳(ms)"
-// @Param        limit      query     int     false "返回点数上限"
-// @Success      200        {object}  apiV1.Response
+// @Param        deviceKey  path      string  true  "Device key"
+// @Param        property   query     string  true  "Property identifier"
+// @Param        start_time query     int     false "Start timestamp"
+// @Param        end_time   query     int     false "End timestamp"
+// @Param        limit      query     int     false "Maximum result count"
+// @Success      200        {object}  apiV1.Response "Successful response"
 // @Router       /v1/devices/{deviceKey}/telemetry/history [get]
 func (h *TelemetryHandler) QueryHistory(c *gin.Context) {
 	deviceKey := c.Param("deviceKey")

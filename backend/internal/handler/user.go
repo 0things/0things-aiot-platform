@@ -21,14 +21,14 @@ func NewUserHandler(handler *Handler, userService service.UserService) *UserHand
 }
 
 // Register godoc
-// @Summary 用户注册
+// @Summary Register user
 // @Schemes
-// @Description 目前只支持邮箱登录
-// @Tags 用户模块
+// @Description Registers user.
+// @Tags Users
 // @Accept json
 // @Produce json
 // @Param request body v1.RegisterRequest true "params"
-// @Success 200 {object} v1.Response
+// @Success 200 {object} v1.Response "Successful response"
 // @Router /register [post]
 func (h *UserHandler) Register(ctx *gin.Context) {
 	req := new(v1.RegisterRequest)
@@ -47,14 +47,14 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 }
 
 // Login godoc
-// @Summary 账号登录
+// @Summary Log in
 // @Schemes
-// @Description
-// @Tags 用户模块
+// @Description Authenticates a user and returns an access token.
+// @Tags Users
 // @Accept json
 // @Produce json
 // @Param request body v1.LoginRequest true "params"
-// @Success 200 {object} v1.ApiResponse[v1.LoginResponseData]
+// @Success 200 {object} v1.ApiResponse[v1.LoginResponseData] "Successful response"
 // @Router /login [post]
 func (h *UserHandler) Login(ctx *gin.Context) {
 	var req v1.LoginRequest
@@ -74,14 +74,14 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 }
 
 // GetProfile godoc
-// @Summary 获取用户信息
+// @Summary Get user profile
 // @Schemes
-// @Description
-// @Tags 用户模块
+// @Description Returns the profile of the authenticated user.
+// @Tags Users
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} v1.ApiResponse[v1.GetProfileResponseData]
+// @Success 200 {object} v1.ApiResponse[v1.GetProfileResponseData] "Successful response"
 // @Router /user [get]
 func (h *UserHandler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
@@ -100,15 +100,15 @@ func (h *UserHandler) GetProfile(ctx *gin.Context) {
 }
 
 // UpdateProfile godoc
-// @Summary 修改用户信息
+// @Summary Update user profile
 // @Schemes
-// @Description
-// @Tags 用户模块
+// @Description Updates the profile of the authenticated user.
+// @Tags Users
 // @Accept json
 // @Produce json
 // @Security Bearer
 // @Param request body v1.UpdateProfileRequest true "params"
-// @Success 200 {object} v1.Response
+// @Success 200 {object} v1.Response "Successful response"
 // @Router /user [put]
 func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
@@ -128,14 +128,14 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 }
 
 // ListMyOrganizations godoc
-// @Summary 获取我的组织列表
+// @Summary List user organizations
 // @Schemes
-// @Description
-// @Tags 用户模块
+// @Description Lists organizations available to the authenticated user.
+// @Tags Users
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} v1.ApiResponse[[]v1.OrganizationItem]
+// @Success 200 {object} v1.ApiResponse[[]v1.OrganizationItem] "Successful response"
 // @Router /organizations [get]
 func (h *UserHandler) ListMyOrganizations(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
@@ -154,15 +154,15 @@ func (h *UserHandler) ListMyOrganizations(ctx *gin.Context) {
 }
 
 // SwitchOrganization godoc
-// @Summary 切换组织
+// @Summary Switch organization
 // @Schemes
-// @Description
-// @Tags 用户模块
+// @Description Switches the current organization and returns a new access token.
+// @Tags Users
 // @Accept json
 // @Produce json
 // @Security Bearer
 // @Param request body v1.SwitchOrgRequest true "params"
-// @Success 200 {object} v1.ApiResponse[v1.SwitchOrgResponseData]
+// @Success 200 {object} v1.ApiResponse[v1.SwitchOrgResponseData] "Successful response"
 // @Router /auth/switch-org [post]
 func (h *UserHandler) SwitchOrganization(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
@@ -191,4 +191,3 @@ func (h *UserHandler) SwitchOrganization(ctx *gin.Context) {
 		AccessToken: token,
 	})
 }
-

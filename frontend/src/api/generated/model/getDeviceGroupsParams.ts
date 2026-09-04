@@ -8,19 +8,16 @@
 
 export type GetDeviceGroupsParams = {
   /**
-   * 页码
+   * Page number (1-based, default 1)
+   * @minimum 1
    */
   page?: number
   /**
-   * 每页数量
+   * Page size (1-100, default 10)
+   * @minimum 1
+   * @maximum 100
    */
   pageSize?: number
-  /**
-   * 分组名称
-   */
   search?: string
-  /**
-   * 分组类型
-   */
   type?: string
 }

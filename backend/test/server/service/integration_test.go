@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	eventV1 "aiot-backend/api/event/v1"
 	apiV1 "aiot-backend/api/v1"
+	eventV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 	"aiot-backend/test/server/testutil"

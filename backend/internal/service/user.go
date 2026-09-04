@@ -255,4 +255,3 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.
 
 	return nil
 }
-

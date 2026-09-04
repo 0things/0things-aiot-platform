@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	devicegroupv1 "aiot-backend/api/device_group/v1"
+	devicegroupv1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"

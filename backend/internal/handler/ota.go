@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	otaV1 "aiot-backend/api/ota/v1"
+	otaV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
@@ -82,19 +82,20 @@ func otaDeploymentJSON(deployment model.DeviceDeployment) otaV1.DeviceDeployment
 }
 
 // ListOTA godoc
-// @Summary 获取 OTA 升级包列表
+// @Summary List OTA packages
 // @Schemes
-// @Description 分页获取 OTA 升级包列表
-// @Tags OTA 模块
+// @Description Lists OTA packages.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param page query int false "页码"
-// @Param pageSize query int false "每页数量"
-// @Success 200 {object} v1.ApiResponse[otaV1.ListOTAPackagesResponse]
+// @Param request query otaV1.ListOTAPackagesRequest false "Query parameters"
+// @Success 200 {object} v1.ApiResponse[otaV1.ListOTAPackagesResponse] "Successful response"
 // @Router /ota-packages [get]
 func (h *OTAHandler) ListOTA(c *gin.Context) {
-	pageNumber, pageSize := page(c, 20)
+	var req otaV1.ListOTAPackagesRequest
+	_ = c.ShouldBindQuery(&req)
+	pageNumber, pageSize := pageRequest(req.PageRequest, 20)
 	packages, total, err := h.svc.List(c, pageNumber, pageSize)
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
@@ -108,15 +109,15 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 }
 
 // GetOTA godoc
-// @Summary 获取 OTA 升级包详情
+// @Summary Get OTA package
 // @Schemes
-// @Description 通过升级包 ID 获取 OTA 升级包详情
-// @Tags OTA 模块
+// @Description Returns OTA package.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param uuid path string true "升级包 UUID"
-// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage]
+// @Param uuid path string true "OTA package UUID"
+// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage] "Successful response"
 // @Router /ota-packages/{uuid} [get]
 func (h *OTAHandler) GetOTA(c *gin.Context) {
 	uuid := c.Param("uuid")
@@ -129,15 +130,15 @@ func (h *OTAHandler) GetOTA(c *gin.Context) {
 }
 
 // CreateOTA godoc
-// @Summary 创建 OTA 升级包
+// @Summary Create OTA package
 // @Schemes
-// @Description 创建一个新的 OTA 升级包
-// @Tags OTA 模块
+// @Description Creates OTA package.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
 // @Param request body otaV1.CreateOTAPackageRequest true "params"
-// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage]
+// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage] "Successful response"
 // @Router /ota-packages [post]
 func (h *OTAHandler) CreateOTA(c *gin.Context) {
 	var req otaV1.CreateOTAPackageRequest
@@ -157,16 +158,16 @@ func (h *OTAHandler) CreateOTA(c *gin.Context) {
 }
 
 // UpdateOTA godoc
-// @Summary 更新 OTA 升级包
+// @Summary Update OTA package
 // @Schemes
-// @Description 通过升级包 ID 更新 OTA 升级包
-// @Tags OTA 模块
+// @Description Updates OTA package.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param uuid path string true "升级包 UUID"
+// @Param uuid path string true "OTA package UUID"
 // @Param request body otaV1.OTAPackageRequest true "params"
-// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage]
+// @Success 200 {object} v1.ApiResponse[otaV1.OTAPackage] "Successful response"
 // @Router /ota-packages/{uuid} [put]
 func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 	uuid := c.Param("uuid")
@@ -218,15 +219,15 @@ func (h *OTAHandler) UpdateOTA(c *gin.Context) {
 }
 
 // DeleteOTA godoc
-// @Summary 删除 OTA 升级包
+// @Summary Delete OTA package
 // @Schemes
-// @Description 通过升级包 ID 删除 OTA 升级包
-// @Tags OTA 模块
+// @Description Deletes OTA package.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param uuid path string true "升级包 UUID"
-// @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
+// @Param uuid path string true "OTA package UUID"
+// @Success 200 {object} v1.ApiResponse[otaV1.OTASuccessResponse] "Successful response"
 // @Router /ota-packages/{uuid} [delete]
 func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 	uuid := c.Param("uuid")
@@ -234,20 +235,20 @@ func (h *OTAHandler) DeleteOTA(c *gin.Context) {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
-	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, otaV1.OTASuccessResponse{Success: true})
 }
 
 // BatchUpgradeOTA godoc
-// @Summary 批量升级 OTA 升级包
+// @Summary Create OTA upgrade batch
 // @Schemes
-// @Description 为指定升级包创建一个静态升级批次，并将所选设备加入该批次的升级（状态 pending），升级包状态置为 deploying
-// @Tags OTA 模块
+// @Description Creates OTA upgrade batch.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param uuid path string true "升级包 UUID"
-// @Param request body otaV1.BatchUpgradeRequest true "目标设备 deviceKey 列表"
-// @Success 200 {object} v1.ApiResponse[otaV1.UpgradeBatch]
+// @Param uuid path string true "OTA package UUID"
+// @Param request body otaV1.BatchUpgradeRequest true "Request payload"
+// @Success 200 {object} v1.ApiResponse[otaV1.UpgradeBatch] "Successful response"
 // @Router /ota-packages/{uuid}/batch-upgrade [post]
 func (h *OTAHandler) BatchUpgradeOTA(c *gin.Context) {
 	uuid := c.Param("uuid")
@@ -277,7 +278,7 @@ func (h *OTAHandler) CancelBatch(c *gin.Context) {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
-	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, otaV1.OTASuccessResponse{Success: true})
 }
 
 func (h *OTAHandler) RetryBatch(c *gin.Context) {
@@ -285,20 +286,20 @@ func (h *OTAHandler) RetryBatch(c *gin.Context) {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
-	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, otaV1.OTASuccessResponse{Success: true})
 }
 
 // ReportOTAStatus godoc
-// @Summary 上报设备 OTA 升级结果
+// @Summary Report OTA upgrade status
 // @Schemes
-// @Description 设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态
-// @Tags OTA 模块
+// @Description Reports OTA upgrade status.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param uuid path string true "升级包 UUID"
+// @Param uuid path string true "OTA package UUID"
 // @Param request body otaV1.ReportOTAStatusRequest true "params"
-// @Success 200 {object} v1.ApiResponse[otaV1.SuccessResponse]
+// @Success 200 {object} v1.ApiResponse[otaV1.OTASuccessResponse] "Successful response"
 // @Router /ota-packages/{uuid}/report [post]
 func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 	uuid := c.Param("uuid")
@@ -309,7 +310,7 @@ func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 	}
 	var err error
 	if req.BatchID != "" {
-		// 带批次上报时先校验批次属于当前 OTA 包，避免跨包更新设备任务。
+		// Verify that the batch belongs to the current OTA package before updating deployments.
 		batches, batchErr := h.svc.Batches(c, uuid)
 		if batchErr != nil {
 			v1.HandleError(c, otaErrorStatus(batchErr), batchErr, nil)
@@ -334,20 +335,20 @@ func (h *OTAHandler) ReportOTAStatus(c *gin.Context) {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
 		return
 	}
-	v1.HandleSuccess(c, otaV1.SuccessResponse{Success: true})
+	v1.HandleSuccess(c, otaV1.OTASuccessResponse{Success: true})
 }
 
 // OTAStats godoc
-// @Summary 获取 OTA 升级统计
+// @Summary Get OTA upgrade statistics
 // @Schemes
-// @Description 获取指定 OTA 升级包的升级统计数据
-// @Tags OTA 模块
+// @Description Returns OTA upgrade statistics.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param uuid path string true "升级包 UUID"
-// @Param batchId query string false "批次 ID"
-// @Success 200 {object} v1.ApiResponse[otaV1.GetUpgradeStatisticsResponse]
+// @Param uuid path string true "OTA package UUID"
+// @Param batchId query string false "Upgrade batch ID"
+// @Success 200 {object} v1.ApiResponse[otaV1.GetUpgradeStatisticsResponse] "Successful response"
 // @Router /ota-packages/{uuid}/upgrade-statistics [get]
 func (h *OTAHandler) OTAStats(c *gin.Context) {
 	var stats service.UpgradeStatistics
@@ -370,15 +371,15 @@ func (h *OTAHandler) OTAStats(c *gin.Context) {
 }
 
 // OTABatches godoc
-// @Summary 获取 OTA 升级批次列表
+// @Summary List OTA upgrade batches
 // @Schemes
-// @Description 获取指定 OTA 升级包下的升级批次
-// @Tags OTA 模块
+// @Description Lists OTA upgrade batches.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param uuid path string true "升级包 UUID"
-// @Success 200 {object} v1.ApiResponse[otaV1.ListUpgradeBatchesResponse]
+// @Param uuid path string true "OTA package UUID"
+// @Success 200 {object} v1.ApiResponse[otaV1.ListUpgradeBatchesResponse] "Successful response"
 // @Router /ota-packages/{uuid}/batches [get]
 func (h *OTAHandler) OTABatches(c *gin.Context) {
 	batches, err := h.svc.Batches(c, c.Param("uuid"))
@@ -394,29 +395,29 @@ func (h *OTAHandler) OTABatches(c *gin.Context) {
 }
 
 // OTADeployments godoc
-// @Summary 获取 OTA 设备部署列表
+// @Summary List OTA device deployments
 // @Schemes
-// @Description 分页获取指定升级包下的设备部署记录
-// @Tags OTA 模块
+// @Description Lists OTA device deployments.
+// @Tags OTA
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param uuid path string true "升级包 UUID"
-// @Param page query int false "页码"
-// @Param pageSize query int false "每页数量"
-// @Param status query string false "部署状态"
-// @Success 200 {object} v1.ApiResponse[otaV1.ListDeviceDeploymentsResponse]
+// @Param uuid path string true "OTA package UUID"
+// @Param request query otaV1.ListDeviceDeploymentsRequest false "Query parameters"
+// @Success 200 {object} v1.ApiResponse[otaV1.ListDeviceDeploymentsResponse] "Successful response"
 // @Router /ota-packages/{uuid}/device-deployments [get]
 func (h *OTAHandler) OTADeployments(c *gin.Context) {
-	pageNumber, pageSize := page(c, 100)
+	var req otaV1.ListDeviceDeploymentsRequest
+	_ = c.ShouldBindQuery(&req)
+	pageNumber, pageSize := pageRequest(req.PageRequest, 100)
 	var deployments []model.DeviceDeployment
 	var total int64
 	var err error
-	// batchId 为空时保持历史行为，查询整个 OTA 包的设备记录。
-	if batchID := c.Query("batchId"); batchID != "" {
-		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, c.Query("status"), batchID)
+	// Preserve legacy behavior by querying the entire OTA package without a batch ID.
+	if req.BatchID != "" {
+		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, req.Status, req.BatchID)
 	} else {
-		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, c.Query("status"))
+		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, req.Status)
 	}
 	if err != nil {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)

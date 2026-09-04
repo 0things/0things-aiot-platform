@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	messageParserV1 "aiot-backend/api/message_parser/v1"
+	messageParserV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"github.com/robertkrimen/otto"

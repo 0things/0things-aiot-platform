@@ -23,21 +23,21 @@ import type {
 import { orvalAxios } from '../orval-mutator'
 import type { ErrorType, BodyType } from '../orval-mutator'
 import type {
-  AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest,
-  AiotBackendApiDeviceGroupV1DeviceKeysRequest,
-  AiotBackendApiDeviceGroupV1PreviewRequest,
-  AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest,
+  AiotBackendApiV1CreateDeviceGroupRequest,
+  AiotBackendApiV1DeviceKeysRequest,
+  AiotBackendApiV1PreviewRequest,
+  AiotBackendApiV1UpdateDeviceGroupRequest,
   ApiLoginRequest,
   ApiRegisterRequest,
-  ApiResponseAiotBackendApiDeviceGroupV1DeviceGroup,
-  ApiResponseAiotBackendApiDeviceGroupV1DeviceGroupDevicesResponse,
-  ApiResponseAiotBackendApiDeviceGroupV1ListDeviceGroupsResponse,
-  ApiResponseAiotBackendApiDeviceGroupV1PreviewResponse,
-  ApiResponseAiotBackendApiProtocolV1DeviceEndpoints,
+  ApiResponseAiotBackendApiV1DeviceEndpoints,
+  ApiResponseAiotBackendApiV1DeviceGroup,
+  ApiResponseAiotBackendApiV1DeviceGroupDevicesResponse,
+  ApiResponseAiotBackendApiV1ListDeviceGroupsResponse,
+  ApiResponseAiotBackendApiV1PreviewResponse,
   ApiResponseApiGetProfileResponseData,
   ApiResponseApiLoginResponseData,
   ApiResponseApiSwitchOrgResponseData,
-  ApiResponseArrayAiotBackendApiCategoryV1Category,
+  ApiResponseArrayAiotBackendApiV1Category,
   ApiResponseArrayApiOrganizationItem,
   ApiResponseCreateSceneLinkageDetailResponse,
   ApiResponseCreateSceneLinkageResponse,
@@ -140,7 +140,8 @@ const withQueryKey = <T extends object, K>(
 }
 
 /**
- * @summary 切换组织
+ * Switches the current organization and returns a new access token.
+ * @summary Switch organization
  */
 export const postAuthSwitchOrg = (
   apiSwitchOrgRequest: BodyType<ApiSwitchOrgRequest>,
@@ -199,7 +200,7 @@ export type PostAuthSwitchOrgMutationBody = BodyType<ApiSwitchOrgRequest>
 export type PostAuthSwitchOrgMutationError = ErrorType<unknown>
 
 /**
- * @summary 切换组织
+ * @summary Switch organization
  */
 export const usePostAuthSwitchOrg = <
   TError = ErrorType<unknown>,
@@ -224,10 +225,10 @@ export const usePostAuthSwitchOrg = <
 }
 
 /**
- * @summary 获取产品分类树
+ * @summary Get product category tree
  */
 export const getCategoriesTree = (signal?: AbortSignal) => {
-  return orvalAxios<ApiResponseArrayAiotBackendApiCategoryV1Category>({
+  return orvalAxios<ApiResponseArrayAiotBackendApiV1Category>({
     url: `/categories/tree`,
     method: 'GET',
     signal,
@@ -338,7 +339,7 @@ export function useGetCategoriesTree<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取产品分类树
+ * @summary Get product category tree
  */
 
 export function useGetCategoriesTree<
@@ -526,15 +527,18 @@ export function useGetDeviceEvents<
 }
 
 /**
- * @summary 查询设备分组
+ * @summary List device groups
  */
 export const getDeviceGroups = (
   params?: GetDeviceGroupsParams,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1ListDeviceGroupsResponse>(
-    { url: `/device-groups`, method: 'GET', params, signal }
-  )
+  return orvalAxios<ApiResponseAiotBackendApiV1ListDeviceGroupsResponse>({
+    url: `/device-groups`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
 export const getGetDeviceGroupsQueryKey = (params?: GetDeviceGroupsParams) => {
@@ -647,7 +651,7 @@ export function useGetDeviceGroups<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 查询设备分组
+ * @summary List device groups
  */
 
 export function useGetDeviceGroups<
@@ -679,17 +683,17 @@ export function useGetDeviceGroups<
 }
 
 /**
- * @summary 创建设备分组
+ * @summary Create device group
  */
 export const postDeviceGroups = (
-  aiotBackendApiDeviceGroupV1CreateDeviceGroupRequest: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest>,
+  aiotBackendApiV1CreateDeviceGroupRequest: BodyType<AiotBackendApiV1CreateDeviceGroupRequest>,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1DeviceGroup>({
+  return orvalAxios<ApiResponseAiotBackendApiV1DeviceGroup>({
     url: `/device-groups`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: aiotBackendApiDeviceGroupV1CreateDeviceGroupRequest,
+    data: aiotBackendApiV1CreateDeviceGroupRequest,
     signal,
   })
 }
@@ -701,13 +705,13 @@ export const getPostDeviceGroupsMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postDeviceGroups>>,
     TError,
-    { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> },
+    { data: BodyType<AiotBackendApiV1CreateDeviceGroupRequest> },
     TContext
   >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postDeviceGroups>>,
   TError,
-  { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> },
+  { data: BodyType<AiotBackendApiV1CreateDeviceGroupRequest> },
   TContext
 > => {
   const mutationKey = ['postDeviceGroups']
@@ -721,7 +725,7 @@ export const getPostDeviceGroupsMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postDeviceGroups>>,
-    { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> }
+    { data: BodyType<AiotBackendApiV1CreateDeviceGroupRequest> }
   > = (props) => {
     const { data } = props ?? {}
 
@@ -735,11 +739,11 @@ export type PostDeviceGroupsMutationResult = NonNullable<
   Awaited<ReturnType<typeof postDeviceGroups>>
 >
 export type PostDeviceGroupsMutationBody =
-  BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest>
+  BodyType<AiotBackendApiV1CreateDeviceGroupRequest>
 export type PostDeviceGroupsMutationError = ErrorType<unknown>
 
 /**
- * @summary 创建设备分组
+ * @summary Create device group
  */
 export const usePostDeviceGroups = <
   TError = ErrorType<unknown>,
@@ -749,7 +753,7 @@ export const usePostDeviceGroups = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof postDeviceGroups>>,
       TError,
-      { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> },
+      { data: BodyType<AiotBackendApiV1CreateDeviceGroupRequest> },
       TContext
     >
   },
@@ -757,24 +761,24 @@ export const usePostDeviceGroups = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof postDeviceGroups>>,
   TError,
-  { data: BodyType<AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest> },
+  { data: BodyType<AiotBackendApiV1CreateDeviceGroupRequest> },
   TContext
 > => {
   return useMutation(getPostDeviceGroupsMutationOptions(options), queryClient)
 }
 
 /**
- * @summary 预览未保存动态规则
+ * @summary Preview device group rule
  */
 export const postDeviceGroupsPreview = (
-  aiotBackendApiDeviceGroupV1PreviewRequest: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>,
+  aiotBackendApiV1PreviewRequest: BodyType<AiotBackendApiV1PreviewRequest>,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1PreviewResponse>({
+  return orvalAxios<ApiResponseAiotBackendApiV1PreviewResponse>({
     url: `/device-groups/preview`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: aiotBackendApiDeviceGroupV1PreviewRequest,
+    data: aiotBackendApiV1PreviewRequest,
     signal,
   })
 }
@@ -786,13 +790,13 @@ export const getPostDeviceGroupsPreviewMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
     TError,
-    { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> },
+    { data: BodyType<AiotBackendApiV1PreviewRequest> },
     TContext
   >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
   TError,
-  { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> },
+  { data: BodyType<AiotBackendApiV1PreviewRequest> },
   TContext
 > => {
   const mutationKey = ['postDeviceGroupsPreview']
@@ -806,7 +810,7 @@ export const getPostDeviceGroupsPreviewMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
-    { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> }
+    { data: BodyType<AiotBackendApiV1PreviewRequest> }
   > = (props) => {
     const { data } = props ?? {}
 
@@ -820,11 +824,11 @@ export type PostDeviceGroupsPreviewMutationResult = NonNullable<
   Awaited<ReturnType<typeof postDeviceGroupsPreview>>
 >
 export type PostDeviceGroupsPreviewMutationBody =
-  BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+  BodyType<AiotBackendApiV1PreviewRequest>
 export type PostDeviceGroupsPreviewMutationError = ErrorType<unknown>
 
 /**
- * @summary 预览未保存动态规则
+ * @summary Preview device group rule
  */
 export const usePostDeviceGroupsPreview = <
   TError = ErrorType<unknown>,
@@ -834,7 +838,7 @@ export const usePostDeviceGroupsPreview = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
       TError,
-      { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> },
+      { data: BodyType<AiotBackendApiV1PreviewRequest> },
       TContext
     >
   },
@@ -842,7 +846,7 @@ export const usePostDeviceGroupsPreview = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof postDeviceGroupsPreview>>,
   TError,
-  { data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest> },
+  { data: BodyType<AiotBackendApiV1PreviewRequest> },
   TContext
 > => {
   return useMutation(
@@ -852,13 +856,13 @@ export const usePostDeviceGroupsPreview = <
 }
 
 /**
- * @summary 查询设备分组详情
+ * @summary Get device group
  */
 export const getDeviceGroupsGroupUuid = (
   groupUuid: string,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1DeviceGroup>({
+  return orvalAxios<ApiResponseAiotBackendApiV1DeviceGroup>({
     url: `/device-groups/${groupUuid}`,
     method: 'GET',
     signal,
@@ -981,7 +985,7 @@ export function useGetDeviceGroupsGroupUuid<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 查询设备分组详情
+ * @summary Get device group
  */
 
 export function useGetDeviceGroupsGroupUuid<
@@ -1016,18 +1020,18 @@ export function useGetDeviceGroupsGroupUuid<
 }
 
 /**
- * @summary 更新设备分组
+ * @summary Update device group
  */
 export const putDeviceGroupsGroupUuid = (
   groupUuid: string,
-  aiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>,
+  aiotBackendApiV1UpdateDeviceGroupRequest: BodyType<AiotBackendApiV1UpdateDeviceGroupRequest>,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1DeviceGroup>({
+  return orvalAxios<ApiResponseAiotBackendApiV1DeviceGroup>({
     url: `/device-groups/${groupUuid}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    data: aiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest,
+    data: aiotBackendApiV1UpdateDeviceGroupRequest,
     signal,
   })
 }
@@ -1041,7 +1045,7 @@ export const getPutDeviceGroupsGroupUuidMutationOptions = <
     TError,
     {
       groupUuid: string
-      data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+      data: BodyType<AiotBackendApiV1UpdateDeviceGroupRequest>
     },
     TContext
   >
@@ -1050,7 +1054,7 @@ export const getPutDeviceGroupsGroupUuidMutationOptions = <
   TError,
   {
     groupUuid: string
-    data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+    data: BodyType<AiotBackendApiV1UpdateDeviceGroupRequest>
   },
   TContext
 > => {
@@ -1067,7 +1071,7 @@ export const getPutDeviceGroupsGroupUuidMutationOptions = <
     Awaited<ReturnType<typeof putDeviceGroupsGroupUuid>>,
     {
       groupUuid: string
-      data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+      data: BodyType<AiotBackendApiV1UpdateDeviceGroupRequest>
     }
   > = (props) => {
     const { groupUuid, data } = props ?? {}
@@ -1082,11 +1086,11 @@ export type PutDeviceGroupsGroupUuidMutationResult = NonNullable<
   Awaited<ReturnType<typeof putDeviceGroupsGroupUuid>>
 >
 export type PutDeviceGroupsGroupUuidMutationBody =
-  BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+  BodyType<AiotBackendApiV1UpdateDeviceGroupRequest>
 export type PutDeviceGroupsGroupUuidMutationError = ErrorType<unknown>
 
 /**
- * @summary 更新设备分组
+ * @summary Update device group
  */
 export const usePutDeviceGroupsGroupUuid = <
   TError = ErrorType<unknown>,
@@ -1098,7 +1102,7 @@ export const usePutDeviceGroupsGroupUuid = <
       TError,
       {
         groupUuid: string
-        data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+        data: BodyType<AiotBackendApiV1UpdateDeviceGroupRequest>
       },
       TContext
     >
@@ -1109,7 +1113,7 @@ export const usePutDeviceGroupsGroupUuid = <
   TError,
   {
     groupUuid: string
-    data: BodyType<AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest>
+    data: BodyType<AiotBackendApiV1UpdateDeviceGroupRequest>
   },
   TContext
 > => {
@@ -1120,7 +1124,7 @@ export const usePutDeviceGroupsGroupUuid = <
 }
 
 /**
- * @summary 删除设备分组
+ * @summary Delete device group
  */
 export const deleteDeviceGroupsGroupUuid = (
   groupUuid: string,
@@ -1177,7 +1181,7 @@ export type DeleteDeviceGroupsGroupUuidMutationResult = NonNullable<
 export type DeleteDeviceGroupsGroupUuidMutationError = ErrorType<unknown>
 
 /**
- * @summary 删除设备分组
+ * @summary Delete device group
  */
 export const useDeleteDeviceGroupsGroupUuid = <
   TError = ErrorType<unknown>,
@@ -1205,21 +1209,19 @@ export const useDeleteDeviceGroupsGroupUuid = <
 }
 
 /**
- * @summary 查询分组设备
+ * @summary List devices in group
  */
 export const getDeviceGroupsGroupUuidDevices = (
   groupUuid: string,
   params?: GetDeviceGroupsGroupUuidDevicesParams,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1DeviceGroupDevicesResponse>(
-    {
-      url: `/device-groups/${groupUuid}/devices`,
-      method: 'GET',
-      params,
-      signal,
-    }
-  )
+  return orvalAxios<ApiResponseAiotBackendApiV1DeviceGroupDevicesResponse>({
+    url: `/device-groups/${groupUuid}/devices`,
+    method: 'GET',
+    params,
+    signal,
+  })
 }
 
 export const getGetDeviceGroupsGroupUuidDevicesQueryKey = (
@@ -1349,7 +1351,7 @@ export function useGetDeviceGroupsGroupUuidDevices<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 查询分组设备
+ * @summary List devices in group
  */
 
 export function useGetDeviceGroupsGroupUuidDevices<
@@ -1386,18 +1388,18 @@ export function useGetDeviceGroupsGroupUuidDevices<
 }
 
 /**
- * @summary 添加分组设备
+ * @summary Add devices to group
  */
 export const postDeviceGroupsGroupUuidDevices = (
   groupUuid: string,
-  aiotBackendApiDeviceGroupV1DeviceKeysRequest: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>,
+  aiotBackendApiV1DeviceKeysRequest: BodyType<AiotBackendApiV1DeviceKeysRequest>,
   signal?: AbortSignal
 ) => {
   return orvalAxios<ApiResponseMapStringBool>({
     url: `/device-groups/${groupUuid}/devices`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: aiotBackendApiDeviceGroupV1DeviceKeysRequest,
+    data: aiotBackendApiV1DeviceKeysRequest,
     signal,
   })
 }
@@ -1409,19 +1411,13 @@ export const getPostDeviceGroupsGroupUuidDevicesMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
     TError,
-    {
-      groupUuid: string
-      data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-    },
+    { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> },
     TContext
   >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
   TError,
-  {
-    groupUuid: string
-    data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-  },
+  { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> },
   TContext
 > => {
   const mutationKey = ['postDeviceGroupsGroupUuidDevices']
@@ -1435,10 +1431,7 @@ export const getPostDeviceGroupsGroupUuidDevicesMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
-    {
-      groupUuid: string
-      data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-    }
+    { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> }
   > = (props) => {
     const { groupUuid, data } = props ?? {}
 
@@ -1452,11 +1445,11 @@ export type PostDeviceGroupsGroupUuidDevicesMutationResult = NonNullable<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>
 >
 export type PostDeviceGroupsGroupUuidDevicesMutationBody =
-  BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+  BodyType<AiotBackendApiV1DeviceKeysRequest>
 export type PostDeviceGroupsGroupUuidDevicesMutationError = ErrorType<unknown>
 
 /**
- * @summary 添加分组设备
+ * @summary Add devices to group
  */
 export const usePostDeviceGroupsGroupUuidDevices = <
   TError = ErrorType<unknown>,
@@ -1466,10 +1459,7 @@ export const usePostDeviceGroupsGroupUuidDevices = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
       TError,
-      {
-        groupUuid: string
-        data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-      },
+      { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> },
       TContext
     >
   },
@@ -1477,10 +1467,7 @@ export const usePostDeviceGroupsGroupUuidDevices = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidDevices>>,
   TError,
-  {
-    groupUuid: string
-    data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-  },
+  { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> },
   TContext
 > => {
   return useMutation(
@@ -1490,18 +1477,18 @@ export const usePostDeviceGroupsGroupUuidDevices = <
 }
 
 /**
- * @summary 移除分组设备
+ * @summary Remove devices from group
  */
 export const deleteDeviceGroupsGroupUuidDevices = (
   groupUuid: string,
-  aiotBackendApiDeviceGroupV1DeviceKeysRequest: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>,
+  aiotBackendApiV1DeviceKeysRequest: BodyType<AiotBackendApiV1DeviceKeysRequest>,
   signal?: AbortSignal
 ) => {
   return orvalAxios<ApiResponseMapStringBool>({
     url: `/device-groups/${groupUuid}/devices`,
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
-    data: aiotBackendApiDeviceGroupV1DeviceKeysRequest,
+    data: aiotBackendApiV1DeviceKeysRequest,
     signal,
   })
 }
@@ -1513,19 +1500,13 @@ export const getDeleteDeviceGroupsGroupUuidDevicesMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
     TError,
-    {
-      groupUuid: string
-      data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-    },
+    { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> },
     TContext
   >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
   TError,
-  {
-    groupUuid: string
-    data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-  },
+  { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> },
   TContext
 > => {
   const mutationKey = ['deleteDeviceGroupsGroupUuidDevices']
@@ -1539,10 +1520,7 @@ export const getDeleteDeviceGroupsGroupUuidDevicesMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
-    {
-      groupUuid: string
-      data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-    }
+    { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> }
   > = (props) => {
     const { groupUuid, data } = props ?? {}
 
@@ -1556,11 +1534,11 @@ export type DeleteDeviceGroupsGroupUuidDevicesMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>
 >
 export type DeleteDeviceGroupsGroupUuidDevicesMutationBody =
-  BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
+  BodyType<AiotBackendApiV1DeviceKeysRequest>
 export type DeleteDeviceGroupsGroupUuidDevicesMutationError = ErrorType<unknown>
 
 /**
- * @summary 移除分组设备
+ * @summary Remove devices from group
  */
 export const useDeleteDeviceGroupsGroupUuidDevices = <
   TError = ErrorType<unknown>,
@@ -1570,10 +1548,7 @@ export const useDeleteDeviceGroupsGroupUuidDevices = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
       TError,
-      {
-        groupUuid: string
-        data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-      },
+      { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> },
       TContext
     >
   },
@@ -1581,10 +1556,7 @@ export const useDeleteDeviceGroupsGroupUuidDevices = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof deleteDeviceGroupsGroupUuidDevices>>,
   TError,
-  {
-    groupUuid: string
-    data: BodyType<AiotBackendApiDeviceGroupV1DeviceKeysRequest>
-  },
+  { groupUuid: string; data: BodyType<AiotBackendApiV1DeviceKeysRequest> },
   TContext
 > => {
   return useMutation(
@@ -1594,18 +1566,18 @@ export const useDeleteDeviceGroupsGroupUuidDevices = <
 }
 
 /**
- * @summary 预览已保存动态规则
+ * @summary Preview saved device group rule
  */
 export const postDeviceGroupsGroupUuidPreview = (
   groupUuid: string,
-  aiotBackendApiDeviceGroupV1PreviewRequest: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>,
+  aiotBackendApiV1PreviewRequest: BodyType<AiotBackendApiV1PreviewRequest>,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseAiotBackendApiDeviceGroupV1PreviewResponse>({
+  return orvalAxios<ApiResponseAiotBackendApiV1PreviewResponse>({
     url: `/device-groups/${groupUuid}/preview`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: aiotBackendApiDeviceGroupV1PreviewRequest,
+    data: aiotBackendApiV1PreviewRequest,
     signal,
   })
 }
@@ -1617,19 +1589,13 @@ export const getPostDeviceGroupsGroupUuidPreviewMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
     TError,
-    {
-      groupUuid: string
-      data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
-    },
+    { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> },
     TContext
   >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
   TError,
-  {
-    groupUuid: string
-    data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
-  },
+  { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> },
   TContext
 > => {
   const mutationKey = ['postDeviceGroupsGroupUuidPreview']
@@ -1643,10 +1609,7 @@ export const getPostDeviceGroupsGroupUuidPreviewMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
-    {
-      groupUuid: string
-      data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
-    }
+    { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> }
   > = (props) => {
     const { groupUuid, data } = props ?? {}
 
@@ -1660,11 +1623,11 @@ export type PostDeviceGroupsGroupUuidPreviewMutationResult = NonNullable<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>
 >
 export type PostDeviceGroupsGroupUuidPreviewMutationBody =
-  BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
+  BodyType<AiotBackendApiV1PreviewRequest>
 export type PostDeviceGroupsGroupUuidPreviewMutationError = ErrorType<unknown>
 
 /**
- * @summary 预览已保存动态规则
+ * @summary Preview saved device group rule
  */
 export const usePostDeviceGroupsGroupUuidPreview = <
   TError = ErrorType<unknown>,
@@ -1674,10 +1637,7 @@ export const usePostDeviceGroupsGroupUuidPreview = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
       TError,
-      {
-        groupUuid: string
-        data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
-      },
+      { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> },
       TContext
     >
   },
@@ -1685,10 +1645,7 @@ export const usePostDeviceGroupsGroupUuidPreview = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
   TError,
-  {
-    groupUuid: string
-    data: BodyType<AiotBackendApiDeviceGroupV1PreviewRequest>
-  },
+  { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> },
   TContext
 > => {
   return useMutation(
@@ -1698,8 +1655,8 @@ export const usePostDeviceGroupsGroupUuidPreview = <
 }
 
 /**
- * 获取设备统计信息（总数、已激活、在线、离线、未激活）
- * @summary 设备统计
+ * Handles requests to get device statistics.
+ * @summary Get device statistics
  */
 export const getDeviceStatistics = (signal?: AbortSignal) => {
   return orvalAxios<ApiResponseDeviceStatisticsResponse>({
@@ -1813,7 +1770,7 @@ export function useGetDeviceStatistics<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 设备统计
+ * @summary Get device statistics
  */
 
 export function useGetDeviceStatistics<
@@ -1844,8 +1801,8 @@ export function useGetDeviceStatistics<
 }
 
 /**
- * 分页获取设备列表，支持按 productId、states、enabled、searchText 过滤
- * @summary 获取设备列表
+ * Lists devices with pagination and optional product, state, enabled, and text filters.
+ * @summary List devices
  */
 export const getDevices = (params?: GetDevicesParams, signal?: AbortSignal) => {
   return orvalAxios<ApiResponseDeviceListDevicesResponse>({
@@ -1950,7 +1907,7 @@ export function useGetDevices<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备列表
+ * @summary List devices
  */
 
 export function useGetDevices<
@@ -1978,8 +1935,8 @@ export function useGetDevices<
 }
 
 /**
- * 创建一个新的设备
- * @summary 创建设备
+ * Handles requests to create device.
+ * @summary Create device
  */
 export const postDevices = (
   deviceCreateDeviceRequest: BodyType<DeviceCreateDeviceRequest>,
@@ -2038,7 +1995,7 @@ export type PostDevicesMutationBody = BodyType<DeviceCreateDeviceRequest>
 export type PostDevicesMutationError = ErrorType<unknown>
 
 /**
- * @summary 创建设备
+ * @summary Create device
  */
 export const usePostDevices = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
@@ -2060,8 +2017,8 @@ export const usePostDevices = <TError = ErrorType<unknown>, TContext = unknown>(
 }
 
 /**
- * 下载设备批量导入的 Excel 模板
- * @summary 下载设备批量导入模板
+ * Handles requests to download device import template.
+ * @summary Download device import template
  */
 export const getDevicesBatchTemplate = (signal?: AbortSignal) => {
   return orvalAxios<Blob>({
@@ -2177,7 +2134,7 @@ export function useGetDevicesBatchTemplate<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 下载设备批量导入模板
+ * @summary Download device import template
  */
 
 export function useGetDevicesBatchTemplate<
@@ -2208,8 +2165,8 @@ export function useGetDevicesBatchTemplate<
 }
 
 /**
- * 通过 Excel 文件批量导入设备
- * @summary 批量上传设备
+ * Handles requests to import devices in bulk.
+ * @summary Import devices in bulk
  */
 export const postDevicesBatchUpload = (
   postDevicesBatchUploadBody?: BodyType<PostDevicesBatchUploadBody>,
@@ -2274,7 +2231,7 @@ export type PostDevicesBatchUploadMutationBody =
 export type PostDevicesBatchUploadMutationError = ErrorType<unknown>
 
 /**
- * @summary 批量上传设备
+ * @summary Import devices in bulk
  */
 export const usePostDevicesBatchUpload = <
   TError = ErrorType<unknown>,
@@ -2302,8 +2259,8 @@ export const usePostDevicesBatchUpload = <
 }
 
 /**
- * 通过推送记录 ID 获取单个下行推送记录
- * @summary 获取设备下行推送记录
+ * Handles requests to get downstream push record.
+ * @summary Get downstream push record
  */
 export const getDevicesPushRecordsPushRecordId = (
   pushRecordId: number,
@@ -2435,7 +2392,7 @@ export function useGetDevicesPushRecordsPushRecordId<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备下行推送记录
+ * @summary Get downstream push record
  */
 
 export function useGetDevicesPushRecordsPushRecordId<
@@ -2470,8 +2427,8 @@ export function useGetDevicesPushRecordsPushRecordId<
 }
 
 /**
- * 通过设备 Key 获取设备详情
- * @summary 通过 deviceKey 获取设备
+ * Handles requests to get device.
+ * @summary Get device
  */
 export const getDevicesDeviceKey = (
   deviceKey: string,
@@ -2600,7 +2557,7 @@ export function useGetDevicesDeviceKey<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 通过 deviceKey 获取设备
+ * @summary Get device
  */
 
 export function useGetDevicesDeviceKey<
@@ -2632,8 +2589,8 @@ export function useGetDevicesDeviceKey<
 }
 
 /**
- * 通过设备 Key 更新设备
- * @summary 更新设备
+ * Handles requests to update device.
+ * @summary Update device
  */
 export const putDevicesDeviceKey = (
   deviceKey: string,
@@ -2694,7 +2651,7 @@ export type PutDevicesDeviceKeyMutationBody =
 export type PutDevicesDeviceKeyMutationError = ErrorType<unknown>
 
 /**
- * @summary 更新设备
+ * @summary Update device
  */
 export const usePutDevicesDeviceKey = <
   TError = ErrorType<unknown>,
@@ -2722,8 +2679,8 @@ export const usePutDevicesDeviceKey = <
 }
 
 /**
- * 通过设备 Key 软删除设备
- * @summary 删除设备
+ * Handles requests to delete device.
+ * @summary Delete Device
  */
 export const deleteDevicesDeviceKey = (
   deviceKey: string,
@@ -2780,7 +2737,7 @@ export type DeleteDevicesDeviceKeyMutationResult = NonNullable<
 export type DeleteDevicesDeviceKeyMutationError = ErrorType<unknown>
 
 /**
- * @summary 删除设备
+ * @summary Delete Device
  */
 export const useDeleteDevicesDeviceKey = <
   TError = ErrorType<unknown>,
@@ -2808,8 +2765,8 @@ export const useDeleteDevicesDeviceKey = <
 }
 
 /**
- * 通过设备 Key 激活设备
- * @summary 激活设备
+ * Handles requests to activate device.
+ * @summary Activate device
  */
 export const postDevicesDeviceKeyActivate = (
   deviceKey: string,
@@ -2866,7 +2823,7 @@ export type PostDevicesDeviceKeyActivateMutationResult = NonNullable<
 export type PostDevicesDeviceKeyActivateMutationError = ErrorType<unknown>
 
 /**
- * @summary 激活设备
+ * @summary Activate device
  */
 export const usePostDevicesDeviceKeyActivate = <
   TError = ErrorType<unknown>,
@@ -2894,8 +2851,8 @@ export const usePostDevicesDeviceKeyActivate = <
 }
 
 /**
- * 通过设备 Key 启用或禁用设备
- * @summary 设置设备启用/禁用
+ * Handles requests to set device enabled state.
+ * @summary Set device enabled state
  */
 export const postDevicesDeviceKeyEnabled = (
   deviceKey: string,
@@ -2956,7 +2913,7 @@ export type PostDevicesDeviceKeyEnabledMutationBody =
 export type PostDevicesDeviceKeyEnabledMutationError = ErrorType<unknown>
 
 /**
- * @summary 设置设备启用/禁用
+ * @summary Set device enabled state
  */
 export const usePostDevicesDeviceKeyEnabled = <
   TError = ErrorType<unknown>,
@@ -2984,13 +2941,14 @@ export const usePostDevicesDeviceKeyEnabled = <
 }
 
 /**
- * @summary 获取设备连接数据
+ * Returns protocol-specific connection endpoints for a device.
+ * @summary Get device connection endpoints
  */
 export const getDevicesDeviceKeyEndpoints = (
   deviceKey: string,
   signal?: AbortSignal
 ) => {
-  return orvalAxios<ApiResponseAiotBackendApiProtocolV1DeviceEndpoints>({
+  return orvalAxios<ApiResponseAiotBackendApiV1DeviceEndpoints>({
     url: `/devices/${deviceKey}/endpoints`,
     method: 'GET',
     signal,
@@ -3113,7 +3071,7 @@ export function useGetDevicesDeviceKeyEndpoints<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备连接数据
+ * @summary Get device connection endpoints
  */
 
 export function useGetDevicesDeviceKeyEndpoints<
@@ -3148,8 +3106,8 @@ export function useGetDevicesDeviceKeyEndpoints<
 }
 
 /**
- * 分页获取设备的下行推送记录
- * @summary 获取设备下行推送记录列表
+ * Handles requests to list downstream push records.
+ * @summary List downstream push records
  */
 export const getDevicesDeviceKeyPushRecords = (
   deviceKey: string,
@@ -3291,7 +3249,7 @@ export function useGetDevicesDeviceKeyPushRecords<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备下行推送记录列表
+ * @summary List downstream push records
  */
 
 export function useGetDevicesDeviceKeyPushRecords<
@@ -3328,8 +3286,8 @@ export function useGetDevicesDeviceKeyPushRecords<
 }
 
 /**
- * 清理设备指定时间戳之前的下行推送记录
- * @summary 清理设备下行推送记录
+ * Handles requests to clear downstream push records.
+ * @summary Clear downstream push records
  */
 export const deleteDevicesDeviceKeyPushRecords = (
   deviceKey: string,
@@ -3388,7 +3346,7 @@ export type DeleteDevicesDeviceKeyPushRecordsMutationResult = NonNullable<
 export type DeleteDevicesDeviceKeyPushRecordsMutationError = ErrorType<unknown>
 
 /**
- * @summary 清理设备下行推送记录
+ * @summary Clear downstream push records
  */
 export const useDeleteDevicesDeviceKeyPushRecords = <
   TError = ErrorType<unknown>,
@@ -3416,8 +3374,8 @@ export const useDeleteDevicesDeviceKeyPushRecords = <
 }
 
 /**
- * 获取设备影子（Desired、Reported、Delta、Metadata、Version）
- * @summary 获取设备影子
+ * Handles requests to get device shadow.
+ * @summary Get device shadow
  */
 export const getDevicesDeviceKeyShadow = (
   deviceKey: string,
@@ -3546,7 +3504,7 @@ export function useGetDevicesDeviceKeyShadow<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备影子
+ * @summary Get device shadow
  */
 
 export function useGetDevicesDeviceKeyShadow<
@@ -3581,8 +3539,8 @@ export function useGetDevicesDeviceKeyShadow<
 }
 
 /**
- * 由应用侧更新设备的 Desired 影子
- * @summary 更新设备影子期望值
+ * Handles requests to update desired device shadow.
+ * @summary Update desired device shadow
  */
 export const putDevicesDeviceKeyShadowDesired = (
   deviceKey: string,
@@ -3643,7 +3601,7 @@ export type PutDevicesDeviceKeyShadowDesiredMutationBody =
 export type PutDevicesDeviceKeyShadowDesiredMutationError = ErrorType<unknown>
 
 /**
- * @summary 更新设备影子期望值
+ * @summary Update desired device shadow
  */
 export const usePutDevicesDeviceKeyShadowDesired = <
   TError = ErrorType<unknown>,
@@ -3671,8 +3629,8 @@ export const usePutDevicesDeviceKeyShadowDesired = <
 }
 
 /**
- * 清空设备影子的 Desired 部分
- * @summary 清空设备影子期望值
+ * Handles requests to clear desired device shadow.
+ * @summary Clear desired device shadow
  */
 export const deleteDevicesDeviceKeyShadowDesired = (
   deviceKey: string,
@@ -3734,7 +3692,7 @@ export type DeleteDevicesDeviceKeyShadowDesiredMutationError =
   ErrorType<unknown>
 
 /**
- * @summary 清空设备影子期望值
+ * @summary Clear desired device shadow
  */
 export const useDeleteDevicesDeviceKeyShadowDesired = <
   TError = ErrorType<unknown>,
@@ -3762,8 +3720,8 @@ export const useDeleteDevicesDeviceKeyShadowDesired = <
 }
 
 /**
- * 获取设备影子的变更历史记录
- * @summary 获取设备影子历史
+ * Handles requests to list device shadow history.
+ * @summary List device shadow history
  */
 export const getDevicesDeviceKeyShadowHistory = (
   deviceKey: string,
@@ -3895,7 +3853,7 @@ export function useGetDevicesDeviceKeyShadowHistory<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备影子历史
+ * @summary List device shadow history
  */
 
 export function useGetDevicesDeviceKeyShadowHistory<
@@ -3930,8 +3888,8 @@ export function useGetDevicesDeviceKeyShadowHistory<
 }
 
 /**
- * 模拟服务端向设备发起一次下行推送
- * @summary 模拟下行推送
+ * Handles requests to simulate downstream push.
+ * @summary Simulate downstream push
  */
 export const postDevicesDeviceKeySimulatePush = (
   deviceKey: string,
@@ -3992,7 +3950,7 @@ export type PostDevicesDeviceKeySimulatePushMutationBody =
 export type PostDevicesDeviceKeySimulatePushMutationError = ErrorType<unknown>
 
 /**
- * @summary 模拟下行推送
+ * @summary Simulate downstream push
  */
 export const usePostDevicesDeviceKeySimulatePush = <
   TError = ErrorType<unknown>,
@@ -4020,8 +3978,8 @@ export const usePostDevicesDeviceKeySimulatePush = <
 }
 
 /**
- * 获取设备的所有标签
- * @summary 获取设备标签
+ * Handles requests to list device tags.
+ * @summary List device tags
  */
 export const getDevicesDeviceKeyTags = (
   deviceKey: string,
@@ -4150,7 +4108,7 @@ export function useGetDevicesDeviceKeyTags<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备标签
+ * @summary List device tags
  */
 
 export function useGetDevicesDeviceKeyTags<
@@ -4185,8 +4143,8 @@ export function useGetDevicesDeviceKeyTags<
 }
 
 /**
- * 覆盖式设置设备的标签集合（PUT 语义）
- * @summary 全量覆盖设置设备标签
+ * Handles requests to replace device tags.
+ * @summary Replace device tags
  */
 export const putDevicesDeviceKeyTags = (
   deviceKey: string,
@@ -4247,7 +4205,7 @@ export type PutDevicesDeviceKeyTagsMutationBody =
 export type PutDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
 
 /**
- * @summary 全量覆盖设置设备标签
+ * @summary Replace device tags
  */
 export const usePutDevicesDeviceKeyTags = <
   TError = ErrorType<unknown>,
@@ -4275,8 +4233,8 @@ export const usePutDevicesDeviceKeyTags = <
 }
 
 /**
- * 增量式添加设备的标签（POST 语义，保留已存在的标签）
- * @summary 增量添加设备标签
+ * Handles requests to add device tags.
+ * @summary Add device tags
  */
 export const postDevicesDeviceKeyTags = (
   deviceKey: string,
@@ -4337,7 +4295,7 @@ export type PostDevicesDeviceKeyTagsMutationBody =
 export type PostDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
 
 /**
- * @summary 增量添加设备标签
+ * @summary Add device tags
  */
 export const usePostDevicesDeviceKeyTags = <
   TError = ErrorType<unknown>,
@@ -4365,8 +4323,8 @@ export const usePostDevicesDeviceKeyTags = <
 }
 
 /**
- * 删除设备指定的标签键
- * @summary 删除设备标签
+ * Handles requests to delete device tags.
+ * @summary Delete device tags
  */
 export const deleteDevicesDeviceKeyTags = (
   deviceKey: string,
@@ -4427,7 +4385,7 @@ export type DeleteDevicesDeviceKeyTagsMutationBody =
 export type DeleteDevicesDeviceKeyTagsMutationError = ErrorType<unknown>
 
 /**
- * @summary 删除设备标签
+ * @summary Delete device tags
  */
 export const useDeleteDevicesDeviceKeyTags = <
   TError = ErrorType<unknown>,
@@ -4455,8 +4413,8 @@ export const useDeleteDevicesDeviceKeyTags = <
 }
 
 /**
- * 获取设备的遥测（Telemetry）数据
- * @summary 获取设备遥测数据
+ * Handles requests to get device telemetry.
+ * @summary Get device telemetry
  */
 export const getDevicesDeviceKeyTelemetry = (
   deviceKey: string,
@@ -4585,7 +4543,7 @@ export function useGetDevicesDeviceKeyTelemetry<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取设备遥测数据
+ * @summary Get device telemetry
  */
 
 export function useGetDevicesDeviceKeyTelemetry<
@@ -4620,8 +4578,8 @@ export function useGetDevicesDeviceKeyTelemetry<
 }
 
 /**
- * 上传受支持的 OTA 文件到 Cloudflare R2，并返回创建 OTA 升级包所需的文件元数据
- * @summary 上传 OTA 升级文件
+ * Handles requests to upload ota update file.
+ * @summary Upload OTA update file
  */
 export const postFilesOta = (
   postFilesOtaBody?: BodyType<PostFilesOtaBody>,
@@ -4685,7 +4643,7 @@ export type PostFilesOtaMutationBody = BodyType<PostFilesOtaBody> | undefined
 export type PostFilesOtaMutationError = ErrorType<unknown>
 
 /**
- * @summary 上传 OTA 升级文件
+ * @summary Upload OTA update file
  */
 export const usePostFilesOta = <
   TError = ErrorType<unknown>,
@@ -4710,7 +4668,8 @@ export const usePostFilesOta = <
 }
 
 /**
- * @summary 账号登录
+ * Authenticates a user and returns an access token.
+ * @summary Log in
  */
 export const postLogin = (
   apiLoginRequest: BodyType<ApiLoginRequest>,
@@ -4769,7 +4728,7 @@ export type PostLoginMutationBody = BodyType<ApiLoginRequest>
 export type PostLoginMutationError = ErrorType<unknown>
 
 /**
- * @summary 账号登录
+ * @summary Log in
  */
 export const usePostLogin = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
@@ -4791,7 +4750,8 @@ export const usePostLogin = <TError = ErrorType<unknown>, TContext = unknown>(
 }
 
 /**
- * @summary 获取我的组织列表
+ * Lists organizations available to the authenticated user.
+ * @summary List user organizations
  */
 export const getOrganizations = (signal?: AbortSignal) => {
   return orvalAxios<ApiResponseArrayApiOrganizationItem>({
@@ -4901,7 +4861,7 @@ export function useGetOrganizations<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取我的组织列表
+ * @summary List user organizations
  */
 
 export function useGetOrganizations<
@@ -4932,8 +4892,8 @@ export function useGetOrganizations<
 }
 
 /**
- * 分页获取 OTA 升级包列表
- * @summary 获取 OTA 升级包列表
+ * Handles requests to list ota packages.
+ * @summary List OTA packages
  */
 export const getOtaPackages = (
   params?: GetOtaPackagesParams,
@@ -5041,7 +5001,7 @@ export function useGetOtaPackages<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取 OTA 升级包列表
+ * @summary List OTA packages
  */
 
 export function useGetOtaPackages<
@@ -5069,8 +5029,8 @@ export function useGetOtaPackages<
 }
 
 /**
- * 创建一个新的 OTA 升级包
- * @summary 创建 OTA 升级包
+ * Handles requests to create ota package.
+ * @summary Create OTA package
  */
 export const postOtaPackages = (
   otaCreateOTAPackageRequest: BodyType<OtaCreateOTAPackageRequest>,
@@ -5129,7 +5089,7 @@ export type PostOtaPackagesMutationBody = BodyType<OtaCreateOTAPackageRequest>
 export type PostOtaPackagesMutationError = ErrorType<unknown>
 
 /**
- * @summary 创建 OTA 升级包
+ * @summary Create OTA package
  */
 export const usePostOtaPackages = <
   TError = ErrorType<unknown>,
@@ -5154,8 +5114,8 @@ export const usePostOtaPackages = <
 }
 
 /**
- * 通过升级包 ID 获取 OTA 升级包详情
- * @summary 获取 OTA 升级包详情
+ * Handles requests to get ota package.
+ * @summary Get OTA package
  */
 export const getOtaPackagesUuid = (uuid: string, signal?: AbortSignal) => {
   return orvalAxios<ApiResponseOtaOTAPackage>({
@@ -5280,7 +5240,7 @@ export function useGetOtaPackagesUuid<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取 OTA 升级包详情
+ * @summary Get OTA package
  */
 
 export function useGetOtaPackagesUuid<
@@ -5312,8 +5272,8 @@ export function useGetOtaPackagesUuid<
 }
 
 /**
- * 通过升级包 ID 更新 OTA 升级包
- * @summary 更新 OTA 升级包
+ * Handles requests to update ota package.
+ * @summary Update OTA package
  */
 export const putOtaPackagesUuid = (
   uuid: string,
@@ -5373,7 +5333,7 @@ export type PutOtaPackagesUuidMutationBody = BodyType<OtaOTAPackageRequest>
 export type PutOtaPackagesUuidMutationError = ErrorType<unknown>
 
 /**
- * @summary 更新 OTA 升级包
+ * @summary Update OTA package
  */
 export const usePutOtaPackagesUuid = <
   TError = ErrorType<unknown>,
@@ -5398,8 +5358,8 @@ export const usePutOtaPackagesUuid = <
 }
 
 /**
- * 通过升级包 ID 删除 OTA 升级包
- * @summary 删除 OTA 升级包
+ * Handles requests to delete ota package.
+ * @summary Delete OTA package
  */
 export const deleteOtaPackagesUuid = (uuid: string, signal?: AbortSignal) => {
   return orvalAxios<ApiResponseOtaSuccessResponse>({
@@ -5453,7 +5413,7 @@ export type DeleteOtaPackagesUuidMutationResult = NonNullable<
 export type DeleteOtaPackagesUuidMutationError = ErrorType<unknown>
 
 /**
- * @summary 删除 OTA 升级包
+ * @summary Delete OTA package
  */
 export const useDeleteOtaPackagesUuid = <
   TError = ErrorType<unknown>,
@@ -5481,8 +5441,8 @@ export const useDeleteOtaPackagesUuid = <
 }
 
 /**
- * 为指定升级包创建一个静态升级批次，并将所选设备加入该批次的升级（状态 pending），升级包状态置为 deploying
- * @summary 批量升级 OTA 升级包
+ * Handles requests to create ota upgrade batch.
+ * @summary Create OTA upgrade batch
  */
 export const postOtaPackagesUuidBatchUpgrade = (
   uuid: string,
@@ -5543,7 +5503,7 @@ export type PostOtaPackagesUuidBatchUpgradeMutationBody =
 export type PostOtaPackagesUuidBatchUpgradeMutationError = ErrorType<unknown>
 
 /**
- * @summary 批量升级 OTA 升级包
+ * @summary Create OTA upgrade batch
  */
 export const usePostOtaPackagesUuidBatchUpgrade = <
   TError = ErrorType<unknown>,
@@ -5571,8 +5531,8 @@ export const usePostOtaPackagesUuidBatchUpgrade = <
 }
 
 /**
- * 获取指定 OTA 升级包下的升级批次
- * @summary 获取 OTA 升级批次列表
+ * Handles requests to list ota upgrade batches.
+ * @summary List OTA upgrade batches
  */
 export const getOtaPackagesUuidBatches = (
   uuid: string,
@@ -5701,7 +5661,7 @@ export function useGetOtaPackagesUuidBatches<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取 OTA 升级批次列表
+ * @summary List OTA upgrade batches
  */
 
 export function useGetOtaPackagesUuidBatches<
@@ -5733,8 +5693,8 @@ export function useGetOtaPackagesUuidBatches<
 }
 
 /**
- * 分页获取指定升级包下的设备部署记录
- * @summary 获取 OTA 设备部署列表
+ * Handles requests to list ota device deployments.
+ * @summary List OTA device deployments
  */
 export const getOtaPackagesUuidDeviceDeployments = (
   uuid: string,
@@ -5876,7 +5836,7 @@ export function useGetOtaPackagesUuidDeviceDeployments<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取 OTA 设备部署列表
+ * @summary List OTA device deployments
  */
 
 export function useGetOtaPackagesUuidDeviceDeployments<
@@ -5913,8 +5873,8 @@ export function useGetOtaPackagesUuidDeviceDeployments<
 }
 
 /**
- * 设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态
- * @summary 上报设备 OTA 升级结果
+ * Handles requests to report ota upgrade status.
+ * @summary Report OTA upgrade status
  */
 export const postOtaPackagesUuidReport = (
   uuid: string,
@@ -5975,7 +5935,7 @@ export type PostOtaPackagesUuidReportMutationBody =
 export type PostOtaPackagesUuidReportMutationError = ErrorType<unknown>
 
 /**
- * @summary 上报设备 OTA 升级结果
+ * @summary Report OTA upgrade status
  */
 export const usePostOtaPackagesUuidReport = <
   TError = ErrorType<unknown>,
@@ -6003,8 +5963,8 @@ export const usePostOtaPackagesUuidReport = <
 }
 
 /**
- * 获取指定 OTA 升级包的升级统计数据
- * @summary 获取 OTA 升级统计
+ * Handles requests to get ota upgrade statistics.
+ * @summary Get OTA upgrade statistics
  */
 export const getOtaPackagesUuidUpgradeStatistics = (
   uuid: string,
@@ -6146,7 +6106,7 @@ export function useGetOtaPackagesUuidUpgradeStatistics<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取 OTA 升级统计
+ * @summary Get OTA upgrade statistics
  */
 
 export function useGetOtaPackagesUuidUpgradeStatistics<
@@ -6183,8 +6143,8 @@ export function useGetOtaPackagesUuidUpgradeStatistics<
 }
 
 /**
- * 分页获取产品列表，支持按 category、status、searchText 过滤
- * @summary 获取产品列表
+ * Lists products with pagination and optional filters.
+ * @summary List products
  */
 export const getProducts = (
   params?: GetProductsParams,
@@ -6292,7 +6252,7 @@ export function useGetProducts<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取产品列表
+ * @summary List products
  */
 
 export function useGetProducts<
@@ -6320,8 +6280,8 @@ export function useGetProducts<
 }
 
 /**
- * 创建一个新的产品
- * @summary 创建产品
+ * Creates a product with its protocol configuration.
+ * @summary Create product
  */
 export const postProducts = (
   productCreateProductRequest: BodyType<ProductCreateProductRequest>,
@@ -6380,7 +6340,7 @@ export type PostProductsMutationBody = BodyType<ProductCreateProductRequest>
 export type PostProductsMutationError = ErrorType<unknown>
 
 /**
- * @summary 创建产品
+ * @summary Create product
  */
 export const usePostProducts = <
   TError = ErrorType<unknown>,
@@ -6405,8 +6365,8 @@ export const usePostProducts = <
 }
 
 /**
- * 获取产品唯一的消息解析脚本；尚未配置时返回默认模板。
- * @summary 获取产品消息解析器
+ * Gets the product message parser or its default template.
+ * @summary Get product message parser
  */
 export const getProductsKeyProductKeyMessageParser = (
   productKey: string,
@@ -6538,7 +6498,7 @@ export function useGetProductsKeyProductKeyMessageParser<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取产品消息解析器
+ * @summary Get product message parser
  */
 
 export function useGetProductsKeyProductKeyMessageParser<
@@ -6573,8 +6533,8 @@ export function useGetProductsKeyProductKeyMessageParser<
 }
 
 /**
- * 按产品覆盖保存 JavaScript ES5 消息解析脚本。
- * @summary 保存产品消息解析器
+ * Handles requests to save product message parser.
+ * @summary Save product message parser
  */
 export const putProductsKeyProductKeyMessageParser = (
   productKey: string,
@@ -6645,7 +6605,7 @@ export type PutProductsKeyProductKeyMessageParserMutationError =
   ErrorType<unknown>
 
 /**
- * @summary 保存产品消息解析器
+ * @summary Save product message parser
  */
 export const usePutProductsKeyProductKeyMessageParser = <
   TError = ErrorType<unknown>,
@@ -6679,8 +6639,8 @@ export const usePutProductsKeyProductKeyMessageParser = <
 }
 
 /**
- * 仅在受限 JavaScript ES5 运行时中执行保存的产品脚本。
- * @summary 模拟执行产品消息解析器
+ * Handles requests to execute product message parser.
+ * @summary Execute product message parser
  */
 export const postProductsKeyProductKeyMessageParserExecute = (
   productKey: string,
@@ -6754,7 +6714,7 @@ export type PostProductsKeyProductKeyMessageParserExecuteMutationError =
   ErrorType<unknown>
 
 /**
- * @summary 模拟执行产品消息解析器
+ * @summary Execute product message parser
  */
 export const usePostProductsKeyProductKeyMessageParserExecute = <
   TError = ErrorType<unknown>,
@@ -6788,8 +6748,8 @@ export const usePostProductsKeyProductKeyMessageParserExecute = <
 }
 
 /**
- * 通过产品 Key 获取产品详情
- * @summary 通过 productKey 获取产品
+ * Gets a product by its product key.
+ * @summary Get product
  */
 export const getProductsProductKey = (
   productKey: string,
@@ -6918,7 +6878,7 @@ export function useGetProductsProductKey<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 通过 productKey 获取产品
+ * @summary Get product
  */
 
 export function useGetProductsProductKey<
@@ -6950,8 +6910,8 @@ export function useGetProductsProductKey<
 }
 
 /**
- * 通过 productKey 更新产品
- * @summary 更新产品
+ * Updates a product by its product key.
+ * @summary Update product
  */
 export const putProductsProductKey = (
   productKey: string,
@@ -7012,7 +6972,7 @@ export type PutProductsProductKeyMutationBody =
 export type PutProductsProductKeyMutationError = ErrorType<unknown>
 
 /**
- * @summary 更新产品
+ * @summary Update product
  */
 export const usePutProductsProductKey = <
   TError = ErrorType<unknown>,
@@ -7040,8 +7000,8 @@ export const usePutProductsProductKey = <
 }
 
 /**
- * 通过产品 Key 软删除产品
- * @summary 删除产品
+ * Soft-deletes a product by its product key.
+ * @summary Delete product
  */
 export const deleteProductsProductKey = (
   productKey: string,
@@ -7098,7 +7058,7 @@ export type DeleteProductsProductKeyMutationResult = NonNullable<
 export type DeleteProductsProductKeyMutationError = ErrorType<unknown>
 
 /**
- * @summary 删除产品
+ * @summary Delete product
  */
 export const useDeleteProductsProductKey = <
   TError = ErrorType<unknown>,
@@ -7126,8 +7086,8 @@ export const useDeleteProductsProductKey = <
 }
 
 /**
- * 通过产品 Key 获取其物模型定义（TSL）
- * @summary 获取产品物模型（TSL）
+ * Gets the thing specification language definition for a product.
+ * @summary Get product TSL
  */
 export const getProductsProductKeyTsl = (
   productKey: string,
@@ -7256,7 +7216,7 @@ export function useGetProductsProductKeyTsl<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取产品物模型（TSL）
+ * @summary Get product TSL
  */
 
 export function useGetProductsProductKeyTsl<
@@ -7291,8 +7251,8 @@ export function useGetProductsProductKeyTsl<
 }
 
 /**
- * 通过产品 Key 上传或更新物模型定义
- * @summary 上传/更新产品物模型（TSL）
+ * Creates or updates the thing specification language definition for a product.
+ * @summary Save product TSL
  */
 export const putProductsProductKeyTsl = (
   productKey: string,
@@ -7353,7 +7313,7 @@ export type PutProductsProductKeyTslMutationBody =
 export type PutProductsProductKeyTslMutationError = ErrorType<unknown>
 
 /**
- * @summary 上传/更新产品物模型（TSL）
+ * @summary Save product TSL
  */
 export const usePutProductsProductKeyTsl = <
   TError = ErrorType<unknown>,
@@ -7381,8 +7341,8 @@ export const usePutProductsProductKeyTsl = <
 }
 
 /**
- * 通过产品 Key 上传或更新物模型定义
- * @summary 上传/更新产品物模型（TSL）
+ * Creates or updates the thing specification language definition for a product.
+ * @summary Save product TSL
  */
 export const postProductsProductKeyTsl = (
   productKey: string,
@@ -7443,7 +7403,7 @@ export type PostProductsProductKeyTslMutationBody =
 export type PostProductsProductKeyTslMutationError = ErrorType<unknown>
 
 /**
- * @summary 上传/更新产品物模型（TSL）
+ * @summary Save product TSL
  */
 export const usePostProductsProductKeyTsl = <
   TError = ErrorType<unknown>,
@@ -7471,8 +7431,8 @@ export const usePostProductsProductKeyTsl = <
 }
 
 /**
- * 通过产品 Key 删除其物模型定义
- * @summary 删除产品物模型（TSL）
+ * Deletes the thing specification language definition for a product.
+ * @summary Delete product TSL
  */
 export const deleteProductsProductKeyTsl = (
   productKey: string,
@@ -7529,7 +7489,7 @@ export type DeleteProductsProductKeyTslMutationResult = NonNullable<
 export type DeleteProductsProductKeyTslMutationError = ErrorType<unknown>
 
 /**
- * @summary 删除产品物模型（TSL）
+ * @summary Delete product TSL
  */
 export const useDeleteProductsProductKeyTsl = <
   TError = ErrorType<unknown>,
@@ -7557,8 +7517,8 @@ export const useDeleteProductsProductKeyTsl = <
 }
 
 /**
- * 目前只支持邮箱登录
- * @summary 用户注册
+ * Handles requests to register user.
+ * @summary Register user
  */
 export const postRegister = (
   apiRegisterRequest: BodyType<ApiRegisterRequest>,
@@ -7617,7 +7577,7 @@ export type PostRegisterMutationBody = BodyType<ApiRegisterRequest>
 export type PostRegisterMutationError = ErrorType<unknown>
 
 /**
- * @summary 用户注册
+ * @summary Register user
  */
 export const usePostRegister = <
   TError = ErrorType<unknown>,
@@ -7642,8 +7602,8 @@ export const usePostRegister = <
 }
 
 /**
- * 分页获取场景联动列表，支持按 search、enable 过滤
- * @summary 获取场景联动列表
+ * Handles requests to list scene linkages.
+ * @summary List scene linkages
  */
 export const getSceneLinkages = (
   params?: GetSceneLinkagesParams,
@@ -7769,7 +7729,7 @@ export function useGetSceneLinkages<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取场景联动列表
+ * @summary List scene linkages
  */
 
 export function useGetSceneLinkages<
@@ -7801,8 +7761,8 @@ export function useGetSceneLinkages<
 }
 
 /**
- * 创建一条新的场景联动
- * @summary 创建场景联动
+ * Handles requests to create scene linkage.
+ * @summary Create scene linkage
  */
 export const postSceneLinkages = (
   sceneLinkageRequest: BodyType<SceneLinkageRequest>,
@@ -7861,7 +7821,7 @@ export type PostSceneLinkagesMutationBody = BodyType<SceneLinkageRequest>
 export type PostSceneLinkagesMutationError = ErrorType<unknown>
 
 /**
- * @summary 创建场景联动
+ * @summary Create scene linkage
  */
 export const usePostSceneLinkages = <
   TError = ErrorType<unknown>,
@@ -7886,8 +7846,8 @@ export const usePostSceneLinkages = <
 }
 
 /**
- * 通过 ID 获取场景联动
- * @summary 获取场景联动详情
+ * Handles requests to get scene linkage.
+ * @summary Get scene linkage
  */
 export const getSceneLinkagesId = (id: number, signal?: AbortSignal) => {
   return orvalAxios<ApiResponseGetSceneLinkageResponse>({
@@ -8012,7 +7972,7 @@ export function useGetSceneLinkagesId<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取场景联动详情
+ * @summary Get scene linkage
  */
 
 export function useGetSceneLinkagesId<
@@ -8044,8 +8004,8 @@ export function useGetSceneLinkagesId<
 }
 
 /**
- * 通过 ID 更新场景联动
- * @summary 更新场景联动
+ * Handles requests to update scene linkage.
+ * @summary Update scene linkage
  */
 export const putSceneLinkagesId = (
   id: number,
@@ -8105,7 +8065,7 @@ export type PutSceneLinkagesIdMutationBody = BodyType<SceneLinkageRequest>
 export type PutSceneLinkagesIdMutationError = ErrorType<unknown>
 
 /**
- * @summary 更新场景联动
+ * @summary Update scene linkage
  */
 export const usePutSceneLinkagesId = <
   TError = ErrorType<unknown>,
@@ -8130,8 +8090,8 @@ export const usePutSceneLinkagesId = <
 }
 
 /**
- * 通过 ID 删除场景联动
- * @summary 删除场景联动
+ * Handles requests to delete scene linkage.
+ * @summary Delete scene linkage
  */
 export const deleteSceneLinkagesId = (id: number, signal?: AbortSignal) => {
   return orvalAxios<ApiResponseSceneLinkageSuccessResponse>({
@@ -8185,7 +8145,7 @@ export type DeleteSceneLinkagesIdMutationResult = NonNullable<
 export type DeleteSceneLinkagesIdMutationError = ErrorType<unknown>
 
 /**
- * @summary 删除场景联动
+ * @summary Delete scene linkage
  */
 export const useDeleteSceneLinkagesId = <
   TError = ErrorType<unknown>,
@@ -8213,8 +8173,8 @@ export const useDeleteSceneLinkagesId = <
 }
 
 /**
- * 通过场景联动 ID 获取触发器与动作配置
- * @summary 获取场景联动详情配置
+ * Handles requests to get scene linkage configuration.
+ * @summary Get scene linkage configuration
  */
 export const getSceneLinkagesIdDetail = (id: number, signal?: AbortSignal) => {
   return orvalAxios<ApiResponseGetSceneLinkageDetailResponse>({
@@ -8340,7 +8300,7 @@ export function useGetSceneLinkagesIdDetail<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取场景联动详情配置
+ * @summary Get scene linkage configuration
  */
 
 export function useGetSceneLinkagesIdDetail<
@@ -8372,8 +8332,8 @@ export function useGetSceneLinkagesIdDetail<
 }
 
 /**
- * 通过场景联动 ID 更新触发器与动作配置
- * @summary 更新场景联动详情配置
+ * Handles requests to update scene linkage configuration.
+ * @summary Update scene linkage configuration
  */
 export const putSceneLinkagesIdDetail = (
   id: number,
@@ -8434,7 +8394,7 @@ export type PutSceneLinkagesIdDetailMutationBody =
 export type PutSceneLinkagesIdDetailMutationError = ErrorType<unknown>
 
 /**
- * @summary 更新场景联动详情配置
+ * @summary Update scene linkage configuration
  */
 export const usePutSceneLinkagesIdDetail = <
   TError = ErrorType<unknown>,
@@ -8462,8 +8422,8 @@ export const usePutSceneLinkagesIdDetail = <
 }
 
 /**
- * 为指定场景联动创建触发器与动作配置
- * @summary 创建场景联动详情配置
+ * Handles requests to create scene linkage configuration.
+ * @summary Create scene linkage configuration
  */
 export const postSceneLinkagesIdDetail = (
   id: number,
@@ -8524,7 +8484,7 @@ export type PostSceneLinkagesIdDetailMutationBody =
 export type PostSceneLinkagesIdDetailMutationError = ErrorType<unknown>
 
 /**
- * @summary 创建场景联动详情配置
+ * @summary Create scene linkage configuration
  */
 export const usePostSceneLinkagesIdDetail = <
   TError = ErrorType<unknown>,
@@ -8552,7 +8512,8 @@ export const usePostSceneLinkagesIdDetail = <
 }
 
 /**
- * @summary 获取用户信息
+ * Returns the profile of the authenticated user.
+ * @summary Get user profile
  */
 export const getUser = (signal?: AbortSignal) => {
   return orvalAxios<ApiResponseApiGetProfileResponseData>({
@@ -8650,7 +8611,7 @@ export function useGetUser<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 获取用户信息
+ * @summary Get user profile
  */
 
 export function useGetUser<
@@ -8677,7 +8638,8 @@ export function useGetUser<
 }
 
 /**
- * @summary 修改用户信息
+ * Updates the profile of the authenticated user.
+ * @summary Update user profile
  */
 export const putUser = (
   apiUpdateProfileRequest: BodyType<ApiUpdateProfileRequest>,
@@ -8736,7 +8698,7 @@ export type PutUserMutationBody = BodyType<ApiUpdateProfileRequest>
 export type PutUserMutationError = ErrorType<unknown>
 
 /**
- * @summary 修改用户信息
+ * @summary Update user profile
  */
 export const usePutUser = <TError = ErrorType<unknown>, TContext = unknown>(
   options?: {
@@ -8758,7 +8720,8 @@ export const usePutUser = <TError = ErrorType<unknown>, TContext = unknown>(
 }
 
 /**
- * @summary 查询设备时序历史数据
+ * Returns telemetry data points within the requested time range.
+ * @summary Query device telemetry history
  */
 export const getV1DevicesDeviceKeyTelemetryHistory = (
   deviceKey: string,
@@ -8901,7 +8864,7 @@ export function useGetV1DevicesDeviceKeyTelemetryHistory<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary 查询设备时序历史数据
+ * @summary Query device telemetry history
  */
 
 export function useGetV1DevicesDeviceKeyTelemetryHistory<

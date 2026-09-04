@@ -30,7 +30,7 @@ func TestTelemetryHandler_QueryHistory(t *testing.T) {
 
 	r.GET("/v1/devices/:deviceKey/telemetry/history", h.QueryHistory)
 
-	// 测试历史曲线
+	// Test historical telemetry data.
 	req, _ := http.NewRequest(http.MethodGet, "/v1/devices/dev_01/telemetry/history?property=temperature", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)

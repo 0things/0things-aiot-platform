@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	eventV1 "aiot-backend/api/event/v1"
+	eventV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"

@@ -1,13 +1,13 @@
 package handler
 
 import (
-	protocolV1 "aiot-backend/api/protocol/v1"
+	protocolV1 "aiot-backend/api/v1"
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
-// 保留协议响应类型引用，供 Swagger 泛型注释解析。
+// Keep this response type reference so swag can resolve the generic response annotation.
 var _ = protocolV1.DeviceEndpoints{}
 
 type ProtocolHandler struct {
@@ -19,12 +19,13 @@ func NewProtocolHandler(h *Handler, svc service.ProtocolServiceInterface) *Proto
 	return &ProtocolHandler{Handler: h, svc: svc}
 }
 
-// ListDeviceEndpoints 返回设备按产品协议生成的分协议接入参数。
-// @Summary 获取设备连接数据
-// @Tags devices
+// ListDeviceEndpoints returns connection endpoints generated from the device product protocol.
+// @Summary Get device connection endpoints
+// @Description Returns protocol-specific connection endpoints for a device.
+// @Tags Device connections
 // @Produce json
 // @Param deviceKey path string true "Device key"
-// @Success 200 {object} v1.ApiResponse[protocolV1.DeviceEndpoints]
+// @Success 200 {object} v1.ApiResponse[protocolV1.DeviceEndpoints] "Successful response"
 // @Router /devices/{deviceKey}/endpoints [get]
 func (h *ProtocolHandler) ListDeviceEndpoints(c *gin.Context) {
 	items, err := h.svc.ListDeviceEndpoints(c, c.Param("deviceKey"))

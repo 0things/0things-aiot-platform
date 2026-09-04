@@ -1,6 +1,7 @@
 package handler
 
 import (
+	apiV1 "aiot-backend/api/v1"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -11,6 +12,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
+
+func pageRequest(req apiV1.PageRequest, defaultSize int) (int, int) {
+	pageNumber, pageSize := req.Page, req.PageSize
+	if pageNumber < 1 {
+		pageNumber = 1
+	}
+	if pageSize < 1 {
+		pageSize = defaultSize
+	}
+	if pageSize > 100 {
+		pageSize = 100
+	}
+	return pageNumber, pageSize
+}
 
 func deviceError(c *gin.Context, err error) {
 	status := http.StatusInternalServerError

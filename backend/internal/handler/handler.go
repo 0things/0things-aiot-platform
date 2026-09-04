@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {

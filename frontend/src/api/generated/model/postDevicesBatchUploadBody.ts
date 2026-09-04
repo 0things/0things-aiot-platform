@@ -7,6 +7,6 @@
  */
 
 export type PostDevicesBatchUploadBody = {
-  /** Excel 模板文件 */
+  /** Upload file */
   file: Blob
 }

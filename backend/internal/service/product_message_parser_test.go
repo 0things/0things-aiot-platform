@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	messageParserV1 "aiot-backend/api/message_parser/v1"
+	messageParserV1 "aiot-backend/api/v1"
 	"github.com/stretchr/testify/require"
 )
 

@@ -31,6 +31,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
+                "description": "Switches the current organization and returns a new access token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -38,9 +39,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户模块"
+                    "Users"
                 ],
-                "summary": "切换组织",
+                "summary": "Switch organization",
                 "parameters": [
                     {
                         "description": "params",
@@ -54,7 +55,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ApiSwitchOrgResponseData"
                         }
@@ -73,14 +74,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品分类"
+                    "Product categories"
                 ],
-                "summary": "获取产品分类树",
+                "summary": "Get product category tree",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-array_aiot-backend_api_category_v1_Category"
+                            "$ref": "#/definitions/ApiResponse-array_aiot-backend_api_v1_Category"
                         }
                     }
                 }
@@ -150,7 +151,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceEventListDeviceEventsResponse"
                         }
@@ -164,40 +165,41 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "查询设备分组",
+                "summary": "List device groups",
                 "parameters": [
                     {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "页码",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "分组名称",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "分组类型",
                         "name": "type",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_ListDeviceGroupsResponse"
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_ListDeviceGroupsResponse"
                         }
                     }
                 }
@@ -210,25 +212,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "创建设备分组",
+                "summary": "Create device group",
                 "parameters": [
                     {
-                        "description": "分组参数",
+                        "description": "Request payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.CreateDeviceGroupRequest"
+                            "$ref": "#/definitions/aiot-backend_api_v1.CreateDeviceGroupRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup"
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_DeviceGroup"
                         }
                     }
                 }
@@ -240,25 +242,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "预览未保存动态规则",
+                "summary": "Preview device group rule",
                 "parameters": [
                     {
-                        "description": "动态规则",
+                        "description": "Request payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.PreviewRequest"
+                            "$ref": "#/definitions/aiot-backend_api_v1.PreviewRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse"
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_PreviewResponse"
                         }
                     }
                 }
@@ -270,13 +272,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "查询设备分组详情",
+                "summary": "Get device group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "分组 UUID",
+                        "description": "Device group UUID",
                         "name": "groupUuid",
                         "in": "path",
                         "required": true
@@ -284,9 +286,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup"
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_DeviceGroup"
                         }
                     }
                 }
@@ -296,45 +298,45 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "更新设备分组",
+                "summary": "Update device group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "分组 UUID",
+                        "description": "Device group UUID",
                         "name": "groupUuid",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "分组参数",
+                        "description": "Request payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.UpdateDeviceGroupRequest"
+                            "$ref": "#/definitions/aiot-backend_api_v1.UpdateDeviceGroupRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup"
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_DeviceGroup"
                         }
                     }
                 }
             },
             "delete": {
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "删除设备分组",
+                "summary": "Delete device group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "分组 UUID",
+                        "description": "Device group UUID",
                         "name": "groupUuid",
                         "in": "path",
                         "required": true
@@ -342,7 +344,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-map_string_bool"
                         }
@@ -356,47 +358,48 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "查询分组设备",
+                "summary": "List devices in group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "分组 UUID",
+                        "description": "Device group UUID",
                         "name": "groupUuid",
                         "in": "path",
                         "required": true
                     },
                     {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "页码",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "产品 Key",
                         "name": "productKey",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "设备 Key 或名称",
                         "name": "search",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_DeviceGroupDevicesResponse"
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_DeviceGroupDevicesResponse"
                         }
                     }
                 }
@@ -406,30 +409,30 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "添加分组设备",
+                "summary": "Add devices to group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "分组 UUID",
+                        "description": "Device group UUID",
                         "name": "groupUuid",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "设备 Key 列表",
+                        "description": "Request payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceKeysRequest"
+                            "$ref": "#/definitions/aiot-backend_api_v1.DeviceKeysRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-map_string_bool"
                         }
@@ -441,30 +444,30 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "移除分组设备",
+                "summary": "Remove devices from group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "分组 UUID",
+                        "description": "Device group UUID",
                         "name": "groupUuid",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "设备 Key 列表",
+                        "description": "Request payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceKeysRequest"
+                            "$ref": "#/definitions/aiot-backend_api_v1.DeviceKeysRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-map_string_bool"
                         }
@@ -478,32 +481,32 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备分组"
+                    "Device groups"
                 ],
-                "summary": "预览已保存动态规则",
+                "summary": "Preview saved device group rule",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "分组 UUID",
+                        "description": "Device group UUID",
                         "name": "groupUuid",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "动态规则",
+                        "description": "Request payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/aiot-backend_api_device_group_v1.PreviewRequest"
+                            "$ref": "#/definitions/aiot-backend_api_v1.PreviewRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse"
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_PreviewResponse"
                         }
                     }
                 }
@@ -516,7 +519,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "获取设备统计信息（总数、已激活、在线、离线、未激活）",
+                "description": "Returns device statistics.",
                 "consumes": [
                     "application/json"
                 ],
@@ -524,12 +527,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "设备统计",
+                "summary": "Get device statistics",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceStatisticsResponse"
                         }
@@ -544,7 +547,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取设备列表，支持按 productId、states、enabled、searchText 过滤",
+                "description": "Lists devices with pagination and optional product, state, enabled, and text filters.",
                 "consumes": [
                     "application/json"
                 ],
@@ -552,26 +555,38 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "获取设备列表",
+                "summary": "List devices",
                 "parameters": [
                     {
+                        "type": "boolean",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "页码",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "产品 ID",
                         "name": "productId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "searchText",
                         "in": "query"
                     },
                     {
@@ -580,26 +595,13 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "collectionFormat": "csv",
-                        "description": "设备状态",
                         "name": "states",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "是否启用",
-                        "name": "enabled",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "搜索关键字",
-                        "name": "searchText",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceListDevicesResponse"
                         }
@@ -612,7 +614,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "创建一个新的设备",
+                "description": "Creates device.",
                 "consumes": [
                     "application/json"
                 ],
@@ -620,9 +622,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "创建设备",
+                "summary": "Create device",
                 "parameters": [
                     {
                         "description": "params",
@@ -636,7 +638,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceCreateDeviceResponse"
                         }
@@ -651,17 +653,17 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "下载设备批量导入的 Excel 模板",
+                "description": "Downloads device import template.",
                 "produces": [
                     "application/octet-stream"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "下载设备批量导入模板",
+                "summary": "Download device import template",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "type": "file"
                         }
@@ -676,7 +678,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过 Excel 文件批量导入设备",
+                "description": "Imports devices in bulk.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -684,13 +686,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "批量上传设备",
+                "summary": "Import devices in bulk",
                 "parameters": [
                     {
                         "type": "file",
-                        "description": "Excel 模板文件",
+                        "description": "Upload file",
                         "name": "file",
                         "in": "formData",
                         "required": true
@@ -698,7 +700,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceBatchUploadDevicesResponse"
                         }
@@ -713,7 +715,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过推送记录 ID 获取单个下行推送记录",
+                "description": "Returns downstream push record.",
                 "consumes": [
                     "application/json"
                 ],
@@ -721,13 +723,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "获取设备下行推送记录",
+                "summary": "Get downstream push record",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "推送记录 ID",
+                        "description": "Push record ID",
                         "name": "pushRecordId",
                         "in": "path",
                         "required": true
@@ -735,7 +737,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceGetPushRecordResponse"
                         }
@@ -750,7 +752,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 Key 获取设备详情",
+                "description": "Returns device.",
                 "consumes": [
                     "application/json"
                 ],
@@ -758,13 +760,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "通过 deviceKey 获取设备",
+                "summary": "Get device",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -772,7 +774,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceGetDeviceResponse"
                         }
@@ -785,7 +787,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 Key 更新设备",
+                "description": "Updates device.",
                 "consumes": [
                     "application/json"
                 ],
@@ -793,13 +795,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "更新设备",
+                "summary": "Update device",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -816,7 +818,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceUpdateDeviceResponse"
                         }
@@ -829,7 +831,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 Key 软删除设备",
+                "description": "Deletes Device.",
                 "consumes": [
                     "application/json"
                 ],
@@ -837,13 +839,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "删除设备",
+                "summary": "Delete Device",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -851,7 +853,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceSuccessResponse"
                         }
@@ -866,7 +868,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 Key 激活设备",
+                "description": "Activates device.",
                 "consumes": [
                     "application/json"
                 ],
@@ -874,13 +876,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "激活设备",
+                "summary": "Activate device",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -888,7 +890,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceActivateDeviceResponse"
                         }
@@ -903,7 +905,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过设备 Key 启用或禁用设备",
+                "description": "Sets device enabled state.",
                 "consumes": [
                     "application/json"
                 ],
@@ -911,13 +913,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "设置设备启用/禁用",
+                "summary": "Set device enabled state",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -934,7 +936,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceSetDeviceEnabledResponse"
                         }
@@ -944,13 +946,14 @@ const docTemplate = `{
         },
         "/devices/{deviceKey}/endpoints": {
             "get": {
+                "description": "Returns protocol-specific connection endpoints for a device.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "devices"
+                    "Device connections"
                 ],
-                "summary": "获取设备连接数据",
+                "summary": "Get device connection endpoints",
                 "parameters": [
                     {
                         "type": "string",
@@ -962,9 +965,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints"
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_DeviceEndpoints"
                         }
                     }
                 }
@@ -977,7 +980,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取设备的下行推送记录",
+                "description": "Lists downstream push records.",
                 "consumes": [
                     "application/json"
                 ],
@@ -985,45 +988,46 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "获取设备下行推送记录列表",
+                "summary": "List downstream push records",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "name": "operationType",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "页码",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "操作类型",
-                        "name": "operationType",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "状态",
                         "name": "status",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceListPushRecordsResponse"
                         }
@@ -1036,7 +1040,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "清理设备指定时间戳之前的下行推送记录",
+                "description": "Clears downstream push records.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1044,27 +1048,27 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "清理设备下行推送记录",
+                "summary": "Clear downstream push records",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "清理此时间戳之前的记录（毫秒）",
+                        "description": "Cutoff timestamp",
                         "name": "beforeTimestamp",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceClearPushRecordsResponse"
                         }
@@ -1079,7 +1083,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "获取设备影子（Desired、Reported、Delta、Metadata、Version）",
+                "description": "Returns device shadow.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1087,13 +1091,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "获取设备影子",
+                "summary": "Get device shadow",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1101,7 +1105,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceShadow"
                         }
@@ -1116,7 +1120,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "由应用侧更新设备的 Desired 影子",
+                "description": "Updates desired device shadow.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1124,13 +1128,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "更新设备影子期望值",
+                "summary": "Update desired device shadow",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1147,7 +1151,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceShadow"
                         }
@@ -1160,7 +1164,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "清空设备影子的 Desired 部分",
+                "description": "Clears desired device shadow.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1168,13 +1172,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "清空设备影子期望值",
+                "summary": "Clear desired device shadow",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1191,7 +1195,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceShadow"
                         }
@@ -1206,7 +1210,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "获取设备影子的变更历史记录",
+                "description": "Lists device shadow history.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1214,13 +1218,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "获取设备影子历史",
+                "summary": "List device shadow history",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1228,7 +1232,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceListDeviceShadowHistoryResponse"
                         }
@@ -1243,7 +1247,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "模拟服务端向设备发起一次下行推送",
+                "description": "Simulates downstream push.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1251,13 +1255,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "模拟下行推送",
+                "summary": "Simulate downstream push",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1274,7 +1278,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceSimulatePushResponse"
                         }
@@ -1289,7 +1293,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "获取设备的所有标签",
+                "description": "Lists device tags.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1297,13 +1301,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "获取设备标签",
+                "summary": "List device tags",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1311,7 +1315,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceListDeviceTagsResponse"
                         }
@@ -1324,7 +1328,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "覆盖式设置设备的标签集合（PUT 语义）",
+                "description": "Replaces device tags.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1332,13 +1336,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "全量覆盖设置设备标签",
+                "summary": "Replace device tags",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1355,7 +1359,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceListDeviceTagsResponse"
                         }
@@ -1368,7 +1372,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "增量式添加设备的标签（POST 语义，保留已存在的标签）",
+                "description": "Adds device tags.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1376,13 +1380,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "增量添加设备标签",
+                "summary": "Add device tags",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1399,7 +1403,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceListDeviceTagsResponse"
                         }
@@ -1412,7 +1416,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "删除设备指定的标签键",
+                "description": "Deletes device tags.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1420,13 +1424,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "删除设备标签",
+                "summary": "Delete device tags",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1443,7 +1447,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceSuccessResponse"
                         }
@@ -1458,7 +1462,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "获取设备的遥测（Telemetry）数据",
+                "description": "Returns device telemetry.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1466,13 +1470,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "设备模块"
+                    "Devices"
                 ],
-                "summary": "获取设备遥测数据",
+                "summary": "Get device telemetry",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备 Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
@@ -1480,7 +1484,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-DeviceTelemetryResponse"
                         }
@@ -1495,7 +1499,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "上传受支持的 OTA 文件到 Cloudflare R2，并返回创建 OTA 升级包所需的文件元数据",
+                "description": "Uploads OTA update file.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -1503,9 +1507,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文件模块"
+                    "Files"
                 ],
-                "summary": "上传 OTA 升级文件",
+                "summary": "Upload OTA update file",
                 "parameters": [
                     {
                         "type": "file",
@@ -1517,7 +1521,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-FileUploadOTAFileResponse"
                         }
@@ -1527,6 +1531,7 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
+                "description": "Authenticates a user and returns an access token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1534,9 +1539,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户模块"
+                    "Users"
                 ],
-                "summary": "账号登录",
+                "summary": "Log in",
                 "parameters": [
                     {
                         "description": "params",
@@ -1550,7 +1555,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ApiLoginResponseData"
                         }
@@ -1565,6 +1570,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
+                "description": "Lists organizations available to the authenticated user.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1572,12 +1578,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户模块"
+                    "Users"
                 ],
-                "summary": "获取我的组织列表",
+                "summary": "List user organizations",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-array_ApiOrganizationItem"
                         }
@@ -1592,7 +1598,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取 OTA 升级包列表",
+                "description": "Lists OTA packages.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1600,26 +1606,29 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "获取 OTA 升级包列表",
+                "summary": "List OTA packages",
                 "parameters": [
                     {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "页码",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaListOTAPackagesResponse"
                         }
@@ -1632,7 +1641,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "创建一个新的 OTA 升级包",
+                "description": "Creates OTA package.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1640,9 +1649,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "创建 OTA 升级包",
+                "summary": "Create OTA package",
                 "parameters": [
                     {
                         "description": "params",
@@ -1656,7 +1665,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaOTAPackage"
                         }
@@ -1671,7 +1680,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过升级包 ID 获取 OTA 升级包详情",
+                "description": "Returns OTA package.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1679,13 +1688,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "获取 OTA 升级包详情",
+                "summary": "Get OTA package",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "升级包 UUID",
+                        "description": "OTA package UUID",
                         "name": "uuid",
                         "in": "path",
                         "required": true
@@ -1693,7 +1702,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaOTAPackage"
                         }
@@ -1706,7 +1715,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过升级包 ID 更新 OTA 升级包",
+                "description": "Updates OTA package.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1714,13 +1723,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "更新 OTA 升级包",
+                "summary": "Update OTA package",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "升级包 UUID",
+                        "description": "OTA package UUID",
                         "name": "uuid",
                         "in": "path",
                         "required": true
@@ -1737,7 +1746,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaOTAPackage"
                         }
@@ -1750,7 +1759,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过升级包 ID 删除 OTA 升级包",
+                "description": "Deletes OTA package.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1758,13 +1767,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "删除 OTA 升级包",
+                "summary": "Delete OTA package",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "升级包 UUID",
+                        "description": "OTA package UUID",
                         "name": "uuid",
                         "in": "path",
                         "required": true
@@ -1772,7 +1781,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
                         }
@@ -1787,7 +1796,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "为指定升级包创建一个静态升级批次，并将所选设备加入该批次的升级（状态 pending），升级包状态置为 deploying",
+                "description": "Creates OTA upgrade batch.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1795,19 +1804,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "批量升级 OTA 升级包",
+                "summary": "Create OTA upgrade batch",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "升级包 UUID",
+                        "description": "OTA package UUID",
                         "name": "uuid",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "目标设备 deviceKey 列表",
+                        "description": "Request payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1818,7 +1827,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaUpgradeBatch"
                         }
@@ -1833,7 +1842,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "获取指定 OTA 升级包下的升级批次",
+                "description": "Lists OTA upgrade batches.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1841,13 +1850,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "获取 OTA 升级批次列表",
+                "summary": "List OTA upgrade batches",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "升级包 UUID",
+                        "description": "OTA package UUID",
                         "name": "uuid",
                         "in": "path",
                         "required": true
@@ -1855,7 +1864,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaListUpgradeBatchesResponse"
                         }
@@ -1870,7 +1879,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取指定升级包下的设备部署记录",
+                "description": "Lists OTA device deployments.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1878,39 +1887,46 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "获取 OTA 设备部署列表",
+                "summary": "List OTA device deployments",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "升级包 UUID",
+                        "description": "OTA package UUID",
                         "name": "uuid",
                         "in": "path",
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "name": "batchId",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "页码",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "部署状态",
                         "name": "status",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaListDeviceDeploymentsResponse"
                         }
@@ -1925,7 +1941,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "设备上报对指定升级包的升级结果（in_progress/success/failed），并重新聚合升级包状态",
+                "description": "Reports OTA upgrade status.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1933,13 +1949,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "上报设备 OTA 升级结果",
+                "summary": "Report OTA upgrade status",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "升级包 UUID",
+                        "description": "OTA package UUID",
                         "name": "uuid",
                         "in": "path",
                         "required": true
@@ -1956,7 +1972,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaSuccessResponse"
                         }
@@ -1971,7 +1987,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "获取指定 OTA 升级包的升级统计数据",
+                "description": "Returns OTA upgrade statistics.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1979,27 +1995,27 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "OTA 模块"
+                    "OTA"
                 ],
-                "summary": "获取 OTA 升级统计",
+                "summary": "Get OTA upgrade statistics",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "升级包 UUID",
+                        "description": "OTA package UUID",
                         "name": "uuid",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "批次 ID",
+                        "description": "Upgrade batch ID",
                         "name": "batchId",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-OtaGetUpgradeStatisticsResponse"
                         }
@@ -2014,7 +2030,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取产品列表，支持按 category、status、searchText 过滤",
+                "description": "Lists products with pagination and optional filters.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2022,44 +2038,44 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "获取产品列表",
+                "summary": "List products",
                 "parameters": [
                     {
+                        "type": "string",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "页码",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "产品分类",
-                        "name": "category",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "产品状态",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "搜索关键字",
                         "name": "searchText",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "status",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductListProductsResponse"
                         }
@@ -2072,7 +2088,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "创建一个新的产品",
+                "description": "Creates a product with its protocol configuration.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2080,9 +2096,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "创建产品",
+                "summary": "Create product",
                 "parameters": [
                     {
                         "description": "params",
@@ -2096,7 +2112,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductCreateProductResponse"
                         }
@@ -2111,7 +2127,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "获取产品唯一的消息解析脚本；尚未配置时返回默认模板。",
+                "description": "Gets the product message parser or its default template.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2119,13 +2135,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "获取产品消息解析器",
+                "summary": "Get product message parser",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2133,7 +2149,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-MessageParserProductMessageParser"
                         }
@@ -2146,7 +2162,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "按产品覆盖保存 JavaScript ES5 消息解析脚本。",
+                "description": "Saves product message parser.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2154,13 +2170,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "保存产品消息解析器",
+                "summary": "Save product message parser",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2177,7 +2193,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-MessageParserProductMessageParser"
                         }
@@ -2192,7 +2208,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "仅在受限 JavaScript ES5 运行时中执行保存的产品脚本。",
+                "description": "Executes product message parser.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2200,13 +2216,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "模拟执行产品消息解析器",
+                "summary": "Execute product message parser",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2223,7 +2239,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-MessageParserExecuteProductMessageParserResponse"
                         }
@@ -2238,7 +2254,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 Key 获取产品详情",
+                "description": "Gets a product by its product key.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2246,13 +2262,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "通过 productKey 获取产品",
+                "summary": "Get product",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2260,7 +2276,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductGetProductResponse"
                         }
@@ -2273,7 +2289,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过 productKey 更新产品",
+                "description": "Updates a product by its product key.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2281,13 +2297,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "更新产品",
+                "summary": "Update product",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2304,7 +2320,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductUpdateProductResponse"
                         }
@@ -2317,7 +2333,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 Key 软删除产品",
+                "description": "Soft-deletes a product by its product key.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2325,13 +2341,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "删除产品",
+                "summary": "Delete product",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2339,7 +2355,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductSuccessResponse"
                         }
@@ -2354,7 +2370,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 Key 获取其物模型定义（TSL）",
+                "description": "Gets the thing specification language definition for a product.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2362,13 +2378,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "获取产品物模型（TSL）",
+                "summary": "Get product TSL",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2376,7 +2392,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductTslGetProductTSLResponse"
                         }
@@ -2389,7 +2405,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 Key 上传或更新物模型定义",
+                "description": "Creates or updates the thing specification language definition for a product.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2397,13 +2413,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "上传/更新产品物模型（TSL）",
+                "summary": "Save product TSL",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2420,7 +2436,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductTslSuccessResponse"
                         }
@@ -2433,7 +2449,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 Key 上传或更新物模型定义",
+                "description": "Creates or updates the thing specification language definition for a product.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2441,13 +2457,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "上传/更新产品物模型（TSL）",
+                "summary": "Save product TSL",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2464,7 +2480,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductTslSuccessResponse"
                         }
@@ -2477,7 +2493,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过产品 Key 删除其物模型定义",
+                "description": "Deletes the thing specification language definition for a product.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2485,13 +2501,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "产品模块"
+                    "Products"
                 ],
-                "summary": "删除产品物模型（TSL）",
+                "summary": "Delete product TSL",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "产品 Key",
+                        "description": "Product key",
                         "name": "productKey",
                         "in": "path",
                         "required": true
@@ -2499,7 +2515,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ProductTslSuccessResponse"
                         }
@@ -2509,7 +2525,7 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "目前只支持邮箱登录",
+                "description": "Registers user.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2517,9 +2533,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户模块"
+                    "Users"
                 ],
-                "summary": "用户注册",
+                "summary": "Register user",
                 "parameters": [
                     {
                         "description": "params",
@@ -2533,7 +2549,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiSuccessResponse"
                         }
@@ -2548,7 +2564,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "分页获取场景联动列表，支持按 search、enable 过滤",
+                "description": "Lists scene linkages.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2556,38 +2572,39 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "场景联动模块"
+                    "Scene linkages"
                 ],
-                "summary": "获取场景联动列表",
+                "summary": "List scene linkages",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "页码",
+                        "name": "enable",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number (1-based, default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
+                        "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "Page size (1-100, default 10)",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "搜索关键字",
                         "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "启用状态：1 启用，0 停用",
-                        "name": "enable",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ListSceneLinkagesResponse"
                         }
@@ -2600,7 +2617,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "创建一条新的场景联动",
+                "description": "Creates scene linkage.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2608,9 +2625,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "场景联动模块"
+                    "Scene linkages"
                 ],
-                "summary": "创建场景联动",
+                "summary": "Create scene linkage",
                 "parameters": [
                     {
                         "description": "params",
@@ -2624,7 +2641,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-CreateSceneLinkageResponse"
                         }
@@ -2639,7 +2656,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过 ID 获取场景联动",
+                "description": "Returns scene linkage.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2647,13 +2664,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "场景联动模块"
+                    "Scene linkages"
                 ],
-                "summary": "获取场景联动详情",
+                "summary": "Get scene linkage",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "场景联动 ID",
+                        "description": "Scene linkage ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2661,7 +2678,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-GetSceneLinkageResponse"
                         }
@@ -2674,7 +2691,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过 ID 更新场景联动",
+                "description": "Updates scene linkage.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2682,13 +2699,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "场景联动模块"
+                    "Scene linkages"
                 ],
-                "summary": "更新场景联动",
+                "summary": "Update scene linkage",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "场景联动 ID",
+                        "description": "Scene linkage ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2705,7 +2722,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-UpdateSceneLinkageResponse"
                         }
@@ -2718,7 +2735,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过 ID 删除场景联动",
+                "description": "Deletes scene linkage.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2726,13 +2743,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "场景联动模块"
+                    "Scene linkages"
                 ],
-                "summary": "删除场景联动",
+                "summary": "Delete scene linkage",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "场景联动 ID",
+                        "description": "Scene linkage ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2740,7 +2757,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-SceneLinkageSuccessResponse"
                         }
@@ -2755,7 +2772,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过场景联动 ID 获取触发器与动作配置",
+                "description": "Returns scene linkage configuration.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2763,13 +2780,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "场景联动模块"
+                    "Scene linkages"
                 ],
-                "summary": "获取场景联动详情配置",
+                "summary": "Get scene linkage configuration",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "场景联动 ID",
+                        "description": "Scene linkage ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2777,7 +2794,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-GetSceneLinkageDetailResponse"
                         }
@@ -2790,7 +2807,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "通过场景联动 ID 更新触发器与动作配置",
+                "description": "Updates scene linkage configuration.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2798,13 +2815,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "场景联动模块"
+                    "Scene linkages"
                 ],
-                "summary": "更新场景联动详情配置",
+                "summary": "Update scene linkage configuration",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "场景联动 ID",
+                        "description": "Scene linkage ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2821,7 +2838,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-UpdateSceneLinkageDetailResponse"
                         }
@@ -2834,7 +2851,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "为指定场景联动创建触发器与动作配置",
+                "description": "Creates scene linkage configuration.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2842,13 +2859,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "场景联动模块"
+                    "Scene linkages"
                 ],
-                "summary": "创建场景联动详情配置",
+                "summary": "Create scene linkage configuration",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "场景联动 ID",
+                        "description": "Scene linkage ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2865,7 +2882,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-CreateSceneLinkageDetailResponse"
                         }
@@ -2880,6 +2897,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
+                "description": "Returns the profile of the authenticated user.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2887,12 +2905,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户模块"
+                    "Users"
                 ],
-                "summary": "获取用户信息",
+                "summary": "Get user profile",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-ApiGetProfileResponseData"
                         }
@@ -2905,6 +2923,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
+                "description": "Updates the profile of the authenticated user.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2912,9 +2931,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户模块"
+                    "Users"
                 ],
-                "summary": "修改用户信息",
+                "summary": "Update user profile",
                 "parameters": [
                     {
                         "description": "params",
@@ -2928,7 +2947,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiSuccessResponse"
                         }
@@ -2938,50 +2957,51 @@ const docTemplate = `{
         },
         "/v1/devices/{deviceKey}/telemetry/history": {
             "get": {
+                "description": "Returns telemetry data points within the requested time range.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "时序数据 (Telemetry)"
+                    "Telemetry"
                 ],
-                "summary": "查询设备时序历史数据",
+                "summary": "Query device telemetry history",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "设备Key",
+                        "description": "Device key",
                         "name": "deviceKey",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "物模型属性标识 (如 temperature)",
+                        "description": "Property identifier",
                         "name": "property",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "起始时间戳(ms)",
+                        "description": "Start timestamp",
                         "name": "start_time",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "结束时间戳(ms)",
+                        "description": "End timestamp",
                         "name": "end_time",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "返回点数上限",
+                        "description": "Maximum result count",
                         "name": "limit",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/ApiSuccessResponse"
                         }
@@ -3707,70 +3727,70 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-aiot-backend_api_device_group_v1_DeviceGroup": {
+        "ApiResponse-aiot-backend_api_v1_DeviceEndpoints": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceGroup"
+                    "$ref": "#/definitions/aiot-backend_api_v1.DeviceEndpoints"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "ApiResponse-aiot-backend_api_device_group_v1_DeviceGroupDevicesResponse": {
+        "ApiResponse-aiot-backend_api_v1_DeviceGroup": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceGroupDevicesResponse"
+                    "$ref": "#/definitions/aiot-backend_api_v1.DeviceGroup"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "ApiResponse-aiot-backend_api_device_group_v1_ListDeviceGroupsResponse": {
+        "ApiResponse-aiot-backend_api_v1_DeviceGroupDevicesResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/aiot-backend_api_device_group_v1.ListDeviceGroupsResponse"
+                    "$ref": "#/definitions/aiot-backend_api_v1.DeviceGroupDevicesResponse"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "ApiResponse-aiot-backend_api_device_group_v1_PreviewResponse": {
+        "ApiResponse-aiot-backend_api_v1_ListDeviceGroupsResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/aiot-backend_api_device_group_v1.PreviewResponse"
+                    "$ref": "#/definitions/aiot-backend_api_v1.ListDeviceGroupsResponse"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "ApiResponse-aiot-backend_api_protocol_v1_DeviceEndpoints": {
+        "ApiResponse-aiot-backend_api_v1_PreviewResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.DeviceEndpoints"
+                    "$ref": "#/definitions/aiot-backend_api_v1.PreviewResponse"
                 },
                 "message": {
                     "type": "string"
@@ -3794,7 +3814,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-array_aiot-backend_api_category_v1_Category": {
+        "ApiResponse-array_aiot-backend_api_v1_Category": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3803,7 +3823,7 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/aiot-backend_api_category_v1.Category"
+                        "$ref": "#/definitions/aiot-backend_api_v1.Category"
                     }
                 },
                 "message": {
@@ -4917,7 +4937,7 @@ const docTemplate = `{
                 "protocols": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/aiot-backend_api_product_v1.ProductProtocolInput"
+                        "$ref": "#/definitions/aiot-backend_api_v1.ProductProtocolInput"
                     }
                 },
                 "status": {
@@ -4956,7 +4976,7 @@ const docTemplate = `{
                 "protocols": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/aiot-backend_api_product_v1.ProductProtocolInput"
+                        "$ref": "#/definitions/aiot-backend_api_v1.ProductProtocolInput"
                     }
                 },
                 "status": {
@@ -5025,7 +5045,7 @@ const docTemplate = `{
                 "protocols": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/aiot-backend_api_product_v1.ProductProtocolInput"
+                        "$ref": "#/definitions/aiot-backend_api_v1.ProductProtocolInput"
                     }
                 },
                 "status": {
@@ -5132,7 +5152,7 @@ const docTemplate = `{
                 "protocols": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/aiot-backend_api_product_v1.ProductProtocolInput"
+                        "$ref": "#/definitions/aiot-backend_api_v1.ProductProtocolInput"
                     }
                 },
                 "status": {
@@ -5252,13 +5272,13 @@ const docTemplate = `{
                 }
             }
         },
-        "aiot-backend_api_category_v1.Category": {
+        "aiot-backend_api_v1.Category": {
             "type": "object",
             "properties": {
                 "children": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/aiot-backend_api_category_v1.Category"
+                        "$ref": "#/definitions/aiot-backend_api_v1.Category"
                     }
                 },
                 "enabled": {
@@ -5278,7 +5298,29 @@ const docTemplate = `{
                 }
             }
         },
-        "aiot-backend_api_device_group_v1.CreateDeviceGroupRequest": {
+        "aiot-backend_api_v1.CoAPDockerExample": {
+            "type": "object",
+            "properties": {
+                "coap": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_v1.CoAPEndpoint": {
+            "type": "object",
+            "properties": {
+                "coap": {
+                    "type": "string"
+                },
+                "docker": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.CoAPDockerExample"
+                },
+                "rpcSubscribe": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_v1.CreateDeviceGroupRequest": {
             "type": "object",
             "required": [
                 "name",
@@ -5299,7 +5341,21 @@ const docTemplate = `{
                 }
             }
         },
-        "aiot-backend_api_device_group_v1.DeviceGroup": {
+        "aiot-backend_api_v1.DeviceEndpoints": {
+            "type": "object",
+            "properties": {
+                "coap": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.CoAPEndpoint"
+                },
+                "http": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.HTTPEndpoint"
+                },
+                "mqtt": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.MQTTEndpoint"
+                }
+            }
+        },
+        "aiot-backend_api_v1.DeviceGroup": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -5328,7 +5384,7 @@ const docTemplate = `{
                 }
             }
         },
-        "aiot-backend_api_device_group_v1.DeviceGroupDevicesResponse": {
+        "aiot-backend_api_v1.DeviceGroupDevicesResponse": {
             "type": "object",
             "properties": {
                 "devices": {
@@ -5348,7 +5404,7 @@ const docTemplate = `{
                 }
             }
         },
-        "aiot-backend_api_device_group_v1.DeviceKeysRequest": {
+        "aiot-backend_api_v1.DeviceKeysRequest": {
             "type": "object",
             "required": [
                 "deviceKeys"
@@ -5363,13 +5419,24 @@ const docTemplate = `{
                 }
             }
         },
-        "aiot-backend_api_device_group_v1.ListDeviceGroupsResponse": {
+        "aiot-backend_api_v1.HTTPEndpoint": {
+            "type": "object",
+            "properties": {
+                "http": {
+                    "type": "string"
+                },
+                "rpcSubscribe": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_v1.ListDeviceGroupsResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/aiot-backend_api_device_group_v1.DeviceGroup"
+                        "$ref": "#/definitions/aiot-backend_api_v1.DeviceGroup"
                     }
                 },
                 "page": {
@@ -5383,111 +5450,7 @@ const docTemplate = `{
                 }
             }
         },
-        "aiot-backend_api_device_group_v1.PreviewRequest": {
-            "type": "object",
-            "required": [
-                "rule"
-            ],
-            "properties": {
-                "rule": {
-                    "type": "string"
-                }
-            }
-        },
-        "aiot-backend_api_device_group_v1.PreviewResponse": {
-            "type": "object",
-            "properties": {
-                "devices": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Device"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "aiot-backend_api_device_group_v1.UpdateDeviceGroupRequest": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "rule": {
-                    "type": "string"
-                }
-            }
-        },
-        "aiot-backend_api_product_v1.ProductProtocolInput": {
-            "type": "object",
-            "required": [
-                "applicationProtocol",
-                "transportProtocol"
-            ],
-            "properties": {
-                "applicationProtocol": {
-                    "type": "string"
-                },
-                "transportProtocol": {
-                    "type": "string"
-                }
-            }
-        },
-        "aiot-backend_api_protocol_v1.CoAPDockerExample": {
-            "type": "object",
-            "properties": {
-                "coap": {
-                    "type": "string"
-                }
-            }
-        },
-        "aiot-backend_api_protocol_v1.CoAPEndpoint": {
-            "type": "object",
-            "properties": {
-                "coap": {
-                    "type": "string"
-                },
-                "docker": {
-                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.CoAPDockerExample"
-                },
-                "rpcSubscribe": {
-                    "type": "string"
-                }
-            }
-        },
-        "aiot-backend_api_protocol_v1.DeviceEndpoints": {
-            "type": "object",
-            "properties": {
-                "coap": {
-                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.CoAPEndpoint"
-                },
-                "http": {
-                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.HTTPEndpoint"
-                },
-                "mqtt": {
-                    "$ref": "#/definitions/aiot-backend_api_protocol_v1.MQTTEndpoint"
-                }
-            }
-        },
-        "aiot-backend_api_protocol_v1.HTTPEndpoint": {
-            "type": "object",
-            "properties": {
-                "http": {
-                    "type": "string"
-                },
-                "rpcSubscribe": {
-                    "type": "string"
-                }
-            }
-        },
-        "aiot-backend_api_protocol_v1.MQTTEndpoint": {
+        "aiot-backend_api_v1.MQTTEndpoint": {
             "type": "object",
             "properties": {
                 "attributesSubscribeTopic": {
@@ -5506,6 +5469,63 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "telemetryTopic": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_v1.PreviewRequest": {
+            "type": "object",
+            "required": [
+                "rule"
+            ],
+            "properties": {
+                "rule": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_v1.PreviewResponse": {
+            "type": "object",
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Device"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "aiot-backend_api_v1.ProductProtocolInput": {
+            "type": "object",
+            "required": [
+                "applicationProtocol",
+                "transportProtocol"
+            ],
+            "properties": {
+                "applicationProtocol": {
+                    "type": "string"
+                },
+                "transportProtocol": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_v1.UpdateDeviceGroupRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rule": {
                     "type": "string"
                 }
             }

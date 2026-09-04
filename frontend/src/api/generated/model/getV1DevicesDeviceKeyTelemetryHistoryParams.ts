@@ -8,19 +8,19 @@
 
 export type GetV1DevicesDeviceKeyTelemetryHistoryParams = {
   /**
-   * 物模型属性标识 (如 temperature)
+   * Property identifier
    */
   property: string
   /**
-   * 起始时间戳(ms)
+   * Start timestamp
    */
   start_time?: number
   /**
-   * 结束时间戳(ms)
+   * End timestamp
    */
   end_time?: number
   /**
-   * 返回点数上限
+   * Maximum result count
    */
   limit?: number
 }

@@ -104,4 +104,3 @@ func TestKafkaService_EnabledInitialization(t *testing.T) {
 
 	defer cleanup()
 }
-

@@ -111,4 +111,3 @@ func (mr *MockKafkaServiceInterfaceMockRecorder) ProduceJSONAsync(ctx, topic, ke
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceJSONAsync", reflect.TypeOf((*MockKafkaServiceInterface)(nil).ProduceJSONAsync), ctx, topic, key, data, callback)
 }
-

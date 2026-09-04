@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	eventV1 "aiot-backend/api/event/v1"
+	eventV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/dto"
 	mock_service "aiot-backend/test/mocks/service"
 

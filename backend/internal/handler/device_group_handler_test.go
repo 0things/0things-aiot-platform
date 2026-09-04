@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	devicegroupv1 "aiot-backend/api/device_group/v1"
+	devicegroupv1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	mock_service "aiot-backend/test/mocks/service"
 

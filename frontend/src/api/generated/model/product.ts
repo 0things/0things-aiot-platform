@@ -5,7 +5,7 @@
  * This is a sample server celler server.
  * OpenAPI spec version: 1.0.0
  */
-import type { AiotBackendApiProductV1ProductProtocolInput } from './aiotBackendApiProductV1ProductProtocolInput'
+import type { AiotBackendApiV1ProductProtocolInput } from './aiotBackendApiV1ProductProtocolInput'
 
 export interface Product {
   accessProtocol?: string
@@ -20,7 +20,7 @@ export interface Product {
   nodeType?: string
   organizationId?: number
   productKey?: string
-  protocols?: AiotBackendApiProductV1ProductProtocolInput[]
+  protocols?: AiotBackendApiV1ProductProtocolInput[]
   status?: string
   updatedAt?: string
 }
