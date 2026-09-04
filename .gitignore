@@ -16,9 +16,11 @@
 **/*.cert
 **/*.key
 
-# Runtime artifacts
+# Runtime and test artifacts
 **/*.log
 **/*.db
+**/*.out
+**/coverage.*
 **/bin/
 /backend/server
 /backend/seed
