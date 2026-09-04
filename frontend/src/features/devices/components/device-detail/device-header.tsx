@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Copy, Eye, EyeOff } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { ArrowLeft, Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { Device as DeviceV1Device } from '@/api/generated/model'
@@ -13,25 +12,10 @@ interface DeviceHeaderProps {
 
 export function DeviceHeader({ device, onBack }: DeviceHeaderProps) {
   const { t } = useTranslation('deviceManagement')
-  const navigate = useNavigate()
-  const [secretVisible, setSecretVisible] = useState(false)
 
-  const handleCopyProductKey = () => {
-    navigator.clipboard.writeText(device.productKey || '')
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text)
     toast.success(t('deviceDetail.header.copySuccess'))
-  }
-
-  const toggleSecretVisibility = () => {
-    setSecretVisible(!secretVisible)
-  }
-
-  const handleProductClick = () => {
-    if (device.productKey) {
-      navigate({
-        to: '/device-management/products/$productKey',
-        params: { productKey: device.productKey },
-      })
-    }
   }
 
   return (
@@ -56,37 +40,6 @@ export function DeviceHeader({ device, onBack }: DeviceHeaderProps) {
             {t('deviceDetail.header.product')}:
           </span>
           <span>{device.productName || '-'}</span>
-          {device.productKey && (
-            <Button
-              variant='link'
-              size='sm'
-              className='h-auto p-0 text-sm'
-              onClick={handleProductClick}
-            >
-              {t('deviceDetail.header.view')}
-            </Button>
-          )}
-        </div>
-
-        <div className='flex items-center gap-2'>
-          <span className='text-muted-foreground'>
-            {t('deviceDetail.header.deviceSecret')}:
-          </span>
-          <span className='font-mono'>
-            {secretVisible ? device.deviceKey || '-' : '********'}
-          </span>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-6 w-6'
-            onClick={toggleSecretVisibility}
-          >
-            {secretVisible ? (
-              <EyeOff className='h-3 w-3' />
-            ) : (
-              <Eye className='h-3 w-3' />
-            )}
-          </Button>
         </div>
 
         <div className='flex items-center gap-2'>
@@ -105,14 +58,35 @@ export function DeviceHeader({ device, onBack }: DeviceHeaderProps) {
           ) : (
             <span className='font-mono'>-</span>
           )}
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-6 w-6'
-            onClick={handleCopyProductKey}
-          >
-            <Copy className='h-3 w-3' />
-          </Button>
+          {device.productKey && (
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-6 w-6'
+              onClick={() => handleCopy(device.productKey || '')}
+              aria-label={t('deviceDetail.header.copy')}
+            >
+              <Copy className='h-3 w-3' />
+            </Button>
+          )}
+        </div>
+
+        <div className='flex items-center gap-2'>
+          <span className='text-muted-foreground'>
+            {t('deviceDetail.header.deviceKey')}:
+          </span>
+          <span className='font-mono'>{device.deviceKey || '-'}</span>
+          {device.deviceKey && (
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-6 w-6'
+              onClick={() => handleCopy(device.deviceKey || '')}
+              aria-label={t('deviceDetail.header.copy')}
+            >
+              <Copy className='h-3 w-3' />
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -39,6 +39,7 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		&model.DeviceShadow{},
 		&model.DeviceShadowHistory{},
 		&model.DeviceEvent{},
+		&model.DeviceServiceInvocation{},
 		&model.DevicePushRecord{},
 		&model.OTAPackage{},
 		&model.UpgradeBatch{},
@@ -98,6 +99,12 @@ func NewTestDeviceEventService(db *gorm.DB) *service.DeviceEventService {
 	eventRepo := repository.NewDeviceEventRepository(db)
 	deviceRepo := repository.NewDeviceRepository(db, nil)
 	return service.NewDeviceEventService(eventRepo, deviceRepo)
+}
+
+func NewTestDeviceServiceInvocationService(db *gorm.DB) *service.DeviceServiceInvocationService {
+	repo := repository.NewDeviceServiceInvocationRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
+	return service.NewDeviceServiceInvocationService(repo, deviceRepo)
 }
 
 func NewTestProductTSLService(db *gorm.DB) *service.ProductTSLService {

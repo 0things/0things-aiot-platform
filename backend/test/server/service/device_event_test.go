@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	eventV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/dto"
 	mock_service "aiot-backend/test/mocks/service"
 
@@ -36,10 +35,10 @@ func TestDeviceEventService_List(t *testing.T) {
 
 	expectedEvents := []dto.DeviceEventListItem{{ID: 1, EventType: "temperature"}}
 	var total int64 = 1
-	req := &eventV1.ListDeviceEventsRequest{}
-	mockEventRepo.EXPECT().List(ctx, req).Return(expectedEvents, total, nil)
+	query := dto.ListDeviceEventsQuery{}
+	mockEventRepo.EXPECT().List(ctx, query).Return(expectedEvents, total, nil)
 
-	events, total, err := mockEventRepo.List(ctx, req)
+	events, total, err := mockEventRepo.List(ctx, query)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedEvents, events)
 	assert.Equal(t, int64(1), total)

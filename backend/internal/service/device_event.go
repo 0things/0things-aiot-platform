@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	eventV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
+
 	"github.com/google/uuid"
 )
 
@@ -18,7 +18,7 @@ var ErrInvalidDeviceEvent = errors.New("invalid device event")
 
 type DeviceEventServiceInterface interface {
 	Record(ctx context.Context, productKey, deviceKey, eventType string, timestamp int64, data map[string]any) error
-	List(ctx context.Context, req *eventV1.ListDeviceEventsRequest) ([]dto.DeviceEventListItem, int64, error)
+	List(ctx context.Context, query dto.ListDeviceEventsQuery) ([]dto.DeviceEventListItem, int64, error)
 }
 
 type DeviceEventService struct {
@@ -62,21 +62,7 @@ func (s *DeviceEventService) Record(ctx context.Context, productKey, deviceKey, 
 	})
 }
 
-// List resolves API request parameters into internal query DTO and queries device events.
-func (s *DeviceEventService) List(ctx context.Context, req *eventV1.ListDeviceEventsRequest) ([]dto.DeviceEventListItem, int64, error) {
-	if req == nil {
-		return nil, 0, errors.New("request cannot be nil")
-	}
-
-	query := dto.ListDeviceEventsQuery{
-		Page:      req.Page,
-		PageSize:  req.PageSize,
-		Keyword:   req.Keyword,
-		DeviceKey: req.DeviceKey,
-		EventType: req.EventType,
-		StartAt:   req.StartAt,
-		EndAt:     req.EndAt,
-	}
-
+// List queries device events by internal query DTO.
+func (s *DeviceEventService) List(ctx context.Context, query dto.ListDeviceEventsQuery) ([]dto.DeviceEventListItem, int64, error) {
 	return s.repo.List(ctx, query)
 }

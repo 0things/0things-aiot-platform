@@ -6,6 +6,7 @@ import (
 	"time"
 
 	v1 "aiot-backend/api/v1"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
@@ -41,7 +42,7 @@ func TestDeviceEventService_RecordAndList(t *testing.T) {
 	// missing fields
 	require.Error(t, svc.Record(ctx, "", "D001", "online", 0, nil))
 
-	list, n, err := svc.List(ctx, &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001"})
+	list, n, err := svc.List(ctx, dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, DeviceKey: "D001"})
 	require.NoError(t, err)
 	require.Equal(t, int64(1), n)
 	require.NotEmpty(t, list)

@@ -453,7 +453,7 @@
       "backToList": "Back to device list",
       "unnamedDevice": "Unnamed Device",
       "product": "Product",
-      "deviceSecret": "DeviceSecret",
+      "deviceKey": "DeviceKey",
       "productKey": "ProductKey",
       "view": "View",
       "viewProduct": "View product details",
@@ -483,6 +483,14 @@
       "serviceInvocation": "Service Invocation",
       "eventManagementComingSoon": "Device event data coming soon",
       "serviceInvocationComingSoon": "Device service invocation coming soon"
+    },
+    "serviceInvocations": {
+      "title": "Service Invocation",
+      "description": "View thing-model service invocation records for this device.",
+      "filters": { "serviceIdentifier": "Service identifier", "dateRange": "Select time range", "startAt": "Start time", "endAt": "End time", "timePrecision": "Seconds precision" },
+      "columns": { "invokedAt": "Time", "serviceIdentifier": "Identifier", "serviceName": "Service name", "inputParams": "Input parameters", "outputParams": "Output parameters" },
+      "empty": "No service invocation records found.",
+      "error": "Failed to load service invocation records."
     },
     "deviceShadowTab": {
       "comingSoon": "Device shadow coming soon"
@@ -580,6 +588,8 @@
       "logUploadDisabled": "Device log upload disabled",
       "fields": {
         "productName": "Product Name",
+        "productKey": "ProductKey",
+        "deviceKey": "DeviceKey",
         "nodeType": "Node Type",
         "notes": "Notes",
         "createdAt": "Created At",

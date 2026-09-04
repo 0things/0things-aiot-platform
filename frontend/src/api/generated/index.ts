@@ -52,6 +52,7 @@ import type {
   ApiResponseDeviceListDeviceTagsResponse,
   ApiResponseDeviceListDevicesResponse,
   ApiResponseDeviceListPushRecordsResponse,
+  ApiResponseDeviceListServiceInvocationsResponse,
   ApiResponseDeviceSetDeviceEnabledResponse,
   ApiResponseDeviceShadow,
   ApiResponseDeviceSimulatePushResponse,
@@ -99,6 +100,7 @@ import type {
   GetDeviceGroupsGroupUuidDevicesParams,
   GetDeviceGroupsParams,
   GetDevicesDeviceKeyPushRecordsParams,
+  GetDevicesDeviceKeyThingModelServiceInvocationsParams,
   GetDevicesParams,
   GetOtaPackagesParams,
   GetOtaPackagesUuidDeviceDeploymentsParams,
@@ -4568,6 +4570,221 @@ export function useGetDevicesDeviceKeyTelemetry<
     deviceKey,
     options
   )
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * Lists paginated thing-model service invocation records for one device.
+ * @summary List thing-model service invocation records
+ */
+export const getDevicesDeviceKeyThingModelServiceInvocations = (
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyThingModelServiceInvocationsParams,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseDeviceListServiceInvocationsResponse>({
+    url: `/devices/${deviceKey}/thing-model-service-invocations`,
+    method: 'GET',
+    params,
+    signal,
+  })
+}
+
+export const getGetDevicesDeviceKeyThingModelServiceInvocationsQueryKey = (
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyThingModelServiceInvocationsParams
+) => {
+  return [
+    `/devices/${deviceKey}/thing-model-service-invocations`,
+    ...(params ? [params] : []),
+  ] as const
+}
+
+export const getGetDevicesDeviceKeyThingModelServiceInvocationsQueryOptions = <
+  TData = Awaited<
+    ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyThingModelServiceInvocationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+        >,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetDevicesDeviceKeyThingModelServiceInvocationsQueryKey(
+      deviceKey,
+      params
+    )
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>>
+  > = ({ signal }) =>
+    getDevicesDeviceKeyThingModelServiceInvocations(deviceKey, params, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyThingModelServiceInvocationsQueryResult =
+  NonNullable<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>>
+  >
+export type GetDevicesDeviceKeyThingModelServiceInvocationsQueryError =
+  ErrorType<unknown>
+
+export function useGetDevicesDeviceKeyThingModelServiceInvocations<
+  TData = Awaited<
+    ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params: undefined | GetDevicesDeviceKeyThingModelServiceInvocationsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+        >,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<
+            ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+          >,
+          TError,
+          Awaited<
+            ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+          >
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyThingModelServiceInvocations<
+  TData = Awaited<
+    ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyThingModelServiceInvocationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+        >,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<
+            ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+          >,
+          TError,
+          Awaited<
+            ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+          >
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyThingModelServiceInvocations<
+  TData = Awaited<
+    ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyThingModelServiceInvocationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+        >,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List thing-model service invocation records
+ */
+
+export function useGetDevicesDeviceKeyThingModelServiceInvocations<
+  TData = Awaited<
+    ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyThingModelServiceInvocationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof getDevicesDeviceKeyThingModelServiceInvocations>
+        >,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions =
+    getGetDevicesDeviceKeyThingModelServiceInvocationsQueryOptions(
+      deviceKey,
+      params,
+      options
+    )
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

@@ -1485,6 +1485,70 @@
                 }
             }
         },
+        "/devices/{deviceKey}/thing-model-service-invocations": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Lists paginated thing-model service invocation records for one device.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "List thing-model service invocation records",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device key",
+                        "name": "deviceKey",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "endAt",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number (1-based, default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page size (1-100, default 10)",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "serviceIdentifier",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "startAt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-DeviceListServiceInvocationsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/files/ota": {
             "post": {
                 "security": [
@@ -3300,6 +3364,20 @@
                 }
             }
         },
+        "ApiResponse-DeviceListServiceInvocationsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/DeviceListServiceInvocationsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-DeviceSetDeviceEnabledResponse": {
             "type": "object",
             "properties": {
@@ -4193,6 +4271,26 @@
                 }
             }
         },
+        "DeviceListServiceInvocationsResponse": {
+            "type": "object",
+            "properties": {
+                "invocations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DeviceServiceInvocation"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "DevicePushRecord": {
             "type": "object",
             "properties": {
@@ -4224,6 +4322,29 @@
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "DeviceServiceInvocation": {
+            "type": "object",
+            "properties": {
+                "inputParams": {
+                    "type": "string"
+                },
+                "invokedAt": {
+                    "type": "string"
+                },
+                "outputParams": {
+                    "type": "string"
+                },
+                "serviceIdentifier": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "uuid": {
                     "type": "string"
                 }
             }

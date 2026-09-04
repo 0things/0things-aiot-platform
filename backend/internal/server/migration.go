@@ -44,6 +44,7 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 		&model.DeviceTag{},
 		&model.DeviceShadowHistory{},
 		&model.DeviceEvent{},
+		&model.DeviceServiceInvocation{},
 		&model.DevicePushRecord{},
 		&model.OTAPackage{},
 		&model.UpgradeBatch{},
@@ -63,4 +64,3 @@ func (m *MigrateServer) Stop(ctx context.Context) error {
 	m.log.Info("MigrateServer stopped")
 	return nil
 }
-

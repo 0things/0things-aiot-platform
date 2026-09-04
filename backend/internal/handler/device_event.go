@@ -47,7 +47,16 @@ func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": err.Error()})
 		return
 	}
-	events, total, err := h.svc.List(c, &req)
+	query := dto.ListDeviceEventsQuery{
+		Page:      req.Page,
+		PageSize:  req.PageSize,
+		Keyword:   req.Keyword,
+		DeviceKey: req.DeviceKey,
+		EventType: req.EventType,
+		StartAt:   req.StartAt,
+		EndAt:     req.EndAt,
+	}
+	events, total, err := h.svc.List(c, query)
 	if err != nil {
 		deviceError(c, err)
 		return

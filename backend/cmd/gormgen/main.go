@@ -23,6 +23,7 @@ func main() {
 		model.DeviceShadow{},
 		model.DeviceShadowHistory{},
 		model.DeviceEvent{},
+		model.DeviceServiceInvocation{},
 		model.OTAPackage{},
 		model.UpgradeBatch{},
 		model.DeviceUpgradeStatus{},

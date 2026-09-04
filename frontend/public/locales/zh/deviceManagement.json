@@ -452,8 +452,8 @@
     "header": {
       "backToList": "返回设备列表",
       "unnamedDevice": "未命名设备",
-      "product": "产品",
-      "deviceSecret": "DeviceSecret",
+      "product": "所属产品",
+      "deviceKey": "DeviceKey",
       "productKey": "ProductKey",
       "view": "查看",
       "viewProduct": "查看产品详情",
@@ -483,6 +483,14 @@
       "serviceInvocation": "服务调用",
       "eventManagementComingSoon": "设备事件数据功能即将推出",
       "serviceInvocationComingSoon": "设备服务调用功能即将推出"
+    },
+    "serviceInvocations": {
+      "title": "服务调用",
+      "description": "查看当前设备的物模型服务调用记录。",
+      "filters": { "serviceIdentifier": "服务标识符", "dateRange": "选择时间范围", "startAt": "开始时间", "endAt": "结束时间", "timePrecision": "精确到秒" },
+      "columns": { "invokedAt": "时间", "serviceIdentifier": "标识符", "serviceName": "服务名称", "inputParams": "输入参数", "outputParams": "输出参数" },
+      "empty": "暂无服务调用记录",
+      "error": "加载服务调用记录失败"
     },
     "deviceShadowTab": {
       "comingSoon": "设备影子功能即将推出"
@@ -580,6 +588,8 @@
       "logUploadDisabled": "设备日志上报已禁用",
       "fields": {
         "productName": "产品名称",
+        "productKey": "ProductKey",
+        "deviceKey": "DeviceKey",
         "nodeType": "节点类型",
         "notes": "备注名称",
         "createdAt": "创建时间",

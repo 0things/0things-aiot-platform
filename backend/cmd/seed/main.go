@@ -53,6 +53,7 @@ func main() {
 	deviceDB.Exec("DELETE FROM device_groups")
 	deviceDB.Exec("DELETE FROM device_push_records")
 	deviceDB.Exec("DELETE FROM device_endpoints")
+	deviceDB.Exec("DELETE FROM device_service_invocations")
 	deviceDB.Exec("DELETE FROM device_events")
 	deviceDB.Exec("DELETE FROM device_tags")
 	deviceDB.Exec("DELETE FROM device_shadow_histories")
@@ -68,7 +69,7 @@ func main() {
 	deviceDB.Exec("DELETE FROM ota_upgrade_batches")
 	deviceDB.Exec("DELETE FROM ota_packages")
 	userDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('users','organizations','organization_users')")
-	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','categories','product_protocols','product_message_parsers','product_ts_ls','device_endpoints','device_push_records','device_groups','device_group_members','scene_linkage','scene_linkage_detail','ota_packages','ota_upgrade_batches','ota_device_upgrade_status')")
+	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_service_invocations','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','categories','product_protocols','product_message_parsers','product_ts_ls','device_endpoints','device_push_records','device_groups','device_group_members','scene_linkage','scene_linkage_detail','ota_packages','ota_upgrade_batches','ota_device_upgrade_status')")
 
 	// --- categories ---
 	fmt.Println("Seeding categories...")
@@ -313,6 +314,46 @@ func main() {
 		)
 		if err != nil {
 			log.Printf("device_event insert error: %v", err)
+		}
+	}
+
+	// --- device_service_invocations (80) ---
+	fmt.Println("Seeding device_service_invocations...")
+	serviceDefinitions := []struct {
+		identifier string
+		name       string
+	}{
+		{"reboot", "重启设备"},
+		{"set", "设置开关"},
+		{"set_temperature", "设置目标温度"},
+		{"firmware_upgrade", "固件升级"},
+	}
+	for i := 0; i < 80; i++ {
+		service := serviceDefinitions[rand.Intn(len(serviceDefinitions))]
+		input, _ := json.Marshal(map[string]interface{}{
+			"requestId": fmt.Sprintf("seed-call-%03d", i+1),
+			"value":     rand.Intn(100),
+		})
+		var output *string
+		if i%5 != 0 {
+			payload, _ := json.Marshal(map[string]interface{}{"success": true, "code": 0})
+			value := string(payload)
+			output = &value
+		}
+		invokedAt := time.Now().Add(-time.Duration(rand.Intn(7*24*60)) * time.Minute)
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO device_service_invocations (uuid, device_id, service_identifier, service_name, input_params, output_params, invoked_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			uuid.NewString(),
+			int64(rand.Intn(50)+1),
+			service.identifier,
+			service.name,
+			string(input),
+			output,
+			invokedAt,
+			invokedAt,
+			invokedAt,
+		)
+		if err != nil {
+			log.Printf("device_service_invocation insert error: %v", err)
 		}
 	}
 

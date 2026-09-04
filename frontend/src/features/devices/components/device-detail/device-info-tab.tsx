@@ -109,7 +109,9 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
             {/* Middle Column */}
             <div className='space-y-4'>
               <div className='space-y-1'>
-                <p className='text-sm text-muted-foreground'>ProductKey</p>
+                <p className='text-sm text-muted-foreground'>
+                  {t('deviceDetail.info.fields.productKey')}
+                </p>
                 <div className='flex items-center gap-2'>
                   {device.productKey ? (
                     <Link
@@ -129,7 +131,10 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
                       size='icon'
                       className='h-6 w-6'
                       onClick={() =>
-                        handleCopy(device.productKey || '', 'ProductKey')
+                        handleCopy(
+                          device.productKey || '',
+                          t('deviceDetail.info.fields.productKey')
+                        )
                       }
                     >
                       <Copy className='h-3 w-3' />
@@ -139,7 +144,9 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
               </div>
 
               <div className='space-y-1'>
-                <p className='text-sm text-muted-foreground'>DeviceKey</p>
+                <p className='text-sm text-muted-foreground'>
+                  {t('deviceDetail.info.fields.deviceKey')}
+                </p>
                 <div className='flex items-center gap-2'>
                   <p className='font-mono text-sm'>{device.deviceKey || '-'}</p>
                   {device.deviceKey && (
@@ -148,7 +155,10 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
                       size='icon'
                       className='h-6 w-6'
                       onClick={() =>
-                        handleCopy(device.deviceKey || '', 'DeviceKey')
+                        handleCopy(
+                          device.deviceKey || '',
+                          t('deviceDetail.info.fields.deviceKey')
+                        )
                       }
                     >
                       <Copy className='h-3 w-3' />

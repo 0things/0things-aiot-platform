@@ -192,6 +192,15 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-DeviceListServiceInvocationsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/DeviceListServiceInvocationsResponse'
+      message:
+        type: string
+    type: object
   ApiResponse-DeviceSetDeviceEnabledResponse:
     properties:
       code:
@@ -772,6 +781,19 @@ definitions:
       total:
         type: integer
     type: object
+  DeviceListServiceInvocationsResponse:
+    properties:
+      invocations:
+        items:
+          $ref: '#/definitions/DeviceServiceInvocation'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
   DevicePushRecord:
     properties:
       createdAt:
@@ -793,6 +815,21 @@ definitions:
       status:
         type: string
       updatedAt:
+        type: string
+    type: object
+  DeviceServiceInvocation:
+    properties:
+      inputParams:
+        type: string
+      invokedAt:
+        type: string
+      outputParams:
+        type: string
+      serviceIdentifier:
+        type: string
+      serviceName:
+        type: string
+      uuid:
         type: string
     type: object
   DeviceSetDeviceEnabledRequest:
@@ -2530,6 +2567,48 @@ paths:
       security:
       - Bearer: []
       summary: Get device telemetry
+      tags:
+      - Devices
+  /devices/{deviceKey}/thing-model-service-invocations:
+    get:
+      description: Lists paginated thing-model service invocation records for one
+        device.
+      parameters:
+      - description: Device key
+        in: path
+        name: deviceKey
+        required: true
+        type: string
+      - in: query
+        name: endAt
+        type: string
+      - description: Page number (1-based, default 1)
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Page size (1-100, default 10)
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      - in: query
+        name: serviceIdentifier
+        type: string
+      - in: query
+        name: startAt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            $ref: '#/definitions/ApiResponse-DeviceListServiceInvocationsResponse'
+      security:
+      - Bearer: []
+      summary: List thing-model service invocation records
       tags:
       - Devices
   /devices/batch/template:

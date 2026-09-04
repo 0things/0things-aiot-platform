@@ -1,8 +1,8 @@
 import { Route } from '@/routes/_authenticated/device-management/devices/$deviceKey'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DeviceEvents } from '@/features/operations-monitoring/events'
+import { ServiceInvocationsTab } from './service-invocations-tab'
 import { TelemetryTab } from './telemetry-tab'
 
 export function ThingModelDataTab() {
@@ -30,20 +30,7 @@ export function ThingModelDataTab() {
         <DeviceEvents deviceKey={deviceKey} />
       </TabsContent>
       <TabsContent value='serviceInvocation' className='mt-0'>
-        <Card>
-          <CardContent className='flex min-h-[400px] items-center justify-center'>
-            <div className='text-center'>
-              <p className='text-lg text-muted-foreground'>
-                {t('deviceDetail.thingModelDataTab.serviceInvocation')}
-              </p>
-              <p className='mt-2 text-sm text-muted-foreground'>
-                {t(
-                  'deviceDetail.thingModelDataTab.serviceInvocationComingSoon'
-                )}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <ServiceInvocationsTab deviceKey={deviceKey} />
       </TabsContent>
     </Tabs>
   )

@@ -5,7 +5,6 @@
 package mock_service
 
 import (
-	eventV1 "aiot-backend/api/v1"
 	dto "aiot-backend/internal/dto"
 	context "context"
 	reflect "reflect"
@@ -37,9 +36,9 @@ func (m *MockDeviceEventServiceInterface) EXPECT() *MockDeviceEventServiceInterf
 }
 
 // List mocks base method.
-func (m *MockDeviceEventServiceInterface) List(ctx context.Context, req *eventV1.ListDeviceEventsRequest) ([]dto.DeviceEventListItem, int64, error) {
+func (m *MockDeviceEventServiceInterface) List(ctx context.Context, query dto.ListDeviceEventsQuery) ([]dto.DeviceEventListItem, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", ctx, req)
+	ret := m.ctrl.Call(m, "List", ctx, query)
 	ret0, _ := ret[0].([]dto.DeviceEventListItem)
 	ret1, _ := ret[1].(int64)
 	ret2, _ := ret[2].(error)
@@ -47,9 +46,9 @@ func (m *MockDeviceEventServiceInterface) List(ctx context.Context, req *eventV1
 }
 
 // List indicates an expected call of List.
-func (mr *MockDeviceEventServiceInterfaceMockRecorder) List(ctx, req interface{}) *gomock.Call {
+func (mr *MockDeviceEventServiceInterfaceMockRecorder) List(ctx, query interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDeviceEventServiceInterface)(nil).List), ctx, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDeviceEventServiceInterface)(nil).List), ctx, query)
 }
 
 // Record mocks base method.
