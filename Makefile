@@ -19,7 +19,7 @@ test:
 	@(cd mqtt-transport && go test ./internal/...)
 	@(cd http-transport && go test ./internal/...)
 	@(cd data-engine && go test ./internal/...)
-	@(cd backend && go test ./internal/service/... ./internal/handler/...)
+	@(cd backend && go test ./...)
 	@echo "✅ All tests passed successfully!"
 
 # 编译验证所有微服务二进制

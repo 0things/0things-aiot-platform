@@ -6,6 +6,7 @@ import (
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -45,7 +46,7 @@ func TestDeviceRepositories(t *testing.T) {
 
 func TestDeviceRepositoryListScopesSearchToTenant(t *testing.T) {
 	store := newRepositoryTestDB(t, &model.Product{}, &model.Device{}, &model.DeviceState{})
-	repo := &DeviceRepository{db: store.DB}
+	repo := &DeviceRepository{db: store}
 	ctx := context.Background()
 
 	product1 := &model.Product{ProductKey: "P001", OrganizationID: 1}

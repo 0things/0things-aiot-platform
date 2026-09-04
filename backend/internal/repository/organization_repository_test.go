@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"aiot-backend/internal/model"
+
 	"github.com/stretchr/testify/require"
 )
 
 func TestOrganizationRepository(t *testing.T) {
 	store := newRepositoryTestDB(t, &model.Organization{})
-	baseRepo := &Repository{db: store.DB}
+	baseRepo := &Repository{db: store}
 	orgRepo := NewOrganizationRepository(baseRepo)
 	ctx := context.Background()
 
@@ -37,7 +38,7 @@ func TestOrganizationRepository(t *testing.T) {
 
 func TestOrganizationUserRepository(t *testing.T) {
 	store := newRepositoryTestDB(t, &model.OrganizationUser{})
-	baseRepo := &Repository{db: store.DB}
+	baseRepo := &Repository{db: store}
 	orgUserRepo := NewOrganizationUserRepository(baseRepo)
 	ctx := context.Background()
 

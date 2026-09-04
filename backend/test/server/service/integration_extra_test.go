@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	v1 "aiot-backend/api/v1"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
@@ -382,7 +382,7 @@ func TestIntegrationDeviceEventService_List_WithKeyword(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, Keyword: "test"})
+	events, total, err := svc.List(ctx2(), dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, Keyword: "test"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -393,7 +393,7 @@ func TestIntegrationDeviceEventService_List_WithDeviceKey(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001"})
+	events, total, err := svc.List(ctx2(), dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, DeviceKey: "D001"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -404,7 +404,7 @@ func TestIntegrationDeviceEventService_List_WithEventType(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	events, total, err := svc.List(ctx2(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, EventType: "temperature"})
+	events, total, err := svc.List(ctx2(), dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, EventType: "temperature"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	_ = events
@@ -418,7 +418,7 @@ func TestIntegrationDeviceEventService_Record_Valid(t *testing.T) {
 	err := svc.Record(ctx2(), "P001", "D001", "temperature", 0, map[string]any{"temp": 25})
 	require.NoError(t, err)
 
-	events, total, err := svc.List(ctx2(), &v1.ListDeviceEventsRequest{PageRequest: v1.PageRequest{Page: 1, PageSize: 10}, DeviceKey: "D001", EventType: "temperature"})
+	events, total, err := svc.List(ctx2(), dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, DeviceKey: "D001", EventType: "temperature"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, events, 1)
