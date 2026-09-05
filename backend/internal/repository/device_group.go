@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 
@@ -90,7 +91,11 @@ func (r *DeviceGroupRepository) DeviceIDs(ctx context.Context, groupID int64) ([
 
 func (r *DeviceGroupRepository) DB(ctx context.Context) *gorm.DB { return r.db.WithContext(ctx) }
 
-var groupRuleCondition = regexp.MustCompile(`(?i)^\s*([a-zA-Z_][a-zA-Z0-9_.-]*)\s*(=|!=|like|in)\s*(.+?)\s*$`)
+var (
+	groupRuleCondition = regexp.MustCompile(`(?i)^\s*([a-zA-Z_][a-zA-Z0-9_.-]*)\s*(=|!=|like|in)\s*(.+?)\s*$`)
+	groupRuleOrSplit   = regexp.MustCompile(`(?i)\s+OR\s+`)
+	groupRuleAndSplit  = regexp.MustCompile(`(?i)\s+AND\s+`)
+)
 
 var groupRuleColumns = map[string]string{
 	"device_key":  "devices.device_key",
@@ -100,8 +105,8 @@ var groupRuleColumns = map[string]string{
 	"state":       "device_states.state",
 }
 
-// applyGroupRule 将用户配置的动态规则安全解析并映射为 GORM 查询条件。
-// 规则语法支持 JSON 键值对或 AND/OR 组合及 IN/=/!=/LIKE 等操作符，并通过严格的白名单字段校验防止 SQL 注入。
+// applyGroupRule securely parses dynamic rule expressions and converts them into GORM query conditions.
+// Supports JSON key-value rules as well as AND/OR composite expressions with IN/=/!=/LIKE operators against whitelisted fields.
 func applyGroupRule(query *gorm.DB, rule string) (*gorm.DB, error) {
 	trimmed := strings.TrimSpace(rule)
 	if trimmed == "" {
@@ -179,10 +184,10 @@ func applyGroupRule(query *gorm.DB, rule string) (*gorm.DB, error) {
 
 	var branches []string
 	var allArgs []any
-	for _, orPart := range strings.Split(trimmed, " OR ") {
+	for _, orPart := range groupRuleOrSplit.Split(trimmed, -1) {
 		var conditions []string
 		var branchArgs []any
-		for _, raw := range strings.Split(orPart, " AND ") {
+		for _, raw := range groupRuleAndSplit.Split(orPart, -1) {
 			rawTrimmed := strings.TrimSpace(raw)
 			if rawTrimmed == "" {
 				continue
@@ -236,17 +241,9 @@ func applyGroupRule(query *gorm.DB, rule string) (*gorm.DB, error) {
 	return query.Where(strings.Join(branches, " OR "), allArgs...), nil
 }
 
-func (r *DeviceGroupRepository) Devices(ctx context.Context, group *model.DeviceGroup) ([]model.Device, int64, error) {
-	return r.devices(ctx, group, 0, 0, "", "")
-}
-
-func (r *DeviceGroupRepository) DevicesPage(ctx context.Context, group *model.DeviceGroup, page, size int, productKey, search string) ([]model.Device, int64, error) {
-	return r.devices(ctx, group, page, size, productKey, search)
-}
-
-// devices 统一执行手动分组与动态分组的设备成员分页及过滤查询。
-// 严格遵守当前组织隔离 (organization_id) 并过滤已软删除的设备 (deleted_at IS NULL)。
-func (r *DeviceGroupRepository) devices(ctx context.Context, group *model.DeviceGroup, page, size int, productKey, search string) ([]model.Device, int64, error) {
+// Devices queries paginated device members for both manual and dynamic device groups.
+// Enforces tenant isolation (organization_id) and excludes soft-deleted records.
+func (r *DeviceGroupRepository) Devices(ctx context.Context, query dto.ListDeviceGroupDevicesQuery) ([]model.Device, int64, error) {
 	base := r.db.WithContext(ctx).
 		Table("devices").
 		Select("devices.*").
@@ -254,27 +251,33 @@ func (r *DeviceGroupRepository) devices(ctx context.Context, group *model.Device
 		Joins("LEFT JOIN device_states ON device_states.device_key = devices.device_key").
 		Where("devices.organization_id = ? AND devices.deleted_at IS NULL", tenant.GetOrganizationID(ctx))
 
-	if strings.TrimSpace(productKey) != "" {
-		base = base.Where("products.product_key = ?", strings.TrimSpace(productKey))
+	validProductKeys := make([]string, 0, len(query.ProductKeys))
+	for _, pk := range query.ProductKeys {
+		if trimmed := strings.TrimSpace(pk); trimmed != "" {
+			validProductKeys = append(validProductKeys, trimmed)
+		}
 	}
-	if strings.TrimSpace(search) != "" {
-		value := "%" + strings.TrimSpace(search) + "%"
-		base = base.Where("(devices.device_key LIKE ? OR devices.name LIKE ?)", value, value)
+	if len(validProductKeys) > 0 {
+		base = base.Where("products.product_key IN ?", validProductKeys)
+	}
+	if strings.TrimSpace(query.Search) != "" {
+		value := "%" + strings.TrimSpace(query.Search) + "%"
+		base = base.Where("(devices.device_key LIKE ? OR devices.name LIKE ? OR products.name LIKE ?)", value, value, value)
 	}
 
-	var query *gorm.DB
-	if group.Type == model.DeviceGroupTypeManual {
-		ids, err := r.DeviceIDs(ctx, group.ID)
+	var q *gorm.DB
+	if query.GroupType == model.DeviceGroupTypeManual {
+		ids, err := r.DeviceIDs(ctx, query.GroupID)
 		if err != nil {
 			return nil, 0, err
 		}
 		if len(ids) == 0 {
 			return []model.Device{}, 0, nil
 		}
-		query = base.Where("devices.id IN ?", ids)
+		q = base.Where("devices.id IN ?", ids)
 	} else {
 		var err error
-		query, err = applyGroupRule(base, group.Rule)
+		q, err = applyGroupRule(base, query.Rule)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -284,15 +287,15 @@ func (r *DeviceGroupRepository) devices(ctx context.Context, group *model.Device
 	var countResult struct {
 		Total int64 `gorm:"column:total"`
 	}
-	if err := query.Session(&gorm.Session{}).Select("COUNT(*) AS total").Scan(&countResult).Error; err != nil {
+	if err := q.Session(&gorm.Session{}).Select("COUNT(*) AS total").Scan(&countResult).Error; err != nil {
 		return nil, 0, err
 	}
 	total = countResult.Total
 
 	var devices []model.Device
-	findQuery := query.Session(&gorm.Session{}).Select("devices.*").Order("devices.created_at DESC")
-	if page > 0 && size > 0 {
-		findQuery = findQuery.Offset((page - 1) * size).Limit(size)
+	findQuery := q.Session(&gorm.Session{}).Select("devices.*").Order("devices.created_at DESC")
+	if query.Page > 0 && query.PageSize > 0 {
+		findQuery = findQuery.Offset((query.Page - 1) * query.PageSize).Limit(query.PageSize)
 	}
 	err := findQuery.Preload("Product").Preload("State").Find(&devices).Error
 	return devices, total, err

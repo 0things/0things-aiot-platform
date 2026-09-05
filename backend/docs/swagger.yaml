@@ -2005,7 +2005,7 @@ paths:
         name: pageSize
         type: integer
       - in: query
-        name: productKey
+        name: productKeys
         type: string
       - in: query
         name: search

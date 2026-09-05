@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	devicegroupv1 "aiot-backend/api/v1"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
@@ -23,7 +24,7 @@ type DeviceGroupServiceInterface interface {
 	Delete(context.Context, string) error
 	AddDevices(context.Context, string, []string) error
 	RemoveDevices(context.Context, string, []string) error
-	Devices(context.Context, string, int, int, string, string) ([]model.Device, int64, error)
+	Devices(context.Context, dto.ListDeviceGroupDevicesQuery) ([]model.Device, int64, error)
 	Preview(context.Context, string) ([]model.Device, int64, error)
 }
 
@@ -154,15 +155,21 @@ func (s *DeviceGroupService) RemoveDevices(ctx context.Context, groupUUID string
 	return s.repo.RemoveDevices(ctx, group.ID, ids)
 }
 
-func (s *DeviceGroupService) Devices(ctx context.Context, groupUUID string, page, size int, productKey, search string) ([]model.Device, int64, error) {
-	group, err := s.Get(ctx, groupUUID)
+func (s *DeviceGroupService) Devices(ctx context.Context, query dto.ListDeviceGroupDevicesQuery) ([]model.Device, int64, error) {
+	group, err := s.Get(ctx, query.GroupUUID)
 	if err != nil {
 		return nil, 0, err
 	}
-	return s.repo.DevicesPage(ctx, group, page, size, productKey, search)
+	query.GroupID = group.ID
+	query.GroupType = group.Type
+	query.Rule = group.Rule
+	return s.repo.Devices(ctx, query)
 }
 
 func (s *DeviceGroupService) Preview(ctx context.Context, rule string) ([]model.Device, int64, error) {
-	return s.repo.Devices(ctx, &model.DeviceGroup{Type: model.DeviceGroupTypeDynamic, Rule: rule})
+	return s.repo.Devices(ctx, dto.ListDeviceGroupDevicesQuery{
+		GroupType: model.DeviceGroupTypeDynamic,
+		Rule:      rule,
+	})
 }
 

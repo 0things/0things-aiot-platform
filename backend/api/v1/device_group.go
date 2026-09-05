@@ -23,8 +23,8 @@ type ListDeviceGroupsRequest struct {
 
 type ListDeviceGroupDevicesRequest struct {
 	PageRequest
-	ProductKey string `form:"productKey"`
-	Search     string `form:"search"`
+	ProductKeys string `form:"productKeys"`
+	Search      string `form:"search"`
 }
 
 type DeviceGroup struct {

@@ -379,7 +379,7 @@
                     },
                     {
                         "type": "string",
-                        "name": "productKey",
+                        "name": "productKeys",
                         "in": "query"
                     },
                     {

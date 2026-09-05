@@ -2,6 +2,7 @@ package handler
 
 import (
 	v1 "aiot-backend/api/v1"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
@@ -207,7 +208,21 @@ func (h *DeviceGroupHandler) ListDevices(c *gin.Context) {
 		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
-	devices, total, err := h.svc.Devices(c, c.Param("groupUuid"), req.Page, req.PageSize, req.ProductKey, req.Search)
+	var productKeys []string
+	if strings.TrimSpace(req.ProductKeys) != "" {
+		for _, key := range strings.Split(req.ProductKeys, ",") {
+			if trimmed := strings.TrimSpace(key); trimmed != "" {
+				productKeys = append(productKeys, trimmed)
+			}
+		}
+	}
+	devices, total, err := h.svc.Devices(c, dto.ListDeviceGroupDevicesQuery{
+		GroupUUID:   c.Param("groupUuid"),
+		Page:        req.Page,
+		PageSize:    req.PageSize,
+		ProductKeys: productKeys,
+		Search:      req.Search,
+	})
 	if err != nil {
 		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
@@ -226,7 +241,14 @@ func (h *DeviceGroupHandler) ListDevices(c *gin.Context) {
 // @Param request body v1.PreviewRequest true "Request payload"
 // @Success 200 {object} v1.ApiResponse[v1.PreviewResponse] "Successful response"
 // @Router /device-groups/preview [post]
-func (h *DeviceGroupHandler) Preview(c *gin.Context) { h.preview(c) }
+func (h *DeviceGroupHandler) Preview(c *gin.Context) {
+	var req v1.PreviewRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
+	h.previewRule(c, req.Rule)
+}
 
 // PreviewSaved godoc
 // @Summary Preview saved device group rule
@@ -247,15 +269,6 @@ func (h *DeviceGroupHandler) PreviewSaved(c *gin.Context) {
 	h.previewRule(c, group.Rule)
 }
 
-func (h *DeviceGroupHandler) preview(c *gin.Context) {
-	var req v1.PreviewRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		v1.HandleError(c, http.StatusBadRequest, err, nil)
-		return
-	}
-	h.previewRule(c, req.Rule)
-}
-
 func (h *DeviceGroupHandler) previewRule(c *gin.Context, rule string) {
 	devices, total, err := h.svc.Preview(c, rule)
 	if err != nil {
@@ -264,14 +277,7 @@ func (h *DeviceGroupHandler) previewRule(c *gin.Context, rule string) {
 	}
 	items := make([]v1.Device, len(devices))
 	for i, device := range devices {
-		items[i] = v1.Device{
-			DeviceKey: device.DeviceKey,
-			Name:      device.Name,
-			ProductID: device.ProductID,
-			Enabled:   device.Enabled,
-			CreatedAt: device.CreatedAt,
-			UpdatedAt: device.UpdatedAt,
-		}
+		items[i] = deviceJSON(device)
 	}
 	v1.HandleSuccess(c, v1.PreviewResponse{Total: total, Devices: items})
 }

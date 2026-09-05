@@ -386,7 +386,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "name": "productKey",
+                        "name": "productKeys",
                         "in": "query"
                     },
                     {

@@ -29,7 +29,7 @@
   "currentOnline": "当前在线",
   "addDevice": "添加设备到分组",
   "allProducts": "全部产品",
-  "searchDevicePlaceholder": "请输入 DeviceName",
+  "searchDevicePlaceholder": "搜索设备标识、名称或产品名称",
   "productName": "设备所属产品",
   "nodeType": "节点类型",
   "statusAndState": "状态/启用状态",

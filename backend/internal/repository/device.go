@@ -108,7 +108,10 @@ func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) err
 
 func (r *DeviceRepository) List(ctx context.Context, query dto.ListDevicesQuery) ([]model.Device, int64, error) {
 	q := useQuery(r.db)
-	devices := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
+	devices := q.Device.WithContext(ctx).
+		Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).
+		LeftJoin(q.Product, q.Product.ID.EqCol(q.Device.ProductID)).
+		Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
 	if query.ProductID > 0 {
 		devices = devices.Where(q.Device.ProductID.Eq(query.ProductID))
 	}
@@ -119,7 +122,11 @@ func (r *DeviceRepository) List(ctx context.Context, query dto.ListDevicesQuery)
 		devices = devices.Where(q.Device.Enabled.Is(*query.Enabled))
 	}
 	if query.Search != "" {
-		devices = devices.Where(field.Or(q.Device.DeviceKey.Like("%"+query.Search+"%"), q.Device.Name.Like("%"+query.Search+"%")))
+		devices = devices.Where(field.Or(
+			q.Device.DeviceKey.Like("%"+query.Search+"%"),
+			q.Device.Name.Like("%"+query.Search+"%"),
+			q.Product.Name.Like("%"+query.Search+"%"),
+		))
 	}
 	items, total, err := devices.Preload(q.Device.Product, q.Device.State).Order(q.Device.CreatedAt.Desc()).FindByPage((query.Page-1)*query.PageSize, query.PageSize)
 	if err != nil {

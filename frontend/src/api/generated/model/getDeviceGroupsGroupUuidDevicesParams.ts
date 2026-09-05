@@ -18,6 +18,6 @@ export type GetDeviceGroupsGroupUuidDevicesParams = {
    * @maximum 100
    */
   pageSize?: number
-  productKey?: string
+  productKeys?: string
   search?: string
 }

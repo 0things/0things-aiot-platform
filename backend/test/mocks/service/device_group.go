@@ -6,6 +6,7 @@ package mock_service
 
 import (
 	v1 "aiot-backend/api/v1"
+	dto "aiot-backend/internal/dto"
 	model "aiot-backend/internal/model"
 	context "context"
 	reflect "reflect"
@@ -80,9 +81,9 @@ func (mr *MockDeviceGroupServiceInterfaceMockRecorder) Delete(arg0, arg1 interfa
 }
 
 // Devices mocks base method.
-func (m *MockDeviceGroupServiceInterface) Devices(arg0 context.Context, arg1 string, arg2, arg3 int, arg4, arg5 string) ([]model.Device, int64, error) {
+func (m *MockDeviceGroupServiceInterface) Devices(arg0 context.Context, arg1 dto.ListDeviceGroupDevicesQuery) ([]model.Device, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Devices", arg0, arg1, arg2, arg3, arg4, arg5)
+	ret := m.ctrl.Call(m, "Devices", arg0, arg1)
 	ret0, _ := ret[0].([]model.Device)
 	ret1, _ := ret[1].(int64)
 	ret2, _ := ret[2].(error)
@@ -90,9 +91,9 @@ func (m *MockDeviceGroupServiceInterface) Devices(arg0 context.Context, arg1 str
 }
 
 // Devices indicates an expected call of Devices.
-func (mr *MockDeviceGroupServiceInterfaceMockRecorder) Devices(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+func (mr *MockDeviceGroupServiceInterfaceMockRecorder) Devices(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Devices", reflect.TypeOf((*MockDeviceGroupServiceInterface)(nil).Devices), arg0, arg1, arg2, arg3, arg4, arg5)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Devices", reflect.TypeOf((*MockDeviceGroupServiceInterface)(nil).Devices), arg0, arg1)
 }
 
 // Get mocks base method.

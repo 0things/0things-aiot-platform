@@ -22,10 +22,6 @@ export function GroupDetailPage({ uuid }: GroupDetailPageProps) {
   const { t } = useTranslation('deviceGroup')
   const navigate = useNavigate()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [devicePage, setDevicePage] = useState(1)
-  const [devicePageSize, setDevicePageSize] = useState(10)
-  const [deviceProductKey, setDeviceProductKey] = useState('')
-  const [deviceSearch, setDeviceSearch] = useState('')
 
   const groupQuery = useQuery({
     queryKey: ['device-group', uuid],
@@ -33,29 +29,18 @@ export function GroupDetailPage({ uuid }: GroupDetailPageProps) {
     enabled: !!uuid,
   })
 
-  const devicesQuery = useQuery({
-    queryKey: [
-      'device-group',
-      uuid,
-      'devices',
-      devicePage,
-      devicePageSize,
-      deviceProductKey,
-      deviceSearch,
-    ],
+  const devicesCountQuery = useQuery({
+    queryKey: ['device-group', uuid, 'devices-count'],
     queryFn: () =>
       getDeviceGroupsGroupUuidDevices(uuid, {
-        page: devicePage,
-        pageSize: devicePageSize,
-        productKey: deviceProductKey || undefined,
-        search: deviceSearch || undefined,
+        page: 1,
+        pageSize: 1,
       }),
     enabled: !!uuid,
   })
 
   const group = groupQuery.data?.data
-  const devices = devicesQuery.data?.data?.devices ?? []
-  const totalDevices = devicesQuery.data?.data?.total ?? 0
+  const totalDevices = devicesCountQuery.data?.data?.total ?? 0
 
   const handleBack = () => {
     navigate({ to: '/device-management/groups' })
@@ -118,22 +103,7 @@ export function GroupDetailPage({ uuid }: GroupDetailPageProps) {
             <TabsContent value='devices' className='mt-0'>
               <GroupDevicesTab
                 group={group}
-                devices={devices}
-                isLoading={devicesQuery.isLoading}
-                onRefresh={() => devicesQuery.refetch()}
-                total={totalDevices}
-                page={devicePage}
-                pageSize={devicePageSize}
-                onPageChange={setDevicePage}
-                onPageSizeChange={(size) => {
-                  setDevicePageSize(size)
-                  setDevicePage(1)
-                }}
-                onSearch={(productKey, search) => {
-                  setDeviceProductKey(productKey)
-                  setDeviceSearch(search)
-                  setDevicePage(1)
-                }}
+                onDevicesUpdated={() => devicesCountQuery.refetch()}
               />
             </TabsContent>
           </div>
