@@ -2404,6 +2404,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/products/options": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Lists active products as options for select components.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "List product options",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-array_ProductOption"
+                        }
+                    }
+                }
+            }
+        },
         "/products/{productKey}": {
             "get": {
                 "security": [
@@ -3945,6 +3970,23 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-array_ProductOption": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProductOption"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-array_TelemetryPoint": {
             "type": "object",
             "properties": {
@@ -5275,6 +5317,23 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "ProductOption": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeType": {
+                    "type": "string"
+                },
+                "productKey": {
+                    "type": "string"
                 }
             }
         },

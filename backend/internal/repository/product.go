@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"aiot-backend/internal/dto"
+	"aiot-backend/internal/enum"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 
@@ -131,4 +132,18 @@ func (r *ProductRepository) List(ctx context.Context, page, size int, category, 
 		return nil, 0, err
 	}
 	return result, total, nil
+}
+
+func (r *ProductRepository) ListOptions(ctx context.Context) ([]dto.ProductOption, error) {
+	q := useQuery(r.db)
+	var result []dto.ProductOption
+	err := q.Product.WithContext(ctx).
+		Select(q.Product.ID, q.Product.ProductKey, q.Product.Name, q.Product.NodeType).
+		Where(
+			q.Product.OrganizationID.Eq(tenant.GetOrganizationID(ctx)),
+			q.Product.Status.Eq(string(enum.ProductStatusActive)),
+		).
+		Order(q.Product.ID.Desc()).
+		Scan(&result)
+	return result, err
 }

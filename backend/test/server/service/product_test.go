@@ -95,3 +95,19 @@ func TestProductService_GetByKey(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectedProduct, product)
 }
+
+func TestProductService_ListOptions(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockProductRepo := mock_service.NewMockProductServiceInterface(ctrl)
+	ctx := context.Background()
+
+	expectedOptions := []dto.ProductOption{{ID: 1, ProductKey: "P001", Name: "Test Product", NodeType: "direct"}}
+
+	mockProductRepo.EXPECT().ListOptions(ctx).Return(expectedOptions, nil)
+
+	options, err := mockProductRepo.ListOptions(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedOptions, options)
+}

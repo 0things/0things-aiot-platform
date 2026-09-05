@@ -39,6 +39,7 @@ import type {
   ApiResponseApiSwitchOrgResponseData,
   ApiResponseArrayAiotBackendApiV1Category,
   ApiResponseArrayApiOrganizationItem,
+  ApiResponseArrayProductOption,
   ApiResponseArrayTelemetryPoint,
   ApiResponseCreateSceneLinkageDetailResponse,
   ApiResponseCreateSceneLinkageResponse,
@@ -7314,6 +7315,152 @@ export const usePostProductsKeyProductKeyMessageParserExecute = <
     getPostProductsKeyProductKeyMessageParserExecuteMutationOptions(options),
     queryClient
   )
+}
+
+/**
+ * Lists active products as options for select components.
+ * @summary List product options
+ */
+export const getProductsOptions = (signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseArrayProductOption>({
+    url: `/products/options`,
+    method: 'GET',
+    signal,
+  })
+}
+
+export const getGetProductsOptionsQueryKey = () => {
+  return [`/products/options`] as const
+}
+
+export const getGetProductsOptionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProductsOptions>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getProductsOptions>>,
+      TError,
+      TData
+    >
+  >
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetProductsOptionsQueryKey()
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getProductsOptions>>
+  > = ({ signal }) => getProductsOptions(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getProductsOptions>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductsOptionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProductsOptions>>
+>
+export type GetProductsOptionsQueryError = ErrorType<unknown>
+
+export function useGetProductsOptions<
+  TData = Awaited<ReturnType<typeof getProductsOptions>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsOptions>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductsOptions>>,
+          TError,
+          Awaited<ReturnType<typeof getProductsOptions>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProductsOptions<
+  TData = Awaited<ReturnType<typeof getProductsOptions>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsOptions>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductsOptions>>,
+          TError,
+          Awaited<ReturnType<typeof getProductsOptions>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetProductsOptions<
+  TData = Awaited<ReturnType<typeof getProductsOptions>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsOptions>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List product options
+ */
+
+export function useGetProductsOptions<
+  TData = Awaited<ReturnType<typeof getProductsOptions>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsOptions>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetProductsOptionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
 }
 
 /**

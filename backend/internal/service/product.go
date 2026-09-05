@@ -22,6 +22,7 @@ type ProductServiceInterface interface {
 	Save(ctx context.Context, product *model.Product) error
 	DeleteByKey(ctx context.Context, key string) error
 	List(ctx context.Context, page, size int, category, status, search string) ([]dto.ProductListItem, int64, error)
+	ListOptions(ctx context.Context) ([]dto.ProductOption, error)
 }
 
 // ProductListItem 是产品列表专用结果，包含分类名称但不污染产品领域模型。
@@ -124,4 +125,8 @@ func (s *ProductService) DeleteByKey(ctx context.Context, key string) error {
 
 func (s *ProductService) List(ctx context.Context, page, size int, category, status, search string) ([]dto.ProductListItem, int64, error) {
 	return s.repo.List(ctx, page, size, category, status, search)
+}
+
+func (s *ProductService) ListOptions(ctx context.Context) ([]dto.ProductOption, error) {
+	return s.repo.ListOptions(ctx)
 }

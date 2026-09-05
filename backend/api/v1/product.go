@@ -78,3 +78,10 @@ type ListProductsResponse struct {
 type ProductSuccessResponse struct {
 	Success bool `json:"success"`
 } //@name ProductSuccessResponse
+
+type ProductOption struct {
+	ID         int64  `json:"id"`
+	ProductKey string `json:"productKey"`
+	Name       string `json:"name"`
+	NodeType   string `json:"nodeType"`
+} //@name ProductOption

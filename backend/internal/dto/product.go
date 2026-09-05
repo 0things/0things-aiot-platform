@@ -7,3 +7,11 @@ type ProductListItem struct {
 	model.Product
 	CategoryName string
 }
+
+// ProductOption represents lightweight product summary for dropdown selects.
+type ProductOption struct {
+	ID         int64
+	ProductKey string
+	Name       string
+	NodeType   string
+}

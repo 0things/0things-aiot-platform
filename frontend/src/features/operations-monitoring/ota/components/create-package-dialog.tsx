@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import { SearchableSelect } from '@/components/searchable-select'
-import { useAllProducts } from '@/features/products/api/queries'
+import { useProductOptions } from '@/features/products/api/queries'
 import { useCreateOTAPackage, useUploadOTAFile } from '../api/queries'
 import { packageTypes } from '../data/data'
 import {
@@ -42,7 +42,8 @@ export function CreatePackageDialog() {
   const { openDialog, setOpenDialog } = useOTAPackagesContext()
   const createMutation = useCreateOTAPackage()
   const uploadMutation = useUploadOTAFile()
-  const { data: productsData, isLoading: isLoadingProducts } = useAllProducts()
+  const { data: products = [], isLoading: isLoadingProducts } =
+    useProductOptions()
 
   const form = useForm<CreatePackageFormData>({
     resolver: zodResolver(createPackageFormSchema),
@@ -186,8 +187,8 @@ export function CreatePackageDialog() {
                         value={field.value}
                         onValueChange={field.onChange}
                         options={
-                          productsData?.products
-                            ?.filter((product) => product.productKey)
+                          products
+                            .filter((product) => product.productKey)
                             .map((product) => ({
                               label: product.name || product.productKey!,
                               value: product.productKey!,

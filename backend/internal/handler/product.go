@@ -131,6 +131,33 @@ func (h *ProductHandler) List(c *gin.Context) {
 	v1.HandleSuccess(c, v1.ListProductsResponse{Products: items, Total: total, Page: req.Page, PageSize: req.PageSize})
 }
 
+// Options godoc
+// @Summary List product options
+// @Schemes
+// @Description Lists active products as options for select components.
+// @Tags Products
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} v1.ApiResponse[[]v1.ProductOption] "Successful response"
+// @Router /products/options [get]
+func (h *ProductHandler) Options(c *gin.Context) {
+	options, err := h.svc.ListOptions(c)
+	if err != nil {
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		return
+	}
+	items := make([]v1.ProductOption, len(options))
+	for i, opt := range options {
+		items[i] = v1.ProductOption{
+			ID:         opt.ID,
+			ProductKey: opt.ProductKey,
+			Name:       opt.Name,
+			NodeType:   opt.NodeType,
+		}
+	}
+	v1.HandleSuccess(c, items)
+}
+
 // Update godoc
 // @Summary Update product
 // @Schemes

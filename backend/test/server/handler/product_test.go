@@ -24,6 +24,7 @@ func setupProductRouter(mockService *mock_service.MockProductServiceInterface) *
 	productHandler := handler.NewProductHandler(h, mockService)
 
 	router.POST("/products", productHandler.Create)
+	router.GET("/products/options", productHandler.Options)
 	router.GET("/products/:productKey", productHandler.Get)
 	router.GET("/products", productHandler.List)
 	router.PUT("/products/:productKey", productHandler.Update)
@@ -96,6 +97,25 @@ func TestProductHandler_Delete(t *testing.T) {
 	mockService.EXPECT().DeleteByKey(gomock.Any(), "P001").Return(nil)
 
 	req, _ := http.NewRequest("DELETE", "/products/P001", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestProductHandler_Options(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockService := mock_service.NewMockProductServiceInterface(ctrl)
+	router := setupProductRouter(mockService)
+
+	options := []dto.ProductOption{
+		{ID: 1, ProductKey: "PK001", Name: "Product 1", NodeType: "direct"},
+	}
+	mockService.EXPECT().ListOptions(gomock.Any()).Return(options, nil)
+
+	req, _ := http.NewRequest("GET", "/products/options", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

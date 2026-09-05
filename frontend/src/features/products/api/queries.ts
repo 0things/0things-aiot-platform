@@ -1,22 +1,25 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   deleteProductsProductKey,
+  getGetProductsOptionsQueryKey,
   getGetProductsProductKeyQueryKey,
   getGetProductsQueryKey,
   postProducts,
   putProductsProductKey,
   useGetProducts,
+  useGetProductsOptions,
   useGetProductsProductKey,
 } from '@/api/generated'
 import type {
   GetProductsParams,
   ProductCreateProductRequest as ProductV1CreateProductRequest,
   ProductListProductsResponse as ProductV1ListProductsResponse,
+  ProductOption,
   ProductUpdateProductRequest as ProductV1UpdateProductRequest,
   ProductUpdateProductResponse as ProductV1UpdateProductResponse,
 } from '@/api/generated/model'
 
-export type { GetProductsParams }
+export type { GetProductsParams, ProductOption }
 export type ProductListResponse = ProductV1ListProductsResponse
 
 // ============================================================================
@@ -27,6 +30,7 @@ export const productKeys = {
   all: ['products'] as const,
   lists: () => [...productKeys.all, 'list'] as const,
   list: (params?: GetProductsParams) => getGetProductsQueryKey(params),
+  options: () => getGetProductsOptionsQueryKey(),
   details: () => [...productKeys.all, 'detail'] as const,
   detail: (productKey: string) => getGetProductsProductKeyQueryKey(productKey),
 }
@@ -47,18 +51,15 @@ export function useProducts(params?: GetProductsParams) {
 }
 
 /**
- * Hook to fetch all active products (for dropdowns/selects)
+ * Hook to fetch active product options (for dropdowns/selects)
  */
-export function useAllProducts() {
-  return useGetProducts(
-    { page: 1, pageSize: 1000, status: 'active' },
-    {
-      query: {
-        select: (res) => res?.data,
-        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-      },
-    }
-  )
+export function useProductOptions() {
+  return useGetProductsOptions({
+    query: {
+      select: (res) => res?.data,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    },
+  })
 }
 
 /**

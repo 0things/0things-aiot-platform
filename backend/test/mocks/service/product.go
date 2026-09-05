@@ -125,6 +125,21 @@ func (mr *MockProductServiceInterfaceMockRecorder) List(ctx, page, size, categor
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockProductServiceInterface)(nil).List), ctx, page, size, category, status, search)
 }
 
+// ListOptions mocks base method.
+func (m *MockProductServiceInterface) ListOptions(ctx context.Context) ([]dto.ProductOption, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListOptions", ctx)
+	ret0, _ := ret[0].([]dto.ProductOption)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListOptions indicates an expected call of ListOptions.
+func (mr *MockProductServiceInterfaceMockRecorder) ListOptions(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListOptions", reflect.TypeOf((*MockProductServiceInterface)(nil).ListOptions), ctx)
+}
+
 // Restore mocks base method.
 func (m *MockProductServiceInterface) Restore(ctx context.Context, id int64) (*model.Product, error) {
 	m.ctrl.T.Helper()

@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { useAllProducts } from '@/features/products/api/queries'
+import { useProductOptions } from '@/features/products/api/queries'
 import { useCreateDevice, useUpdateDevice } from '../api/queries'
 import {
   type Device,
@@ -53,13 +53,9 @@ export function DevicesActionDialog({
   const isEdit = !!currentRow
   const { t } = useTranslation('deviceManagement')
 
-  // Fetch products list
-  const { data: productsResponse, isLoading: isLoadingProducts } =
-    useAllProducts()
-  const products = React.useMemo(
-    () => productsResponse?.products || [],
-    [productsResponse]
-  )
+  // Fetch product options
+  const { data: products = [], isLoading: isLoadingProducts } =
+    useProductOptions()
 
   // Create and update mutations
   const createDevice = useCreateDevice()
