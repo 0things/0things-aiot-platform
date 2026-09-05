@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   type ColumnFiltersState,
   type PaginationState,
@@ -14,7 +14,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import { getDeviceGroups } from '@/api/generated'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -26,6 +25,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+import { deviceGroupKeys, useDeviceGroups } from '../api/queries'
 import { type DeviceGroup } from '../data/schema'
 import { useGroupsColumns } from './groups-columns'
 
@@ -43,12 +43,13 @@ export function GroupsTable() {
     pageSize: 10,
   })
 
-  const searchText = appliedFilters.find((f) => f.id === 'name')?.value as
-    string | undefined
-  const typeFilters = appliedFilters.find((f) => f.id === 'type')?.value as
-    string[] | undefined
+  const typeFilter = appliedFilters.find((f) => f.id === 'type')
+  const typeFilters = typeFilter?.value as string[] | undefined
   const typeQuery =
     typeFilters && typeFilters.length === 1 ? typeFilters[0] : undefined
+
+  const searchFilter = appliedFilters.find((f) => f.id === 'name')
+  const searchText = (searchFilter?.value as string) || undefined
 
   const handleSearch = () => {
     setAppliedFilters(columnFilters)
@@ -59,32 +60,22 @@ export function GroupsTable() {
     setColumnFilters([])
     setAppliedFilters([])
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-    queryClient.invalidateQueries({ queryKey: ['device-groups'] })
+    queryClient.invalidateQueries({ queryKey: deviceGroupKeys.lists() })
   }
 
   const {
     data: response,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: [
-      'device-groups',
-      pagination.pageIndex + 1,
-      pagination.pageSize,
-      searchText,
-      typeQuery,
-    ],
-    queryFn: () =>
-      getDeviceGroups({
-        page: pagination.pageIndex + 1,
-        pageSize: pagination.pageSize,
-        search: searchText,
-        type: typeQuery,
-      }),
+  } = useDeviceGroups({
+    page: pagination.pageIndex + 1,
+    pageSize: pagination.pageSize,
+    search: searchText,
+    type: typeQuery,
   })
 
   const data = useMemo(() => {
-    const rawItems = response?.data?.items || []
+    const rawItems = response?.items || []
     let result: DeviceGroup[] = rawItems.map((g) => ({
       groupUuid: g.groupUuid || '',
       name: g.name || '',
@@ -102,7 +93,7 @@ export function GroupsTable() {
     return result
   }, [response, typeFilters, typeQuery])
 
-  const totalCount = response?.data?.total || 0
+  const totalCount = response?.total || 0
   const pageCount = Math.ceil(totalCount / pagination.pageSize)
 
   const handlePaginationChange = (updater: Updater<PaginationState>) => {
@@ -192,10 +183,10 @@ export function GroupsTable() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              Array.from({ length: pagination.pageSize }).map((_, index) => (
+              Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index}>
-                  {columns.map((_, cellIndex) => (
-                    <TableCell key={cellIndex}>
+                  {columns.map((_column, colIndex) => (
+                    <TableCell key={colIndex}>
                       <Skeleton className='h-6 w-full' />
                     </TableCell>
                   ))}
@@ -207,24 +198,27 @@ export function GroupsTable() {
                   colSpan={columns.length}
                   className='h-24 text-center text-destructive'
                 >
-                  {t('common:error')}
+                  {t('table.error', {
+                    defaultValue: 'Failed to load device groups.',
+                  })}
                 </TableCell>
               </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className='group/row'
+            ) : data.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center text-muted-foreground'
                 >
+                  {t('noResults')}
+                </TableCell>
+              </TableRow>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className={cn(
-                        'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
-                        cell.column.columnDef.meta?.className,
-                        cell.column.columnDef.meta?.tdClassName
-                      )}
+                      className={cell.column.columnDef.meta?.className}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -234,20 +228,11 @@ export function GroupsTable() {
                   ))}
                 </TableRow>
               ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className='h-24 text-center text-muted-foreground'
-                >
-                  {t('empty')}
-                </TableCell>
-              </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} className='mt-auto' />
+      <DataTablePagination table={table} />
     </div>
   )
 }

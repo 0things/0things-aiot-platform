@@ -12,14 +12,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { type Device } from '../data/schema'
-import { useDevices } from './devices-provider'
+import { useDevicesDialog } from './devices-provider'
 
-type DataTableRowActionsProps = {
+interface DataTableRowActionsProps {
   row: Row<Device>
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
-  const { setOpen, setCurrentRow } = useDevices()
+  const { setOpen, setCurrentRow } = useDevicesDialog()
   const device = row.original
 
   return (

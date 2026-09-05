@@ -26,11 +26,11 @@ export function DevicesProvider({ children }: { children: React.ReactNode }) {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useDevices = () => {
+export const useDevicesDialog = () => {
   const devicesContext = React.useContext(DevicesContext)
 
   if (!devicesContext) {
-    throw new Error('useDevices has to be used within <DevicesContext>')
+    throw new Error('useDevicesDialog has to be used within <DevicesContext>')
   }
 
   return devicesContext

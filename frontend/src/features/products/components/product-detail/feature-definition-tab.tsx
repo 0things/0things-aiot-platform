@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
   deleteProductsProductKeyTsl,
+  getGetProductsProductKeyTslQueryKey,
   getProductsProductKeyTsl,
   postProductsProductKeyTsl,
 } from '@/api/generated'
@@ -430,7 +431,7 @@ export function FeatureDefinitionTab({
     isLoading: isLoadingTSL,
     error: tslError,
   } = useQuery({
-    queryKey: ['product-tsl', productKey],
+    queryKey: getGetProductsProductKeyTslQueryKey(productKey),
     queryFn: async () => {
       try {
         const response = await getProductsProductKeyTsl(productKey)

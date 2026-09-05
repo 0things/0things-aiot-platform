@@ -1,99 +1,76 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getSceneLinkages,
-  getSceneLinkagesId,
-  getSceneLinkagesIdDetail,
-  postSceneLinkages,
-  putSceneLinkagesId,
   deleteSceneLinkagesId,
+  getGetSceneLinkagesIdDetailQueryKey,
+  getGetSceneLinkagesIdQueryKey,
+  getGetSceneLinkagesQueryKey,
+  postSceneLinkages,
   postSceneLinkagesIdDetail,
+  putSceneLinkagesId,
   putSceneLinkagesIdDetail,
+  useGetSceneLinkages,
+  useGetSceneLinkagesId,
+  useGetSceneLinkagesIdDetail,
 } from '@/api/generated'
 import type {
+  CreateSceneLinkageDetailResponse,
+  CreateSceneLinkageResponse,
+  GetSceneLinkagesParams,
   ListSceneLinkagesResponse,
   SceneLinkage,
-  SceneLinkageRequest,
   SceneLinkageDetail,
   SceneLinkageDetailRequest,
-  GetSceneLinkageResponse,
-  CreateSceneLinkageResponse,
-  UpdateSceneLinkageResponse,
-  GetSceneLinkageDetailResponse,
-  CreateSceneLinkageDetailResponse,
-  UpdateSceneLinkageDetailResponse,
+  SceneLinkageRequest,
   SceneLinkageSuccessResponse,
+  UpdateSceneLinkageDetailResponse,
+  UpdateSceneLinkageResponse,
 } from '@/api/generated/model'
 
-// The backend returns a generic { code, message, data } envelope; the generated
-// client types each endpoint's response as its flat payload, so we unwrap .data.
-type ApiResponse<T> = { code?: number; message?: string; data?: T }
+export type { GetSceneLinkagesParams }
 
 export const sceneLinkageKeys = {
   all: ['scene-linkages'] as const,
   lists: () => [...sceneLinkageKeys.all, 'list'] as const,
-  list: (filters: {
-    page?: number
-    pageSize?: number
-    search?: string
-    enable?: number
-  }) => [...sceneLinkageKeys.lists(), filters] as const,
+  list: (params?: GetSceneLinkagesParams) =>
+    getGetSceneLinkagesQueryKey(params),
   details: () => [...sceneLinkageKeys.all, 'detail'] as const,
-  detail: (id: number) => [...sceneLinkageKeys.details(), id] as const,
-  detailConfig: (id: number) =>
-    [...sceneLinkageKeys.all, 'detail-config', id] as const,
+  detail: (id: number) => getGetSceneLinkagesIdQueryKey(id),
+  detailConfig: (id: number) => getGetSceneLinkagesIdDetailQueryKey(id),
 }
 
-export function useSceneLinkages(params: {
-  page?: number
-  pageSize?: number
-  search?: string
-  enable?: number
-}) {
-  return useQuery({
-    queryKey: sceneLinkageKeys.list(params),
-    queryFn: async () => {
-      const res = await getSceneLinkages(params)
-      return ((res as unknown as ApiResponse<ListSceneLinkagesResponse>).data ??
-        {}) as ListSceneLinkagesResponse
+export function useSceneLinkages(params?: GetSceneLinkagesParams) {
+  return useGetSceneLinkages(params, {
+    query: {
+      select: (res) => (res?.data ?? {}) as ListSceneLinkagesResponse,
     },
   })
 }
 
 export function useSceneLinkage(id: number) {
-  return useQuery({
-    queryKey: sceneLinkageKeys.detail(id),
-    queryFn: async () =>
-      (
-        (await getSceneLinkagesId(
-          id
-        )) as unknown as ApiResponse<GetSceneLinkageResponse>
-      ).data?.sceneLinkage as SceneLinkage,
-    enabled: Number.isFinite(id) && id > 0,
+  return useGetSceneLinkagesId(id, {
+    query: {
+      select: (res) => res?.data?.sceneLinkage as SceneLinkage,
+      enabled: Number.isFinite(id) && id > 0,
+    },
   })
 }
 
 export function useSceneLinkageDetail(id: number) {
-  return useQuery({
-    queryKey: sceneLinkageKeys.detailConfig(id),
-    queryFn: async () =>
-      (
-        (await getSceneLinkagesIdDetail(
-          id
-        )) as unknown as ApiResponse<GetSceneLinkageDetailResponse>
-      ).data?.detail as SceneLinkageDetail,
-    enabled: Number.isFinite(id) && id > 0,
+  return useGetSceneLinkagesIdDetail(id, {
+    query: {
+      select: (res) => res?.data?.detail as SceneLinkageDetail,
+      enabled: Number.isFinite(id) && id > 0,
+    },
   })
 }
 
 export function useCreateSceneLinkage() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: SceneLinkageRequest) =>
-      (
-        (await postSceneLinkages(
-          data
-        )) as unknown as ApiResponse<CreateSceneLinkageResponse>
-      ).data?.sceneLinkage,
+    mutationFn: async (data: SceneLinkageRequest) => {
+      const res = await postSceneLinkages(data)
+      return (res?.data as CreateSceneLinkageResponse)?.sceneLinkage
+    },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: sceneLinkageKeys.lists() }),
   })
@@ -108,13 +85,10 @@ export function useUpdateSceneLinkage() {
     }: {
       id: number
       data: SceneLinkageRequest
-    }) =>
-      (
-        (await putSceneLinkagesId(
-          id,
-          data
-        )) as unknown as ApiResponse<UpdateSceneLinkageResponse>
-      ).data?.sceneLinkage,
+    }) => {
+      const res = await putSceneLinkagesId(id, data)
+      return (res?.data as UpdateSceneLinkageResponse)?.sceneLinkage
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: sceneLinkageKeys.all }),
   })
 }
@@ -122,12 +96,10 @@ export function useUpdateSceneLinkage() {
 export function useDeleteSceneLinkage() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (id: number) =>
-      (
-        (await deleteSceneLinkagesId(
-          id
-        )) as unknown as ApiResponse<SceneLinkageSuccessResponse>
-      ).data?.success,
+    mutationFn: async (id: number) => {
+      const res = await deleteSceneLinkagesId(id)
+      return (res?.data as SceneLinkageSuccessResponse)?.success
+    },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: sceneLinkageKeys.lists() }),
   })
@@ -142,13 +114,10 @@ export function useCreateSceneLinkageDetail() {
     }: {
       id: number
       data: SceneLinkageDetailRequest
-    }) =>
-      (
-        (await postSceneLinkagesIdDetail(
-          id,
-          data
-        )) as unknown as ApiResponse<CreateSceneLinkageDetailResponse>
-      ).data?.detail,
+    }) => {
+      const res = await postSceneLinkagesIdDetail(id, data)
+      return (res?.data as CreateSceneLinkageDetailResponse)?.detail
+    },
     onSuccess: (_r, v) =>
       qc.invalidateQueries({ queryKey: sceneLinkageKeys.detailConfig(v.id) }),
   })
@@ -163,13 +132,10 @@ export function useUpdateSceneLinkageDetail() {
     }: {
       id: number
       data: SceneLinkageDetailRequest
-    }) =>
-      (
-        (await putSceneLinkagesIdDetail(
-          id,
-          data
-        )) as unknown as ApiResponse<UpdateSceneLinkageDetailResponse>
-      ).data?.detail,
+    }) => {
+      const res = await putSceneLinkagesIdDetail(id, data)
+      return (res?.data as UpdateSceneLinkageDetailResponse)?.detail
+    },
     onSuccess: (_r, v) =>
       qc.invalidateQueries({ queryKey: sceneLinkageKeys.detailConfig(v.id) }),
   })

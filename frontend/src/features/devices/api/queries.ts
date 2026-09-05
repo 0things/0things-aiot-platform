@@ -1,15 +1,18 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   deleteDevicesDeviceKey,
-  getDevices,
-  getDevicesDeviceKey,
-  getDevicesDeviceKeyTelemetry,
-  getDeviceStatistics,
+  getGetDevicesDeviceKeyQueryKey,
+  getGetDevicesQueryKey,
+  getGetDeviceStatisticsQueryKey,
   postDevices,
   postDevicesBatchUpload,
   postDevicesDeviceKeyActivate,
-  putDevicesDeviceKey,
   postDevicesDeviceKeyEnabled,
+  putDevicesDeviceKey,
+  useGetDevices,
+  useGetDevicesDeviceKey,
+  useGetDevicesDeviceKeyTelemetry,
+  useGetDeviceStatistics,
 } from '@/api/generated'
 import type {
   DeviceBatchUploadDevicesResponse as DeviceV1BatchUploadDevicesResponse,
@@ -17,9 +20,12 @@ import type {
   DeviceGetDeviceResponse as DeviceV1GetDeviceResponse,
   DeviceListDevicesResponse as DeviceV1ListDevicesResponse,
   DeviceSetDeviceEnabledRequest as DeviceV1SetDeviceEnabledRequest,
-  DeviceTelemetryResponse as DeviceV1GetDeviceTelemetryResponse,
   DeviceUpdateDeviceRequest as DeviceV1UpdateDeviceRequest,
+  GetDevicesParams,
 } from '@/api/generated/model'
+
+export type { GetDevicesParams }
+export type DeviceListResponse = DeviceV1ListDevicesResponse
 
 // ============================================================================
 // Query Keys
@@ -28,17 +34,10 @@ import type {
 export const deviceKeys = {
   all: ['devices'] as const,
   lists: () => [...deviceKeys.all, 'list'] as const,
-  list: (filters: {
-    page?: number
-    pageSize?: number
-    productId?: string
-    states?: string[]
-    enabled?: boolean
-    searchText?: string
-  }) => [...deviceKeys.lists(), filters] as const,
+  list: (params?: GetDevicesParams) => getGetDevicesQueryKey(params),
   details: () => [...deviceKeys.all, 'detail'] as const,
-  detail: (id: string) => [...deviceKeys.details(), id] as const,
-  statistics: () => [...deviceKeys.all, 'statistics'] as const,
+  detail: (deviceKey: string) => getGetDevicesDeviceKeyQueryKey(deviceKey),
+  statistics: () => getGetDeviceStatisticsQueryKey(),
 }
 
 // ============================================================================
@@ -48,22 +47,10 @@ export const deviceKeys = {
 /**
  * Hook to fetch devices list with pagination and filtering
  */
-export function useDevices(params: {
-  page?: number
-  pageSize?: number
-  productId?: string
-  states?: string[]
-  enabled?: boolean
-  searchText?: string
-}) {
-  return useQuery({
-    queryKey: deviceKeys.list(params),
-    queryFn: async () => {
-      const res = await getDevices({
-        ...params,
-        productId: params.productId ? Number(params.productId) : undefined,
-      })
-      return (res?.data ?? res) as unknown as DeviceV1ListDevicesResponse
+export function useDevices(params?: GetDevicesParams) {
+  return useGetDevices(params, {
+    query: {
+      select: (res) => res?.data,
     },
   })
 }
@@ -72,13 +59,11 @@ export function useDevices(params: {
  * Hook to fetch a single device by deviceKey
  */
 export function useDeviceByKey(deviceKey: string) {
-  return useQuery({
-    queryKey: [...deviceKeys.details(), 'key', deviceKey],
-    queryFn: async () => {
-      const res = await getDevicesDeviceKey(deviceKey)
-      return (res?.data ?? res) as unknown as DeviceV1GetDeviceResponse
+  return useGetDevicesDeviceKey(deviceKey, {
+    query: {
+      select: (res) => res?.data,
+      enabled: !!deviceKey,
     },
-    enabled: !!deviceKey,
   })
 }
 
@@ -86,13 +71,11 @@ export function useDeviceByKey(deviceKey: string) {
  * Hook to fetch device telemetry
  */
 export function useDeviceTelemetry(deviceKey: string) {
-  return useQuery({
-    queryKey: [...deviceKeys.details(), 'telemetry', deviceKey],
-    queryFn: async () => {
-      const res = await getDevicesDeviceKeyTelemetry(deviceKey)
-      return (res?.data ?? res) as unknown as DeviceV1GetDeviceTelemetryResponse
+  return useGetDevicesDeviceKeyTelemetry(deviceKey, {
+    query: {
+      select: (res) => res?.data,
+      enabled: !!deviceKey,
     },
-    enabled: !!deviceKey,
   })
 }
 
@@ -100,11 +83,9 @@ export function useDeviceTelemetry(deviceKey: string) {
  * Hook to fetch device statistics
  */
 export function useDeviceStatistics() {
-  return useQuery({
-    queryKey: deviceKeys.statistics(),
-    queryFn: async () => {
-      const res = await getDeviceStatistics()
-      return (res?.data ?? res) as never
+  return useGetDeviceStatistics({
+    query: {
+      select: (res) => res?.data,
     },
   })
 }
@@ -123,7 +104,6 @@ export function useCreateDevice() {
     mutationFn: (data: DeviceV1CreateDeviceRequest) =>
       postDevices(data as never),
     onSuccess: () => {
-      // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
     },
   })
@@ -146,11 +126,9 @@ export function useUpdateDevice() {
       return putDevicesDeviceKey(id, data as never) as never
     },
     onSuccess: (_, variables) => {
-      // Invalidate the specific device detail
       queryClient.invalidateQueries({
         queryKey: deviceKeys.detail(variables.id),
       })
-      // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
     },
   })
@@ -165,7 +143,6 @@ export function useDeleteDevice() {
   return useMutation({
     mutationFn: (deviceKey: string) => deleteDevicesDeviceKey(deviceKey),
     onSuccess: () => {
-      // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
     },
   })
@@ -190,11 +167,9 @@ export function useActivateDevice() {
       ) as unknown as DeviceV1GetDeviceResponse
     },
     onSuccess: (_, variables) => {
-      // Invalidate the specific device detail
       queryClient.invalidateQueries({
         queryKey: deviceKeys.detail(variables.id),
       })
-      // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
     },
   })
@@ -217,11 +192,9 @@ export function useSetDeviceEnabled() {
       return postDevicesDeviceKeyEnabled(deviceKey, data as never) as never
     },
     onSuccess: (_, variables) => {
-      // Invalidate the specific device detail
       queryClient.invalidateQueries({
         queryKey: deviceKeys.detail(variables.deviceKey),
       })
-      // Invalidate all device lists to refetch
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
     },
   })
@@ -239,7 +212,6 @@ export function useBatchUploadDevices() {
       return (res?.data ?? res) as unknown as DeviceV1BatchUploadDevicesResponse
     },
     onSuccess: (response) => {
-      // Only invalidate if some devices were created successfully
       if (response.successCount && response.successCount > 0) {
         queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
       }

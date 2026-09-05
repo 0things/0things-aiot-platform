@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  getGetOtaPackagesUuidBatchesQueryKey,
+  getGetOtaPackagesUuidDeviceDeploymentsQueryKey,
+  getGetOtaPackagesUuidQueryKey,
+  getGetOtaPackagesUuidUpgradeStatisticsQueryKey,
   getOtaPackagesUuid,
   getOtaPackagesUuidBatches,
   getOtaPackagesUuidDeviceDeployments,
@@ -65,7 +69,7 @@ interface DeviceDeploymentList {
  */
 export function useOTAPackageDetail(uuid: string) {
   return useQuery({
-    queryKey: ['ota-package-detail', uuid],
+    queryKey: getGetOtaPackagesUuidQueryKey(uuid),
     queryFn: async (): Promise<OTAPackageDetail> => {
       const response = await getOtaPackagesUuid(uuid)
       const data = response.data
@@ -98,7 +102,7 @@ export function useOTAPackageDetail(uuid: string) {
  */
 export function useUpgradeStatistics(uuid: string) {
   return useQuery({
-    queryKey: ['upgrade-statistics', uuid],
+    queryKey: getGetOtaPackagesUuidUpgradeStatisticsQueryKey(uuid),
     queryFn: async () => {
       const response = await getOtaPackagesUuidUpgradeStatistics(uuid)
       const data: OtaUpgradeStatistics = response.data?.statistics ?? {}
@@ -127,10 +131,14 @@ export function useDeviceDeployments(
   page = 1,
   pageSize = 100,
   status?: string,
-  refreshKey = 0
+  _refreshKey = 0
 ) {
   return useQuery<DeviceDeploymentList>({
-    queryKey: ['device-deployments', uuid, page, pageSize, status, refreshKey],
+    queryKey: getGetOtaPackagesUuidDeviceDeploymentsQueryKey(uuid, {
+      page,
+      pageSize,
+      status,
+    }),
     queryFn: async () => {
       const data =
         (
@@ -169,7 +177,7 @@ export function useDeviceDeployments(
  */
 export function useUpgradeBatches(uuid: string) {
   return useQuery<UpgradeBatch[]>({
-    queryKey: ['upgrade-batches', uuid],
+    queryKey: getGetOtaPackagesUuidBatchesQueryKey(uuid),
     queryFn: async () => {
       const data = (await getOtaPackagesUuidBatches(uuid))?.data ?? {}
       return (data.items || []).map((b: OtaUpgradeBatch) => ({

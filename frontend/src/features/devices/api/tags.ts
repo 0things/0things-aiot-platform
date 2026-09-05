@@ -1,25 +1,25 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   deleteDevicesDeviceKeyTags,
-  getDevicesDeviceKeyTags,
+  getGetDevicesDeviceKeyTagsQueryKey,
   postDevicesDeviceKeyTags,
   putDevicesDeviceKeyTags,
+  useGetDevicesDeviceKeyTags,
 } from '@/api/generated'
+import type { DeviceTag } from '@/api/generated/model'
 
-export type DeviceTag = { key: string; value: string; source?: string }
+export type { DeviceTag }
 
 export const tagKeys = {
   all: ['device-tags'] as const,
-  list: (deviceKey: string) => [...tagKeys.all, deviceKey] as const,
+  list: (deviceKey: string) => getGetDevicesDeviceKeyTagsQueryKey(deviceKey),
 }
 
 export function useDeviceTags(deviceKey: string) {
-  return useQuery({
-    queryKey: tagKeys.list(deviceKey),
-    enabled: !!deviceKey,
-    queryFn: async (): Promise<DeviceTag[]> => {
-      const data = await getDevicesDeviceKeyTags(deviceKey)
-      return (data?.data?.tags ?? []) as DeviceTag[]
+  return useGetDevicesDeviceKeyTags(deviceKey, {
+    query: {
+      select: (res) => (res?.data?.tags ?? []) as DeviceTag[],
+      enabled: !!deviceKey,
     },
   })
 }

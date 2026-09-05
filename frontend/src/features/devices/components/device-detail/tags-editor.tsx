@@ -54,13 +54,15 @@ export function TagsEditor({ deviceKey }: Props) {
               <span>
                 {tag.key}={tag.value}
               </span>
-              <button
-                aria-label={`Remove ${tag.key}`}
-                onClick={() => remove.mutate([tag.key])}
-                className='ml-1 rounded hover:bg-destructive/20'
-              >
-                <X className='size-3' />
-              </button>
+              {tag.key && (
+                <button
+                  aria-label={`Remove ${tag.key}`}
+                  onClick={() => remove.mutate([tag.key!])}
+                  className='ml-1 rounded hover:bg-destructive/20'
+                >
+                  <X className='size-3' />
+                </button>
+              )}
             </Badge>
           ))
         )}

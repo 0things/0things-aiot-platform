@@ -56,11 +56,11 @@ export function ShadowTab({ deviceKey }: Props) {
           <CardContent>
             {editing ? (
               <DesiredEditor
-                initial={data.desired}
+                initial={(data.desired as Record<string, unknown>) || {}}
                 onSave={async (next) => {
                   await update.mutateAsync({
                     desired: next,
-                    version: data.version,
+                    version: data.version ?? 0,
                   })
                   toast.success('Desired state updated')
                   setEditing(false)

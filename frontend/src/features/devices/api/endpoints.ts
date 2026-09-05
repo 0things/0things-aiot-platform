@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
-import { axiosInstance } from '@/api/clients'
-import { DEVICE_SERVICE_BASE_URL } from '@/api/config'
+import {
+  getGetDevicesDeviceKeyEndpointsQueryKey,
+  useGetDevicesDeviceKeyEndpoints,
+} from '@/api/generated'
 
 export type DeviceEndpoints = {
   http?: { http: string; rpcSubscribe: string }
@@ -15,15 +16,17 @@ export type DeviceEndpoints = {
   coap?: { coap: string; docker?: { coap: string }; rpcSubscribe: string }
 }
 
+export const endpointKeys = {
+  all: ['device-endpoints'] as const,
+  detail: (deviceKey: string) =>
+    getGetDevicesDeviceKeyEndpointsQueryKey(deviceKey),
+}
+
 export function useDeviceEndpoints(deviceKey: string) {
-  return useQuery({
-    queryKey: ['devices', deviceKey, 'endpoints'],
-    queryFn: async () => {
-      const response = await axiosInstance.get(
-        `${DEVICE_SERVICE_BASE_URL}/v1/devices/${deviceKey}/endpoints`
-      )
-      return response.data.data as DeviceEndpoints
+  return useGetDevicesDeviceKeyEndpoints(deviceKey, {
+    query: {
+      select: (res) => res?.data as unknown as DeviceEndpoints,
+      enabled: !!deviceKey,
     },
-    enabled: !!deviceKey,
   })
 }

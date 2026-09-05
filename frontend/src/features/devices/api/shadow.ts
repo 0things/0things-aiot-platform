@@ -1,33 +1,29 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getDevicesDeviceKeyShadow,
-  getDevicesDeviceKeyShadowHistory,
+  getGetDevicesDeviceKeyShadowHistoryQueryKey,
+  getGetDevicesDeviceKeyShadowQueryKey,
   putDevicesDeviceKeyShadowDesired,
+  useGetDevicesDeviceKeyShadow,
+  useGetDevicesDeviceKeyShadowHistory,
 } from '@/api/generated'
+import type { DeviceShadow, DeviceShadowHistory } from '@/api/generated/model'
 
-export type ShadowDoc = {
-  desired: Record<string, unknown>
-  reported: Record<string, unknown>
-  delta: Record<string, unknown>
-  metadata?: Record<string, unknown>
-  version: number
-  updatedAt?: string
-}
+export type ShadowDoc = DeviceShadow
+export type ShadowHistoryItem = DeviceShadowHistory
 
 export const shadowKeys = {
   all: ['device-shadow'] as const,
-  detail: (deviceKey: string) => [...shadowKeys.all, deviceKey] as const,
+  detail: (deviceKey: string) =>
+    getGetDevicesDeviceKeyShadowQueryKey(deviceKey),
   history: (deviceKey: string) =>
-    [...shadowKeys.all, deviceKey, 'history'] as const,
+    getGetDevicesDeviceKeyShadowHistoryQueryKey(deviceKey),
 }
 
 export function useDeviceShadow(deviceKey: string) {
-  return useQuery({
-    queryKey: shadowKeys.detail(deviceKey),
-    enabled: !!deviceKey,
-    queryFn: async (): Promise<ShadowDoc> => {
-      const res = await getDevicesDeviceKeyShadow(deviceKey)
-      return (res?.data ?? res) as ShadowDoc
+  return useGetDevicesDeviceKeyShadow(deviceKey, {
+    query: {
+      select: (res) => res?.data as unknown as ShadowDoc,
+      enabled: !!deviceKey,
     },
   })
 }
@@ -39,8 +35,11 @@ export function useUpdateDesired(deviceKey: string) {
       desired: Record<string, unknown>
       version: number
     }) => {
-      const res = await putDevicesDeviceKeyShadowDesired(deviceKey, input)
-      return (res?.data ?? res) as ShadowDoc
+      const res = await putDevicesDeviceKeyShadowDesired(
+        deviceKey,
+        input as never
+      )
+      return res?.data as unknown as ShadowDoc
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: shadowKeys.detail(deviceKey) })
@@ -49,18 +48,10 @@ export function useUpdateDesired(deviceKey: string) {
 }
 
 export function useShadowHistory(deviceKey: string) {
-  return useQuery({
-    queryKey: shadowKeys.history(deviceKey),
-    enabled: !!deviceKey,
-    queryFn: async () => {
-      const res = await getDevicesDeviceKeyShadowHistory(deviceKey)
-      return (res?.data ?? res) as Array<{
-        version: number
-        updatedAt: string
-        source: string
-        desired: unknown
-        reported: unknown
-      }>
+  return useGetDevicesDeviceKeyShadowHistory(deviceKey, {
+    query: {
+      select: (res) => (res?.data as unknown as ShadowHistoryItem[]) || [],
+      enabled: !!deviceKey,
     },
   })
 }

@@ -1,19 +1,21 @@
-import { useQuery } from '@tanstack/react-query'
-import { getCategoriesTree } from '@/api/generated'
+import {
+  getGetCategoriesTreeQueryKey,
+  useGetCategoriesTree,
+} from '@/api/generated'
+import type { AiotBackendApiCategoryV1Category } from '@/api/generated/model'
 
-export type CategoryNode = {
-  id?: number
-  name?: string
-  children?: CategoryNode[]
+export type CategoryNode = AiotBackendApiCategoryV1Category
+
+export const categoryKeys = {
+  all: ['product-categories'] as const,
+  tree: () => getGetCategoriesTreeQueryKey(),
 }
 
 export function useProductCategories() {
-  return useQuery({
-    queryKey: ['product-categories', 'tree'],
-    queryFn: async () => {
-      const response = await getCategoriesTree()
-      return (response?.data ?? []) as CategoryNode[]
+  return useGetCategoriesTree({
+    query: {
+      select: (res) => (res?.data ?? []) as CategoryNode[],
+      staleTime: 5 * 60 * 1000,
     },
-    staleTime: 5 * 60 * 1000,
   })
 }

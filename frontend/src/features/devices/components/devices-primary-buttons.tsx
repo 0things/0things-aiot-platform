@@ -1,11 +1,11 @@
 import { Plus, Upload } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { useDevices } from './devices-provider'
+import { useDevicesDialog } from './devices-provider'
 
 export function DevicesPrimaryButtons() {
   const { t } = useTranslation('deviceManagement')
-  const { setOpen } = useDevices()
+  const { setOpen } = useDevicesDialog()
 
   return (
     <div className='flex gap-2'>

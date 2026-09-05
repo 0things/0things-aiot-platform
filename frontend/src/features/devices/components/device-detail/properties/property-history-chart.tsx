@@ -97,6 +97,7 @@ export function PropertyHistoryChart({
   const { chartData, stats } = useMemo(() => {
     const numericPoints = points
       .map((p) => {
+        if (p.timestamp == null || !Number.isFinite(p.timestamp)) return null
         const val =
           typeof p.value === 'number'
             ? p.value
@@ -104,10 +105,11 @@ export function PropertyHistoryChart({
               ? Number(p.value)
               : Number.NaN
         if (!Number.isFinite(val)) return null
+        const ts = p.timestamp
         return {
-          timestamp: p.timestamp,
-          formattedTime: format(new Date(p.timestamp), 'HH:mm:ss'),
-          fullTime: format(new Date(p.timestamp), 'yyyy-MM-dd HH:mm:ss'),
+          timestamp: ts,
+          formattedTime: format(new Date(ts), 'HH:mm:ss'),
+          fullTime: format(new Date(ts), 'yyyy-MM-dd HH:mm:ss'),
           value: val,
         }
       })

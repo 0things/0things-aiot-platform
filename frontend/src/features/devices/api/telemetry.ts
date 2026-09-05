@@ -1,16 +1,17 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData } from '@tanstack/react-query'
 import {
-  getDevicesDeviceKeyThingModelProperties,
-  getDevicesDeviceKeyTelemetryHistory,
+  getGetDevicesDeviceKeyTelemetryHistoryQueryKey,
+  getGetDevicesDeviceKeyThingModelPropertiesQueryKey,
+  useGetDevicesDeviceKeyTelemetryHistory,
+  useGetDevicesDeviceKeyThingModelProperties,
 } from '@/api/generated'
-import type { GetDevicesDeviceKeyTelemetryHistoryParams } from '@/api/generated/model'
-import type { ThingModelProperty } from '@/api/generated/model'
+import type {
+  GetDevicesDeviceKeyTelemetryHistoryParams,
+  TelemetryPoint,
+  ThingModelProperty,
+} from '@/api/generated/model'
 
-export interface TelemetryPoint {
-  timestamp: number
-  property: string
-  value: number | string | boolean | Record<string, unknown>
-}
+export type { TelemetryPoint }
 
 export interface TelemetryHistoryQueryParams {
   deviceKey: string
@@ -21,25 +22,26 @@ export interface TelemetryHistoryQueryParams {
   limit?: number
 }
 
-// ============================================================================
-// Compose React Query hooks from the generated API client.
-// ============================================================================
+export const telemetryKeys = {
+  all: ['device-telemetry'] as const,
+  properties: (deviceKey: string) =>
+    getGetDevicesDeviceKeyThingModelPropertiesQueryKey(deviceKey),
+  history: (
+    deviceKey: string,
+    params?: GetDevicesDeviceKeyTelemetryHistoryParams
+  ) => getGetDevicesDeviceKeyTelemetryHistoryQueryKey(deviceKey, params),
+}
 
 /**
  * Fetch the device's latest reported property values.
  */
 export function useThingModelProperties(deviceKey: string, enabled = true) {
-  return useQuery({
-    queryKey: ['devices', deviceKey, 'thing-model', 'properties'],
-    queryFn: async ({ signal }) => {
-      const response = await getDevicesDeviceKeyThingModelProperties(
-        deviceKey,
-        signal
-      )
-      return (response.data?.items || []) as ThingModelProperty[]
+  return useGetDevicesDeviceKeyThingModelProperties(deviceKey, {
+    query: {
+      select: (res) => (res?.data?.items || []) as ThingModelProperty[],
+      enabled: Boolean(deviceKey) && enabled,
+      placeholderData: keepPreviousData,
     },
-    enabled: Boolean(deviceKey) && enabled,
-    placeholderData: keepPreviousData,
   })
 }
 
@@ -50,32 +52,26 @@ export function useTelemetryHistory(
   params: TelemetryHistoryQueryParams,
   enabled = true
 ) {
-  return useQuery({
-    queryKey: ['devices', params.deviceKey, 'telemetry', 'history', params],
-    queryFn: async ({ signal }) => {
-      let startTime = params.startTime
-      let endTime = params.endTime
-      if (params.durationMs) {
-        endTime = Date.now()
-        startTime = endTime - params.durationMs
-      }
+  let startTime = params.startTime
+  let endTime = params.endTime
+  if (params.durationMs) {
+    endTime = Date.now()
+    startTime = endTime - params.durationMs
+  }
 
-      const queryParams: GetDevicesDeviceKeyTelemetryHistoryParams = {
-        property: params.property,
-        limit: params.limit || 100,
-      }
-      if (startTime) queryParams.start_time = startTime
-      if (endTime) queryParams.end_time = endTime
+  const queryParams: GetDevicesDeviceKeyTelemetryHistoryParams = {
+    property: params.property,
+    limit: params.limit || 100,
+    ...(startTime ? { start_time: startTime } : {}),
+    ...(endTime ? { end_time: endTime } : {}),
+  }
 
-      const resp = await getDevicesDeviceKeyTelemetryHistory(
-        params.deviceKey,
-        queryParams,
-        signal
-      )
-      return (resp.data as unknown as TelemetryPoint[]) || []
+  return useGetDevicesDeviceKeyTelemetryHistory(params.deviceKey, queryParams, {
+    query: {
+      select: (res) => (res?.data as unknown as TelemetryPoint[]) || [],
+      enabled: Boolean(params.deviceKey && params.property) && enabled,
+      placeholderData: keepPreviousData,
+      staleTime: 5000,
     },
-    enabled: Boolean(params.deviceKey && params.property) && enabled,
-    placeholderData: keepPreviousData,
-    staleTime: 5000,
   })
 }

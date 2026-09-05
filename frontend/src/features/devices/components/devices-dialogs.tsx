@@ -2,10 +2,10 @@ import { DevicesActionDialog } from './devices-action-dialog'
 import { DevicesActivateDialog } from './devices-activate-dialog'
 import { DevicesBatchUploadDialog } from './devices-batch-upload-dialog'
 import { DevicesDeleteDialog } from './devices-delete-dialog'
-import { useDevices } from './devices-provider'
+import { useDevicesDialog } from './devices-provider'
 
 export function DevicesDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useDevices()
+  const { open, setOpen, currentRow, setCurrentRow } = useDevicesDialog()
   return (
     <>
       <DevicesActionDialog

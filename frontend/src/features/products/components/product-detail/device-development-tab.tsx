@@ -260,7 +260,9 @@ function AccessStep({
   const [selectedDevice, setSelectedDevice] = useState<string>('')
 
   // 获取该产品的设备列表
-  const { data: devicesResponse } = useDevices({ productId })
+  const { data: devicesResponse } = useDevices({
+    productId: productId ? Number(productId) : undefined,
+  })
   const devices = devicesResponse?.devices || []
 
   const currentSDK = deviceSDKs.find((sdk) => sdk.id === selectedSDK)

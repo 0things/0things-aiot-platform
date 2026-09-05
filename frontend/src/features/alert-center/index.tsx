@@ -55,22 +55,25 @@ export function AlertCenter() {
                     {a.severity}
                   </Badge>
                   <CardTitle className='text-base'>{a.summary}</CardTitle>
-                  {a.count > 1 ? (
+                  {(a.count ?? 0) > 1 ? (
                     <Badge variant='outline'>×{a.count}</Badge>
                   ) : null}
                 </div>
                 <div className='flex gap-2'>
-                  {a.status === 'open' ? (
+                  {a.status === 'open' && a.id ? (
                     <Button
                       size='sm'
                       variant='outline'
-                      onClick={() => ack.mutate(a.id)}
+                      onClick={() => ack.mutate(String(a.id))}
                     >
                       Ack
                     </Button>
                   ) : null}
-                  {a.status !== 'resolved' ? (
-                    <Button size='sm' onClick={() => resolve.mutate(a.id)}>
+                  {a.status !== 'resolved' && a.id ? (
+                    <Button
+                      size='sm'
+                      onClick={() => resolve.mutate(String(a.id))}
+                    >
                       Resolve
                     </Button>
                   ) : null}
@@ -78,9 +81,9 @@ export function AlertCenter() {
               </CardHeader>
               <CardContent className='text-xs text-muted-foreground'>
                 <div>Device: {a.deviceKey}</div>
-                <div>Raised: {new Date(a.raisedAt).toLocaleString()}</div>
-                {a.lastRaisedAt !== a.raisedAt ? (
-                  <div>Last: {new Date(a.lastRaisedAt).toLocaleString()}</div>
+                {a.raisedAt ? <div>Raised: {a.raisedAt}</div> : null}
+                {a.lastRaisedAt && a.lastRaisedAt !== a.raisedAt ? (
+                  <div>Last: {a.lastRaisedAt}</div>
                 ) : null}
               </CardContent>
             </Card>

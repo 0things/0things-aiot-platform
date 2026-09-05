@@ -1,18 +1,23 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   deleteProductsProductKey,
-  getProducts,
-  getProductsProductKey,
+  getGetProductsProductKeyQueryKey,
+  getGetProductsQueryKey,
   postProducts,
   putProductsProductKey,
+  useGetProducts,
+  useGetProductsProductKey,
 } from '@/api/generated'
 import type {
+  GetProductsParams,
   ProductCreateProductRequest as ProductV1CreateProductRequest,
-  ProductGetProductByKeyResponse as ProductV1GetProductByKeyResponse,
   ProductListProductsResponse as ProductV1ListProductsResponse,
   ProductUpdateProductRequest as ProductV1UpdateProductRequest,
   ProductUpdateProductResponse as ProductV1UpdateProductResponse,
 } from '@/api/generated/model'
+
+export type { GetProductsParams }
+export type ProductListResponse = ProductV1ListProductsResponse
 
 // ============================================================================
 // Query Keys
@@ -21,16 +26,9 @@ import type {
 export const productKeys = {
   all: ['products'] as const,
   lists: () => [...productKeys.all, 'list'] as const,
-  list: (filters: {
-    page?: number
-    pageSize?: number
-    category?: string
-    status?: string
-    searchText?: string
-  }) => [...productKeys.lists(), filters] as const,
+  list: (params?: GetProductsParams) => getGetProductsQueryKey(params),
   details: () => [...productKeys.all, 'detail'] as const,
-  detail: (productKey: string) =>
-    [...productKeys.details(), productKey] as const,
+  detail: (productKey: string) => getGetProductsProductKeyQueryKey(productKey),
 }
 
 // ============================================================================
@@ -40,18 +38,10 @@ export const productKeys = {
 /**
  * Hook to fetch products list with pagination and filtering
  */
-export function useProducts(params: {
-  page?: number
-  pageSize?: number
-  category?: string
-  status?: string
-  searchText?: string
-}) {
-  return useQuery({
-    queryKey: productKeys.list(params),
-    queryFn: async () => {
-      const res = await getProducts(params)
-      return (res?.data ?? res) as unknown as ProductV1ListProductsResponse
+export function useProducts(params?: GetProductsParams) {
+  return useGetProducts(params, {
+    query: {
+      select: (res) => res?.data,
     },
   })
 }
@@ -60,31 +50,26 @@ export function useProducts(params: {
  * Hook to fetch all active products (for dropdowns/selects)
  */
 export function useAllProducts() {
-  return useQuery({
-    queryKey: productKeys.list({ pageSize: 1000, status: 'active' }),
-    queryFn: async () => {
-      const res = await getProducts({
-        page: 1,
-        pageSize: 1000,
-        status: 'active',
-      })
-      return (res?.data ?? res) as unknown as ProductV1ListProductsResponse
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-  })
+  return useGetProducts(
+    { page: 1, pageSize: 1000, status: 'active' },
+    {
+      query: {
+        select: (res) => res?.data,
+        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      },
+    }
+  )
 }
 
 /**
  * Hook to fetch a single product by product key
  */
 export function useProduct(productKey: string) {
-  return useQuery({
-    queryKey: productKeys.detail(productKey),
-    queryFn: async () => {
-      const res = await getProductsProductKey(productKey)
-      return (res?.data ?? res) as unknown as ProductV1GetProductByKeyResponse
+  return useGetProductsProductKey(productKey, {
+    query: {
+      select: (res) => res?.data,
+      enabled: !!productKey,
     },
-    enabled: !!productKey,
   })
 }
 
@@ -123,16 +108,14 @@ export function useUpdateProduct() {
       data: ProductV1UpdateProductRequest
     }) => {
       const res = await putProductsProductKey(productKey, data as never)
-      return (res?.data ?? res) as unknown as ProductV1UpdateProductResponse
+      return res?.data as unknown as ProductV1UpdateProductResponse
     },
     onSuccess: (response) => {
-      // Invalidate the specific product detail using productKey
       if (response.product?.productKey) {
         queryClient.invalidateQueries({
           queryKey: productKeys.detail(response.product.productKey),
         })
       }
-      // Invalidate all product lists to refetch
       queryClient.invalidateQueries({ queryKey: productKeys.lists() })
     },
   })
@@ -147,7 +130,6 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: (productKey: string) => deleteProductsProductKey(productKey),
     onSuccess: () => {
-      // Invalidate all product lists to refetch
       queryClient.invalidateQueries({ queryKey: productKeys.lists() })
     },
   })

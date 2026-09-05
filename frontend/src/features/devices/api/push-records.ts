@@ -1,22 +1,31 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import * as apiClient from './push-records-client'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  deleteDevicesDeviceKeyPushRecords,
+  getGetDevicesDeviceKeyPushRecordsQueryKey,
+  getGetDevicesPushRecordsPushRecordIdQueryKey,
+  getGetProductsProductKeyTslQueryKey,
+  postDevicesDeviceKeySimulatePush,
+  useGetDevicesDeviceKeyPushRecords,
+  useGetDevicesPushRecordsPushRecordId,
+  useGetProductsProductKeyTsl,
+} from '@/api/generated'
+import type {
+  DeviceListPushRecordsResponse,
+  DeviceSimulatePushRequest,
+  GetDevicesDeviceKeyPushRecordsParams,
+} from '@/api/generated/model'
 
-// Query Key Factory Pattern
-export interface PushRecordFilters {
-  page?: number
-  pageSize?: number
-  operationType?: string
-  status?: string
-}
+export type PushRecordFilters = GetDevicesDeviceKeyPushRecordsParams
 
 export const pushRecordKeys = {
   all: ['push-records'] as const,
   lists: () => [...pushRecordKeys.all, 'list'] as const,
   list: (deviceKey: string, filters?: PushRecordFilters) =>
-    [...pushRecordKeys.lists(), deviceKey, filters] as const,
+    getGetDevicesDeviceKeyPushRecordsQueryKey(deviceKey, filters),
   details: () => [...pushRecordKeys.all, 'detail'] as const,
-  detail: (recordId: string, deviceKey: string) =>
-    [...pushRecordKeys.details(), deviceKey, recordId] as const,
+  detail: (recordId: string) =>
+    getGetDevicesPushRecordsPushRecordIdQueryKey(Number(recordId)),
+  tsl: (productKey: string) => getGetProductsProductKeyTslQueryKey(productKey),
 }
 
 /**
@@ -27,17 +36,14 @@ export function useSimulatePush() {
 
   return useMutation({
     mutationFn: async (params: { deviceKey: string; payload: string }) => {
-      const response = await apiClient.simulatePush({
-        deviceKey: params.deviceKey,
-        request: {
-          payload: params.payload,
-        },
-      })
-      return response
+      const req: DeviceSimulatePushRequest = {
+        payload: params.payload,
+      }
+      return postDevicesDeviceKeySimulatePush(params.deviceKey, req)
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: pushRecordKeys.list(variables.deviceKey),
+        queryKey: ['/devices', variables.deviceKey, 'push-records'],
       })
     },
   })
@@ -46,42 +52,24 @@ export function useSimulatePush() {
 /**
  * Hook for listing push records for a device
  */
-export function usePushRecords(
-  deviceKey: string,
-  options?: {
-    page?: number
-    pageSize?: number
-    operationType?: string
-    status?: string
-  }
-) {
-  return useQuery({
-    queryKey: pushRecordKeys.list(deviceKey, options),
-    queryFn: async () => {
-      const response = await apiClient.listPushRecords({
-        deviceKey,
-        page: options?.page || 1,
-        pageSize: options?.pageSize || 20,
-        operationType: options?.operationType,
-        status: options?.status,
-      })
-      return response
+export function usePushRecords(deviceKey: string, options?: PushRecordFilters) {
+  return useGetDevicesDeviceKeyPushRecords(deviceKey, options, {
+    query: {
+      select: (res) => res?.data as unknown as DeviceListPushRecordsResponse,
+      enabled: !!deviceKey,
     },
-    enabled: !!deviceKey,
   })
 }
 
 /**
  * Hook for getting a specific push record
  */
-export function usePushRecord(deviceKey: string, recordId: string) {
-  return useQuery({
-    queryKey: pushRecordKeys.detail(recordId, deviceKey),
-    queryFn: async () => {
-      const response = await apiClient.getPushRecord(deviceKey, recordId)
-      return response
+export function usePushRecord(_deviceKey: string, recordId: string) {
+  return useGetDevicesPushRecordsPushRecordId(Number(recordId), {
+    query: {
+      select: (res) => res?.data,
+      enabled: !!recordId,
     },
-    enabled: !!deviceKey && !!recordId,
   })
 }
 
@@ -96,15 +84,15 @@ export function useClearPushRecords() {
       deviceKey: string
       beforeTimestamp?: string
     }) => {
-      const response = await apiClient.clearPushRecords({
-        deviceKey: params.deviceKey,
-        beforeTimestamp: params.beforeTimestamp,
+      return deleteDevicesDeviceKeyPushRecords(params.deviceKey, {
+        beforeTimestamp: params.beforeTimestamp
+          ? Number(params.beforeTimestamp)
+          : undefined,
       })
-      return response
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: pushRecordKeys.list(variables.deviceKey),
+        queryKey: ['/devices', variables.deviceKey, 'push-records'],
       })
     },
   })
@@ -114,12 +102,10 @@ export function useClearPushRecords() {
  * Hook for getting product TSL (Thing Specification Language)
  */
 export function useProductTSL(productKey: string) {
-  return useQuery({
-    queryKey: ['product-tsl', productKey],
-    queryFn: async () => {
-      const response = await apiClient.getProductTSL(productKey)
-      return response
+  return useGetProductsProductKeyTsl(productKey, {
+    query: {
+      select: (res) => res?.data,
+      enabled: !!productKey,
     },
-    enabled: !!productKey,
   })
 }

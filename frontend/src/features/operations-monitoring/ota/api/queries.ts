@@ -1,18 +1,23 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   deleteOtaPackagesUuid,
-  getOtaPackages,
-  getOtaPackagesUuid,
+  getGetOtaPackagesQueryKey,
+  getGetOtaPackagesUuidQueryKey,
   postFilesOta,
   postOtaPackages,
   putOtaPackagesUuid,
+  useGetOtaPackages,
+  useGetOtaPackagesUuid,
 } from '@/api/generated'
 import type {
+  GetOtaPackagesParams,
   OtaCreateOTAPackageRequest,
   OtaOTAPackageRequest as OtaV1UpdateOTAPackageRequest,
 } from '@/api/generated/model'
 import type { OTAPackage } from '../data/schema'
+
+export type { GetOtaPackagesParams }
 
 interface ApiError {
   response?: {
@@ -32,16 +37,17 @@ type CreateOTAPackagePayload = Omit<OtaCreateOTAPackageRequest, 'productId'> & {
 export const otaPackageKeys = {
   all: ['ota-packages'] as const,
   lists: () => [...otaPackageKeys.all, 'list'] as const,
-  list: (filters?: {
-    page?: number
-    pageSize?: number
-    productId?: string
-    status?: string
-    packageType?: string
-    uploadType?: string
-  }) => [...otaPackageKeys.lists(), filters] as const,
+  list: (
+    filters?: GetOtaPackagesParams & {
+      productId?: string
+      status?: string
+      packageType?: string
+      uploadType?: string
+      searchText?: string
+    }
+  ) => getGetOtaPackagesQueryKey(filters),
   details: () => [...otaPackageKeys.all, 'detail'] as const,
-  detail: (id: string) => [...otaPackageKeys.details(), id] as const,
+  detail: (uuid: string) => getGetOtaPackagesUuidQueryKey(uuid),
 }
 
 /**
@@ -56,69 +62,54 @@ export function useOTAPackages(filters?: {
   uploadType?: string
   searchText?: string
 }) {
-  return useQuery<{ packages: OTAPackage[]; total: number }>({
-    queryKey: otaPackageKeys.list(filters),
-    queryFn: async () => {
-      const response =
-        (
-          await getOtaPackages({
-            page: filters?.page,
-            pageSize: filters?.pageSize,
-            productId: filters?.productId
-              ? Number(filters.productId)
-              : undefined,
-            status: filters?.status,
-            packageType: filters?.packageType,
-            uploadType: filters?.uploadType,
-            searchText: filters?.searchText,
-          } as never)
-        )?.data ?? {}
-
-      // Transform API response to match UI schema
-      const packages: OTAPackage[] = (response.otaPackages || []).map(
-        (pkg) => ({
-          id: String(pkg.id || ''),
-          uuid: pkg.uuid || '',
-          packageName: pkg.packageName || '',
-          version: pkg.version || '',
-          packageType: (pkg.packageType ||
-            'upgrade') as OTAPackage['packageType'],
-          productId: pkg.productId?.toString(),
-          productName: pkg.productName || '',
-          description: pkg.description,
-          fileSize: parseInt(String(pkg.fileSize || '0'), 10),
-          fileUrl: pkg.fileUrl || '',
-          checksum: pkg.checksum || '',
-          status: (pkg.status || 'draft') as OTAPackage['status'],
-          // Default values for deployment fields not in API yet
-          deploymentProgress: 0,
-          targetDeviceCount: 0,
-          successCount: 0,
-          failureCount: 0,
-          createdAt: pkg.createdAt || '',
-          updatedAt: pkg.updatedAt || '',
-          deployedAt: pkg.releasedAt,
-          createdBy: '',
-        })
-      )
-
-      return { packages, total: response.total || 0 }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  })
+  return useGetOtaPackages(
+    { page: filters?.page, pageSize: filters?.pageSize },
+    {
+      query: {
+        select: (res) => {
+          const response = res?.data ?? {}
+          const packages: OTAPackage[] = (response.otaPackages || []).map(
+            (pkg) => ({
+              id: String(pkg.id || ''),
+              uuid: pkg.uuid || '',
+              packageName: pkg.packageName || '',
+              version: pkg.version || '',
+              packageType: (pkg.packageType ||
+                'upgrade') as OTAPackage['packageType'],
+              productId: pkg.productId?.toString(),
+              productName: pkg.productName || '',
+              description: pkg.description,
+              fileSize: parseInt(String(pkg.fileSize || '0'), 10),
+              fileUrl: pkg.fileUrl || '',
+              checksum: pkg.checksum || '',
+              status: (pkg.status || 'draft') as OTAPackage['status'],
+              deploymentProgress: 0,
+              targetDeviceCount: 0,
+              successCount: 0,
+              failureCount: 0,
+              createdAt: pkg.createdAt || '',
+              updatedAt: pkg.updatedAt || '',
+              deployedAt: pkg.releasedAt,
+              createdBy: '',
+            })
+          )
+          return { packages, total: response.total || 0 }
+        },
+        staleTime: 5 * 60 * 1000,
+      },
+    }
+  )
 }
 
 /**
- * Hook to fetch a single OTA package by ID
+ * Hook to fetch a single OTA package by UUID
  */
-export function useOTAPackage(id: string) {
-  return useQuery({
-    queryKey: otaPackageKeys.detail(id),
-    queryFn: async () => {
-      const response = await getOtaPackagesUuid(id)
-      return response.data
+export function useOTAPackage(uuid: string) {
+  return useGetOtaPackagesUuid(uuid, {
+    query: {
+      select: (res) => res?.data,
+      enabled: !!uuid,
     },
-    enabled: !!id,
   })
 }
 
