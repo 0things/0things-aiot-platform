@@ -20,6 +20,15 @@
 # Runtime and test artifacts
 **/*.log
 **/*.db
+**/*.db-*
+**/*.db-shm
+**/*.db-wal
+**/*.sqlite
+**/*.sqlite3
+**/*.sqlite-journal
+**/storage/*.db*
+**/storage/logs/
+**/data/*.db*
 **/*.out
 **/coverage.*
 **/bin/
