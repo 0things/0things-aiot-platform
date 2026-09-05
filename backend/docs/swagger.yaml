@@ -536,6 +536,17 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-array_TelemetryPoint:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/TelemetryPoint'
+        type: array
+      message:
+        type: string
+    type: object
   ApiResponse-array_aiot-backend_api_v1_Category:
     properties:
       code:
@@ -1515,6 +1526,14 @@ definitions:
     properties:
       success:
         type: boolean
+    type: object
+  TelemetryPoint:
+    properties:
+      property:
+        type: string
+      timestamp:
+        type: integer
+      value: {}
     type: object
   ThingModelProperty:
     properties:
@@ -2602,6 +2621,44 @@ paths:
       summary: Get device telemetry
       tags:
       - Devices
+  /devices/{deviceKey}/telemetry/history:
+    get:
+      description: Returns telemetry data points within the requested time range.
+      parameters:
+      - description: Device key
+        in: path
+        name: deviceKey
+        required: true
+        type: string
+      - description: Property identifier
+        in: query
+        name: property
+        required: true
+        type: string
+      - description: Start timestamp
+        in: query
+        name: start_time
+        type: integer
+      - description: End timestamp
+        in: query
+        name: end_time
+        type: integer
+      - description: Maximum result count
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            $ref: '#/definitions/ApiResponse-array_TelemetryPoint'
+      security:
+      - Bearer: []
+      summary: Query device telemetry history
+      tags:
+      - Devices
   /devices/{deviceKey}/thing-model/properties:
     get:
       description: Returns all product TSL properties in definition order with their
@@ -3652,42 +3709,6 @@ paths:
       summary: Update user profile
       tags:
       - Users
-  /v1/devices/{deviceKey}/telemetry/history:
-    get:
-      description: Returns telemetry data points within the requested time range.
-      parameters:
-      - description: Device key
-        in: path
-        name: deviceKey
-        required: true
-        type: string
-      - description: Property identifier
-        in: query
-        name: property
-        required: true
-        type: string
-      - description: Start timestamp
-        in: query
-        name: start_time
-        type: integer
-      - description: End timestamp
-        in: query
-        name: end_time
-        type: integer
-      - description: Maximum result count
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiSuccessResponse'
-      summary: Query device telemetry history
-      tags:
-      - Telemetry
 securityDefinitions:
   Bearer:
     in: header

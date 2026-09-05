@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 
-	"aiot-backend/internal/model"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/repository"
 	"aiot-backend/pkg/log"
 )
 
 type TelemetryServiceInterface interface {
-	QueryHistory(ctx context.Context, req model.TelemetryQueryReq) ([]model.TelemetryPoint, error)
+	QueryHistory(ctx context.Context, req dto.TelemetryQueryReq) ([]dto.TelemetryPoint, error)
 }
 
 type TelemetryService struct {
@@ -24,6 +24,6 @@ func NewTelemetryService(repo *repository.TelemetryRepository, logger *log.Logge
 	}
 }
 
-func (s *TelemetryService) QueryHistory(ctx context.Context, req model.TelemetryQueryReq) ([]model.TelemetryPoint, error) {
+func (s *TelemetryService) QueryHistory(ctx context.Context, req dto.TelemetryQueryReq) ([]dto.TelemetryPoint, error) {
 	return s.repo.QueryHistory(ctx, req)
 }

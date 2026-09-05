@@ -65,7 +65,7 @@ func (h *ThingModelDataHandler) ListServiceInvocations(c *gin.Context) {
 	})
 }
 
-func thingModelPropertyJSON(item model.ThingModelProperty) v1.ThingModelProperty {
+func thingModelPropertyJSON(item dto.ThingModelProperty) v1.ThingModelProperty {
 	return v1.ThingModelProperty{Identifier: item.Identifier, Name: item.Name, DataType: item.DataType, Unit: item.Unit, AccessMode: item.AccessMode, Value: item.Value, ReportedAt: item.ReportedAt}
 }
 

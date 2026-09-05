@@ -39,6 +39,7 @@ import type {
   ApiResponseApiSwitchOrgResponseData,
   ApiResponseArrayAiotBackendApiV1Category,
   ApiResponseArrayApiOrganizationItem,
+  ApiResponseArrayTelemetryPoint,
   ApiResponseCreateSceneLinkageDetailResponse,
   ApiResponseCreateSceneLinkageResponse,
   ApiResponseDeviceActivateDeviceResponse,
@@ -101,6 +102,7 @@ import type {
   GetDeviceGroupsGroupUuidDevicesParams,
   GetDeviceGroupsParams,
   GetDevicesDeviceKeyPushRecordsParams,
+  GetDevicesDeviceKeyTelemetryHistoryParams,
   GetDevicesDeviceKeyThingModelServiceInvocationsParams,
   GetDevicesParams,
   GetOtaPackagesParams,
@@ -108,7 +110,6 @@ import type {
   GetOtaPackagesUuidUpgradeStatisticsParams,
   GetProductsParams,
   GetSceneLinkagesParams,
-  GetV1DevicesDeviceKeyTelemetryHistoryParams,
   MessageParserExecuteProductMessageParserRequest,
   MessageParserUpsertProductMessageParserRequest,
   OtaBatchUpgradeRequest,
@@ -4569,6 +4570,187 @@ export function useGetDevicesDeviceKeyTelemetry<
 } {
   const queryOptions = getGetDevicesDeviceKeyTelemetryQueryOptions(
     deviceKey,
+    options
+  )
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * Returns telemetry data points within the requested time range.
+ * @summary Query device telemetry history
+ */
+export const getDevicesDeviceKeyTelemetryHistory = (
+  deviceKey: string,
+  params: GetDevicesDeviceKeyTelemetryHistoryParams,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseArrayTelemetryPoint>({
+    url: `/devices/${deviceKey}/telemetry/history`,
+    method: 'GET',
+    params,
+    signal,
+  })
+}
+
+export const getGetDevicesDeviceKeyTelemetryHistoryQueryKey = (
+  deviceKey: string,
+  params?: GetDevicesDeviceKeyTelemetryHistoryParams
+) => {
+  return [
+    `/devices/${deviceKey}/telemetry/history`,
+    ...(params ? [params] : []),
+  ] as const
+}
+
+export const getGetDevicesDeviceKeyTelemetryHistoryQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params: GetDevicesDeviceKeyTelemetryHistoryParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetDevicesDeviceKeyTelemetryHistoryQueryKey(deviceKey, params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>
+  > = ({ signal }) =>
+    getDevicesDeviceKeyTelemetryHistory(deviceKey, params, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyTelemetryHistoryQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>
+>
+export type GetDevicesDeviceKeyTelemetryHistoryQueryError = ErrorType<unknown>
+
+export function useGetDevicesDeviceKeyTelemetryHistory<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params: GetDevicesDeviceKeyTelemetryHistoryParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+          TError,
+          Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyTelemetryHistory<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params: GetDevicesDeviceKeyTelemetryHistoryParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+          TError,
+          Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyTelemetryHistory<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params: GetDevicesDeviceKeyTelemetryHistoryParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary Query device telemetry history
+ */
+
+export function useGetDevicesDeviceKeyTelemetryHistory<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  params: GetDevicesDeviceKeyTelemetryHistoryParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyTelemetryHistory>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyTelemetryHistoryQueryOptions(
+    deviceKey,
+    params,
     options
   )
 
@@ -9104,185 +9286,4 @@ export const usePutUser = <TError = ErrorType<unknown>, TContext = unknown>(
   TContext
 > => {
   return useMutation(getPutUserMutationOptions(options), queryClient)
-}
-
-/**
- * Returns telemetry data points within the requested time range.
- * @summary Query device telemetry history
- */
-export const getV1DevicesDeviceKeyTelemetryHistory = (
-  deviceKey: string,
-  params: GetV1DevicesDeviceKeyTelemetryHistoryParams,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiSuccessResponse>({
-    url: `/v1/devices/${deviceKey}/telemetry/history`,
-    method: 'GET',
-    params,
-    signal,
-  })
-}
-
-export const getGetV1DevicesDeviceKeyTelemetryHistoryQueryKey = (
-  deviceKey: string,
-  params?: GetV1DevicesDeviceKeyTelemetryHistoryParams
-) => {
-  return [
-    `/v1/devices/${deviceKey}/telemetry/history`,
-    ...(params ? [params] : []),
-  ] as const
-}
-
-export const getGetV1DevicesDeviceKeyTelemetryHistoryQueryOptions = <
-  TData = Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-  TError = ErrorType<unknown>,
->(
-  deviceKey: string,
-  params: GetV1DevicesDeviceKeyTelemetryHistoryParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-        TError,
-        TData
-      >
-    >
-  }
-) => {
-  const { query: queryOptions } = options ?? {}
-
-  const queryKey =
-    queryOptions?.queryKey ??
-    getGetV1DevicesDeviceKeyTelemetryHistoryQueryKey(deviceKey, params)
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>
-  > = ({ signal }) =>
-    getV1DevicesDeviceKeyTelemetryHistory(deviceKey, params, signal)
-
-  return {
-    queryKey,
-    queryFn,
-    enabled: deviceKey !== null && deviceKey !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetV1DevicesDeviceKeyTelemetryHistoryQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>
->
-export type GetV1DevicesDeviceKeyTelemetryHistoryQueryError = ErrorType<unknown>
-
-export function useGetV1DevicesDeviceKeyTelemetryHistory<
-  TData = Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-  TError = ErrorType<unknown>,
->(
-  deviceKey: string,
-  params: GetV1DevicesDeviceKeyTelemetryHistoryParams,
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-          TError,
-          Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetV1DevicesDeviceKeyTelemetryHistory<
-  TData = Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-  TError = ErrorType<unknown>,
->(
-  deviceKey: string,
-  params: GetV1DevicesDeviceKeyTelemetryHistoryParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-          TError,
-          Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetV1DevicesDeviceKeyTelemetryHistory<
-  TData = Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-  TError = ErrorType<unknown>,
->(
-  deviceKey: string,
-  params: GetV1DevicesDeviceKeyTelemetryHistoryParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-/**
- * @summary Query device telemetry history
- */
-
-export function useGetV1DevicesDeviceKeyTelemetryHistory<
-  TData = Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-  TError = ErrorType<unknown>,
->(
-  deviceKey: string,
-  params: GetV1DevicesDeviceKeyTelemetryHistoryParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getV1DevicesDeviceKeyTelemetryHistory>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-} {
-  const queryOptions = getGetV1DevicesDeviceKeyTelemetryHistoryQueryOptions(
-    deviceKey,
-    params,
-    options
-  )
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-
-  return withQueryKey(query, queryOptions.queryKey)
 }

@@ -19,7 +19,7 @@ func NewProductTSLRepository(db *gorm.DB) *ProductTSLRepository {
 
 func (r *ProductTSLRepository) FindByProductID(ctx context.Context, productID int64) (*model.ProductTSL, error) {
 	var tsl model.ProductTSL
-	if err := r.db.WithContext(ctx).Where("product_product_tsl = ?", productID).First(&tsl).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("product_id = ?", productID).First(&tsl).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}

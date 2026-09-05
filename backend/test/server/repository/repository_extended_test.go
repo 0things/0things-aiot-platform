@@ -494,7 +494,7 @@ func TestProductTSLRepository_FindByProductID(t *testing.T) {
 	tslRepo, mock := setupProductTSLRepository(t)
 	ctx := context.Background()
 
-	rows := sqlmock.NewRows([]string{"id", "product_product_tsl", "tsl"}).
+	rows := sqlmock.NewRows([]string{"id", "product_id", "tsl"}).
 		AddRow(1, 1, `{"properties":[]}`)
 	mock.ExpectQuery("SELECT .+ FROM `product_ts_ls`").WillReturnRows(rows)
 

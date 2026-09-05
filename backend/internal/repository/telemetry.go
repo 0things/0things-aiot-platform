@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"0things/pkg/tsdb"
-	"aiot-backend/internal/model"
+	"aiot-backend/internal/dto"
 	"aiot-backend/pkg/log"
 
 	"github.com/spf13/viper"
@@ -35,8 +35,8 @@ func NewTelemetryRepositoryWithClient(client tsdb.Client, config *viper.Viper, l
 
 // QueryLatest returns the newest real point for each requested property. The
 // storage access remains server-side so callers never fan out history requests.
-func (r *TelemetryRepository) QueryLatest(ctx context.Context, deviceKey string, identifiers []string) (map[string]model.TelemetryPoint, error) {
-	latest := make(map[string]model.TelemetryPoint, len(identifiers))
+func (r *TelemetryRepository) QueryLatest(ctx context.Context, deviceKey string, identifiers []string) (map[string]dto.TelemetryPoint, error) {
+	latest := make(map[string]dto.TelemetryPoint, len(identifiers))
 	for _, identifier := range identifiers {
 		points, err := r.tsdbClient.QueryPoints(ctx, tsdb.QueryFilter{
 			DeviceKey:           deviceKey,
@@ -53,13 +53,13 @@ func (r *TelemetryRepository) QueryLatest(ctx context.Context, deviceKey string,
 		if len(points) == 0 {
 			continue
 		}
-		latest[identifier] = model.TelemetryPoint{Timestamp: points[0].Timestamp, Property: points[0].Metric, Value: points[0].Value}
+		latest[identifier] = dto.TelemetryPoint{Timestamp: points[0].Timestamp, Property: points[0].Metric, Value: points[0].Value}
 	}
 	return latest, nil
 }
 
 // QueryHistory 从统一 TSDB 客户端查询指定设备与属性的历史曲线点。
-func (r *TelemetryRepository) QueryHistory(ctx context.Context, req model.TelemetryQueryReq) ([]model.TelemetryPoint, error) {
+func (r *TelemetryRepository) QueryHistory(ctx context.Context, req dto.TelemetryQueryReq) ([]dto.TelemetryPoint, error) {
 	r.logger.Info("querying telemetry history from TSDB client",
 		zap.String("device_key", req.DeviceKey),
 		zap.String("property", req.Property),
@@ -81,9 +81,9 @@ func (r *TelemetryRepository) QueryHistory(ctx context.Context, req model.Teleme
 		return nil, err
 	}
 
-	res := make([]model.TelemetryPoint, 0, len(points))
+	res := make([]dto.TelemetryPoint, 0, len(points))
 	for _, p := range points {
-		res = append(res, model.TelemetryPoint{
+		res = append(res, dto.TelemetryPoint{
 			Timestamp: p.Timestamp,
 			Property:  p.Metric,
 			Value:     p.Value,

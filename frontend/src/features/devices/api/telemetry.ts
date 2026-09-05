@@ -1,9 +1,9 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
   getDevicesDeviceKeyThingModelProperties,
-  getV1DevicesDeviceKeyTelemetryHistory,
+  getDevicesDeviceKeyTelemetryHistory,
 } from '@/api/generated'
-import type { GetV1DevicesDeviceKeyTelemetryHistoryParams } from '@/api/generated/model'
+import type { GetDevicesDeviceKeyTelemetryHistoryParams } from '@/api/generated/model'
 import type { ThingModelProperty } from '@/api/generated/model'
 
 export interface TelemetryPoint {
@@ -60,14 +60,14 @@ export function useTelemetryHistory(
         startTime = endTime - params.durationMs
       }
 
-      const queryParams: GetV1DevicesDeviceKeyTelemetryHistoryParams = {
+      const queryParams: GetDevicesDeviceKeyTelemetryHistoryParams = {
         property: params.property,
         limit: params.limit || 100,
       }
       if (startTime) queryParams.start_time = startTime
       if (endTime) queryParams.end_time = endTime
 
-      const resp = await getV1DevicesDeviceKeyTelemetryHistory(
+      const resp = await getDevicesDeviceKeyTelemetryHistory(
         params.deviceKey,
         queryParams,
         signal

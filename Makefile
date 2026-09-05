@@ -25,11 +25,11 @@ test:
 # 编译验证所有微服务二进制
 build:
 	@echo "🔨 Building all microservice binaries..."
-	@(cd mqtt-transport && go build -o /dev/null ./cmd/server)
-	@(cd http-transport && go build -o /dev/null ./cmd/server)
-	@(cd coap-transport && go build -o /dev/null ./cmd/server)
-	@(cd data-engine && go build -o /dev/null ./cmd/server)
-	@(cd backend && go build -o /dev/null ./cmd/server)
+	@(cd mqtt-transport && go build -buildvcs=false -o /dev/null ./cmd/server)
+	@(cd http-transport && go build -buildvcs=false -o /dev/null ./cmd/server)
+	@(cd coap-transport && go build -buildvcs=false -o /dev/null ./cmd/server)
+	@(cd data-engine && go build -buildvcs=false -o /dev/null ./cmd/server)
+	@(cd backend && go build -buildvcs=false -o /dev/null ./cmd/server)
 	@echo "✅ All binaries built cleanly!"
 
 # 启动虚拟设备模拟器 (正常遥测 + 监听 OTA 升级)

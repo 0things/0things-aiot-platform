@@ -23,7 +23,7 @@ type invocationServiceStub struct {
 	err   error
 }
 
-func (s invocationServiceStub) ListProperties(context.Context, string) ([]model.ThingModelProperty, error) {
+func (s invocationServiceStub) ListProperties(context.Context, string) ([]dto.ThingModelProperty, error) {
 	return nil, nil
 }
 

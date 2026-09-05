@@ -1492,6 +1492,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/devices/{deviceKey}/telemetry/history": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Returns telemetry data points within the requested time range.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Query device telemetry history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device key",
+                        "name": "deviceKey",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Property identifier",
+                        "name": "property",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Start timestamp",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "End timestamp",
+                        "name": "end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum result count",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-array_TelemetryPoint"
+                        }
+                    }
+                }
+            }
+        },
         "/devices/{deviceKey}/thing-model/properties": {
             "get": {
                 "security": [
@@ -3052,60 +3111,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/v1/devices/{deviceKey}/telemetry/history": {
-            "get": {
-                "description": "Returns telemetry data points within the requested time range.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Telemetry"
-                ],
-                "summary": "Query device telemetry history",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Device key",
-                        "name": "deviceKey",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Property identifier",
-                        "name": "property",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Start timestamp",
-                        "name": "start_time",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "End timestamp",
-                        "name": "end_time",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Maximum result count",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiSuccessResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -3933,6 +3938,23 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/ApiOrganizationItem"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-array_TelemetryPoint": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TelemetryPoint"
                     }
                 },
                 "message": {
@@ -5434,6 +5456,18 @@ const docTemplate = `{
                 "success": {
                     "type": "boolean"
                 }
+            }
+        },
+        "TelemetryPoint": {
+            "type": "object",
+            "properties": {
+                "property": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                },
+                "value": {}
             }
         },
         "ThingModelProperty": {

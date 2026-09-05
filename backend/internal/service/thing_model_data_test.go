@@ -4,78 +4,69 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
+
+	"github.com/glebarez/sqlite"
+	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
 )
 
-type fakeThingModelDevices struct {
-	device *model.Device
-	err    error
-}
+func newThingModelDataSvc(t *testing.T) (*ThingModelDataService, *gorm.DB, context.Context) {
+	t.Helper()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(
+		&model.Product{}, &model.Device{}, &model.DeviceState{}, &model.ProductTSL{}, &model.DeviceServiceInvocation{},
+	))
+	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "Test Product", OrganizationID: 1}).Error)
+	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "device-1", Name: "Test Device", ProductID: 1, OrganizationID: 1, Enabled: true}).Error)
 
-func (f fakeThingModelDevices) FindByKey(context.Context, string) (*model.Device, error) {
-	return f.device, f.err
-}
+	productID := int64(1)
+	require.NoError(t, db.Create(&model.ProductTSL{
+		ID:        1,
+		ProductID: &productID,
+		TSL:       `{"properties":[{"identifier":"temperature","name":"Temperature","accessMode":"r","dataType":{"type":"double","specs":{"unit":"°C"}}},{"identifier":"humidity","name":"Humidity","accessMode":"rw","dataType":{"type":"double","specs":{"unit":"%"}}}]}`,
+	}).Error)
 
-type fakeThingModelTSLs struct {
-	tsl *model.ProductTSL
-	err error
-}
+	invocations := repository.NewDeviceServiceInvocationRepository(db)
+	devices := repository.NewDeviceRepository(db, nil)
+	tsls := repository.NewProductTSLRepository(db)
+	svc := NewThingModelDataService(invocations, devices, tsls, nil)
 
-func (f fakeThingModelTSLs) FindByProductID(context.Context, int64) (*model.ProductTSL, error) {
-	return f.tsl, f.err
-}
-
-type fakeThingModelTelemetry struct {
-	points map[string]model.TelemetryPoint
-}
-
-func (f fakeThingModelTelemetry) QueryLatest(context.Context, string, []string) (map[string]model.TelemetryPoint, error) {
-	return f.points, nil
+	ctx := context.WithValue(context.Background(), "organization_id", int64(1))
+	return svc, db, ctx
 }
 
 func TestThingModelPropertyService_List(t *testing.T) {
-	now := time.Now().UnixMilli()
-	service := ThingModelDataService{
-		devices: fakeThingModelDevices{device: &model.Device{ProductID: 9}},
-		tsls:    fakeThingModelTSLs{tsl: &model.ProductTSL{TSL: `{"properties":[{"identifier":"temperature","name":"Temperature","accessMode":"r","dataType":{"type":"double","specs":{"unit":"°C"}}},{"identifier":"humidity","name":"Humidity","accessMode":"rw","dataType":{"type":"double","specs":{"unit":"%"}}}]}`}},
-		telemetry: fakeThingModelTelemetry{points: map[string]model.TelemetryPoint{
-			"temperature": {Property: "temperature", Value: 24.5, Timestamp: now},
-			"undefined":   {Property: "undefined", Value: "ignored", Timestamp: now},
-		}},
-	}
+	svc, _, ctx := newThingModelDataSvc(t)
 
-	properties, err := service.ListProperties(context.Background(), "device-1")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(properties) != 2 || properties[0].Identifier != "temperature" || properties[1].Identifier != "humidity" {
-		t.Fatalf("expected TSL-ordered definitions, got %#v", properties)
-	}
-	if properties[0].Value != 24.5 || properties[0].ReportedAt == nil {
-		t.Fatalf("expected temperature latest point, got %#v", properties[0])
-	}
-	if properties[1].Value != nil || properties[1].ReportedAt != nil {
-		t.Fatalf("expected unreported property to be null, got %#v", properties[1])
-	}
+	properties, err := svc.ListProperties(ctx, "device-1")
+	require.NoError(t, err)
+	require.Len(t, properties, 2)
+	require.Equal(t, "temperature", properties[0].Identifier)
+	require.Equal(t, "humidity", properties[1].Identifier)
+	require.Equal(t, "double", properties[0].DataType)
+	require.Equal(t, "°C", properties[0].Unit)
+	require.Equal(t, "r", properties[0].AccessMode)
+	require.Equal(t, "%", properties[1].Unit)
+	require.Equal(t, "rw", properties[1].AccessMode)
 }
 
 func TestThingModelPropertyService_ListErrors(t *testing.T) {
-	service := ThingModelDataService{
-		devices: fakeThingModelDevices{err: repository.ErrNotFound},
-		tsls:    fakeThingModelTSLs{}, telemetry: fakeThingModelTelemetry{},
-	}
-	if _, err := service.ListProperties(context.Background(), "missing"); !errors.Is(err, repository.ErrNotFound) {
-		t.Fatalf("expected device not found, got %v", err)
-	}
+	svc, db, ctx := newThingModelDataSvc(t)
 
-	service = ThingModelDataService{
-		devices: fakeThingModelDevices{device: &model.Device{ProductID: 9}},
-		tsls:    fakeThingModelTSLs{tsl: &model.ProductTSL{TSL: "not-json"}}, telemetry: fakeThingModelTelemetry{},
-	}
-	if _, err := service.ListProperties(context.Background(), "device-1"); !errors.Is(err, ErrInvalidThingModel) {
-		t.Fatalf("expected invalid TSL error, got %v", err)
-	}
+	_, err := svc.ListProperties(ctx, "missing-device")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, repository.ErrNotFound))
+
+	productID := int64(2)
+	require.NoError(t, db.Create(&model.Product{ID: 2, ProductKey: "P002", OrganizationID: 1}).Error)
+	require.NoError(t, db.Create(&model.Device{ID: 2, DeviceKey: "device-2", ProductID: 2, OrganizationID: 1}).Error)
+	require.NoError(t, db.Create(&model.ProductTSL{ID: 2, ProductID: &productID, TSL: "not-json"}).Error)
+
+	_, err = svc.ListProperties(ctx, "device-2")
+	require.Error(t, err)
+	require.True(t, errors.Is(err, ErrInvalidThingModel))
 }

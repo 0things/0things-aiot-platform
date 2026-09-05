@@ -7,16 +7,17 @@ import (
 	"testing"
 	"time"
 
-	"aiot-backend/internal/model"
+	"aiot-backend/internal/dto"
 	"aiot-backend/pkg/log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
 type mockTelemetryService struct{}
 
-func (m *mockTelemetryService) QueryHistory(ctx context.Context, req model.TelemetryQueryReq) ([]model.TelemetryPoint, error) {
-	return []model.TelemetryPoint{
+func (m *mockTelemetryService) QueryHistory(ctx context.Context, req dto.TelemetryQueryReq) ([]dto.TelemetryPoint, error) {
+	return []dto.TelemetryPoint{
 		{Timestamp: time.Now().UnixMilli(), Property: req.Property, Value: 26.5},
 	}, nil
 }

@@ -29,7 +29,7 @@ func newProductTSL(db *gorm.DB, opts ...gen.DOOption) productTSL {
 	_productTSL.ALL = field.NewAsterisk(tableName)
 	_productTSL.ID = field.NewInt64(tableName, "id")
 	_productTSL.TSL = field.NewString(tableName, "tsl")
-	_productTSL.ProductID = field.NewInt64(tableName, "product_product_tsl")
+	_productTSL.ProductID = field.NewInt64(tableName, "product_id")
 	_productTSL.CreatedAt = field.NewTime(tableName, "created_at")
 	_productTSL.UpdatedAt = field.NewTime(tableName, "updated_at")
 
@@ -65,7 +65,7 @@ func (p *productTSL) updateTableName(table string) *productTSL {
 	p.ALL = field.NewAsterisk(table)
 	p.ID = field.NewInt64(table, "id")
 	p.TSL = field.NewString(table, "tsl")
-	p.ProductID = field.NewInt64(table, "product_product_tsl")
+	p.ProductID = field.NewInt64(table, "product_id")
 	p.CreatedAt = field.NewTime(table, "created_at")
 	p.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -97,7 +97,7 @@ func (p *productTSL) fillFieldMap() {
 	p.fieldMap = make(map[string]field.Expr, 5)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["tsl"] = p.TSL
-	p.fieldMap["product_product_tsl"] = p.ProductID
+	p.fieldMap["product_id"] = p.ProductID
 	p.fieldMap["created_at"] = p.CreatedAt
 	p.fieldMap["updated_at"] = p.UpdatedAt
 }

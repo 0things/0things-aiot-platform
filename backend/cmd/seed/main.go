@@ -157,7 +157,12 @@ func main() {
 
 	productOrgMap := make(map[int]int64)
 	for i := 1; i <= 50; i++ {
-		orgID := int64(rand.Intn(3) + 1)
+		orgID := int64(1)
+		if i > 30 && i <= 40 {
+			orgID = 2
+		} else if i > 40 {
+			orgID = 3
+		}
 		categoryID := int64(rand.Intn(len(defaultCategories)) + 1)
 		productOrgMap[i] = orgID
 		metadata, _ := json.Marshal(map[string]interface{}{
@@ -413,17 +418,30 @@ func main() {
 				map[string]interface{}{
 					"identifier": "temperature",
 					"name":       "温度",
-					"type":       "float",
+					"accessMode": "r",
+					"dataType": map[string]interface{}{
+						"type": "float",
+						"specs": map[string]interface{}{
+							"unit": "°C",
+						},
+					},
 				},
 				map[string]interface{}{
 					"identifier": "humidity",
 					"name":       "湿度",
-					"type":       "float",
+					"accessMode": "rw",
+					"dataType": map[string]interface{}{
+						"type": "float",
+						"specs": map[string]interface{}{
+							"unit": "%",
+						},
+					},
 				},
 			},
 		})
-		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO product_ts_ls (product_key, tsl, created_at, updated_at) VALUES (?, ?, ?, ?)`,
-			fmt.Sprintf("pk_product_%03d", i),
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO product_ts_ls (id, product_id, tsl, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
+			i,
+			int64(i),
 			string(tsl),
 			time.Now().Add(-time.Duration(rand.Intn(30))*24*time.Hour),
 			time.Now(),
