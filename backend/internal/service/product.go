@@ -2,17 +2,16 @@ package service
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"strings"
 
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/enum"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
+
+	"github.com/google/uuid"
 )
 
 type ProductServiceInterface interface {
@@ -36,9 +35,7 @@ func NewProductService(repo *repository.ProductRepository) *ProductService {
 }
 
 func productKey() string {
-	bytes := make([]byte, 8)
-	_, _ = rand.Read(bytes)
-	return "P" + strings.ToUpper(hex.EncodeToString(bytes))
+	return uuid.NewString()
 }
 
 func normalizeProductMetadata(value string) (string, error) {

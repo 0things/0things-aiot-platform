@@ -9,6 +9,7 @@ import (
 	"aiot-backend/internal/repository"
 
 	"github.com/glebarez/sqlite"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
@@ -41,6 +42,8 @@ func TestDeviceService_CreateDevice(t *testing.T) {
 	d, err := svc.CreateDevice(ctx, &model.Device{Name: "dev", ProductID: 1})
 	require.NoError(t, err)
 	require.NotEmpty(t, d.DeviceKey)
+	_, parseErr := uuid.Parse(d.DeviceKey)
+	require.NoError(t, parseErr)
 }
 
 func TestDeviceService_CreateDevice_InvalidMetadata(t *testing.T) {

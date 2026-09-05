@@ -16,6 +16,7 @@ import (
 	"aiot-backend/pkg/sid"
 
 	"github.com/glebarez/sqlite"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
@@ -211,3 +212,20 @@ func TestUserService_CRUD(t *testing.T) {
 
 	require.NoError(t, userSvc.UpdateProfile(ctx, u.UserId, &v1.UpdateProfileRequest{Email: "u@e.com", Nickname: "neo"}))
 }
+
+func TestProductService_Create_GeneratesUUID(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.ProductProtocol{}))
+
+	repo := repository.NewProductRepository(db)
+	svc := NewProductService(repo)
+	ctx := context.Background()
+
+	product, err := svc.Create(ctx, &model.Product{Name: "New Sensor Product"})
+	require.NoError(t, err)
+	require.NotEmpty(t, product.ProductKey)
+	_, parseErr := uuid.Parse(product.ProductKey)
+	require.NoError(t, parseErr)
+}
+

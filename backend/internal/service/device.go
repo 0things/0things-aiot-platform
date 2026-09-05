@@ -3,8 +3,6 @@ package service
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -14,6 +12,7 @@ import (
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
 
+	"github.com/google/uuid"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -104,9 +103,7 @@ func normalizeDeviceMetadata(value string) (string, error) {
 }
 
 func deviceKey() string {
-	b := make([]byte, 8)
-	_, _ = rand.Read(b)
-	return "D" + strings.ToUpper(hex.EncodeToString(b))
+	return uuid.NewString()
 }
 
 func (s *DeviceService) CreateDevice(ctx context.Context, d *model.Device) (*model.Device, error) {
