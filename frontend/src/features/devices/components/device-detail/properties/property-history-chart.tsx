@@ -11,16 +11,7 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
-import { Badge } from '@/components/ui/badge'
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -30,8 +21,15 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart'
+import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -63,6 +61,7 @@ export function PropertyHistoryChart({
   const { t } = useTranslation('deviceManagement')
   const [selectedProperty, setSelectedProperty] = useState<string>('')
   const [timeRange, setTimeRange] = useState<TimeRangeKey>('24h')
+  const [historyEndTime, setHistoryEndTime] = useState(() => Date.now())
 
   const activeProperty = availableProperties.some(
     (p) => p.identifier === selectedProperty
@@ -74,27 +73,24 @@ export function PropertyHistoryChart({
     data: points = [],
     isLoading,
     isRefetching,
-    refetch,
   } = useTelemetryHistory(
     {
       deviceKey,
       property: activeProperty,
       durationMs: TIME_RANGES[timeRange].durationMs,
+      endTime: historyEndTime,
       limit: 500,
     },
     Boolean(activeProperty)
   )
 
   const handleManualRefresh = () => {
-    refetch()
-  }
-
-  const handleRangeChange = (range: TimeRangeKey) => {
-    setTimeRange(range)
+    setHistoryEndTime(Date.now())
   }
 
   // Format numeric points and calculate aggregate statistics.
   const { chartData, stats } = useMemo(() => {
+    const timeFmt = timeRange === '7d' ? 'MM-dd HH:mm' : 'HH:mm:ss'
     const numericPoints = points
       .map((p) => {
         if (p.timestamp == null || !Number.isFinite(p.timestamp)) return null
@@ -108,7 +104,7 @@ export function PropertyHistoryChart({
         const ts = p.timestamp
         return {
           timestamp: ts,
-          formattedTime: format(new Date(ts), 'HH:mm:ss'),
+          formattedTime: format(new Date(ts), timeFmt),
           fullTime: format(new Date(ts), 'yyyy-MM-dd HH:mm:ss'),
           value: val,
         }
@@ -145,13 +141,19 @@ export function PropertyHistoryChart({
         count: values.length,
       },
     }
-  }, [points])
+  }, [points, timeRange])
 
   const currentPropMeta = availableProperties.find(
     (p) => p.identifier === activeProperty
   )
   const unit = currentPropMeta?.unit || ''
   const propName = currentPropMeta?.name || activeProperty
+  const chartConfig = {
+    value: {
+      label: propName,
+      color: '#9AC4FE',
+    },
+  } satisfies ChartConfig
 
   return (
     <Card className='shadow-xs'>
@@ -176,7 +178,10 @@ export function PropertyHistoryChart({
             {/* Property selector. */}
             <Select
               value={activeProperty}
-              onValueChange={(val) => setSelectedProperty(val)}
+              onValueChange={(val) => {
+                setSelectedProperty(val)
+                setHistoryEndTime(Date.now())
+              }}
             >
               <SelectTrigger className='h-8 w-36 text-xs'>
                 <Layers className='mr-1.5 size-3.5 text-muted-foreground' />
@@ -185,32 +190,41 @@ export function PropertyHistoryChart({
                 />
               </SelectTrigger>
               <SelectContent>
-                {availableProperties.map((p) => (
-                  <SelectItem
-                    key={p.identifier}
-                    value={p.identifier}
-                    className='text-xs'
-                  >
-                    {p.name || p.identifier}
+                <SelectGroup>
+                  {availableProperties.map((p) => (
+                    <SelectItem
+                      key={p.identifier}
+                      value={p.identifier}
+                      className='text-xs'
+                    >
+                      {p.name || p.identifier}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={timeRange}
+              onValueChange={(value) => {
+                setTimeRange(value as TimeRangeKey)
+                setHistoryEndTime(Date.now())
+              }}
+            >
+              <SelectTrigger
+                className='w-[160px] rounded-lg'
+                aria-label={t('deviceDetail.propertyTab.timeRange')}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className='rounded-xl'>
+                {(Object.keys(TIME_RANGES) as TimeRangeKey[]).map((key) => (
+                  <SelectItem key={key} value={key} className='rounded-lg'>
+                    {t(`deviceDetail.propertyTab.timeRanges.${key}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            {/* Time-range selector. */}
-            <div className='flex items-center rounded-md border bg-muted/40 p-0.5'>
-              {(Object.keys(TIME_RANGES) as TimeRangeKey[]).map((key) => (
-                <Button
-                  key={key}
-                  size='sm'
-                  variant={timeRange === key ? 'secondary' : 'ghost'}
-                  onClick={() => handleRangeChange(key)}
-                  className='h-7 px-2.5 text-xs font-normal shadow-none'
-                >
-                  {t(`deviceDetail.propertyTab.timeRanges.${key}`)}
-                </Button>
-              ))}
-            </div>
 
             {/* Manual refresh. */}
             <Button
@@ -319,90 +333,77 @@ export function PropertyHistoryChart({
             </p>
           </div>
         ) : (
-          <div className='h-[320px] w-full'>
-            <ResponsiveContainer width='100%' height={320}>
-              <AreaChart
-                data={chartData}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient
-                    id='telemetryColor'
-                    x1='0'
-                    y1='0'
-                    x2='0'
-                    y2='1'
-                  >
-                    <stop
-                      offset='5%'
-                      stopColor='var(--primary)'
-                      stopOpacity={0.35}
-                    />
-                    <stop
-                      offset='95%'
-                      stopColor='var(--primary)'
-                      stopOpacity={0.0}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray='3 3'
-                  className='stroke-muted/40'
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey='formattedTime'
-                  stroke='var(--muted-foreground)'
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke='var(--muted-foreground)'
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  domain={['auto', 'auto']}
-                />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload
-                      return (
-                        <div className='rounded-lg border bg-popover/95 p-2.5 text-popover-foreground shadow-md backdrop-blur-sm'>
-                          <div className='text-xs text-muted-foreground'>
-                            {data.fullTime}
-                          </div>
-                          <div className='mt-1 flex items-center gap-2 text-sm font-semibold'>
-                            <span>{propName}:</span>
-                            <Badge variant='secondary' className='font-mono'>
-                              {data.value} {unit}
-                            </Badge>
-                          </div>
-                        </div>
-                      )
+          <ChartContainer
+            config={chartConfig}
+            className='aspect-auto h-[300px] w-full'
+          >
+            <AreaChart
+              accessibilityLayer
+              data={chartData}
+              margin={{ left: 12, right: 12, top: 10, bottom: 4 }}
+            >
+              <defs>
+                <linearGradient id='fillValue' x1='0' y1='0' x2='0' y2='1'>
+                  <stop
+                    offset='5%'
+                    stopColor='var(--color-value)'
+                    stopOpacity={0.4}
+                  />
+                  <stop
+                    offset='95%'
+                    stopColor='var(--color-value)'
+                    stopOpacity={0.0}
+                  />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray='3 3'
+                className='stroke-muted/40'
+              />
+              <XAxis
+                dataKey='formattedTime'
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={40}
+                stroke='var(--muted-foreground)'
+                fontSize={11}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                stroke='var(--muted-foreground)'
+                fontSize={11}
+                domain={['auto', 'auto']}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    className='w-[160px]'
+                    labelFormatter={(_, payload) =>
+                      payload?.[0]?.payload?.fullTime || ''
                     }
-                    return null
-                  }}
-                />
-                <Area
-                  type='monotone'
-                  dataKey='value'
-                  stroke='var(--primary)'
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill='url(#telemetryColor)'
-                  isAnimationActive={false}
-                  dot={
-                    chartData.length < 30
-                      ? { r: 3, fill: 'var(--primary)' }
-                      : false
-                  }
-                  activeDot={{ r: 5 }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+                    formatter={(val) => `${val}${unit ? ` ${unit}` : ''}`}
+                  />
+                }
+              />
+              <Area
+                type='monotone'
+                dataKey='value'
+                stroke='var(--color-value)'
+                fill='url(#fillValue)'
+                strokeWidth={2}
+                dot={
+                  chartData.length <= 25
+                    ? { r: 3, fill: 'var(--color-value)' }
+                    : false
+                }
+                activeDot={{ r: 5 }}
+              />
+            </AreaChart>
+          </ChartContainer>
         )}
       </CardContent>
     </Card>

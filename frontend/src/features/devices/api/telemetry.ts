@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { keepPreviousData } from '@tanstack/react-query'
 import {
   getGetDevicesDeviceKeyTelemetryHistoryQueryKey,
@@ -52,10 +53,11 @@ export function useTelemetryHistory(
   params: TelemetryHistoryQueryParams,
   enabled = true
 ) {
+  const [initialEndTime] = useState(() => Date.now())
   let startTime = params.startTime
   let endTime = params.endTime
   if (params.durationMs) {
-    endTime = Date.now()
+    endTime = params.endTime ?? initialEndTime
     startTime = endTime - params.durationMs
   }
 
