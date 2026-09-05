@@ -25,11 +25,13 @@ type Point struct {
 
 // QueryFilter 描述时序历史曲线查询参数。
 type QueryFilter struct {
-	DeviceKey string
-	Metric    string
-	StartTime int64 // 毫秒起始时间
-	EndTime   int64 // 毫秒结束时间
-	Limit     int   // 点数上限
+	DeviceKey           string
+	Metric              string
+	StartTime           int64 // 毫秒起始时间
+	EndTime             int64 // 毫秒结束时间
+	Limit               int   // 点数上限
+	Descending          bool  // Order points descending by timestamp to fetch latest reported point
+	DisableMockFallback bool  // Disable synthetic mock points fallback for missing telemetry
 }
 
 // Client 定义统一时序数据库客户端接口（读写双向标准，可插拔）。

@@ -286,7 +286,7 @@ func TestDeviceHandler_SimulatePush(t *testing.T) {
 func TestDeviceHandler_PushRecords(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().ListPushRecords(gomock.Any(), "1", 1, 20, "op", "ok").Return([]model.DevicePushRecord{{ID: 1}}, int64(1), nil)
+	m.EXPECT().ListPushRecords(gomock.Any(), "1", 1, 10, "op", "ok").Return([]model.DevicePushRecord{{ID: 1}}, int64(1), nil)
 	w := doDeviceReq(h, http.MethodGet, "/devices/1/push-records?operationType=op&status=ok", nil, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)

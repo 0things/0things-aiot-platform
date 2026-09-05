@@ -38,7 +38,7 @@ import {
 } from '@/components/ui/select'
 import { useTelemetryHistory } from '@/features/devices/api/telemetry'
 
-interface TelemetryHistoryChartProps {
+interface PropertyHistoryChartProps {
   deviceKey: string
   availableProperties: Array<{
     identifier: string
@@ -56,33 +56,34 @@ const TIME_RANGES: Record<TimeRangeKey, { durationMs: number }> = {
   '7d': { durationMs: 7 * 24 * 60 * 60 * 1000 },
 }
 
-export function TelemetryHistoryChart({
+export function PropertyHistoryChart({
   deviceKey,
   availableProperties,
-}: TelemetryHistoryChartProps) {
+}: PropertyHistoryChartProps) {
   const { t } = useTranslation('deviceManagement')
-  const [selectedProperty, setSelectedProperty] = useState<string>(
-    availableProperties[0]?.identifier || 'temperature'
-  )
+  const [selectedProperty, setSelectedProperty] = useState<string>('')
   const [timeRange, setTimeRange] = useState<TimeRangeKey>('24h')
 
   const activeProperty = availableProperties.some(
     (p) => p.identifier === selectedProperty
   )
     ? selectedProperty
-    : availableProperties[0]?.identifier || selectedProperty
+    : availableProperties[0]?.identifier || ''
 
   const {
     data: points = [],
     isLoading,
     isRefetching,
     refetch,
-  } = useTelemetryHistory({
-    deviceKey,
-    property: activeProperty,
-    durationMs: TIME_RANGES[timeRange].durationMs,
-    limit: 500,
-  })
+  } = useTelemetryHistory(
+    {
+      deviceKey,
+      property: activeProperty,
+      durationMs: TIME_RANGES[timeRange].durationMs,
+      limit: 500,
+    },
+    Boolean(activeProperty)
+  )
 
   const handleManualRefresh = () => {
     refetch()
@@ -158,13 +159,13 @@ export function TelemetryHistoryChart({
             <div className='flex items-center gap-2'>
               <TrendingUp className='size-5 text-primary' />
               <CardTitle className='text-lg font-semibold'>
-                {t('deviceDetail.telemetryTab.historyTitle', {
+                {t('deviceDetail.propertyTab.historyTitle', {
                   property: propName,
                 })}
               </CardTitle>
             </div>
             <CardDescription className='mt-1'>
-              {t('deviceDetail.telemetryTab.historyDescription')}
+              {t('deviceDetail.propertyTab.historyDescription')}
             </CardDescription>
           </div>
 
@@ -178,7 +179,7 @@ export function TelemetryHistoryChart({
               <SelectTrigger className='h-8 w-36 text-xs'>
                 <Layers className='mr-1.5 size-3.5 text-muted-foreground' />
                 <SelectValue
-                  placeholder={t('deviceDetail.telemetryTab.selectProperty')}
+                  placeholder={t('deviceDetail.propertyTab.selectProperty')}
                 />
               </SelectTrigger>
               <SelectContent>
@@ -204,7 +205,7 @@ export function TelemetryHistoryChart({
                   onClick={() => handleRangeChange(key)}
                   className='h-7 px-2.5 text-xs font-normal shadow-none'
                 >
-                  {t(`deviceDetail.telemetryTab.timeRanges.${key}`)}
+                  {t(`deviceDetail.propertyTab.timeRanges.${key}`)}
                 </Button>
               ))}
             </div>
@@ -228,7 +229,7 @@ export function TelemetryHistoryChart({
         <div className='mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5'>
           <div className='rounded-lg border bg-card p-3'>
             <div className='text-xs font-medium text-muted-foreground'>
-              {t('deviceDetail.telemetryTab.latestValue')}
+              {t('deviceDetail.propertyTab.latestValue')}
             </div>
             <div className='mt-1 text-xl font-bold tracking-tight text-primary'>
               {stats.latest}{' '}
@@ -243,7 +244,7 @@ export function TelemetryHistoryChart({
           <div className='rounded-lg border bg-card p-3'>
             <div className='flex items-center gap-1 text-xs font-medium text-muted-foreground'>
               <ArrowUp className='size-3 text-red-500' />
-              <span>{t('deviceDetail.telemetryTab.maxValue')}</span>
+              <span>{t('deviceDetail.propertyTab.maxValue')}</span>
             </div>
             <div className='mt-1 text-xl font-bold tracking-tight'>
               {stats.max}{' '}
@@ -258,7 +259,7 @@ export function TelemetryHistoryChart({
           <div className='rounded-lg border bg-card p-3'>
             <div className='flex items-center gap-1 text-xs font-medium text-muted-foreground'>
               <ArrowDown className='size-3 text-emerald-500' />
-              <span>{t('deviceDetail.telemetryTab.minValue')}</span>
+              <span>{t('deviceDetail.propertyTab.minValue')}</span>
             </div>
             <div className='mt-1 text-xl font-bold tracking-tight'>
               {stats.min}{' '}
@@ -273,7 +274,7 @@ export function TelemetryHistoryChart({
           <div className='rounded-lg border bg-card p-3'>
             <div className='flex items-center gap-1 text-xs font-medium text-muted-foreground'>
               <Activity className='size-3 text-blue-500' />
-              <span>{t('deviceDetail.telemetryTab.avgValue')}</span>
+              <span>{t('deviceDetail.propertyTab.avgValue')}</span>
             </div>
             <div className='mt-1 text-xl font-bold tracking-tight'>
               {stats.avg}{' '}
@@ -288,12 +289,12 @@ export function TelemetryHistoryChart({
           <div className='rounded-lg border bg-card p-3'>
             <div className='flex items-center gap-1 text-xs font-medium text-muted-foreground'>
               <Calendar className='size-3 text-muted-foreground' />
-              <span>{t('deviceDetail.telemetryTab.sampleCount')}</span>
+              <span>{t('deviceDetail.propertyTab.sampleCount')}</span>
             </div>
             <div className='mt-1 text-xl font-bold tracking-tight'>
               {stats.count}{' '}
               <span className='text-xs font-normal text-muted-foreground'>
-                {t('deviceDetail.telemetryTab.pointsUnit')}
+                {t('deviceDetail.propertyTab.pointsUnit')}
               </span>
             </div>
           </div>
@@ -309,10 +310,10 @@ export function TelemetryHistoryChart({
           <div className='flex h-[320px] w-full flex-col items-center justify-center rounded-md border border-dashed p-8 text-center'>
             <TrendingUp className='size-10 text-muted-foreground/40' />
             <p className='mt-2 font-medium text-muted-foreground'>
-              {t('deviceDetail.telemetryTab.noHistoryData')}
+              {t('deviceDetail.propertyTab.noHistoryData')}
             </p>
             <p className='mt-1 text-xs text-muted-foreground/70'>
-              {t('deviceDetail.telemetryTab.noHistoryDataDescription')}
+              {t('deviceDetail.propertyTab.noHistoryDataDescription')}
             </p>
           </div>
         ) : (

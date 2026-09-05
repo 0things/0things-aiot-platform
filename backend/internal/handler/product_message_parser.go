@@ -77,7 +77,7 @@ func (h *ProductMessageParserHandler) Put(c *gin.Context) {
 func (h *ProductMessageParserHandler) Execute(c *gin.Context) {
 	var req v1.ExecuteProductMessageParserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	result, err := h.svc.Execute(c, c.Param("productKey"), req)

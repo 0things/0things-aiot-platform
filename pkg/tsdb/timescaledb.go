@@ -122,9 +122,13 @@ func (c *TimescaleDBClient) QueryPoints(ctx context.Context, filter QueryFilter)
 	}
 
 	if c.enabled && c.pool != nil {
+		order := "ASC"
+		if filter.Descending {
+			order = "DESC"
+		}
 		sql := fmt.Sprintf(`SELECT time, property_id, num_value, str_value, bool_value, json_value FROM %s 
 			WHERE device_key = $1 AND property_id = $2 AND time >= to_timestamp($3 / 1000.0) AND time <= to_timestamp($4 / 1000.0) 
-			ORDER BY time ASC LIMIT $5`, c.tableName)
+			ORDER BY time %s LIMIT $5`, c.tableName, order)
 
 		rows, err := c.pool.Query(ctx, sql, filter.DeviceKey, filter.Metric, startTime, endTime, limit)
 		if err == nil {
@@ -164,6 +168,9 @@ func (c *TimescaleDBClient) QueryPoints(ctx context.Context, filter QueryFilter)
 	}
 
 	// 离线降级
+	if filter.DisableMockFallback {
+		return nil, nil
+	}
 	mock := NewMockClient(c.logger)
 	return mock.QueryPoints(ctx, filter)
 }

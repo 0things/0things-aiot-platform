@@ -155,7 +155,7 @@ func TestCoverage_Device_CreateDevice_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.device.EXPECT().CreateDevice(gomock.Any(), gomock.Any()).Return(nil, errors.New("name is required"))
 	w := cr.do("POST", "/devices", map[string]any{"name": "Test", "productId": 1})
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestCoverage_Device_ListDevices_SearchAndStates(t *testing.T) {
@@ -189,7 +189,7 @@ func TestCoverage_Device_PostTags_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.device.EXPECT().SetTags(gomock.Any(), "1", map[string]string{"k": "v"}, false).Return(nil, errors.New("invalid tag key"))
 	w := cr.do("POST", "/devices/1/tags", map[string]any{"tags": map[string]string{"k": "v"}})
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestCoverage_Device_Desired_Success(t *testing.T) {
@@ -209,7 +209,7 @@ func TestCoverage_Device_Desired_InvalidJSON(t *testing.T) {
 
 func TestCoverage_Device_Desired_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.device.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "app", gomock.Any(), nil, false).Return(nil, repository.ErrNotFound)
+	cr.device.EXPECT().MutateShadow(gomock.Any(), "1", int64(0), "app", gomock.Any(), nil, false).Return(nil, errors.New("db error"))
 	w := cr.do("PUT", "/devices/1/shadow/desired", map[string]any{"version": 0, "desired": map[string]any{"k": "v"}})
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
@@ -289,7 +289,7 @@ func TestCoverage_Product_Create_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("name is required"))
 	w := cr.do("POST", "/products", map[string]any{"name": "Test", "categoryId": 1})
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestCoverage_Product_Get_InvalidID(t *testing.T) {
@@ -310,7 +310,7 @@ func TestCoverage_Product_Get_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().GetByKey(gomock.Any(), "1").Return(nil, repository.ErrNotFound)
 	w := cr.do("GET", "/products/1", nil)
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestCoverage_Product_List_Error(t *testing.T) {
@@ -338,7 +338,7 @@ func TestCoverage_Product_Update_GetFails(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.product.EXPECT().GetByKey(gomock.Any(), "NONEXIST").Return(nil, repository.ErrNotFound)
 	w := cr.do("PUT", "/products/NONEXIST", map[string]any{"name": "Updated"})
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestCoverage_Product_Update_InvalidJSON(t *testing.T) {
@@ -381,14 +381,14 @@ func TestCoverage_Product_Delete_Success(t *testing.T) {
 
 func TestCoverage_OTA_List_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.ota.EXPECT().List(gomock.Any(), 1, 20).Return(nil, int64(0), errors.New("db error"))
+	cr.ota.EXPECT().List(gomock.Any(), 1, 10).Return(nil, int64(0), errors.New("db error"))
 	w := cr.do("GET", "/ota/packages", nil)
 	assert.True(t, w.Code >= 400, "expected error status code")
 }
 
 func TestCoverage_OTA_List_Success(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.ota.EXPECT().List(gomock.Any(), 1, 20).Return([]model.OTAPackage{{ID: 1, PackageName: "fw"}}, int64(1), nil)
+	cr.ota.EXPECT().List(gomock.Any(), 1, 10).Return([]model.OTAPackage{{ID: 1, PackageName: "fw"}}, int64(1), nil)
 	w := cr.do("GET", "/ota/packages", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -457,7 +457,7 @@ func TestCoverage_OTA_Stats_Error(t *testing.T) {
 
 func TestCoverage_OTA_Deployments_WithStatus(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.ota.EXPECT().Deployments(gomock.Any(), "1", 1, 100, "success").Return([]model.DeviceDeployment{}, int64(0), nil)
+	cr.ota.EXPECT().Deployments(gomock.Any(), "1", 1, 10, "success").Return([]model.DeviceDeployment{}, int64(0), nil)
 	w := cr.do("GET", "/ota/packages/1/deployments?status=success", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -499,41 +499,36 @@ func TestCoverage_DeviceEvent_List_WithTimeRange(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-// --- Response Helper Tests (page, raw, deletedAt) ---
+// --- Response Helper Tests (raw, deletedAt) ---
 
 func TestCoverage_Page_NegativePageNumber(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?page=-1", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestCoverage_Page_ZeroPageSize(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?pageSize=0", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestCoverage_Page_NegativePageSize(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?pageSize=-5", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestCoverage_Page_LargePageSize(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 100, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?pageSize=200", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestCoverage_Page_NonNumericPage(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.product.EXPECT().List(gomock.Any(), 1, 10, "", "", "").Return(nil, int64(0), nil)
 	w := cr.do("GET", "/products?page=abc&pageSize=xyz", nil)
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestCoverage_Raw_EmptyPayload(t *testing.T) {
@@ -585,5 +580,5 @@ func TestCoverage_DeviceError_ErrVersionConflict(t *testing.T) {
 	cr := newCoverageRouters(t)
 	cr.device.EXPECT().MutateShadow(gomock.Any(), "1", int64(999), "app", gomock.Any(), nil, false).Return(nil, repository.ErrVersionConflict)
 	w := cr.do("PUT", "/devices/1/shadow/desired", map[string]any{"version": 999, "desired": map[string]any{"k": "v"}})
-	assert.Equal(t, http.StatusConflict, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }

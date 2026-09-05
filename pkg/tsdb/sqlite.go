@@ -143,11 +143,15 @@ func (c *SQLiteClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]P
 	}
 
 	if c.enabled && c.db != nil {
+		order := "ASC"
+		if filter.Descending {
+			order = "DESC"
+		}
 		query := fmt.Sprintf(`
 		SELECT time, property_id, num_value, str_value, bool_value, json_value FROM %s 
 		WHERE device_key = ? AND property_id = ? AND time >= ? AND time <= ? 
-		ORDER BY time ASC LIMIT ?
-		`, c.tableName)
+		ORDER BY time %s LIMIT ?
+		`, c.tableName, order)
 
 		rows, err := c.db.QueryContext(ctx, query, filter.DeviceKey, filter.Metric, startTime, endTime, limit)
 		if err == nil {
@@ -186,6 +190,9 @@ func (c *SQLiteClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]P
 		}
 	}
 
+	if filter.DisableMockFallback {
+		return nil, nil
+	}
 	mock := NewMockClient(c.logger)
 	return mock.QueryPoints(ctx, filter)
 }

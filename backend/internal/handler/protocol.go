@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/service"
 
@@ -30,7 +32,7 @@ func NewProtocolHandler(h *Handler, svc service.ProtocolServiceInterface) *Proto
 func (h *ProtocolHandler) ListDeviceEndpoints(c *gin.Context) {
 	items, err := h.svc.ListDeviceEndpoints(c, c.Param("deviceKey"))
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, items)

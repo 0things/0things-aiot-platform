@@ -62,7 +62,7 @@ var serviceSet = wire.NewSet(
 	provideOTAService,
 	service.NewFileService,
 	service.NewDeviceEventService,
-	service.NewDeviceServiceInvocationService,
+	service.NewThingModelDataService,
 	provideProtocolService,
 	wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)),
 	wire.Bind(new(service.CategoryServiceInterface), new(*service.CategoryService)),
@@ -78,7 +78,7 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)),
 	wire.Bind(new(service.FileServiceInterface), new(*service.FileService)),
 	wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)),
-	wire.Bind(new(service.DeviceServiceInvocationServiceInterface), new(*service.DeviceServiceInvocationService)),
+	wire.Bind(new(service.ThingModelDataServiceInterface), new(*service.ThingModelDataService)),
 	wire.Bind(new(service.ProtocolServiceInterface), new(*service.ProtocolService)),
 )
 
@@ -96,7 +96,7 @@ var handlerSet = wire.NewSet(
 	handler.NewOTAHandler,
 	handler.NewFileHandler,
 	handler.NewDeviceEventHandler,
-	handler.NewDeviceServiceInvocationHandler,
+	handler.NewThingModelDataHandler,
 	handler.NewProtocolHandler,
 	handler.NewTelemetryHandler,
 )

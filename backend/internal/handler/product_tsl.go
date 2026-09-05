@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/service"
 
@@ -30,7 +32,7 @@ func NewProductTSLHandler(h *Handler, svc service.ProductTSLServiceInterface) *P
 func (h *ProductTSLHandler) Get(c *gin.Context) {
 	tsl, err := h.svc.Get(c, c.Param("productKey"))
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	productID := int64(0)
@@ -56,11 +58,11 @@ func (h *ProductTSLHandler) Get(c *gin.Context) {
 func (h *ProductTSLHandler) Put(c *gin.Context) {
 	var req v1.UpsertProductTSLRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	if err := h.svc.Upsert(c, c.Param("productKey"), req.TSL); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.ProductTSLSuccessResponse{Success: true})
@@ -79,7 +81,7 @@ func (h *ProductTSLHandler) Put(c *gin.Context) {
 // @Router /products/{productKey}/tsl [delete]
 func (h *ProductTSLHandler) Delete(c *gin.Context) {
 	if err := h.svc.Delete(c, c.Param("productKey")); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.ProductTSLSuccessResponse{Success: true})

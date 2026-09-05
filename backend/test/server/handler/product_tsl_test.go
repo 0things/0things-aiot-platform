@@ -13,6 +13,7 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -79,7 +80,7 @@ func TestProductTSLHandler_Get_NotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestProductTSLHandler_Get_InternalError(t *testing.T) {
@@ -128,7 +129,7 @@ func TestProductTSLHandler_Put_InvalidJSON(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestProductTSLHandler_Put_ServiceError(t *testing.T) {
@@ -146,7 +147,7 @@ func TestProductTSLHandler_Put_ServiceError(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestProductTSLHandler_Delete_Success(t *testing.T) {
@@ -178,7 +179,7 @@ func TestProductTSLHandler_Delete_NotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestProductTSLHandler_Delete_InternalError(t *testing.T) {

@@ -1492,7 +1492,41 @@ const docTemplate = `{
                 }
             }
         },
-        "/devices/{deviceKey}/thing-model-service-invocations": {
+        "/devices/{deviceKey}/thing-model/properties": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Returns all product TSL properties in definition order with their latest telemetry values.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Get device thing-model property latest values",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device key",
+                        "name": "deviceKey",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-GetDeviceThingModelPropertiesResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{deviceKey}/thing-model/service-invocations": {
             "get": {
                 "security": [
                     {
@@ -3497,6 +3531,20 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-GetDeviceThingModelPropertiesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/GetDeviceThingModelPropertiesResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-GetSceneLinkageDetailResponse": {
             "type": "object",
             "properties": {
@@ -4584,6 +4632,17 @@ const docTemplate = `{
                 }
             }
         },
+        "GetDeviceThingModelPropertiesResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ThingModelProperty"
+                    }
+                }
+            }
+        },
         "GetSceneLinkageDetailResponse": {
             "type": "object",
             "properties": {
@@ -5374,6 +5433,32 @@ const docTemplate = `{
             "properties": {
                 "success": {
                     "type": "boolean"
+                }
+            }
+        },
+        "ThingModelProperty": {
+            "type": "object",
+            "properties": {
+                "accessMode": {
+                    "type": "string"
+                },
+                "dataType": {
+                    "type": "string"
+                },
+                "identifier": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reportedAt": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "object"
                 }
             }
         },

@@ -118,9 +118,13 @@ func (c *ClickHouseClient) QueryPoints(ctx context.Context, filter QueryFilter) 
 	}
 
 	if c.enabled && c.conn != nil {
+		order := "ASC"
+		if filter.Descending {
+			order = "DESC"
+		}
 		query := fmt.Sprintf(`SELECT ts, property_id, num_value, str_value, bool_value, json_value FROM %s.%s 
 			WHERE device_key = ? AND property_id = ? AND ts >= toDateTime64(? / 1000.0, 3) AND ts <= toDateTime64(? / 1000.0, 3) 
-			ORDER BY ts ASC LIMIT ?`, c.database, c.tableName)
+			ORDER BY ts %s LIMIT ?`, c.database, c.tableName, order)
 
 		rows, err := c.conn.Query(ctx, query, filter.DeviceKey, filter.Metric, startTime, endTime, limit)
 		if err == nil {
@@ -160,6 +164,9 @@ func (c *ClickHouseClient) QueryPoints(ctx context.Context, filter QueryFilter) 
 	}
 
 	// 离线降级
+	if filter.DisableMockFallback {
+		return nil, nil
+	}
 	mock := NewMockClient(c.logger)
 	return mock.QueryPoints(ctx, filter)
 }

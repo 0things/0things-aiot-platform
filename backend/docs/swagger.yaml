@@ -273,6 +273,15 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-GetDeviceThingModelPropertiesResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/GetDeviceThingModelPropertiesResponse'
+      message:
+        type: string
+    type: object
   ApiResponse-GetSceneLinkageDetailResponse:
     properties:
       code:
@@ -982,6 +991,13 @@ definitions:
       fileUrl:
         type: string
     type: object
+  GetDeviceThingModelPropertiesResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/ThingModelProperty'
+        type: array
+    type: object
   GetSceneLinkageDetailResponse:
     properties:
       detail:
@@ -1499,6 +1515,23 @@ definitions:
     properties:
       success:
         type: boolean
+    type: object
+  ThingModelProperty:
+    properties:
+      accessMode:
+        type: string
+      dataType:
+        type: string
+      identifier:
+        type: string
+      name:
+        type: string
+      reportedAt:
+        type: string
+      unit:
+        type: string
+      value:
+        type: object
     type: object
   UpdateSceneLinkageDetailResponse:
     properties:
@@ -2569,7 +2602,29 @@ paths:
       summary: Get device telemetry
       tags:
       - Devices
-  /devices/{deviceKey}/thing-model-service-invocations:
+  /devices/{deviceKey}/thing-model/properties:
+    get:
+      description: Returns all product TSL properties in definition order with their
+        latest telemetry values.
+      parameters:
+      - description: Device key
+        in: path
+        name: deviceKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            $ref: '#/definitions/ApiResponse-GetDeviceThingModelPropertiesResponse'
+      security:
+      - Bearer: []
+      summary: Get device thing-model property latest values
+      tags:
+      - Devices
+  /devices/{deviceKey}/thing-model/service-invocations:
     get:
       description: Lists paginated thing-model service invocation records for one
         device.

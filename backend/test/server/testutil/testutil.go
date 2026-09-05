@@ -101,10 +101,11 @@ func NewTestDeviceEventService(db *gorm.DB) *service.DeviceEventService {
 	return service.NewDeviceEventService(eventRepo, deviceRepo)
 }
 
-func NewTestDeviceServiceInvocationService(db *gorm.DB) *service.DeviceServiceInvocationService {
-	repo := repository.NewDeviceServiceInvocationRepository(db)
+func NewTestThingModelDataService(db *gorm.DB) *service.ThingModelDataService {
+	invocations := repository.NewDeviceServiceInvocationRepository(db)
 	deviceRepo := repository.NewDeviceRepository(db, nil)
-	return service.NewDeviceServiceInvocationService(repo, deviceRepo)
+	tslRepo := repository.NewProductTSLRepository(db)
+	return service.NewThingModelDataService(invocations, deviceRepo, tslRepo, nil)
 }
 
 func NewTestProductTSLService(db *gorm.DB) *service.ProductTSLService {

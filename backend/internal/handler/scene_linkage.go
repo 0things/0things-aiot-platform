@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -53,22 +55,24 @@ func parseEnable(c *gin.Context) int {
 // @Router /scene-linkages [get]
 func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
 	var req v1.ListSceneLinkagesRequest
-	_ = c.ShouldBindQuery(&req)
-	pageNumber, pageSize := pageRequest(req.PageRequest, 20)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
 	enable := -1
 	if req.Enable != nil {
 		enable = *req.Enable
 	}
-	scenes, total, err := h.svc.List(c, pageNumber, pageSize, req.Search, enable)
+	scenes, total, err := h.svc.List(c, req.Page, req.PageSize, req.Search, enable)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	items := make([]v1.SceneLinkage, len(scenes))
 	for i, scene := range scenes {
 		items[i] = sceneLinkageJSON(scene)
 	}
-	v1.HandleSuccess(c, v1.ListSceneLinkagesResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, v1.ListSceneLinkagesResponse{Items: items, Total: total, Page: req.Page, PageSize: req.PageSize})
 }
 
 // GetSceneLinkage godoc
@@ -85,12 +89,12 @@ func (h *SceneLinkageHandler) ListSceneLinkages(c *gin.Context) {
 func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	scene, err := h.svc.Get(c, sceneID)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.GetSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
@@ -110,7 +114,7 @@ func (h *SceneLinkageHandler) GetSceneLinkage(c *gin.Context) {
 func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 	var req v1.SceneLinkageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	scene := &model.SceneLinkage{Name: req.Name, Description: req.Description, Enable: req.Enable}
@@ -118,7 +122,7 @@ func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 		scene.Enable = 1
 	}
 	if err := h.svc.Create(c, scene); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.CreateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
@@ -139,17 +143,17 @@ func (h *SceneLinkageHandler) CreateSceneLinkage(c *gin.Context) {
 func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 	sceneID, err := id(c)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	var req v1.SceneLinkageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	scene, err := h.svc.Get(c, sceneID)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	scene.Name, scene.Description, scene.Enable = req.Name, req.Description, req.Enable
@@ -157,7 +161,7 @@ func (h *SceneLinkageHandler) UpdateSceneLinkage(c *gin.Context) {
 		scene.Enable = 1
 	}
 	if err := h.svc.Update(c, scene); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.UpdateSceneLinkageResponse{SceneLinkage: sceneLinkageJSON(*scene)})
@@ -180,7 +184,7 @@ func (h *SceneLinkageHandler) DeleteSceneLinkage(c *gin.Context) {
 		err = h.svc.Delete(c, sceneID)
 	}
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.SceneLinkageSuccessResponse{Success: true})

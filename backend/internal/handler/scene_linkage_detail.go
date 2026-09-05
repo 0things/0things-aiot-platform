@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"net/http"
 
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
@@ -41,12 +42,12 @@ func sceneLinkageDetailJSON(detail model.SceneLinkageDetail) v1.SceneLinkageDeta
 func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	detail, err := h.svc.GetBySceneID(c, sceneID)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.GetSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
@@ -67,12 +68,12 @@ func (h *SceneLinkageDetailHandler) GetSceneLinkageDetail(c *gin.Context) {
 func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	var req v1.SceneLinkageDetailRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	detail := &model.SceneLinkageDetail{
@@ -87,7 +88,7 @@ func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 		detail.ActionConfig = json.RawMessage("{}")
 	}
 	if err := h.svc.Create(c, detail); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.CreateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})
@@ -108,17 +109,17 @@ func (h *SceneLinkageDetailHandler) CreateSceneLinkageDetail(c *gin.Context) {
 func (h *SceneLinkageDetailHandler) UpdateSceneLinkageDetail(c *gin.Context) {
 	sceneID, err := id(c)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	var req v1.SceneLinkageDetailRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	detail, err := h.svc.GetBySceneID(c, sceneID)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	detail.TriggerConfig = req.TriggerConfig
@@ -130,7 +131,7 @@ func (h *SceneLinkageDetailHandler) UpdateSceneLinkageDetail(c *gin.Context) {
 		detail.ActionConfig = json.RawMessage("{}")
 	}
 	if err := h.svc.Update(c, detail); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.UpdateSceneLinkageDetailResponse{Detail: sceneLinkageDetailJSON(*detail)})

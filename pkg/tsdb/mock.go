@@ -3,6 +3,7 @@ package tsdb
 import (
 	"context"
 	"math/rand"
+	"sort"
 	"sync"
 	"time"
 
@@ -69,10 +70,20 @@ func (m *MockClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]Poi
 				Metric:    rec.Metric,
 				Value:     rec.Value,
 			})
-			if len(points) >= limit {
-				break
-			}
 		}
+	}
+	sort.Slice(points, func(i, j int) bool {
+		if filter.Descending {
+			return points[i].Timestamp > points[j].Timestamp
+		}
+		return points[i].Timestamp < points[j].Timestamp
+	})
+	if len(points) > limit {
+		points = points[:limit]
+	}
+
+	if filter.DisableMockFallback {
+		return points, nil
 	}
 
 	// 若内存暂无真实点，平滑返回拟合曲线供前端预览

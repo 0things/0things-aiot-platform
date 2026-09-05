@@ -8,22 +8,22 @@ import (
 )
 
 type RouterDeps struct {
-	Logger                         *log.Logger
-	Config                         *viper.Viper
-	JWT                            *jwt.JWT
-	UserHandler                    *handler.UserHandler
-	ProductHandler                 *handler.ProductHandler
-	CategoryHandler                *handler.CategoryHandler
-	ProductTSLHandler              *handler.ProductTSLHandler
-	ProductMessageParserHandler    *handler.ProductMessageParserHandler
-	DeviceHandler                  *handler.DeviceHandler
-	SceneLinkageHandler            *handler.SceneLinkageHandler
-	SceneLinkageDetailHandler      *handler.SceneLinkageDetailHandler
-	OTAHandler                     *handler.OTAHandler
-	FileHandler                    *handler.FileHandler
-	DeviceEventHandler             *handler.DeviceEventHandler
-	DeviceServiceInvocationHandler *handler.DeviceServiceInvocationHandler
-	ProtocolHandler                *handler.ProtocolHandler
-	DeviceGroupHandler             *handler.DeviceGroupHandler
-	TelemetryHandler               *handler.TelemetryHandler
+	Logger                      *log.Logger
+	Config                      *viper.Viper
+	JWT                         *jwt.JWT
+	UserHandler                 *handler.UserHandler
+	ProductHandler              *handler.ProductHandler
+	CategoryHandler             *handler.CategoryHandler
+	ProductTSLHandler           *handler.ProductTSLHandler
+	ProductMessageParserHandler *handler.ProductMessageParserHandler
+	DeviceHandler               *handler.DeviceHandler
+	SceneLinkageHandler         *handler.SceneLinkageHandler
+	SceneLinkageDetailHandler   *handler.SceneLinkageDetailHandler
+	OTAHandler                  *handler.OTAHandler
+	FileHandler                 *handler.FileHandler
+	DeviceEventHandler          *handler.DeviceEventHandler
+	ThingModelDataHandler       *handler.ThingModelDataHandler
+	ProtocolHandler             *handler.ProtocolHandler
+	DeviceGroupHandler          *handler.DeviceGroupHandler
+	TelemetryHandler            *handler.TelemetryHandler
 }

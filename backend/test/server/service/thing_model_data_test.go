@@ -19,7 +19,7 @@ func TestDeviceServiceInvocationServiceList(t *testing.T) {
 	require.NoError(t, db.Create(&model.DeviceServiceInvocation{UUID: "call-1", DeviceID: 1, ServiceIdentifier: "reboot", ServiceName: "Reboot", InputParams: `{}`, OutputParams: &output, InvokedAt: now}).Error)
 	require.NoError(t, db.Create(&model.DeviceServiceInvocation{UUID: "call-2", DeviceID: 1, ServiceIdentifier: "set", ServiceName: "Set", InputParams: `{"on":true}`, InvokedAt: now.Add(-time.Hour)}).Error)
 
-	items, total, err := testutil.NewTestDeviceServiceInvocationService(db).List(testutil.ContextWithTenant(t.Context(), 1), dto.ListDeviceServiceInvocationsQuery{
+	items, total, err := testutil.NewTestThingModelDataService(db).ListServiceInvocations(testutil.ContextWithTenant(t.Context(), 1), dto.ListDeviceServiceInvocationsQuery{
 		DeviceKey: "D001", ServiceIdentifier: "reboot", StartAt: ptrTime(now.Add(-time.Minute)), EndAt: ptrTime(now.Add(time.Minute)), Page: 1, PageSize: 10,
 	})
 	require.NoError(t, err)

@@ -4,7 +4,7 @@ import "github.com/gin-gonic/gin"
 
 func InitDeviceRouter(deps RouterDeps, r *gin.RouterGroup) {
 	device := deps.DeviceHandler
-	serviceInvocations := deps.DeviceServiceInvocationHandler
+	thingModelData := deps.ThingModelDataHandler
 	protocol := deps.ProtocolHandler
 	r.POST("/devices", device.CreateDevice)
 	r.GET("/devices", device.ListDevices)
@@ -27,7 +27,8 @@ func InitDeviceRouter(deps RouterDeps, r *gin.RouterGroup) {
 	r.GET("/devices/:deviceKey/shadow/history", device.History)
 	r.POST("/devices/:deviceKey/simulate-push", device.SimulatePush)
 	r.GET("/devices/:deviceKey/push-records", device.PushRecords)
-	r.GET("/devices/:deviceKey/thing-model-service-invocations", serviceInvocations.List)
+	r.GET("/devices/:deviceKey/thing-model/service-invocations", thingModelData.ListServiceInvocations)
+	r.GET("/devices/:deviceKey/thing-model/properties", thingModelData.ListProperties)
 	r.GET("/devices/push-records/:pushRecordId", device.PushRecord)
 	r.DELETE("/devices/:deviceKey/push-records", device.ClearPushRecords)
 	r.POST("/devices/batch/upload", device.BatchUpload)

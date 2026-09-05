@@ -63,9 +63,11 @@ func (h *DeviceGroupHandler) Create(c *gin.Context) {
 // @Router /device-groups [get]
 func (h *DeviceGroupHandler) List(c *gin.Context) {
 	var req v1.ListDeviceGroupsRequest
-	_ = c.ShouldBindQuery(&req)
-	p, s := pageRequest(req.PageRequest, 20)
-	groups, total, err := h.svc.List(c, p, s, req.Search, req.Type)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
+	groups, total, err := h.svc.List(c, req.Page, req.PageSize, req.Search, req.Type)
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -74,7 +76,7 @@ func (h *DeviceGroupHandler) List(c *gin.Context) {
 	for i := range groups {
 		items[i] = deviceGroupJSON(groups[i])
 	}
-	v1.HandleSuccess(c, v1.ListDeviceGroupsResponse{Items: items, Total: total, Page: p, PageSize: s})
+	v1.HandleSuccess(c, v1.ListDeviceGroupsResponse{Items: items, Total: total, Page: req.Page, PageSize: req.PageSize})
 }
 
 // Get godoc
@@ -181,9 +183,11 @@ func (h *DeviceGroupHandler) RemoveDevices(c *gin.Context) {
 // @Router /device-groups/{groupUuid}/devices [get]
 func (h *DeviceGroupHandler) ListDevices(c *gin.Context) {
 	var req v1.ListDeviceGroupDevicesRequest
-	_ = c.ShouldBindQuery(&req)
-	p, s := pageRequest(req.PageRequest, 20)
-	devices, total, err := h.svc.Devices(c, c.Param("groupUuid"), p, s, req.ProductKey, req.Search)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
+	devices, total, err := h.svc.Devices(c, c.Param("groupUuid"), req.Page, req.PageSize, req.ProductKey, req.Search)
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -192,7 +196,7 @@ func (h *DeviceGroupHandler) ListDevices(c *gin.Context) {
 	for i, device := range devices {
 		items[i] = deviceJSON(device)
 	}
-	v1.HandleSuccess(c, v1.DeviceGroupDevicesResponse{Devices: items, Total: total, Page: p, PageSize: s})
+	v1.HandleSuccess(c, v1.DeviceGroupDevicesResponse{Devices: items, Total: total, Page: req.Page, PageSize: req.PageSize})
 }
 
 // Preview godoc

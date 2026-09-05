@@ -10,6 +10,7 @@ import (
 	"aiot-backend/internal/handler"
 	"aiot-backend/internal/model"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -42,7 +43,7 @@ func TestOTAHandler_List(t *testing.T) {
 	router := setupOTARouter(mockService)
 
 	packages := []model.OTAPackage{{ID: 1, PackageName: "firmware-1"}}
-	mockService.EXPECT().List(gomock.Any(), 1, 20).Return(packages, int64(1), nil)
+	mockService.EXPECT().List(gomock.Any(), 1, 10).Return(packages, int64(1), nil)
 
 	req, _ := http.NewRequest("GET", "/ota/packages", nil)
 	w := httptest.NewRecorder()

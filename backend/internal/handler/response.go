@@ -1,69 +1,16 @@
 package handler
 
 import (
-	apiV1 "aiot-backend/api/v1"
 	"encoding/json"
-	"errors"
-	"net/http"
 	"strconv"
 	"time"
 
-	"aiot-backend/internal/repository"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func pageRequest(req apiV1.PageRequest, defaultSize int) (int, int) {
-	pageNumber, pageSize := req.Page, req.PageSize
-	if pageNumber < 1 {
-		pageNumber = 1
-	}
-	if pageSize < 1 {
-		pageSize = defaultSize
-	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
-	return pageNumber, pageSize
-}
-
-func deviceError(c *gin.Context, err error) {
-	status := http.StatusInternalServerError
-	if errors.Is(err, repository.ErrNotFound) || errors.Is(err, gorm.ErrRecordNotFound) {
-		status = http.StatusNotFound
-	} else if errors.Is(err, repository.ErrVersionConflict) {
-		status = http.StatusConflict
-	} else if err.Error() == "invalid status transition" ||
-		err.Error() == "device already activated" ||
-		err.Error() == "name is required" ||
-		err.Error() == "invalid tag key" ||
-		err.Error() == "invalid device group type" ||
-		err.Error() == "rule is required for dynamic group" ||
-		err.Error() == "device group name already exists" ||
-		err.Error() == "dynamic group members are managed by rule" {
-		status = http.StatusBadRequest
-	}
-
-	c.JSON(status, gin.H{"code": status, "message": err.Error()})
-}
-
 func id(c *gin.Context) (int64, error) {
 	return strconv.ParseInt(c.Param("id"), 10, 64)
-}
-
-func page(c *gin.Context, defaultSize int) (int, int) {
-	pageNumber, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", strconv.Itoa(defaultSize)))
-	if pageNumber < 1 {
-		pageNumber = 1
-	}
-	if pageSize < 1 {
-		pageSize = defaultSize
-	}
-	if pageSize > 100 {
-		pageSize = 100
-	}
-	return pageNumber, pageSize
 }
 
 func raw(value string) any {

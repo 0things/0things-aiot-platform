@@ -11,6 +11,7 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
 	mock_service "aiot-backend/test/mocks/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -104,7 +105,7 @@ func TestOTAHandler_Deployments(t *testing.T) {
 	router := setupOTARouterFull(mockService)
 
 	deployments := []model.DeviceDeployment{{DeviceKey: "D001"}}
-	mockService.EXPECT().Deployments(gomock.Any(), "1", 1, 100, "").Return(deployments, int64(1), nil)
+	mockService.EXPECT().Deployments(gomock.Any(), "1", 1, 10, "").Return(deployments, int64(1), nil)
 
 	req, _ := http.NewRequest("GET", "/ota/packages/1/deployments", nil)
 	w := httptest.NewRecorder()

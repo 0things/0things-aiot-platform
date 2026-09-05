@@ -1,0 +1,85 @@
+package handler_test
+
+import (
+	"context"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
+	"aiot-backend/internal/dto"
+	"aiot-backend/internal/handler"
+	"aiot-backend/internal/model"
+	"aiot-backend/internal/service"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
+)
+
+type invocationServiceStub struct {
+	items []model.DeviceServiceInvocation
+	total int64
+	err   error
+}
+
+func (s invocationServiceStub) ListProperties(context.Context, string) ([]model.ThingModelProperty, error) {
+	return nil, nil
+}
+
+func (s invocationServiceStub) ListServiceInvocations(context.Context, dto.ListDeviceServiceInvocationsQuery) ([]model.DeviceServiceInvocation, int64, error) {
+	return s.items, s.total, s.err
+}
+
+func setupDeviceServiceInvocationRouter(service service.ThingModelDataServiceInterface) *gin.Engine {
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	h := &handler.Handler{}
+	invocationHandler := handler.NewThingModelDataHandler(h, service)
+
+	router.GET("/devices/:deviceKey/thing-model/service-invocations", invocationHandler.ListServiceInvocations)
+
+	return router
+}
+
+func TestDeviceServiceInvocationHandler_List_Success(t *testing.T) {
+	output := `{"status":"ok"}`
+	invocations := []model.DeviceServiceInvocation{
+		{
+			UUID:              "test-uuid-1",
+			DeviceID:          1,
+			ServiceIdentifier: "reboot",
+			ServiceName:       "Reboot Device",
+			InputParams:       `{"force":true}`,
+			OutputParams:      &output,
+			InvokedAt:         time.Now(),
+		},
+	}
+	router := setupDeviceServiceInvocationRouter(invocationServiceStub{items: invocations, total: 1})
+
+	req, _ := http.NewRequest("GET", "/devices/D001/thing-model/service-invocations?page=1&pageSize=10", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestDeviceServiceInvocationHandler_List_BadRequest(t *testing.T) {
+	router := setupDeviceServiceInvocationRouter(invocationServiceStub{})
+
+	req, _ := http.NewRequest("GET", "/devices/D001/thing-model/service-invocations?startAt=invalid-time-format", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestDeviceServiceInvocationHandler_List_Error(t *testing.T) {
+	router := setupDeviceServiceInvocationRouter(invocationServiceStub{err: gorm.ErrRecordNotFound})
+
+	req, _ := http.NewRequest("GET", "/devices/NON_EXISTENT/thing-model/service-invocations", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+}

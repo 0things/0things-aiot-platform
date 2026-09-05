@@ -192,8 +192,12 @@ func (c *TDengineClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 
 	tableName := SanitizeTableName(filter.DeviceKey)
 	escapedMetric := strings.ReplaceAll(filter.Metric, "'", "''")
-	sqlStr := fmt.Sprintf("SELECT ts, property_id, num_value, str_value, bool_value, json_value FROM %s.%s WHERE property_id = '%s' AND ts >= %d AND ts <= %d ORDER BY ts ASC LIMIT %d;",
-		c.dbName, tableName, escapedMetric, startTime, endTime, limit)
+	order := "ASC"
+	if filter.Descending {
+		order = "DESC"
+	}
+	sqlStr := fmt.Sprintf("SELECT ts, property_id, num_value, str_value, bool_value, json_value FROM %s.%s WHERE property_id = '%s' AND ts >= %d AND ts <= %d ORDER BY ts %s LIMIT %d;",
+		c.dbName, tableName, escapedMetric, startTime, endTime, order, limit)
 
 	if c.enabled && c.db != nil {
 		rows, err := c.db.QueryContext(ctx, sqlStr)
@@ -234,6 +238,9 @@ func (c *TDengineClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 	}
 
 	// 离线平滑降级
+	if filter.DisableMockFallback {
+		return nil, nil
+	}
 	mock := NewMockClient(c.logger)
 	return mock.QueryPoints(ctx, filter)
 }

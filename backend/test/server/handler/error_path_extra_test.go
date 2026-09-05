@@ -121,7 +121,7 @@ func TestOTAHandler_OTADeployments_Empty(t *testing.T) {
 	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
 	router := setupOTAFullErrRouter(mockService)
 
-	mockService.EXPECT().Deployments(gomock.Any(), "1", 1, 100, "").Return([]model.DeviceDeployment{}, int64(0), nil)
+	mockService.EXPECT().Deployments(gomock.Any(), "1", 1, 10, "").Return([]model.DeviceDeployment{}, int64(0), nil)
 	req, _ := http.NewRequest("GET", "/ota/packages/1/deployments", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -188,7 +188,7 @@ func TestOTAHandler_OTADeployments_InvalidID(t *testing.T) {
 	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
 	router := setupOTAFullErrRouter(mockService)
 
-	mockService.EXPECT().Deployments(gomock.Any(), "abc", 1, 100, "").Return(nil, int64(0), assert.AnError)
+	mockService.EXPECT().Deployments(gomock.Any(), "abc", 1, 10, "").Return(nil, int64(0), assert.AnError)
 	req, _ := http.NewRequest("GET", "/ota/packages/abc/deployments", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

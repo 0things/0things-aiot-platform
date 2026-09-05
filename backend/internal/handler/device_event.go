@@ -44,7 +44,7 @@ func deviceEventResponse(event dto.DeviceEventListItem) v1.DeviceEvent {
 func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) {
 	var req v1.ListDeviceEventsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": err.Error()})
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	query := dto.ListDeviceEventsQuery{
@@ -58,7 +58,7 @@ func (h *DeviceEventHandler) ListDeviceEvents(c *gin.Context) {
 	}
 	events, total, err := h.svc.List(c, query)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	out := make([]v1.DeviceEvent, 0, len(events))

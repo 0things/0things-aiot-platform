@@ -61,6 +61,7 @@ import type {
   ApiResponseDeviceTelemetryResponse,
   ApiResponseDeviceUpdateDeviceResponse,
   ApiResponseFileUploadOTAFileResponse,
+  ApiResponseGetDeviceThingModelPropertiesResponse,
   ApiResponseGetSceneLinkageDetailResponse,
   ApiResponseGetSceneLinkageResponse,
   ApiResponseListSceneLinkagesResponse,
@@ -4580,6 +4581,175 @@ export function useGetDevicesDeviceKeyTelemetry<
 }
 
 /**
+ * Returns all product TSL properties in definition order with their latest telemetry values.
+ * @summary Get device thing-model property latest values
+ */
+export const getDevicesDeviceKeyThingModelProperties = (
+  deviceKey: string,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseGetDeviceThingModelPropertiesResponse>({
+    url: `/devices/${deviceKey}/thing-model/properties`,
+    method: 'GET',
+    signal,
+  })
+}
+
+export const getGetDevicesDeviceKeyThingModelPropertiesQueryKey = (
+  deviceKey: string
+) => {
+  return [`/devices/${deviceKey}/thing-model/properties`] as const
+}
+
+export const getGetDevicesDeviceKeyThingModelPropertiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetDevicesDeviceKeyThingModelPropertiesQueryKey(deviceKey)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>
+  > = ({ signal }) => getDevicesDeviceKeyThingModelProperties(deviceKey, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: deviceKey !== null && deviceKey !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevicesDeviceKeyThingModelPropertiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>
+>
+export type GetDevicesDeviceKeyThingModelPropertiesQueryError =
+  ErrorType<unknown>
+
+export function useGetDevicesDeviceKeyThingModelProperties<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+          TError,
+          Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyThingModelProperties<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+          TError,
+          Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetDevicesDeviceKeyThingModelProperties<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary Get device thing-model property latest values
+ */
+
+export function useGetDevicesDeviceKeyThingModelProperties<
+  TData = Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+  TError = ErrorType<unknown>,
+>(
+  deviceKey: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getDevicesDeviceKeyThingModelProperties>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetDevicesDeviceKeyThingModelPropertiesQueryOptions(
+    deviceKey,
+    options
+  )
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
  * Lists paginated thing-model service invocation records for one device.
  * @summary List thing-model service invocation records
  */
@@ -4589,7 +4759,7 @@ export const getDevicesDeviceKeyThingModelServiceInvocations = (
   signal?: AbortSignal
 ) => {
   return orvalAxios<ApiResponseDeviceListServiceInvocationsResponse>({
-    url: `/devices/${deviceKey}/thing-model-service-invocations`,
+    url: `/devices/${deviceKey}/thing-model/service-invocations`,
     method: 'GET',
     params,
     signal,
@@ -4601,7 +4771,7 @@ export const getGetDevicesDeviceKeyThingModelServiceInvocationsQueryKey = (
   params?: GetDevicesDeviceKeyThingModelServiceInvocationsParams
 ) => {
   return [
-    `/devices/${deviceKey}/thing-model-service-invocations`,
+    `/devices/${deviceKey}/thing-model/service-invocations`,
     ...(params ? [params] : []),
   ] as const
 }

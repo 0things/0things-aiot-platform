@@ -123,17 +123,22 @@ func (c *InfluxDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 		escapedDevKey := strings.ReplaceAll(strings.ReplaceAll(filter.DeviceKey, `\`, `\\`), `"`, `\"`)
 		escapedMetric := strings.ReplaceAll(strings.ReplaceAll(filter.Metric, `\`, `\\`), `"`, `\"`)
 
+		sort := "desc: false"
+		if filter.Descending {
+			sort = "desc: true"
+		}
 		fluxQuery := fmt.Sprintf(`
 			from(bucket: "%s")
 			|> range(start: %s, stop: %s)
 			|> filter(fn: (r) => r["_measurement"] == "device_properties")
 			|> filter(fn: (r) => r["device_key"] == "%s")
 			|> filter(fn: (r) => r["property_id"] == "%s")
+			|> sort(columns: ["_time"], %s)
 			|> limit(n: %d)
 		`, escapedBucket,
 			time.UnixMilli(startTime).UTC().Format(time.RFC3339),
 			time.UnixMilli(endTime).UTC().Format(time.RFC3339),
-			escapedDevKey, escapedMetric, limit,
+			escapedDevKey, escapedMetric, sort, limit,
 		)
 
 		result, err := c.queryAPI.Query(ctx, fluxQuery)
@@ -153,6 +158,9 @@ func (c *InfluxDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 		}
 	}
 
+	if filter.DisableMockFallback {
+		return nil, nil
+	}
 	// 离线降级
 	mock := NewMockClient(c.logger)
 	return mock.QueryPoints(ctx, filter)

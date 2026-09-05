@@ -14,7 +14,7 @@ export type {
 }
 
 export const serviceInvocationKeys = {
-  all: ['thing-model-service-invocations'] as const,
+  all: ['thing-model', 'service-invocations'] as const,
   list: (
     deviceKey: string,
     params?: GetDevicesDeviceKeyThingModelServiceInvocationsParams

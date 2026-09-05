@@ -93,9 +93,11 @@ func otaDeploymentJSON(deployment model.DeviceDeployment) v1.DeviceDeployment {
 // @Router /ota-packages [get]
 func (h *OTAHandler) ListOTA(c *gin.Context) {
 	var req v1.ListOTAPackagesRequest
-	_ = c.ShouldBindQuery(&req)
-	pageNumber, pageSize := pageRequest(req.PageRequest, 20)
-	packages, total, err := h.svc.List(c, pageNumber, pageSize)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
+	packages, total, err := h.svc.List(c, req.Page, req.PageSize)
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -104,7 +106,7 @@ func (h *OTAHandler) ListOTA(c *gin.Context) {
 	for i, pkg := range packages {
 		items[i] = otaPackageJSON(pkg)
 	}
-	v1.HandleSuccess(c, v1.ListOTAPackagesResponse{OTAPackages: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, v1.ListOTAPackagesResponse{OTAPackages: items, Total: total, Page: req.Page, PageSize: req.PageSize})
 }
 
 // GetOTA godoc
@@ -407,16 +409,18 @@ func (h *OTAHandler) OTABatches(c *gin.Context) {
 // @Router /ota-packages/{uuid}/device-deployments [get]
 func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	var req v1.ListDeviceDeploymentsRequest
-	_ = c.ShouldBindQuery(&req)
-	pageNumber, pageSize := pageRequest(req.PageRequest, 100)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
 	var deployments []model.DeviceDeployment
 	var total int64
 	var err error
 	// Preserve legacy behavior by querying the entire OTA package without a batch ID.
 	if req.BatchID != "" {
-		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, req.Status, req.BatchID)
+		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), req.Page, req.PageSize, req.Status, req.BatchID)
 	} else {
-		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), pageNumber, pageSize, req.Status)
+		deployments, total, err = h.svc.Deployments(c, c.Param("uuid"), req.Page, req.PageSize, req.Status)
 	}
 	if err != nil {
 		v1.HandleError(c, otaErrorStatus(err), err, nil)
@@ -426,5 +430,5 @@ func (h *OTAHandler) OTADeployments(c *gin.Context) {
 	for i, deployment := range deployments {
 		items[i] = otaDeploymentJSON(deployment)
 	}
-	v1.HandleSuccess(c, v1.ListDeviceDeploymentsResponse{Items: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, v1.ListDeviceDeploymentsResponse{Items: items, Total: total, Page: req.Page, PageSize: req.PageSize})
 }

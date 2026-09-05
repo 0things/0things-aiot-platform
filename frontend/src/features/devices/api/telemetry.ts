@@ -1,12 +1,10 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
-  getDevicesDeviceKeyShadow,
+  getDevicesDeviceKeyThingModelProperties,
   getV1DevicesDeviceKeyTelemetryHistory,
 } from '@/api/generated'
-import type {
-  DeviceShadow,
-  GetV1DevicesDeviceKeyTelemetryHistoryParams,
-} from '@/api/generated/model'
+import type { GetV1DevicesDeviceKeyTelemetryHistoryParams } from '@/api/generated/model'
+import type { ThingModelProperty } from '@/api/generated/model'
 
 export interface TelemetryPoint {
   timestamp: number
@@ -28,18 +26,20 @@ export interface TelemetryHistoryQueryParams {
 // ============================================================================
 
 /**
- * Fetch the live device shadow through the generated API client.
+ * Fetch the device's latest reported property values.
  */
-export function useDeviceShadow(deviceKey: string, enabled = true) {
+export function useThingModelProperties(deviceKey: string, enabled = true) {
   return useQuery({
-    queryKey: ['devices', deviceKey, 'shadow'],
+    queryKey: ['devices', deviceKey, 'thing-model', 'properties'],
     queryFn: async ({ signal }) => {
-      const resp = await getDevicesDeviceKeyShadow(deviceKey, signal)
-      return resp.data as DeviceShadow | undefined
+      const response = await getDevicesDeviceKeyThingModelProperties(
+        deviceKey,
+        signal
+      )
+      return (response.data?.items || []) as ThingModelProperty[]
     },
     enabled: Boolean(deviceKey) && enabled,
     placeholderData: keepPreviousData,
-    refetchInterval: 3000, // Poll the shadow every three seconds.
   })
 }
 

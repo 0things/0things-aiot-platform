@@ -131,7 +131,7 @@ func TestDeviceHandler_BatchUploadNoFile(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_BatchUploadWithErrors(t *testing.T) {
@@ -169,7 +169,7 @@ func TestDeviceHandler_PushRecordsWithFilters(t *testing.T) {
 	router := setupDeviceRouterRemaining(mockService)
 
 	records := []model.DevicePushRecord{{ID: 1, DeviceID: 1}}
-	mockService.EXPECT().ListPushRecords(gomock.Any(), "D001", 1, 20, "", "success").Return(records, int64(1), nil)
+	mockService.EXPECT().ListPushRecords(gomock.Any(), "D001", 1, 10, "", "success").Return(records, int64(1), nil)
 
 	req, _ := http.NewRequest("GET", "/devices/D001/push-records?status=success", nil)
 	w := httptest.NewRecorder()

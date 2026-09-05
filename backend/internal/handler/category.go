@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -34,7 +36,7 @@ func categoryJSON(item model.Category) v1.Category {
 func (h *CategoryHandler) Tree(c *gin.Context) {
 	items, err := h.svc.Tree(c)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	out := make([]v1.Category, len(items))

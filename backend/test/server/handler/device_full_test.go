@@ -263,7 +263,7 @@ func TestDeviceHandler_PushRecords(t *testing.T) {
 	router := setupDeviceRouterFull(mockService)
 
 	records := []model.DevicePushRecord{{ID: 1, DeviceID: 1}}
-	mockService.EXPECT().ListPushRecords(gomock.Any(), "D001", 1, 20, "", "").Return(records, int64(1), nil)
+	mockService.EXPECT().ListPushRecords(gomock.Any(), "D001", 1, 10, "", "").Return(records, int64(1), nil)
 
 	req, _ := http.NewRequest("GET", "/devices/D001/push-records", nil)
 	w := httptest.NewRecorder()

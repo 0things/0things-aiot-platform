@@ -2,8 +2,8 @@ import { Route } from '@/routes/_authenticated/device-management/devices/$device
 import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DeviceEvents } from '@/features/operations-monitoring/events'
+import { PropertyTab } from './property-tab'
 import { ServiceInvocationsTab } from './service-invocations-tab'
-import { TelemetryTab } from './telemetry-tab'
 
 export function ThingModelDataTab() {
   const { t } = useTranslation('deviceManagement')
@@ -24,7 +24,7 @@ export function ThingModelDataTab() {
       </TabsList>
 
       <TabsContent value='properties' className='mt-0'>
-        <TelemetryTab />
+        <PropertyTab />
       </TabsContent>
       <TabsContent value='eventManagement' className='mt-0'>
         <DeviceEvents deviceKey={deviceKey} />

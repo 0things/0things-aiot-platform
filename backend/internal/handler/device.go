@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -15,8 +16,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// DeviceHandler deliberately writes the legacy raw response bodies. Device
-// clients predate the backend's common response envelope.
 type DeviceHandler struct {
 	*Handler
 	svc    service.DeviceServiceInterface
@@ -93,12 +92,12 @@ func pushRecordJSON(record model.DevicePushRecord) v1.PushRecord {
 func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 	var req v1.CreateDeviceRequest
 	if e := c.ShouldBindJSON(&req); e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusBadRequest, e, nil)
 		return
 	}
 	d, e := h.svc.CreateDevice(c, &model.Device{Name: req.Name, ProductID: req.ProductID, Enabled: req.Enabled, Metadata: string(req.Metadata)})
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.CreateDeviceResponse{Device: deviceJSON(*d)})
@@ -118,7 +117,7 @@ func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 func (h *DeviceHandler) GetDevice(c *gin.Context) {
 	d, e := h.svc.DeviceByKey(c, c.Param("deviceKey"))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.GetDeviceResponse{Device: deviceJSON(*d)})
@@ -142,18 +141,20 @@ func (h *DeviceHandler) GetDeviceByKey(c *gin.Context) {
 // @Router /devices [get]
 func (h *DeviceHandler) ListDevices(c *gin.Context) {
 	var req v1.ListDevicesRequest
-	_ = c.ShouldBindQuery(&req)
-	p, s := pageRequest(req.PageRequest, 10)
-	d, n, e := h.svc.ListDevices(c, p, s, req.ProductID, req.States, req.Enabled, req.SearchText)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
+	d, n, e := h.svc.ListDevices(c, req.Page, req.PageSize, req.ProductID, req.States, req.Enabled, req.SearchText)
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	out := make([]v1.Device, 0, len(d))
 	for _, v := range d {
 		out = append(out, deviceJSON(v))
 	}
-	v1.HandleSuccess(c, v1.ListDevicesResponse{Devices: out, Total: n, Page: p, PageSize: s})
+	v1.HandleSuccess(c, v1.ListDevicesResponse{Devices: out, Total: n, Page: req.Page, PageSize: req.PageSize})
 }
 
 // UpdateDevice godoc
@@ -171,12 +172,12 @@ func (h *DeviceHandler) ListDevices(c *gin.Context) {
 func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 	var req v1.UpdateDeviceRequest
 	if e := c.ShouldBindJSON(&req); e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusBadRequest, e, nil)
 		return
 	}
 	d, e := h.svc.UpdateDeviceByKey(c, c.Param("deviceKey"), req.Name, req.State, string(req.Metadata))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.UpdateDeviceResponse{Device: deviceJSON(*d)})
@@ -196,7 +197,7 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 	e := h.svc.DeleteDeviceByKey(c, c.Param("deviceKey"))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.DeviceSuccessResponse{Success: true})
@@ -216,7 +217,7 @@ func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 func (h *DeviceHandler) Activate(c *gin.Context) {
 	d, e := h.svc.ActivateByKey(c, c.Param("deviceKey"))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.ActivateDeviceResponse{Device: deviceJSON(*d)})
@@ -238,12 +239,12 @@ func (h *DeviceHandler) Enabled(c *gin.Context) {
 	var req v1.SetDeviceEnabledRequest
 	e := c.ShouldBindJSON(&req)
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusBadRequest, e, nil)
 		return
 	}
 	d, e := h.svc.SetEnabledByKey(c, c.Param("deviceKey"), req.Enabled)
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.SetDeviceEnabledResponse{Device: deviceJSON(*d)})
@@ -262,7 +263,7 @@ func (h *DeviceHandler) Enabled(c *gin.Context) {
 func (h *DeviceHandler) Stats(c *gin.Context) {
 	x, e := h.svc.Stats(c)
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.DeviceStatisticsResponse{
@@ -285,7 +286,7 @@ func (h *DeviceHandler) Stats(c *gin.Context) {
 func (h *DeviceHandler) Telemetry(c *gin.Context) {
 	x, e := h.svc.Telemetry(c, c.Param("deviceKey"))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.TelemetryResponse{Telemetry: x})
@@ -305,7 +306,7 @@ func (h *DeviceHandler) Telemetry(c *gin.Context) {
 func (h *DeviceHandler) GetTags(c *gin.Context) {
 	x, e := h.svc.Tags(c, c.Param("deviceKey"))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
@@ -325,13 +326,13 @@ func (h *DeviceHandler) GetTags(c *gin.Context) {
 // @Router /devices/{deviceKey}/tags [put]
 func (h *DeviceHandler) PutTags(c *gin.Context) {
 	var req v1.SetDeviceTagsRequest
-	e := c.ShouldBindJSON(&req)
-	var x []model.DeviceTag
-	if e == nil {
-		x, e = h.svc.SetTags(c, c.Param("deviceKey"), req.Tags, true)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
 	}
-	if e != nil {
-		deviceError(c, e)
+	x, err := h.svc.SetTags(c, c.Param("deviceKey"), req.Tags, true)
+	if err != nil {
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
@@ -351,13 +352,13 @@ func (h *DeviceHandler) PutTags(c *gin.Context) {
 // @Router /devices/{deviceKey}/tags [post]
 func (h *DeviceHandler) PostTags(c *gin.Context) {
 	var req v1.SetDeviceTagsRequest
-	e := c.ShouldBindJSON(&req)
-	var x []model.DeviceTag
-	if e == nil {
-		x, e = h.svc.SetTags(c, c.Param("deviceKey"), req.Tags, false)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
 	}
-	if e != nil {
-		deviceError(c, e)
+	x, err := h.svc.SetTags(c, c.Param("deviceKey"), req.Tags, false)
+	if err != nil {
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.ListDeviceTagsResponse{Tags: deviceTagsJSON(x)})
@@ -377,12 +378,12 @@ func (h *DeviceHandler) PostTags(c *gin.Context) {
 // @Router /devices/{deviceKey}/tags [delete]
 func (h *DeviceHandler) DeleteTags(c *gin.Context) {
 	var req v1.DeleteDeviceTagsRequest
-	e := c.ShouldBindJSON(&req)
-	if e == nil {
-		e = h.svc.RemoveTags(c, c.Param("deviceKey"), req.Keys)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
 	}
-	if e != nil {
-		deviceError(c, e)
+	if err := h.svc.RemoveTags(c, c.Param("deviceKey"), req.Keys); err != nil {
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.DeviceSuccessResponse{Success: true})
@@ -457,7 +458,7 @@ func shadowJSON(x *model.DeviceShadow) v1.Shadow {
 func (h *DeviceHandler) GetShadow(c *gin.Context) {
 	x, e := h.svc.Shadow(c, c.Param("deviceKey"))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, shadowJSON(x))
@@ -477,13 +478,13 @@ func (h *DeviceHandler) GetShadow(c *gin.Context) {
 // @Router /devices/{deviceKey}/shadow/desired [put]
 func (h *DeviceHandler) Desired(c *gin.Context) {
 	var req v1.UpdateDesiredShadowRequest
-	e := c.ShouldBindJSON(&req)
-	var x *model.DeviceShadow
-	if e == nil {
-		x, e = h.svc.MutateShadow(c, c.Param("deviceKey"), req.Version, "app", &req.Desired, nil, false)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
 	}
-	if e != nil {
-		deviceError(c, e)
+	x, err := h.svc.MutateShadow(c, c.Param("deviceKey"), req.Version, "app", &req.Desired, nil, false)
+	if err != nil {
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, shadowJSON(x))
@@ -506,7 +507,7 @@ func (h *DeviceHandler) ClearDesired(c *gin.Context) {
 	_ = c.ShouldBindJSON(&req)
 	x, e := h.svc.MutateShadow(c, c.Param("deviceKey"), req.Version, "app", nil, nil, true)
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	v1.HandleSuccess(c, shadowJSON(x))
@@ -526,7 +527,7 @@ func (h *DeviceHandler) ClearDesired(c *gin.Context) {
 func (h *DeviceHandler) History(c *gin.Context) {
 	x, e := h.svc.ShadowHistory(c, c.Param("deviceKey"))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	items := make([]v1.DeviceShadowHistory, len(x))
@@ -551,12 +552,12 @@ func (h *DeviceHandler) History(c *gin.Context) {
 func (h *DeviceHandler) SimulatePush(c *gin.Context) {
 	var req v1.SimulatePushRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	record, err := h.svc.SimulatePush(c, c.Param("deviceKey"), req.Payload, c.GetHeader("X-User-ID"))
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.SimulatePushResponse{PushRecordID: strconv.FormatInt(record.ID, 10), Timestamp: record.CreatedAt.UnixMilli(), Status: record.Status, Message: "success"})
@@ -576,18 +577,20 @@ func (h *DeviceHandler) SimulatePush(c *gin.Context) {
 // @Router /devices/{deviceKey}/push-records [get]
 func (h *DeviceHandler) PushRecords(c *gin.Context) {
 	var req v1.ListPushRecordsRequest
-	_ = c.ShouldBindQuery(&req)
-	p, s := pageRequest(req.PageRequest, 20)
-	records, total, err := h.svc.ListPushRecords(c, c.Param("deviceKey"), p, s, req.OperationType, req.Status)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
+	records, total, err := h.svc.ListPushRecords(c, c.Param("deviceKey"), req.Page, req.PageSize, req.OperationType, req.Status)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	items := make([]v1.PushRecord, len(records))
 	for i, record := range records {
 		items[i] = pushRecordJSON(record)
 	}
-	v1.HandleSuccess(c, v1.ListPushRecordsResponse{Records: items, Total: total, Page: p, PageSize: s})
+	v1.HandleSuccess(c, v1.ListPushRecordsResponse{Records: items, Total: total, Page: req.Page, PageSize: req.PageSize})
 }
 
 // PushRecord godoc
@@ -604,12 +607,12 @@ func (h *DeviceHandler) PushRecords(c *gin.Context) {
 func (h *DeviceHandler) PushRecord(c *gin.Context) {
 	pushRecordID, err := strconv.ParseInt(c.Param("pushRecordId"), 10, 64)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	record, err := h.svc.PushRecord(c, pushRecordID)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.GetPushRecordResponse{Record: pushRecordJSON(*record)})
@@ -637,7 +640,7 @@ func (h *DeviceHandler) ClearPushRecords(c *gin.Context) {
 	}
 	deletedCount, err := h.svc.ClearPushRecords(c, c.Param("deviceKey"), before)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.ClearPushRecordsResponse{DeletedCount: deletedCount, Success: true})
@@ -655,7 +658,7 @@ func (h *DeviceHandler) ClearPushRecords(c *gin.Context) {
 func (h *DeviceHandler) BatchTemplate(c *gin.Context) {
 	b, e := h.svc.BatchTemplate()
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	c.Header("Content-Disposition", "attachment; filename=device_import_template.xlsx")
@@ -676,18 +679,18 @@ func (h *DeviceHandler) BatchTemplate(c *gin.Context) {
 func (h *DeviceHandler) BatchUpload(c *gin.Context) {
 	f, _, e := c.Request.FormFile("file")
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusBadRequest, e, nil)
 		return
 	}
 	defer f.Close()
 	b, e := io.ReadAll(io.LimitReader(f, 10<<20))
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusBadRequest, e, nil)
 		return
 	}
 	n, errs, e := h.svc.BatchCreate(c, b)
 	if e != nil {
-		deviceError(c, e)
+		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
 	}
 	items := make([]v1.BatchUploadError, len(errs))

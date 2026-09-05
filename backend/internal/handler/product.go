@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -57,7 +59,7 @@ func NewProductHandler(h *Handler, svc service.ProductServiceInterface) *Product
 func (h *ProductHandler) Create(c *gin.Context) {
 	var req v1.CreateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	protocols := make([]model.ProductProtocol, len(req.Protocols))
@@ -73,7 +75,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 	}
 	product, err := h.svc.Create(c, &model.Product{Name: req.Name, Description: req.Description, CategoryID: req.CategoryID, Status: req.Status, NodeType: req.NodeType, ConnectivityMethod: req.ConnectivityMethod, AccessProtocol: req.AccessProtocol, Protocols: protocols})
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.CreateProductResponse{Product: productJSON(*product, 0)})
@@ -93,7 +95,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 func (h *ProductHandler) Get(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.GetProductResponse{Product: productJSON(*product, 0)})
@@ -112,11 +114,13 @@ func (h *ProductHandler) Get(c *gin.Context) {
 // @Router /products [get]
 func (h *ProductHandler) List(c *gin.Context) {
 	var req v1.ListProductsRequest
-	_ = c.ShouldBindQuery(&req)
-	pageNumber, pageSize := pageRequest(req.PageRequest, 10)
-	products, total, err := h.svc.List(c, pageNumber, pageSize, req.Category, req.Status, req.SearchText)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
+		return
+	}
+	products, total, err := h.svc.List(c, req.Page, req.PageSize, req.Category, req.Status, req.SearchText)
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	items := make([]v1.ProductListItem, 0, len(products))
@@ -124,7 +128,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 		item := v1.ProductListItem{Product: productJSON(product.Product, 0), CategoryName: product.CategoryName}
 		items = append(items, item)
 	}
-	v1.HandleSuccess(c, v1.ListProductsResponse{Products: items, Total: total, Page: pageNumber, PageSize: pageSize})
+	v1.HandleSuccess(c, v1.ListProductsResponse{Products: items, Total: total, Page: req.Page, PageSize: req.PageSize})
 }
 
 // Update godoc
@@ -142,12 +146,12 @@ func (h *ProductHandler) List(c *gin.Context) {
 func (h *ProductHandler) Update(c *gin.Context) {
 	product, err := h.svc.GetByKey(c, c.Param("productKey"))
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	var req v1.UpdateProductRequest
 	if err = c.ShouldBindJSON(&req); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
 	if req.Name != "" {
@@ -185,7 +189,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		}
 	}
 	if err = h.svc.Save(c, product); err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.UpdateProductResponse{Product: productJSON(*product, 0)})
@@ -205,7 +209,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 func (h *ProductHandler) Delete(c *gin.Context) {
 	err := h.svc.DeleteByKey(c, c.Param("productKey"))
 	if err != nil {
-		deviceError(c, err)
+		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
 	v1.HandleSuccess(c, v1.ProductSuccessResponse{Success: true})

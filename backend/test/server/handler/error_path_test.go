@@ -36,7 +36,7 @@ func TestDeviceHandler_CreateDevice_InvalidJSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_GetDevice_NotFound(t *testing.T) {
@@ -54,7 +54,7 @@ func TestDeviceHandler_GetDevice_NotFound(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/devices/1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_GetDevice_ServiceError(t *testing.T) {
@@ -90,7 +90,7 @@ func TestDeviceHandler_GetDeviceByKey_NotFound(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/devices/key/NONEXIST", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_ListDevices_WithProductID(t *testing.T) {
@@ -185,7 +185,7 @@ func TestDeviceHandler_UpdateDevice_InvalidJSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_DeleteDevice_Success(t *testing.T) {
@@ -240,7 +240,7 @@ func TestDeviceHandler_Telemetry_NotFound(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/devices/D001/telemetry", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_GetTags_NotFound(t *testing.T) {
@@ -258,7 +258,7 @@ func TestDeviceHandler_GetTags_NotFound(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/devices/D001/tags", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_PutTags_InvalidJSON(t *testing.T) {
@@ -276,7 +276,7 @@ func TestDeviceHandler_PutTags_InvalidJSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_DeleteTags_Success(t *testing.T) {
@@ -314,7 +314,7 @@ func TestDeviceHandler_DeleteTags_InvalidJSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_GetShadow_NotFound(t *testing.T) {
@@ -332,7 +332,7 @@ func TestDeviceHandler_GetShadow_NotFound(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/devices/D001/shadow", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_History_Success(t *testing.T) {
@@ -406,7 +406,7 @@ func TestDeviceHandler_SimulatePush_InvalidJSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_UpdateDevice_InvalidID(t *testing.T) {
@@ -446,7 +446,7 @@ func TestDeviceHandler_UpdateDevice_ServiceError(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_DeleteDevice_ServiceError(t *testing.T) {
@@ -482,7 +482,7 @@ func TestDeviceHandler_Activate_ServiceError(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/devices/1/activate", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_Enabled_BindError(t *testing.T) {
@@ -500,7 +500,7 @@ func TestDeviceHandler_Enabled_BindError(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_Enabled_ServiceError(t *testing.T) {
@@ -594,7 +594,7 @@ func TestDeviceHandler_PushRecords_ServiceError(t *testing.T) {
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 	router.GET("/devices/:deviceKey/push-records", deviceHandler.PushRecords)
 
-	mockService.EXPECT().ListPushRecords(gomock.Any(), "D001", 1, 20, "", "").Return(nil, int64(0), errors.New("db error"))
+	mockService.EXPECT().ListPushRecords(gomock.Any(), "D001", 1, 10, "", "").Return(nil, int64(0), errors.New("db error"))
 	req, _ := http.NewRequest("GET", "/devices/D001/push-records", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -615,7 +615,7 @@ func TestDeviceHandler_PushRecord_InvalidID(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/devices/D001/push-records/abc", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_PushRecord_ServiceError(t *testing.T) {
@@ -723,7 +723,7 @@ func TestDeviceHandler_BatchUpload_NoFile(t *testing.T) {
 	req.Header.Set("Content-Type", "multipart/form-data")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestDeviceHandler_Desired_ServiceError(t *testing.T) {
@@ -820,7 +820,7 @@ func TestDeviceHandler_PutTags_ServiceError(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func TestDeviceHandler_DeleteTags_ServiceError(t *testing.T) {
