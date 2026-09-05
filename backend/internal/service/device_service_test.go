@@ -5,6 +5,7 @@ import (
 	"context"
 	"testing"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 
@@ -80,7 +81,7 @@ func TestDeviceService_DeviceByKey(t *testing.T) {
 
 func TestDeviceService_ListDevices(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
-	ds, n, err := svc.ListDevices(ctx, 1, 10, 0, nil, nil, "")
+	ds, n, err := svc.ListDevices(ctx, dto.ListDevicesQuery{Page: 1, PageSize: 10})
 	require.NoError(t, err)
 	require.Equal(t, int64(1), n)
 	require.Len(t, ds, 1)

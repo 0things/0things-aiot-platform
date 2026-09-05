@@ -123,7 +123,7 @@ func TestDeviceHandler_GetDeviceByKey(t *testing.T) {
 func TestDeviceHandler_ListDevices(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().ListDevices(gomock.Any(), 1, 10, int64(2), gomock.Any(), gomock.Any(), "q").
+	m.EXPECT().ListDevices(gomock.Any(), gomock.Any()).
 		Return([]model.Device{*sampleDevice()}, int64(1), nil)
 	w := doDeviceReq(h, http.MethodGet, "/devices?productId=2&searchText=q&enabled=true", nil, nil)
 	if w.Code != http.StatusOK {

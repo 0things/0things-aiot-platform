@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 
@@ -44,13 +45,13 @@ func TestDeviceRepositories(t *testing.T) {
 	require.Len(t, storedRecords, 1)
 }
 
-func TestDeviceRepositoryListScopesSearchToTenant(t *testing.T) {
+func TestDeviceRepository_TenantIsolation(t *testing.T) {
 	store := newRepositoryTestDB(t, &model.Product{}, &model.Device{}, &model.DeviceState{})
-	repo := &DeviceRepository{db: store}
-	ctx := context.Background()
+	repo := NewDeviceRepository(store, nil)
+	ctx := tenant.WithTenant(context.Background(), 1)
 
-	product1 := &model.Product{ProductKey: "P001", OrganizationID: 1}
-	product2 := &model.Product{ProductKey: "P002", OrganizationID: 2}
+	product1 := &model.Product{ProductKey: "P001", Name: "Product one", OrganizationID: 1}
+	product2 := &model.Product{ProductKey: "P002", Name: "Product two", OrganizationID: 2}
 	require.NoError(t, store.Create(product1).Error)
 	require.NoError(t, store.Create(product2).Error)
 	device1 := &model.Device{DeviceKey: "D001", Name: "Tenant one", ProductID: product1.ID, OrganizationID: 1}
@@ -60,12 +61,12 @@ func TestDeviceRepositoryListScopesSearchToTenant(t *testing.T) {
 	require.NoError(t, store.Create(&model.DeviceState{DeviceKey: device1.DeviceKey, State: "online"}).Error)
 	require.NoError(t, store.Create(&model.DeviceState{DeviceKey: device2.DeviceKey, State: "online"}).Error)
 
-	items, total, err := repo.List(ctx, 1, 20, 0, nil, nil, "Tenant")
+	items, total, err := repo.List(ctx, dto.ListDevicesQuery{Page: 1, PageSize: 20, Search: "Tenant"})
 	require.NoError(t, err)
 	require.EqualValues(t, 1, total)
 	require.Len(t, items, 1)
 
-	items, total, err = repo.List(tenant.WithTenant(ctx, 2), 1, 20, 0, nil, nil, "Tenant")
+	items, total, err = repo.List(tenant.WithTenant(ctx, 2), dto.ListDevicesQuery{Page: 1, PageSize: 20, Search: "Tenant"})
 	require.NoError(t, err)
 	require.EqualValues(t, 1, total)
 	require.Len(t, items, 1)

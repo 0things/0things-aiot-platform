@@ -70,4 +70,76 @@ func TestApplyGroupRule_RejectsUnsupportedField(t *testing.T) {
 	require.EqualError(t, err, "unsupported group rule field: password")
 	_, err = applyGroupRule(nil, "created_at = '2026-01-01'")
 	require.EqualError(t, err, "unsupported group rule field: created_at")
+	_, err = applyGroupRule(nil, `{"password":"secret"}`)
+	require.EqualError(t, err, "unsupported group rule field: password")
 }
+
+func TestDeviceGroupRepositoryDevices_DynamicRuleWithJSON(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(
+		&model.Product{},
+		&model.Device{},
+		&model.DeviceState{},
+		&model.DeviceTag{},
+		&model.DeviceGroup{},
+		&model.DeviceGroupMember{},
+	))
+
+	product := model.Product{ProductKey: "product-a", Name: "A", OrganizationID: 1}
+	require.NoError(t, db.Create(&product).Error)
+	devices := []model.Device{
+		{ID: 1, DeviceKey: "device-1", Name: "D1", ProductID: product.ID, OrganizationID: 1, Enabled: true},
+		{ID: 2, DeviceKey: "device-2", Name: "D2", ProductID: product.ID, OrganizationID: 1, Enabled: true},
+	}
+	require.NoError(t, db.Create(&devices).Error)
+	require.NoError(t, db.Create(&[]model.DeviceState{
+		{ID: 1, DeviceKey: "device-1", State: "online"},
+		{ID: 2, DeviceKey: "device-2", State: "offline"},
+	}).Error)
+	require.NoError(t, db.Create(&[]model.DeviceTag{
+		{DeviceID: 1, Key: "location", Value: "floor1"},
+		{DeviceID: 2, Key: "location", Value: "floor2"},
+	}).Error)
+
+	repo := NewDeviceGroupRepository(db)
+
+	// 1. JSON rule with state
+	group := &model.DeviceGroup{
+		ID:             1,
+		OrganizationID: 1,
+		Type:           "dynamic",
+		Rule:           `{"state":"online"}`,
+	}
+	list, total, err := repo.Devices(context.Background(), group)
+	require.NoError(t, err)
+	require.Equal(t, int64(1), total)
+	require.Len(t, list, 1)
+	require.Equal(t, "device-1", list[0].DeviceKey)
+
+	// 2. JSON rule with tag
+	groupTag := &model.DeviceGroup{
+		ID:             2,
+		OrganizationID: 1,
+		Type:           "dynamic",
+		Rule:           `{"tag.location":"floor2"}`,
+	}
+	listTag, totalTag, err := repo.Devices(context.Background(), groupTag)
+	require.NoError(t, err)
+	require.Equal(t, int64(1), totalTag)
+	require.Len(t, listTag, 1)
+	require.Equal(t, "device-2", listTag[0].DeviceKey)
+
+	// 3. JSON rule with array
+	groupArray := &model.DeviceGroup{
+		ID:             3,
+		OrganizationID: 1,
+		Type:           "dynamic",
+		Rule:           `{"state":["online","offline"]}`,
+	}
+	listArr, totalArr, err := repo.Devices(context.Background(), groupArray)
+	require.NoError(t, err)
+	require.Equal(t, int64(2), totalArr)
+	require.Len(t, listArr, 2)
+}
+

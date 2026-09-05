@@ -32,8 +32,7 @@
     "header": {
       "productKey": "ProductKey",
       "productSecret": "ProductSecret",
-      "deviceCount": "Devices",
-      "copySuccess": "ProductSecret copied to clipboard"
+      "deviceCount": "Devices"
     },
     "tabs": {
       "info": "Product Info",
@@ -457,8 +456,7 @@
       "productKey": "ProductKey",
       "view": "View",
       "viewProduct": "View product details",
-      "copy": "Copy",
-      "copySuccess": "Copied to clipboard"
+      "copy": "Copy"
     },
     "tabs": {
       "info": "Device Info",
@@ -584,7 +582,6 @@
       "edit": "Edit",
       "viewProduct": "View product details",
       "test": "Test",
-      "copySuccess": "Copied",
       "testingLatency": "Testing latency...",
       "latencyResult": "Latency: {{latency}}",
       "logUploadEnabled": "Device log upload enabled",

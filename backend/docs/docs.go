@@ -477,9 +477,6 @@ const docTemplate = `{
         },
         "/device-groups/{groupUuid}/preview": {
             "post": {
-                "consumes": [
-                    "application/json"
-                ],
                 "tags": [
                     "Device groups"
                 ],
@@ -491,15 +488,6 @@ const docTemplate = `{
                         "name": "groupUuid",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Request payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/aiot-backend_api_v1.PreviewRequest"
-                        }
                     }
                 ],
                 "responses": {

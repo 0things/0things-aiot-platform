@@ -160,14 +160,14 @@ func TestCoverage_Device_CreateDevice_Error(t *testing.T) {
 
 func TestCoverage_Device_ListDevices_SearchAndStates(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.device.EXPECT().ListDevices(gomock.Any(), 1, 10, int64(0), []string{"online"}, gomock.Any(), "test").Return([]model.Device{}, int64(0), nil)
+	cr.device.EXPECT().ListDevices(gomock.Any(), gomock.Any()).Return([]model.Device{}, int64(0), nil)
 	w := cr.do("GET", "/devices?searchText=test&states=online", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestCoverage_Device_ListDevices_Error(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.device.EXPECT().ListDevices(gomock.Any(), 1, 10, int64(0), gomock.Any(), gomock.Any(), "").Return(nil, int64(0), errors.New("db error"))
+	cr.device.EXPECT().ListDevices(gomock.Any(), gomock.Any()).Return(nil, int64(0), errors.New("db error"))
 	w := cr.do("GET", "/devices", nil)
 	assert.True(t, w.Code >= 400, "expected error status code")
 }

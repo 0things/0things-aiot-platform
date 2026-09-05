@@ -1,21 +1,13 @@
 import type { ReactNode } from 'react'
-import { Copy, Globe, Radio, Wifi } from 'lucide-react'
+import { Globe, Radio, Wifi } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CopyButton } from '@/components/copy-button'
 import { useDeviceEndpoints } from '../../api/endpoints'
 
 export function DeviceEndpointsCard({ deviceKey }: { deviceKey: string }) {
   const { t } = useTranslation('deviceManagement')
   const { data: connectionData = {}, isLoading } = useDeviceEndpoints(deviceKey)
-  const copy = async (value: string, label: string) => {
-    await navigator.clipboard.writeText(value)
-    toast.success(
-      t('deviceDetail.header.copySuccess', { defaultValue: `${label} copied` })
-    )
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -54,15 +46,10 @@ export function DeviceEndpointsCard({ deviceKey }: { deviceKey: string }) {
                 icon={<Globe className='h-4 w-4' />}
                 tone='blue'
               >
-                <ConnectionRow
-                  label='HTTP'
-                  value={connectionData.http.http}
-                  onCopy={copy}
-                />
+                <ConnectionRow label='HTTP' value={connectionData.http.http} />
                 <ConnectionRow
                   label='RPC Subscribe'
                   value={connectionData.http.rpcSubscribe}
-                  onCopy={copy}
                 />
               </ProtocolCard>
             )}
@@ -72,35 +59,23 @@ export function DeviceEndpointsCard({ deviceKey }: { deviceKey: string }) {
                 icon={<Radio className='h-4 w-4' />}
                 tone='violet'
               >
-                <ConnectionRow
-                  label='Host'
-                  value={connectionData.mqtt.host}
-                  onCopy={copy}
-                />
-                <ConnectionRow
-                  label='Port'
-                  value={connectionData.mqtt.port}
-                  onCopy={copy}
-                />
+                <ConnectionRow label='Host' value={connectionData.mqtt.host} />
+                <ConnectionRow label='Port' value={connectionData.mqtt.port} />
                 <ConnectionRow
                   label='Telemetry Topic'
                   value={connectionData.mqtt.telemetryTopic}
-                  onCopy={copy}
                 />
                 <ConnectionRow
                   label='Attributes Topic'
                   value={connectionData.mqtt.attributesTopic}
-                  onCopy={copy}
                 />
                 <ConnectionRow
                   label='Attributes Subscribe Topic'
                   value={connectionData.mqtt.attributesSubscribeTopic}
-                  onCopy={copy}
                 />
                 <ConnectionRow
                   label='RPC Subscribe Topic'
                   value={connectionData.mqtt.rpcSubscribeTopic}
-                  onCopy={copy}
                 />
               </ProtocolCard>
             )}
@@ -110,22 +85,16 @@ export function DeviceEndpointsCard({ deviceKey }: { deviceKey: string }) {
                 icon={<Wifi className='h-4 w-4' />}
                 tone='emerald'
               >
-                <ConnectionRow
-                  label='CoAP'
-                  value={connectionData.coap.coap}
-                  onCopy={copy}
-                />
+                <ConnectionRow label='CoAP' value={connectionData.coap.coap} />
                 {connectionData.coap.docker && (
                   <ConnectionRow
                     label='Docker'
                     value={connectionData.coap.docker.coap}
-                    onCopy={copy}
                   />
                 )}
                 <ConnectionRow
                   label='RPC Subscribe'
                   value={connectionData.coap.rpcSubscribe}
-                  onCopy={copy}
                 />
               </ProtocolCard>
             )}
@@ -169,15 +138,7 @@ function ProtocolCard({
   )
 }
 
-function ConnectionRow({
-  label,
-  value,
-  onCopy,
-}: {
-  label: string
-  value: string
-  onCopy: (value: string, label: string) => void
-}) {
+function ConnectionRow({ label, value }: { label: string; value: string }) {
   return (
     <div className='group grid grid-cols-[8rem_minmax(0,1fr)_2rem] items-start gap-3 px-4 py-3 text-sm'>
       <span className='pt-0.5 text-xs font-medium tracking-wide text-muted-foreground uppercase'>
@@ -186,15 +147,7 @@ function ConnectionRow({
       <code className='rounded bg-muted/50 px-2 py-1 font-mono text-xs leading-5 break-all'>
         {value}
       </code>
-      <Button
-        variant='ghost'
-        size='icon'
-        className='h-7 w-7'
-        onClick={() => onCopy(value, label)}
-        aria-label={label}
-      >
-        <Copy className='h-3.5 w-3.5' />
-      </Button>
+      <CopyButton value={value} className='h-7 w-7' />
     </div>
   )
 }

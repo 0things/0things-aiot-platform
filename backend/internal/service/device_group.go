@@ -165,3 +165,4 @@ func (s *DeviceGroupService) Devices(ctx context.Context, groupUUID string, page
 func (s *DeviceGroupService) Preview(ctx context.Context, rule string) ([]model.Device, int64, error) {
 	return s.repo.Devices(ctx, &model.DeviceGroup{Type: model.DeviceGroupTypeDynamic, Rule: rule})
 }
+

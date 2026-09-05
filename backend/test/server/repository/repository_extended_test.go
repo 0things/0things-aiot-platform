@@ -913,7 +913,7 @@ func TestDeviceRepository_List_WithEnabledFilter(t *testing.T) {
 	deviceRepo.Create(ctx, device)
 
 	enabled := true
-	devices, total, err := deviceRepo.List(ctx, 1, 10, 0, nil, &enabled, "")
+	devices, total, err := deviceRepo.List(ctx, dto.ListDevicesQuery{Page: 1, PageSize: 10, Enabled: &enabled})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, devices, 1)
@@ -929,7 +929,7 @@ func TestDeviceRepository_List_WithSearch(t *testing.T) {
 	device := &model.Device{DeviceKey: "D001", Name: "Test Device", ProductID: product.ID, OrganizationID: 1}
 	deviceRepo.Create(ctx, device)
 
-	devices, total, err := deviceRepo.List(ctx, 1, 10, 0, nil, nil, "Test")
+	devices, total, err := deviceRepo.List(ctx, dto.ListDevicesQuery{Page: 1, PageSize: 10, Search: "Test"})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, devices, 1)

@@ -1,5 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+  type PaginationState,
+} from '@tanstack/react-table'
 import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -36,6 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { DataTablePagination } from '@/components/data-table'
 
 interface AddDevicesDialogProps {
   open: boolean
@@ -55,6 +62,10 @@ export function AddDevicesDialog({
   const [selectedProduct, setSelectedProduct] = useState<string>('all')
   const [search, setSearch] = useState<string>('')
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
 
   // 获取所有设备列表
   const { data: devicesData, isLoading: isDevicesLoading } = useQuery({
@@ -101,6 +112,18 @@ export function AddDevicesDialog({
       return true
     })
   }, [allDevices, existingDeviceKeys, selectedProduct, search, products])
+
+  const paginationTable = useReactTable({
+    data: availableDevices,
+    columns: [],
+    state: { pagination },
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  })
+  const paginatedDevices = paginationTable
+    .getRowModel()
+    .rows.map((row) => row.original)
 
   const addMutation = useMutation({
     mutationFn: () =>
@@ -219,7 +242,7 @@ export function AddDevicesDialog({
                   </TableCell>
                 </TableRow>
               ) : (
-                availableDevices.map((device) => {
+                paginatedDevices.map((device) => {
                   const isChecked = device.deviceKey
                     ? selectedKeys.includes(device.deviceKey)
                     : false
@@ -275,6 +298,8 @@ export function AddDevicesDialog({
             </TableBody>
           </Table>
         </div>
+
+        <DataTablePagination table={paginationTable} className='mt-2' />
 
         <DialogFooter className='flex items-center justify-between pt-2 sm:justify-between'>
           <div className='text-sm text-muted-foreground'>

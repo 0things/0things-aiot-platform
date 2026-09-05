@@ -1,33 +1,22 @@
-import { Copy, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import type { AiotBackendApiDeviceGroupV1DeviceGroup as DeviceGroupV1Group } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CopyButton } from '@/components/copy-button'
 
 interface GroupInfoTabProps {
   group: DeviceGroupV1Group
   totalDevices: number
-  activeDevices: number
-  onlineDevices: number
   onEdit: () => void
 }
 
 export function GroupInfoTab({
   group,
   totalDevices,
-  activeDevices,
-  onlineDevices,
   onEdit,
 }: GroupInfoTabProps) {
   const { t } = useTranslation('deviceGroup')
-
-  const handleCopyUuid = () => {
-    if (group.groupUuid) {
-      navigator.clipboard.writeText(group.groupUuid)
-      toast.success(t('copySuccess'))
-    }
-  }
 
   return (
     <Card>
@@ -58,35 +47,13 @@ export function GroupInfoTab({
               <span className='font-mono font-medium text-foreground'>
                 {group.groupUuid || '-'}
               </span>
-              {group.groupUuid && (
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='h-6 w-6'
-                  onClick={handleCopyUuid}
-                  title={t('copySuccess')}
-                >
-                  <Copy className='h-3.5 w-3.5 text-primary' />
-                </Button>
-              )}
+              {group.groupUuid && <CopyButton value={group.groupUuid} />}
             </div>
           </div>
 
           <div>
             <p className='text-muted-foreground'>{t('totalDevices')}</p>
             <p className='mt-1 font-medium text-foreground'>{totalDevices}</p>
-          </div>
-
-          <div>
-            <p className='text-muted-foreground'>{t('activeDevices')}</p>
-            <p className='mt-1 font-medium text-foreground'>{activeDevices}</p>
-          </div>
-
-          <div>
-            <p className='text-muted-foreground'>{t('currentOnline')}</p>
-            <p className='mt-1 font-medium text-emerald-600 dark:text-emerald-400'>
-              {onlineDevices}
-            </p>
           </div>
 
           <div>

@@ -128,7 +128,7 @@ func TestIntegrationDeviceService_ListDevices_NotFound(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestDeviceService(db)
 
-	devices, total, err := svc.ListDevices(ctx2(), 1, 10, 999, nil, nil, "")
+	devices, total, err := svc.ListDevices(ctx2(), dto.ListDevicesQuery{Page: 1, PageSize: 10, ProductID: 999})
 	require.NoError(t, err)
 	assert.Equal(t, int64(0), total)
 	assert.Empty(t, devices)

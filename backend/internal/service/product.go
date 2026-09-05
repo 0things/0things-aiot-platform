@@ -34,10 +34,6 @@ func NewProductService(repo *repository.ProductRepository) *ProductService {
 	return &ProductService{repo: repo}
 }
 
-func productKey() string {
-	return uuid.NewString()
-}
-
 func normalizeProductMetadata(value string) (string, error) {
 	if len(value) == 0 {
 		return value, nil
@@ -65,7 +61,7 @@ func (s *ProductService) Create(ctx context.Context, product *model.Product) (*m
 		return nil, err
 	}
 	if product.ProductKey == "" {
-		product.ProductKey = productKey()
+		product.ProductKey = uuid.NewString()
 	}
 	if product.Status == "" {
 		product.Status = string(enum.ProductStatusActive)

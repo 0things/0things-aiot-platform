@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft, Copy } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import type { Device as DeviceV1Device } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
+import { CopyButton } from '@/components/copy-button'
 
 interface DeviceHeaderProps {
   device: DeviceV1Device
@@ -12,11 +12,6 @@ interface DeviceHeaderProps {
 
 export function DeviceHeader({ device, onBack }: DeviceHeaderProps) {
   const { t } = useTranslation('deviceManagement')
-
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success(t('deviceDetail.header.copySuccess'))
-  }
 
   return (
     <div className='mb-6 space-y-4'>
@@ -58,17 +53,7 @@ export function DeviceHeader({ device, onBack }: DeviceHeaderProps) {
           ) : (
             <span className='font-mono'>-</span>
           )}
-          {device.productKey && (
-            <Button
-              variant='ghost'
-              size='icon'
-              className='h-6 w-6'
-              onClick={() => handleCopy(device.productKey || '')}
-              aria-label={t('deviceDetail.header.copy')}
-            >
-              <Copy className='h-3 w-3' />
-            </Button>
-          )}
+          {device.productKey && <CopyButton value={device.productKey} />}
         </div>
 
         <div className='flex items-center gap-2'>
@@ -76,17 +61,7 @@ export function DeviceHeader({ device, onBack }: DeviceHeaderProps) {
             {t('deviceDetail.header.deviceKey')}:
           </span>
           <span className='font-mono'>{device.deviceKey || '-'}</span>
-          {device.deviceKey && (
-            <Button
-              variant='ghost'
-              size='icon'
-              className='h-6 w-6'
-              onClick={() => handleCopy(device.deviceKey || '')}
-              aria-label={t('deviceDetail.header.copy')}
-            >
-              <Copy className='h-3 w-3' />
-            </Button>
-          )}
+          {device.deviceKey && <CopyButton value={device.deviceKey} />}
         </div>
       </div>
     </div>

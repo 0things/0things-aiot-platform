@@ -5,7 +5,7 @@
 package mock_service
 
 import (
-	devicegroupv1 "aiot-backend/api/v1"
+	v1 "aiot-backend/api/v1"
 	model "aiot-backend/internal/model"
 	context "context"
 	reflect "reflect"
@@ -51,7 +51,7 @@ func (mr *MockDeviceGroupServiceInterfaceMockRecorder) AddDevices(arg0, arg1, ar
 }
 
 // Create mocks base method.
-func (m *MockDeviceGroupServiceInterface) Create(arg0 context.Context, arg1 *devicegroupv1.CreateDeviceGroupRequest) (*model.DeviceGroup, error) {
+func (m *MockDeviceGroupServiceInterface) Create(arg0 context.Context, arg1 *v1.CreateDeviceGroupRequest) (*model.DeviceGroup, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(*model.DeviceGroup)
@@ -157,7 +157,7 @@ func (mr *MockDeviceGroupServiceInterfaceMockRecorder) RemoveDevices(arg0, arg1,
 }
 
 // Update mocks base method.
-func (m *MockDeviceGroupServiceInterface) Update(arg0 context.Context, arg1 string, arg2 *devicegroupv1.UpdateDeviceGroupRequest) (*model.DeviceGroup, error) {
+func (m *MockDeviceGroupServiceInterface) Update(arg0 context.Context, arg1 string, arg2 *v1.UpdateDeviceGroupRequest) (*model.DeviceGroup, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*model.DeviceGroup)

@@ -3,9 +3,11 @@ package handler
 import (
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/model"
+	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +19,24 @@ type DeviceGroupHandler struct {
 
 func NewDeviceGroupHandler(h *Handler, svc service.DeviceGroupServiceInterface) *DeviceGroupHandler {
 	return &DeviceGroupHandler{Handler: h, svc: svc}
+}
+
+func deviceGroupErrorStatus(err error) int {
+	if errors.Is(err, repository.ErrNotFound) {
+		return http.StatusNotFound
+	}
+	if errors.Is(err, service.ErrInvalidDeviceGroupType) {
+		return http.StatusBadRequest
+	}
+	msg := err.Error()
+	if strings.Contains(msg, "already exists") ||
+		strings.Contains(msg, "is required") ||
+		strings.Contains(msg, "dynamic group") ||
+		strings.Contains(msg, "invalid group rule") ||
+		strings.Contains(msg, "unsupported group rule") {
+		return http.StatusBadRequest
+	}
+	return http.StatusInternalServerError
 }
 
 func deviceGroupJSON(group model.DeviceGroup) v1.DeviceGroup {
@@ -48,7 +68,7 @@ func (h *DeviceGroupHandler) Create(c *gin.Context) {
 	}
 	group, err := h.svc.Create(c, &req)
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, deviceGroupJSON(*group))
@@ -69,7 +89,7 @@ func (h *DeviceGroupHandler) List(c *gin.Context) {
 	}
 	groups, total, err := h.svc.List(c, req.Page, req.PageSize, req.Search, req.Type)
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	items := make([]v1.DeviceGroup, len(groups))
@@ -89,7 +109,7 @@ func (h *DeviceGroupHandler) List(c *gin.Context) {
 func (h *DeviceGroupHandler) Get(c *gin.Context) {
 	group, err := h.svc.Get(c, c.Param("groupUuid"))
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, deviceGroupJSON(*group))
@@ -111,7 +131,7 @@ func (h *DeviceGroupHandler) Update(c *gin.Context) {
 	}
 	group, err := h.svc.Update(c, c.Param("groupUuid"), &req)
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, deviceGroupJSON(*group))
@@ -125,7 +145,7 @@ func (h *DeviceGroupHandler) Update(c *gin.Context) {
 // @Router /device-groups/{groupUuid} [delete]
 func (h *DeviceGroupHandler) Delete(c *gin.Context) {
 	if err := h.svc.Delete(c, c.Param("groupUuid")); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, gin.H{"success": true})
@@ -146,7 +166,7 @@ func (h *DeviceGroupHandler) AddDevices(c *gin.Context) {
 		return
 	}
 	if err := h.svc.AddDevices(c, c.Param("groupUuid"), req.DeviceKeys); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, gin.H{"success": true})
@@ -167,7 +187,7 @@ func (h *DeviceGroupHandler) RemoveDevices(c *gin.Context) {
 		return
 	}
 	if err := h.svc.RemoveDevices(c, c.Param("groupUuid"), req.DeviceKeys); err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	v1.HandleSuccess(c, gin.H{"success": true})
@@ -189,7 +209,7 @@ func (h *DeviceGroupHandler) ListDevices(c *gin.Context) {
 	}
 	devices, total, err := h.svc.Devices(c, c.Param("groupUuid"), req.Page, req.PageSize, req.ProductKey, req.Search)
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	items := make([]v1.Device, len(devices))
@@ -211,15 +231,13 @@ func (h *DeviceGroupHandler) Preview(c *gin.Context) { h.preview(c) }
 // PreviewSaved godoc
 // @Summary Preview saved device group rule
 // @Tags Device groups
-// @Accept json
 // @Param groupUuid path string true "Device group UUID"
-// @Param request body v1.PreviewRequest true "Request payload"
 // @Success 200 {object} v1.ApiResponse[v1.PreviewResponse] "Successful response"
 // @Router /device-groups/{groupUuid}/preview [post]
 func (h *DeviceGroupHandler) PreviewSaved(c *gin.Context) {
 	group, err := h.svc.Get(c, c.Param("groupUuid"))
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	if group.Type != "dynamic" {
@@ -241,7 +259,7 @@ func (h *DeviceGroupHandler) preview(c *gin.Context) {
 func (h *DeviceGroupHandler) previewRule(c *gin.Context, rule string) {
 	devices, total, err := h.svc.Preview(c, rule)
 	if err != nil {
-		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+		v1.HandleError(c, deviceGroupErrorStatus(err), err, nil)
 		return
 	}
 	items := make([]v1.Device, len(devices))
@@ -257,3 +275,4 @@ func (h *DeviceGroupHandler) previewRule(c *gin.Context, rule string) {
 	}
 	v1.HandleSuccess(c, v1.PreviewResponse{Total: total, Devices: items})
 }
+

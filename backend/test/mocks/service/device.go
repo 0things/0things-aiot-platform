@@ -5,6 +5,7 @@
 package mock_service
 
 import (
+	dto "aiot-backend/internal/dto"
 	model "aiot-backend/internal/model"
 	service "aiot-backend/internal/service"
 	context "context"
@@ -187,9 +188,9 @@ func (mr *MockDeviceServiceInterfaceMockRecorder) DeviceByKey(ctx, key interface
 }
 
 // ListDevices mocks base method.
-func (m *MockDeviceServiceInterface) ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) {
+func (m *MockDeviceServiceInterface) ListDevices(ctx context.Context, query dto.ListDevicesQuery) ([]model.Device, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListDevices", ctx, page, size, productID, states, enabled, search)
+	ret := m.ctrl.Call(m, "ListDevices", ctx, query)
 	ret0, _ := ret[0].([]model.Device)
 	ret1, _ := ret[1].(int64)
 	ret2, _ := ret[2].(error)
@@ -197,9 +198,9 @@ func (m *MockDeviceServiceInterface) ListDevices(ctx context.Context, page, size
 }
 
 // ListDevices indicates an expected call of ListDevices.
-func (mr *MockDeviceServiceInterfaceMockRecorder) ListDevices(ctx, page, size, productID, states, enabled, search interface{}) *gomock.Call {
+func (mr *MockDeviceServiceInterfaceMockRecorder) ListDevices(ctx, query interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDevices", reflect.TypeOf((*MockDeviceServiceInterface)(nil).ListDevices), ctx, page, size, productID, states, enabled, search)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDevices", reflect.TypeOf((*MockDeviceServiceInterface)(nil).ListDevices), ctx, query)
 }
 
 // ListPushRecords mocks base method.
@@ -260,36 +261,6 @@ func (m *MockDeviceServiceInterface) RemoveTags(ctx context.Context, key string,
 func (mr *MockDeviceServiceInterfaceMockRecorder) RemoveTags(ctx, key, keys interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTags", reflect.TypeOf((*MockDeviceServiceInterface)(nil).RemoveTags), ctx, key, keys)
-}
-
-// RestoreDevice mocks base method.
-func (m *MockDeviceServiceInterface) RestoreDevice(ctx context.Context, id int64) (*model.Device, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RestoreDevice", ctx, id)
-	ret0, _ := ret[0].(*model.Device)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// RestoreDevice indicates an expected call of RestoreDevice.
-func (mr *MockDeviceServiceInterfaceMockRecorder) RestoreDevice(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreDevice", reflect.TypeOf((*MockDeviceServiceInterface)(nil).RestoreDevice), ctx, id)
-}
-
-// RestoreDeviceByKey mocks base method.
-func (m *MockDeviceServiceInterface) RestoreDeviceByKey(ctx context.Context, deviceKey string) (*model.Device, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RestoreDeviceByKey", ctx, deviceKey)
-	ret0, _ := ret[0].(*model.Device)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// RestoreDeviceByKey indicates an expected call of RestoreDeviceByKey.
-func (mr *MockDeviceServiceInterfaceMockRecorder) RestoreDeviceByKey(ctx, deviceKey interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreDeviceByKey", reflect.TypeOf((*MockDeviceServiceInterface)(nil).RestoreDeviceByKey), ctx, deviceKey)
 }
 
 // SetEnabled mocks base method.

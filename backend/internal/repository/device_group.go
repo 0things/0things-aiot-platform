@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"aiot-backend/internal/model"
@@ -99,17 +101,95 @@ var groupRuleColumns = map[string]string{
 }
 
 // applyGroupRule 将用户配置的动态规则安全解析并映射为 GORM 查询条件。
-// 规则语法支持 AND/OR 组合及 IN/=/!=/LIKE 等操作符，并通过严格的白名单字段校验防止 SQL 注入。
+// 规则语法支持 JSON 键值对或 AND/OR 组合及 IN/=/!=/LIKE 等操作符，并通过严格的白名单字段校验防止 SQL 注入。
 func applyGroupRule(query *gorm.DB, rule string) (*gorm.DB, error) {
+	trimmed := strings.TrimSpace(rule)
+	if trimmed == "" {
+		return query, nil
+	}
+
+	if strings.HasPrefix(trimmed, "{") && strings.HasSuffix(trimmed, "}") {
+		var jsonMap map[string]any
+		if err := json.Unmarshal([]byte(trimmed), &jsonMap); err == nil {
+			if len(jsonMap) == 0 {
+				return query, nil
+			}
+			keys := make([]string, 0, len(jsonMap))
+			for k := range jsonMap {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+
+			var conditions []string
+			var allArgs []any
+			for _, k := range keys {
+				v := jsonMap[k]
+				field := strings.ToLower(k)
+				column, supported := groupRuleColumns[field]
+				if !supported && !strings.HasPrefix(field, "tag.") {
+					return nil, fmt.Errorf("unsupported group rule field: %s", field)
+				}
+				if field == "tag." {
+					return nil, fmt.Errorf("unsupported group rule field: %s", field)
+				}
+
+				switch val := v.(type) {
+				case []any:
+					strVals := make([]string, len(val))
+					for i, item := range val {
+						strVals[i] = fmt.Sprintf("%v", item)
+					}
+					if strings.HasPrefix(field, "tag.") {
+						conditions = append(conditions, "EXISTS (SELECT 1 FROM device_tags dt WHERE dt.device_id = devices.id AND dt.key = ? AND dt.value IN ?)")
+						allArgs = append(allArgs, strings.TrimPrefix(field, "tag."), strVals)
+					} else {
+						conditions = append(conditions, column+" IN ?")
+						allArgs = append(allArgs, strVals)
+					}
+				case []string:
+					if strings.HasPrefix(field, "tag.") {
+						conditions = append(conditions, "EXISTS (SELECT 1 FROM device_tags dt WHERE dt.device_id = devices.id AND dt.key = ? AND dt.value IN ?)")
+						allArgs = append(allArgs, strings.TrimPrefix(field, "tag."), val)
+					} else {
+						conditions = append(conditions, column+" IN ?")
+						allArgs = append(allArgs, val)
+					}
+				default:
+					if field == "enabled" {
+						bVal := false
+						if b, ok := val.(bool); ok {
+							bVal = b
+						} else if s, ok := val.(string); ok && (strings.ToLower(s) == "true" || s == "1") {
+							bVal = true
+						}
+						conditions = append(conditions, column+" = ?")
+						allArgs = append(allArgs, bVal)
+					} else if strings.HasPrefix(field, "tag.") {
+						conditions = append(conditions, "EXISTS (SELECT 1 FROM device_tags dt WHERE dt.device_id = devices.id AND dt.key = ? AND dt.value = ?)")
+						allArgs = append(allArgs, strings.TrimPrefix(field, "tag."), fmt.Sprintf("%v", val))
+					} else {
+						conditions = append(conditions, column+" = ?")
+						allArgs = append(allArgs, val)
+					}
+				}
+			}
+			return query.Where("("+strings.Join(conditions, " AND ")+")", allArgs...), nil
+		}
+	}
+
 	var branches []string
 	var allArgs []any
-	for _, orPart := range strings.Split(rule, " OR ") {
+	for _, orPart := range strings.Split(trimmed, " OR ") {
 		var conditions []string
 		var branchArgs []any
 		for _, raw := range strings.Split(orPart, " AND ") {
-			match := groupRuleCondition.FindStringSubmatch(strings.TrimSpace(raw))
+			rawTrimmed := strings.TrimSpace(raw)
+			if rawTrimmed == "" {
+				continue
+			}
+			match := groupRuleCondition.FindStringSubmatch(rawTrimmed)
 			if match == nil {
-				return nil, fmt.Errorf("invalid group rule condition: %s", strings.TrimSpace(raw))
+				return nil, fmt.Errorf("invalid group rule condition: %s", rawTrimmed)
 			}
 			field := strings.ToLower(match[1])
 			column, supported := groupRuleColumns[field]
@@ -121,8 +201,12 @@ func applyGroupRule(query *gorm.DB, rule string) (*gorm.DB, error) {
 			}
 			operator := strings.ToUpper(match[2])
 			value := strings.Trim(strings.TrimSpace(match[3]), "'\"")
+			var argVal any = value
+			if field == "enabled" {
+				argVal = strings.ToLower(value) == "true" || value == "1"
+			}
 			condition := column + " " + operator + " ?"
-			args := []any{value}
+			args := []any{argVal}
 			if strings.HasPrefix(field, "tag.") {
 				condition = "EXISTS (SELECT 1 FROM device_tags dt WHERE dt.device_id = devices.id AND dt.key = ? AND dt.value " + operator + " ?)"
 				args = []any{strings.TrimPrefix(field, "tag."), value}
@@ -141,8 +225,13 @@ func applyGroupRule(query *gorm.DB, rule string) (*gorm.DB, error) {
 			conditions = append(conditions, condition)
 			branchArgs = append(branchArgs, args...)
 		}
-		branches = append(branches, "("+strings.Join(conditions, " AND ")+")")
-		allArgs = append(allArgs, branchArgs...)
+		if len(conditions) > 0 {
+			branches = append(branches, "("+strings.Join(conditions, " AND ")+")")
+			allArgs = append(allArgs, branchArgs...)
+		}
+	}
+	if len(branches) == 0 {
+		return query, nil
 	}
 	return query.Where(strings.Join(branches, " OR "), allArgs...), nil
 }
@@ -205,6 +294,6 @@ func (r *DeviceGroupRepository) devices(ctx context.Context, group *model.Device
 	if page > 0 && size > 0 {
 		findQuery = findQuery.Offset((page - 1) * size).Limit(size)
 	}
-	err := findQuery.Find(&devices).Error
+	err := findQuery.Preload("Product").Preload("State").Find(&devices).Error
 	return devices, total, err
 }

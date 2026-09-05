@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
@@ -20,7 +21,7 @@ type DeviceServiceInterface interface {
 	CreateDevice(ctx context.Context, d *model.Device) (*model.Device, error)
 	Device(ctx context.Context, id int64) (*model.Device, error)
 	DeviceByKey(ctx context.Context, key string) (*model.Device, error)
-	ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error)
+	ListDevices(ctx context.Context, query dto.ListDevicesQuery) ([]model.Device, int64, error)
 	UpdateDevice(ctx context.Context, id int64, name, state string, metadata string) (*model.Device, error)
 	UpdateDeviceByKey(ctx context.Context, deviceKey string, name, state string, metadata string) (*model.Device, error)
 	Activate(ctx context.Context, id int64) (*model.Device, error)
@@ -102,10 +103,6 @@ func normalizeDeviceMetadata(value string) (string, error) {
 	return value, nil
 }
 
-func deviceKey() string {
-	return uuid.NewString()
-}
-
 func (s *DeviceService) CreateDevice(ctx context.Context, d *model.Device) (*model.Device, error) {
 	var err error
 	if d.Metadata, err = normalizeDeviceMetadata(d.Metadata); err != nil {
@@ -115,7 +112,7 @@ func (s *DeviceService) CreateDevice(ctx context.Context, d *model.Device) (*mod
 		return nil, err
 	}
 	if d.DeviceKey == "" {
-		d.DeviceKey = deviceKey()
+		d.DeviceKey = uuid.NewString()
 	}
 	d.OrganizationID = tenant.GetOrganizationID(ctx)
 	if err := s.repo.Create(ctx, d); err != nil {
@@ -129,8 +126,8 @@ func (s *DeviceService) Device(ctx context.Context, id int64) (*model.Device, er
 func (s *DeviceService) DeviceByKey(ctx context.Context, key string) (*model.Device, error) {
 	return s.repo.FindByKey(ctx, key)
 }
-func (s *DeviceService) ListDevices(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) {
-	return s.repo.List(ctx, page, size, productID, states, enabled, search)
+func (s *DeviceService) ListDevices(ctx context.Context, query dto.ListDevicesQuery) ([]model.Device, int64, error) {
+	return s.repo.List(ctx, query)
 }
 func (s *DeviceService) UpdateDevice(ctx context.Context, id int64, name, state string, metadata string) (*model.Device, error) {
 	d, err := s.Device(ctx, id)

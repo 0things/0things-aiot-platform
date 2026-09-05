@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { ArrowLeft, Copy, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import type { Product as ProductV1Product } from '@/api/generated/model'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { CopyButton } from '@/components/copy-button'
 
 interface ProductHeaderProps {
   product: ProductV1Product
@@ -14,12 +14,6 @@ interface ProductHeaderProps {
 export function ProductHeader({ product, onBack }: ProductHeaderProps) {
   const { t } = useTranslation('deviceManagement')
   const [secretVisible, setSecretVisible] = useState(false)
-
-  const handleCopySecret = () => {
-    // In real implementation, get secret from secure source
-    navigator.clipboard.writeText(product.productKey || '')
-    toast.success(t('productDetail.header.copySuccess'))
-  }
 
   const toggleSecretVisibility = () => {
     setSecretVisible(!secretVisible)
@@ -74,14 +68,7 @@ export function ProductHeader({ product, onBack }: ProductHeaderProps) {
               <Eye className='h-3 w-3' />
             )}
           </Button>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-6 w-6'
-            onClick={handleCopySecret}
-          >
-            <Copy className='h-3 w-3' />
-          </Button>
+          <CopyButton value={product.productKey || ''} />
         </div>
 
         <div className='flex items-center gap-2'>

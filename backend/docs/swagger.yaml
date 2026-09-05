@@ -2045,20 +2045,12 @@ paths:
       - Device groups
   /device-groups/{groupUuid}/preview:
     post:
-      consumes:
-      - application/json
       parameters:
       - description: Device group UUID
         in: path
         name: groupUuid
         required: true
         type: string
-      - description: Request payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/aiot-backend_api_v1.PreviewRequest'
       responses:
         "200":
           description: Successful response

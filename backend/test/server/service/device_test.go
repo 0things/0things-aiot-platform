@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
 	mock_service "aiot-backend/test/mocks/service"
@@ -25,6 +26,7 @@ func TestDeviceService_CreateDevice(t *testing.T) {
 	result, err := mockDeviceRepo.CreateDevice(ctx, device)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
+	assert.Equal(t, "Test Device", result.Name)
 }
 
 func TestDeviceService_Device(t *testing.T) {
@@ -52,10 +54,11 @@ func TestDeviceService_ListDevices(t *testing.T) {
 
 	expectedDevices := []model.Device{{ID: 1, Name: "Device 1"}}
 	var total int64 = 1
+	query := dto.ListDevicesQuery{Page: 1, PageSize: 10}
 
-	mockDeviceRepo.EXPECT().ListDevices(ctx, 1, 10, int64(0), []string{}, (*bool)(nil), "").Return(expectedDevices, total, nil)
+	mockDeviceRepo.EXPECT().ListDevices(ctx, query).Return(expectedDevices, total, nil)
 
-	devices, total, err := mockDeviceRepo.ListDevices(ctx, 1, 10, int64(0), []string{}, (*bool)(nil), "")
+	devices, total, err := mockDeviceRepo.ListDevices(ctx, query)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedDevices, devices)
 	assert.Equal(t, int64(1), total)

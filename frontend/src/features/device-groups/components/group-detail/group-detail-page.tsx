@@ -23,7 +23,7 @@ export function GroupDetailPage({ uuid }: GroupDetailPageProps) {
   const navigate = useNavigate()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [devicePage, setDevicePage] = useState(1)
-  const [devicePageSize, setDevicePageSize] = useState(20)
+  const [devicePageSize, setDevicePageSize] = useState(10)
   const [deviceProductKey, setDeviceProductKey] = useState('')
   const [deviceSearch, setDeviceSearch] = useState('')
 
@@ -62,12 +62,6 @@ export function GroupDetailPage({ uuid }: GroupDetailPageProps) {
   }
 
   // 统计数据聚合为单个对象，避免三字段成群传递
-  const deviceStats = {
-    total: totalDevices,
-    active: devices.filter((d) => d.enabled !== false).length,
-    online: devices.filter((d) => d.state === 'online').length,
-  }
-
   if (groupQuery.isLoading) {
     return (
       <Main fixed>
@@ -98,9 +92,7 @@ export function GroupDetailPage({ uuid }: GroupDetailPageProps) {
       <div className='flex h-full min-w-0 flex-col'>
         <GroupHeader
           group={group}
-          totalDevices={deviceStats.total}
-          activeDevices={deviceStats.active}
-          onlineDevices={deviceStats.online}
+          totalDevices={totalDevices}
           onBack={handleBack}
         />
 
@@ -118,9 +110,7 @@ export function GroupDetailPage({ uuid }: GroupDetailPageProps) {
             <TabsContent value='info' className='mt-0'>
               <GroupInfoTab
                 group={group}
-                totalDevices={deviceStats.total}
-                activeDevices={deviceStats.active}
-                onlineDevices={deviceStats.online}
+                totalDevices={totalDevices}
                 onEdit={() => setEditDialogOpen(true)}
               />
             </TabsContent>

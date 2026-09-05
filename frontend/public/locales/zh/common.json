@@ -38,6 +38,8 @@
   "logout": "退出登录",
   "signOut": "退出",
   "manageAccount": "管理账户",
+  "totalCount": "共 {{count}}",
+  "copySuccess": "已复制",
   "name": "姓名",
   "email": "邮箱",
   "status": "状态",

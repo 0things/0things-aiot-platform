@@ -9,6 +9,7 @@ import (
 	"time"
 
 	v1 "aiot-backend/api/v1"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
 
@@ -145,7 +146,14 @@ func (h *DeviceHandler) ListDevices(c *gin.Context) {
 		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
-	d, n, e := h.svc.ListDevices(c, req.Page, req.PageSize, req.ProductID, req.States, req.Enabled, req.SearchText)
+	d, n, e := h.svc.ListDevices(c, dto.ListDevicesQuery{
+		Page:      req.Page,
+		PageSize:  req.PageSize,
+		ProductID: req.ProductID,
+		States:    req.States,
+		Enabled:   req.Enabled,
+		Search:    req.SearchText,
+	})
 	if e != nil {
 		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return

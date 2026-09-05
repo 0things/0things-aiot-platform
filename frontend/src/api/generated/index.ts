@@ -1575,14 +1575,11 @@ export const useDeleteDeviceGroupsGroupUuidDevices = <
  */
 export const postDeviceGroupsGroupUuidPreview = (
   groupUuid: string,
-  aiotBackendApiV1PreviewRequest: BodyType<AiotBackendApiV1PreviewRequest>,
   signal?: AbortSignal
 ) => {
   return orvalAxios<ApiResponseAiotBackendApiV1PreviewResponse>({
     url: `/device-groups/${groupUuid}/preview`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: aiotBackendApiV1PreviewRequest,
     signal,
   })
 }
@@ -1594,13 +1591,13 @@ export const getPostDeviceGroupsGroupUuidPreviewMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
     TError,
-    { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> },
+    { groupUuid: string },
     TContext
   >
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
   TError,
-  { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> },
+  { groupUuid: string },
   TContext
 > => {
   const mutationKey = ['postDeviceGroupsGroupUuidPreview']
@@ -1614,11 +1611,11 @@ export const getPostDeviceGroupsGroupUuidPreviewMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
-    { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> }
+    { groupUuid: string }
   > = (props) => {
-    const { groupUuid, data } = props ?? {}
+    const { groupUuid } = props ?? {}
 
-    return postDeviceGroupsGroupUuidPreview(groupUuid, data)
+    return postDeviceGroupsGroupUuidPreview(groupUuid)
   }
 
   return { mutationFn, ...mutationOptions }
@@ -1627,8 +1624,7 @@ export const getPostDeviceGroupsGroupUuidPreviewMutationOptions = <
 export type PostDeviceGroupsGroupUuidPreviewMutationResult = NonNullable<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>
 >
-export type PostDeviceGroupsGroupUuidPreviewMutationBody =
-  BodyType<AiotBackendApiV1PreviewRequest>
+
 export type PostDeviceGroupsGroupUuidPreviewMutationError = ErrorType<unknown>
 
 /**
@@ -1642,7 +1638,7 @@ export const usePostDeviceGroupsGroupUuidPreview = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
       TError,
-      { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> },
+      { groupUuid: string },
       TContext
     >
   },
@@ -1650,7 +1646,7 @@ export const usePostDeviceGroupsGroupUuidPreview = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof postDeviceGroupsGroupUuidPreview>>,
   TError,
-  { groupUuid: string; data: BodyType<AiotBackendApiV1PreviewRequest> },
+  { groupUuid: string },
   TContext
 > => {
   return useMutation(

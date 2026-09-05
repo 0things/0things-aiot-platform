@@ -83,7 +83,6 @@ export function GroupDevicesTab({
   })
 
   const products = productsData?.data?.products || []
-
   // 移除设备 Mutation
   const removeMutation = useMutation({
     mutationFn: (keys: string[]) =>
@@ -392,7 +391,7 @@ export function GroupDevicesTab({
 
       <div className='flex items-center justify-between gap-3 border-t px-2 pt-4'>
         <span className='mr-auto text-sm text-muted-foreground'>
-          {t('devicesTotal', { count: total })}
+          {t('common:totalCount', { count: total })}
         </span>
         <span className='text-sm text-muted-foreground'>{t('pageSize')}</span>
         <Select

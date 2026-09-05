@@ -83,7 +83,7 @@ func TestDeviceHandler_ListDevices(t *testing.T) {
 	router := setupDeviceRouter(mockService)
 
 	devices := []model.Device{{ID: 1, Name: "Device 1"}}
-	mockService.EXPECT().ListDevices(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(devices, int64(1), nil)
+	mockService.EXPECT().ListDevices(gomock.Any(), gomock.Any()).Return(devices, int64(1), nil)
 
 	req, _ := http.NewRequest("GET", "/devices", nil)
 	w := httptest.NewRecorder()

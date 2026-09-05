@@ -64,3 +64,4 @@ type PreviewResponse struct {
 	Total   int64    `json:"total"`
 	Devices []Device `json:"devices"`
 }
+

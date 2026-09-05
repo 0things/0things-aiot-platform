@@ -38,6 +38,8 @@
   "logout": "Logout",
   "signOut": "Sign Out",
   "manageAccount": "Manage account",
+  "totalCount": "Total {{count}}",
+  "copySuccess": "Copied",
   "name": "Name",
   "email": "Email",
   "status": "Status",

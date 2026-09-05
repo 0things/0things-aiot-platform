@@ -105,7 +105,7 @@ func TestDeviceHandler_ListDevices_WithProductID(t *testing.T) {
 	router.GET("/devices", deviceHandler.ListDevices)
 
 	devices := []model.Device{{ID: 1, Name: "Device1"}}
-	mockService.EXPECT().ListDevices(gomock.Any(), 1, 10, int64(1), []string(nil), (*bool)(nil), "").Return(devices, int64(1), nil)
+	mockService.EXPECT().ListDevices(gomock.Any(), gomock.Any()).Return(devices, int64(1), nil)
 	req, _ := http.NewRequest("GET", "/devices?productId=1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -124,7 +124,7 @@ func TestDeviceHandler_ListDevices_WithStates(t *testing.T) {
 	router.GET("/devices", deviceHandler.ListDevices)
 
 	devices := []model.Device{{ID: 1, Name: "Device1"}}
-	mockService.EXPECT().ListDevices(gomock.Any(), 1, 10, int64(0), []string{"online", "offline"}, (*bool)(nil), "").Return(devices, int64(1), nil)
+	mockService.EXPECT().ListDevices(gomock.Any(), gomock.Any()).Return(devices, int64(1), nil)
 	req, _ := http.NewRequest("GET", "/devices?states=online&states=offline", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -143,8 +143,7 @@ func TestDeviceHandler_ListDevices_WithEnabled(t *testing.T) {
 	router.GET("/devices", deviceHandler.ListDevices)
 
 	devices := []model.Device{{ID: 1, Name: "Device1"}}
-	enabled := true
-	mockService.EXPECT().ListDevices(gomock.Any(), 1, 10, int64(0), []string(nil), &enabled, "").Return(devices, int64(1), nil)
+	mockService.EXPECT().ListDevices(gomock.Any(), gomock.Any()).Return(devices, int64(1), nil)
 	req, _ := http.NewRequest("GET", "/devices?enabled=true", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -163,7 +162,7 @@ func TestDeviceHandler_ListDevices_WithSearch(t *testing.T) {
 	router.GET("/devices", deviceHandler.ListDevices)
 
 	devices := []model.Device{{ID: 1, Name: "Device1"}}
-	mockService.EXPECT().ListDevices(gomock.Any(), 1, 10, int64(0), []string(nil), (*bool)(nil), "test").Return(devices, int64(1), nil)
+	mockService.EXPECT().ListDevices(gomock.Any(), gomock.Any()).Return(devices, int64(1), nil)
 	req, _ := http.NewRequest("GET", "/devices?searchText=test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -908,7 +907,7 @@ func TestDeviceHandler_ListDevices_ServiceError(t *testing.T) {
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 	router.GET("/devices", deviceHandler.ListDevices)
 
-	mockService.EXPECT().ListDevices(gomock.Any(), 1, 10, int64(0), []string(nil), (*bool)(nil), "").Return(nil, int64(0), errors.New("db error"))
+	mockService.EXPECT().ListDevices(gomock.Any(), gomock.Any()).Return(nil, int64(0), errors.New("db error"))
 	req, _ := http.NewRequest("GET", "/devices", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

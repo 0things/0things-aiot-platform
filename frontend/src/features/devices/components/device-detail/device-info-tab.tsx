@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { Device as DeviceV1Device } from '@/api/generated/model'
@@ -8,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
+import { CopyButton } from '@/components/copy-button'
 import { TagsEditor } from './tags-editor'
 
 interface DeviceInfoTabProps {
@@ -17,16 +17,6 @@ interface DeviceInfoTabProps {
 export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
   const { t } = useTranslation('deviceManagement')
   const [logUploadEnabled, setLogUploadEnabled] = useState(false)
-
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success(
-      t('deviceDetail.info.copySuccess', {
-        field: label,
-        defaultValue: 'Copied',
-      })
-    )
-  }
 
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return '-'
@@ -114,19 +104,7 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
                     <p className='font-mono text-sm'>-</p>
                   )}
                   {device.productKey && (
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      className='h-6 w-6'
-                      onClick={() =>
-                        handleCopy(
-                          device.productKey || '',
-                          t('deviceDetail.info.fields.productKey')
-                        )
-                      }
-                    >
-                      <Copy className='h-3 w-3' />
-                    </Button>
+                    <CopyButton value={device.productKey} />
                   )}
                 </div>
               </div>
@@ -137,21 +115,7 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
                 </p>
                 <div className='flex items-center gap-2'>
                   <p className='font-mono text-sm'>{device.deviceKey || '-'}</p>
-                  {device.deviceKey && (
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      className='h-6 w-6'
-                      onClick={() =>
-                        handleCopy(
-                          device.deviceKey || '',
-                          t('deviceDetail.info.fields.deviceKey')
-                        )
-                      }
-                    >
-                      <Copy className='h-3 w-3' />
-                    </Button>
-                  )}
+                  {device.deviceKey && <CopyButton value={device.deviceKey} />}
                 </div>
               </div>
 

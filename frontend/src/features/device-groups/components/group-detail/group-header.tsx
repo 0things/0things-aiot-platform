@@ -1,32 +1,17 @@
-import { ArrowLeft, Copy } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import type { AiotBackendApiDeviceGroupV1DeviceGroup as DeviceGroupV1Group } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
+import { CopyButton } from '@/components/copy-button'
 
 interface GroupHeaderProps {
   group: DeviceGroupV1Group
   totalDevices: number
-  activeDevices: number
-  onlineDevices: number
   onBack: () => void
 }
 
-export function GroupHeader({
-  group,
-  totalDevices,
-  activeDevices,
-  onlineDevices,
-  onBack,
-}: GroupHeaderProps) {
+export function GroupHeader({ group, totalDevices, onBack }: GroupHeaderProps) {
   const { t } = useTranslation('deviceGroup')
-
-  const handleCopyUuid = () => {
-    if (group.groupUuid) {
-      navigator.clipboard.writeText(group.groupUuid)
-      toast.success(t('copySuccess'))
-    }
-  }
 
   return (
     <div className='mb-6 space-y-4 rounded-lg border bg-card p-4 text-card-foreground shadow-sm'>
@@ -50,34 +35,12 @@ export function GroupHeader({
           <span className='font-mono text-foreground'>
             {group.groupUuid || '-'}
           </span>
-          {group.groupUuid && (
-            <Button
-              variant='ghost'
-              size='icon'
-              className='h-6 w-6'
-              onClick={handleCopyUuid}
-              title={t('copySuccess')}
-            >
-              <Copy className='h-3.5 w-3.5 text-primary' />
-            </Button>
-          )}
+          {group.groupUuid && <CopyButton value={group.groupUuid} />}
         </div>
 
         <div>
           <span className='text-muted-foreground'>{t('totalDevices')}: </span>
           <span className='font-semibold text-foreground'>{totalDevices}</span>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>{t('activeDevices')}: </span>
-          <span className='font-semibold text-foreground'>{activeDevices}</span>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>{t('currentOnline')}: </span>
-          <span className='font-semibold text-emerald-600 dark:text-emerald-400'>
-            {onlineDevices}
-          </span>
         </div>
       </div>
     </div>

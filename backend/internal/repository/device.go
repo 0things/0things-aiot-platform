@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"aiot-backend/internal/dal/query"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
 
@@ -105,22 +106,22 @@ func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) err
 	})
 }
 
-func (r *DeviceRepository) List(ctx context.Context, page, size int, productID int64, states []string, enabled *bool, search string) ([]model.Device, int64, error) {
+func (r *DeviceRepository) List(ctx context.Context, query dto.ListDevicesQuery) ([]model.Device, int64, error) {
 	q := useQuery(r.db)
 	devices := q.Device.WithContext(ctx).Join(q.DeviceState, q.DeviceState.DeviceKey.EqCol(q.Device.DeviceKey)).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx)))
-	if productID > 0 {
-		devices = devices.Where(q.Device.ProductID.Eq(productID))
+	if query.ProductID > 0 {
+		devices = devices.Where(q.Device.ProductID.Eq(query.ProductID))
 	}
-	if len(states) > 0 {
-		devices = devices.Where(q.DeviceState.State.In(states...))
+	if len(query.States) > 0 {
+		devices = devices.Where(q.DeviceState.State.In(query.States...))
 	}
-	if enabled != nil {
-		devices = devices.Where(q.Device.Enabled.Is(*enabled))
+	if query.Enabled != nil {
+		devices = devices.Where(q.Device.Enabled.Is(*query.Enabled))
 	}
-	if search != "" {
-		devices = devices.Where(field.Or(q.Device.DeviceKey.Like("%"+search+"%"), q.Device.Name.Like("%"+search+"%")))
+	if query.Search != "" {
+		devices = devices.Where(field.Or(q.Device.DeviceKey.Like("%"+query.Search+"%"), q.Device.Name.Like("%"+query.Search+"%")))
 	}
-	items, total, err := devices.Preload(q.Device.Product, q.Device.State).Order(q.Device.CreatedAt.Desc()).FindByPage((page-1)*size, size)
+	items, total, err := devices.Preload(q.Device.Product, q.Device.State).Order(q.Device.CreatedAt.Desc()).FindByPage((query.Page-1)*query.PageSize, query.PageSize)
 	if err != nil {
 		return nil, 0, err
 	}

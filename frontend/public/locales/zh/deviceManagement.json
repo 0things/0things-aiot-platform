@@ -32,8 +32,7 @@
     "header": {
       "productKey": "ProductKey",
       "productSecret": "ProductSecret",
-      "deviceCount": "设备数",
-      "copySuccess": "ProductSecret已复制到剪贴板"
+      "deviceCount": "设备数"
     },
     "tabs": {
       "info": "产品信息",
@@ -457,8 +456,7 @@
       "productKey": "ProductKey",
       "view": "查看",
       "viewProduct": "查看产品详情",
-      "copy": "复制",
-      "copySuccess": "已复制到剪贴板"
+      "copy": "复制"
     },
     "tabs": {
       "info": "设备信息",
@@ -584,7 +582,6 @@
       "edit": "编辑",
       "viewProduct": "查看产品详情",
       "test": "测试",
-      "copySuccess": "已复制",
       "testingLatency": "正在测试延迟...",
       "latencyResult": "延迟: {{latency}}",
       "logUploadEnabled": "设备日志上报已启用",

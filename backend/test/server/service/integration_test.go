@@ -54,7 +54,7 @@ func TestIntegrationDeviceService_ListDevices(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	devices, total, err := svc.ListDevices(ctx(), 1, 10, 0, nil, nil, "")
+	devices, total, err := svc.ListDevices(ctx(), dto.ListDevicesQuery{Page: 1, PageSize: 10})
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, devices, 1)
@@ -65,7 +65,7 @@ func TestIntegrationDeviceService_ListDevices_WithSearch(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	devices, _, err := svc.ListDevices(ctx(), 1, 10, 0, nil, nil, "Test")
+	devices, _, err := svc.ListDevices(ctx(), dto.ListDevicesQuery{Page: 1, PageSize: 10, Search: "Test"})
 	require.NoError(t, err)
 	assert.Len(t, devices, 1)
 }
@@ -75,7 +75,7 @@ func TestIntegrationDeviceService_ListDevices_WithProductID(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	devices, _, err := svc.ListDevices(ctx(), 1, 10, 1, nil, nil, "")
+	devices, _, err := svc.ListDevices(ctx(), dto.ListDevicesQuery{Page: 1, PageSize: 10, ProductID: 1})
 	require.NoError(t, err)
 	assert.Len(t, devices, 1)
 }
@@ -85,7 +85,7 @@ func TestIntegrationDeviceService_ListDevices_WithState(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	devices, _, err := svc.ListDevices(ctx(), 1, 10, 0, []string{"online"}, nil, "")
+	devices, _, err := svc.ListDevices(ctx(), dto.ListDevicesQuery{Page: 1, PageSize: 10, States: []string{"online"}})
 	require.NoError(t, err)
 	assert.Len(t, devices, 1)
 }
@@ -96,7 +96,7 @@ func TestIntegrationDeviceService_ListDevices_WithEnabled(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	enabled := true
-	devices, _, err := svc.ListDevices(ctx(), 1, 10, 0, nil, &enabled, "")
+	devices, _, err := svc.ListDevices(ctx(), dto.ListDevicesQuery{Page: 1, PageSize: 10, Enabled: &enabled})
 	require.NoError(t, err)
 	assert.Len(t, devices, 1)
 }
