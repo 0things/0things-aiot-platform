@@ -50,6 +50,8 @@ stop_service() {
 
 # 停止所有服务
 stop_service "frontend"
+stop_service "ai-copilot"
+stop_service "mcp-server"
 stop_service "coap-transport"
 stop_service "http-transport"
 stop_service "mqtt-transport"

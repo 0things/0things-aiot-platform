@@ -45,6 +45,14 @@ data:
 # 切换数据库只需修改 `type` 字段 (tdengine | sqlite | postgresql | timescaledb | clickhouse | influxdb | iotdb | mock)
 # ==============================================================================
 tsdb:
+mcp:
+  name: 0things-iot-mcp
+  version: 0.1.0
+  stdio_enabled: true
+  sse_enabled: false
+  sse_addr: ":8008"
+  streamable_http_enabled: true
+  streamable_http_addr: ":8009"
 log:
   log_level: debug
   mode: console

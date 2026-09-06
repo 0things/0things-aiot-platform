@@ -11,7 +11,7 @@ func NewConfig(p string) *viper.Viper {
 	if envConf == "" {
 		envConf = p
 	}
-	fmt.Println("load conf file:", envConf)
+	fmt.Fprintln(os.Stderr, "load conf file:", envConf)
 	return getConfig(envConf)
 }
 

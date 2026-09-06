@@ -40,6 +40,7 @@ i18n
       'iotDashboard',
       'sceneLinkage',
       'ruleChain',
+      'aiCopilot',
     ],
     defaultNS: 'common',
 

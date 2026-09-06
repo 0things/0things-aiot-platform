@@ -97,6 +97,61 @@ start_frontend() {
     cd "$PROJECT_DIR"
 }
 
+# 启动 MCP 服务
+start_mcp_service() {
+    local name="mcp-server"
+    local pid_file="$PID_DIR/${name}.pid"
+    local log_file="$LOG_DIR/${name}.log"
+
+    if is_running "$name"; then
+        local pid=$(cat "$pid_file")
+        echo -e "${YELLOW}ℹ [${name}] 已在运行中 (PID: ${pid})${NC}"
+        return 0
+    fi
+
+    echo -ne "${BLUE}→ 正在启动 ${name} (Streamable HTTP MCP)...${NC} "
+    cd "$PROJECT_DIR/backend"
+    go run ./cmd/mcp -conf "config/local.yml" > "$log_file" 2>&1 &
+    local pid=$!
+    echo "$pid" > "$pid_file"
+    sleep 1
+
+    if ps -p "$pid" > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ 启动成功 (PID: ${pid})${NC}"
+    else
+        echo -e "${RED}✗ 启动失败，请检查日志: ${log_file}${NC}"
+    fi
+    cd "$PROJECT_DIR"
+}
+
+# 启动 AI Copilot 服务
+start_ai_copilot() {
+    local name="ai-copilot"
+    local dir="$PROJECT_DIR/ai-copilot"
+    local pid_file="$PID_DIR/${name}.pid"
+    local log_file="$LOG_DIR/${name}.log"
+
+    if is_running "$name"; then
+        local pid=$(cat "$pid_file")
+        echo -e "${YELLOW}ℹ [${name}] 已在运行中 (PID: ${pid})${NC}"
+        return 0
+    fi
+
+    echo -ne "${BLUE}→ 正在启动 ${name} (AI Copilot Engine)...${NC} "
+    cd "$dir"
+    pnpm dev > "$log_file" 2>&1 &
+    local pid=$!
+    echo "$pid" > "$pid_file"
+    sleep 2
+
+    if ps -p "$pid" > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ 启动成功 (PID: ${pid})${NC}"
+    else
+        echo -e "${RED}✗ 启动失败，请检查日志: ${log_file}${NC}"
+    fi
+    cd "$PROJECT_DIR"
+}
+
 # 1. 依次启动核心微服务
 start_go_service "backend"
 start_go_service "data-engine"
@@ -104,7 +159,13 @@ start_go_service "mqtt-transport"
 start_go_service "http-transport"
 start_go_service "coap-transport"
 
-# 2. 启动前端控制台
+# 2. 启动 MCP 服务与 AI Copilot
+start_mcp_service
+if [ -d "$PROJECT_DIR/ai-copilot" ]; then
+    start_ai_copilot
+fi
+
+# 3. 启动前端控制台
 if [ -d "$PROJECT_DIR/frontend" ]; then
     start_frontend
 fi
@@ -114,6 +175,8 @@ echo -e "${BOLD}${GREEN}========================================================
 echo -e "${BOLD}${GREEN}  ✨ 0things 全部服务已就绪！控制台与接口访问导航：                          ${NC}"
 echo -e "${BOLD}${GREEN}==============================================================================${NC}"
 echo -e "  🌐 ${BOLD}前端管理控制台 (Web UI)${NC}:    ${CYAN}http://localhost:5173${NC}"
+echo -e "  🤖 ${BOLD}AI Copilot 助手服务${NC}:         ${CYAN}http://localhost:8005${NC}"
+echo -e "  🔌 ${BOLD}IoT MCP 服务 (Streamable HTTP)${NC}:${CYAN}http://localhost:8009/mcp${NC}"
 echo -e "  📡 ${BOLD}后端管理 API (REST Server)${NC}:    ${CYAN}http://localhost:8000${NC}"
 echo -e "  📖 ${BOLD}Swagger API 交互文档${NC}:       ${CYAN}http://localhost:8000/swagger/index.html${NC}"
 echo -e "  ⚡ ${BOLD}HTTP 设备协议网关${NC}:          ${CYAN}http://localhost:8081${NC}"

@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"io"
 	"os"
 	"strings"
 	"sync"
@@ -21,15 +22,15 @@ type Logger struct {
 
 // DateWriteSyncer handles daily log rotation by appending date to filename.
 type DateWriteSyncer struct {
-	basePath string // e.g. "./storage/logs/server.log"
-	mu       sync.Mutex
-	hook     *lumberjack.Logger
-	date     string // current date "2006-01-02"
-	level    zapcore.Level
-	maxSize  int
+	basePath   string // e.g. "./storage/logs/server.log"
+	mu         sync.Mutex
+	hook       *lumberjack.Logger
+	date       string // current date "2006-01-02"
+	level      zapcore.Level
+	maxSize    int
 	maxBackups int
-	maxAge    int
-	compress  bool
+	maxAge     int
+	compress   bool
 }
 
 func newDateWriteSyncer(basePath string, maxSize, maxBackups, maxAge int, compress bool) *DateWriteSyncer {
@@ -110,6 +111,10 @@ func NewLog(conf *viper.Viper) *Logger {
 		maxAge:     conf.GetInt("log.max_age"),
 		compress:   conf.GetBool("log.compress"),
 	}
+	var output io.Writer = os.Stdout
+	if conf.GetString("log.output") == "stderr" {
+		output = os.Stderr
+	}
 
 	var encoder zapcore.Encoder
 	if conf.GetString("log.encoding") == "console" {
@@ -145,7 +150,7 @@ func NewLog(conf *viper.Viper) *Logger {
 	// default(both) log to console and file
 	core := zapcore.NewCore(
 		encoder,
-		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(hook)), // Print to console and file
+		zapcore.NewMultiWriteSyncer(zapcore.AddSync(output), zapcore.AddSync(hook)), // Print to console and file
 		level,
 	)
 	mode := conf.GetString("log.mode")
@@ -153,7 +158,7 @@ func NewLog(conf *viper.Viper) *Logger {
 	case "console":
 		core = zapcore.NewCore(
 			encoder,
-			zapcore.AddSync(os.Stdout),
+			zapcore.AddSync(output),
 			level,
 		)
 	case "file":

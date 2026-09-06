@@ -30,6 +30,10 @@ test:
 build:
 	go build -ldflags="-s -w" -o ./bin/server ./cmd/server
 
+.PHONY: build-mcp
+build-mcp:
+	go build -ldflags="-s -w" -o ./bin/mcp ./cmd/mcp
+
 .PHONY: docker
 docker:
 	docker build -f deploy/build/Dockerfile --build-arg APP_RELATIVE_PATH=./cmd/task -t 1.1.1.1:5000/demo-task:v1 .

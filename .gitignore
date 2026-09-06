@@ -1,8 +1,11 @@
 # Workspace tooling and runtime logs
 /.service-logs/
+/.service-pids/
+
 
 # Dependencies and generated frontend output
 **/node_modules/
+**/.pnpm-store/
 **/dist/
 **/dist-ssr/
 

@@ -19,4 +19,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/v1/ai': {
+        target: process.env.VITE_AI_GATEWAY_URL || 'http://localhost:8005',
+        changeOrigin: true,
+      },
+    },
+  },
 })
