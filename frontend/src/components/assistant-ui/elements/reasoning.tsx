@@ -10,7 +10,8 @@ import {
   useState,
 } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { BrainIcon, ChevronDownIcon } from 'lucide-react'
+import { ChevronDownIcon } from 'lucide-react'
+import { ThinkingOrb } from 'thinking-orbs'
 import { cn } from '@/lib/utils'
 import {
   Collapsible,
@@ -181,10 +182,9 @@ function ReasoningTrigger({
       )}
       {...props}
     >
-      <BrainIcon
-        data-slot='reasoning-trigger-icon'
-        className='aui-reasoning-trigger-icon size-4 shrink-0'
-      />
+      <span className='inline-flex size-5 shrink-0 items-center justify-center'>
+        <ThinkingOrb size={20} state={active ? 'solving' : 'breathing'} />
+      </span>
       <span
         data-slot='reasoning-trigger-label'
         className={cn(

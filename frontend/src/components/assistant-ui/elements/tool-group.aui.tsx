@@ -10,7 +10,8 @@ import {
 } from 'react'
 import { useScrollLock } from '@assistant-ui/react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { ChevronDownIcon, LoaderIcon } from 'lucide-react'
+import { ChevronDownIcon } from 'lucide-react'
+import { ThinkingOrb } from 'thinking-orbs'
 import { cn } from '@/lib/utils'
 import {
   Collapsible,
@@ -18,7 +19,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 
-const ANIMATION_DURATION = 200
+export const ANIMATION_DURATION = 200
 
 const toolGroupVariants = cva('aui-tool-group-root group/tool-group w-full', {
   variants: {
@@ -115,12 +116,11 @@ function ToolGroupTrigger({
       )}
       {...props}
     >
-      {active && (
-        <LoaderIcon
-          data-slot='tool-group-trigger-loader'
-          className='aui-tool-group-trigger-loader size-3 shrink-0 animate-spin [animation-duration:0.6s]'
-        />
-      )}
+      {active ? (
+        <span className='inline-flex size-5 shrink-0 items-center justify-center'>
+          <ThinkingOrb size={20} state='searching' />
+        </span>
+      ) : null}
       <span
         data-slot='tool-group-trigger-label'
         className={cn(

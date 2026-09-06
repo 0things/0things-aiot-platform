@@ -18,6 +18,7 @@ import {
   LoaderIcon,
   XCircleIcon,
 } from 'lucide-react'
+import { ThinkingOrb } from 'thinking-orbs'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -152,14 +153,19 @@ function ToolFallbackTrigger({
       )}
       {...props}
     >
-      <Icon
-        data-slot='tool-fallback-trigger-icon'
-        className={cn(
-          'aui-tool-fallback-trigger-icon size-4 shrink-0',
-          isCancelled && 'text-muted-foreground',
-          isRunning && 'animate-spin [animation-duration:0.6s]'
-        )}
-      />
+      {isRunning ? (
+        <span className='inline-flex size-5 shrink-0 items-center justify-center'>
+          <ThinkingOrb size={20} state='searching' />
+        </span>
+      ) : (
+        <Icon
+          data-slot='tool-fallback-trigger-icon'
+          className={cn(
+            'aui-tool-fallback-trigger-icon size-4 shrink-0',
+            isCancelled && 'text-muted-foreground'
+          )}
+        />
+      )}
       <span
         data-slot='tool-fallback-trigger-label'
         className={cn(

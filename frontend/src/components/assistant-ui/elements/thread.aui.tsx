@@ -38,6 +38,7 @@ import {
   RefreshCwIcon,
   SquareIcon,
 } from 'lucide-react'
+import { ThinkingOrb } from 'thinking-orbs'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -148,7 +149,7 @@ const ThreadRoot: FC<{ isEmpty: boolean; autoFocus: boolean }> = ({
 
   return (
     <ThreadPrimitive.Root
-      className='aui-root aui-thread-root @container flex h-full flex-col bg-background'
+      className='aui-root aui-thread-root @container flex h-full flex-col bg-transparent'
       style={{
         ['--thread-max-width' as string]: '44rem',
         ['--composer-bg' as string]: 'var(--color-card)',
@@ -185,7 +186,7 @@ const ThreadRoot: FC<{ isEmpty: boolean; autoFocus: boolean }> = ({
 
           <ThreadPrimitive.ViewportFooter
             className={cn(
-              'aui-thread-viewport-footer flex flex-col gap-4 overflow-visible bg-background pb-4 md:pb-6',
+              'aui-thread-viewport-footer flex flex-col gap-4 overflow-visible bg-background/80 pb-4 backdrop-blur-md md:pb-6',
               !isEmpty &&
                 'sticky bottom-0 mt-auto rounded-t-(--composer-radius)'
             )}
@@ -231,9 +232,19 @@ const ThreadScrollToBottom: FC = () => {
 const ThreadWelcome: FC = () => {
   return (
     <div className='aui-thread-welcome-root mb-6 flex flex-col items-center px-4 text-center'>
-      <h1 className='aui-thread-welcome-message-inner animate-in text-2xl font-medium tracking-tight duration-200 fill-mode-both fade-in slide-in-from-bottom-1'>
+      <div className='relative mb-5 flex items-center justify-center'>
+        <div className='pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-tr from-cyan-500/25 via-indigo-500/25 to-purple-500/25 blur-2xl dark:from-cyan-400/35 dark:via-indigo-500/35 dark:to-purple-500/35' />
+        <div className='relative flex items-center justify-center rounded-full border border-border/50 bg-background/60 p-2.5 shadow-sm backdrop-blur-md'>
+          <ThinkingOrb size={64} state='breathing' />
+        </div>
+      </div>
+      <h1 className='aui-thread-welcome-message-inner animate-in bg-gradient-to-b from-foreground via-foreground to-foreground/75 bg-clip-text text-2xl font-semibold tracking-tight text-transparent duration-200 fill-mode-both fade-in slide-in-from-bottom-1'>
         How can I help you today?
       </h1>
+      <p className='mt-2 max-w-xs text-xs text-muted-foreground/80'>
+        Ask questions, analyze telemetry, or execute IoT operations in
+        real-time.
+      </p>
     </div>
   )
 }
@@ -254,7 +265,7 @@ const ThreadSuggestionItem: FC = () => {
       <SuggestionPrimitive.Trigger send asChild>
         <Button
           variant='ghost'
-          className='aui-thread-welcome-suggestion h-auto gap-1.5 rounded-full border border-border/60 px-3.5 py-1.5 text-sm font-normal whitespace-nowrap text-foreground transition-colors hover:bg-muted'
+          className='aui-thread-welcome-suggestion h-auto gap-1.5 rounded-full border border-border/70 bg-card/60 px-3.5 py-1.5 text-sm font-normal whitespace-nowrap text-foreground shadow-xs backdrop-blur-sm transition-all hover:border-primary/40 hover:bg-accent/80 hover:shadow-[0_0_12px_rgba(99,102,241,0.12)]'
         >
           <SuggestionPrimitive.Title className='aui-thread-welcome-suggestion-text-1' />
           <SuggestionPrimitive.Description className='aui-thread-welcome-suggestion-text-2 empty:hidden' />
@@ -270,7 +281,7 @@ const Composer: FC<{ autoFocus: boolean }> = ({ autoFocus }) => {
       <ComposerPrimitive.AttachmentDropzone asChild>
         <div
           data-slot='aui_composer-shell'
-          className='flex w-full cursor-text flex-col gap-2 rounded-(--composer-radius) border border-border/60 bg-(--composer-bg) p-(--composer-padding) transition-[border-color] focus-within:border-border data-[dragging=true]:border-dashed data-[dragging=true]:border-ring data-[dragging=true]:bg-[color-mix(in_oklab,var(--color-accent)_50%,var(--color-background))] dark:border-muted-foreground/15 dark:focus-within:border-muted-foreground/30'
+          className='flex w-full cursor-text flex-col gap-2 rounded-(--composer-radius) border border-border/70 bg-card/75 p-(--composer-padding) shadow-[0_4px_20px_rgba(0,0,0,0.04)] backdrop-blur-xl transition-all duration-200 focus-within:border-primary/50 focus-within:shadow-[0_0_20px_rgba(99,102,241,0.15)] data-[dragging=true]:border-dashed data-[dragging=true]:border-ring data-[dragging=true]:bg-[color-mix(in_oklab,var(--color-accent)_50%,var(--color-background))] dark:border-muted-foreground/20 dark:bg-card/60 dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] dark:focus-within:border-primary/50'
         >
           <ComposerAttachments />
           <ComposerPrimitive.Input
@@ -453,10 +464,10 @@ const AssistantMessage: FC = () => {
                 return (
                   <span
                     data-slot='aui_assistant-message-indicator'
-                    className='animate-pulse font-sans'
+                    className='inline-flex items-center ps-1 align-middle'
                     aria-label='Assistant is working'
                   >
-                    {'●'}
+                    <ThinkingOrb size={20} state='working' />
                   </span>
                 )
               default:
