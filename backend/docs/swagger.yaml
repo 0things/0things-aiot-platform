@@ -516,6 +516,15 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-aiot-backend_api_v1_ListRuleNodeDefinitionsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_v1.ListRuleNodeDefinitionsResponse'
+      message:
+        type: string
+    type: object
   ApiResponse-aiot-backend_api_v1_PreviewResponse:
     properties:
       code:
@@ -1700,6 +1709,13 @@ definitions:
       total:
         type: integer
     type: object
+  aiot-backend_api_v1.ListRuleNodeDefinitionsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/aiot-backend_api_v1.RuleNodeDefinition'
+        type: array
+    type: object
   aiot-backend_api_v1.MQTTEndpoint:
     properties:
       attributesSubscribeTopic:
@@ -1740,6 +1756,33 @@ definitions:
     required:
     - applicationProtocol
     - transportProtocol
+    type: object
+  aiot-backend_api_v1.RuleNodeDefinition:
+    properties:
+      category:
+        type: string
+      configSchema:
+        type: string
+      defaultConfig:
+        type: string
+      description:
+        type: string
+      executorKey:
+        type: string
+      icon:
+        type: string
+      inputPorts:
+        type: string
+      isSystem:
+        type: boolean
+      key:
+        type: string
+      name:
+        type: string
+      outputPorts:
+        type: string
+      uuid:
+        type: string
     type: object
   aiot-backend_api_v1.UpdateDeviceGroupRequest:
     properties:
@@ -3488,6 +3531,21 @@ paths:
       summary: Register user
       tags:
       - Users
+  /rule-node-definitions:
+    get:
+      description: Lists all enabled system rule node definitions.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_ListRuleNodeDefinitionsResponse'
+      security:
+      - Bearer: []
+      summary: List rule node definitions
+      tags:
+      - Rule node definitions
   /scene-linkages:
     get:
       consumes:

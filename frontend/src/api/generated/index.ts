@@ -33,6 +33,7 @@ import type {
   ApiResponseAiotBackendApiV1DeviceGroup,
   ApiResponseAiotBackendApiV1DeviceGroupDevicesResponse,
   ApiResponseAiotBackendApiV1ListDeviceGroupsResponse,
+  ApiResponseAiotBackendApiV1ListRuleNodeDefinitionsResponse,
   ApiResponseAiotBackendApiV1PreviewResponse,
   ApiResponseApiGetProfileResponseData,
   ApiResponseApiLoginResponseData,
@@ -8311,6 +8312,150 @@ export const usePostRegister = <
   TContext
 > => {
   return useMutation(getPostRegisterMutationOptions(options), queryClient)
+}
+
+/**
+ * Lists all enabled system rule node definitions.
+ * @summary List rule node definitions
+ */
+export const getRuleNodeDefinitions = (signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseAiotBackendApiV1ListRuleNodeDefinitionsResponse>(
+    { url: `/rule-node-definitions`, method: 'GET', signal }
+  )
+}
+
+export const getGetRuleNodeDefinitionsQueryKey = () => {
+  return [`/rule-node-definitions`] as const
+}
+
+export const getGetRuleNodeDefinitionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+      TError,
+      TData
+    >
+  >
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetRuleNodeDefinitionsQueryKey()
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getRuleNodeDefinitions>>
+  > = ({ signal }) => getRuleNodeDefinitions(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRuleNodeDefinitionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getRuleNodeDefinitions>>
+>
+export type GetRuleNodeDefinitionsQueryError = ErrorType<unknown>
+
+export function useGetRuleNodeDefinitions<
+  TData = Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+          TError,
+          Awaited<ReturnType<typeof getRuleNodeDefinitions>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetRuleNodeDefinitions<
+  TData = Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+          TError,
+          Awaited<ReturnType<typeof getRuleNodeDefinitions>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetRuleNodeDefinitions<
+  TData = Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List rule node definitions
+ */
+
+export function useGetRuleNodeDefinitions<
+  TData = Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleNodeDefinitions>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetRuleNodeDefinitionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
 }
 
 /**

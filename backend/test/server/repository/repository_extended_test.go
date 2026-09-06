@@ -496,7 +496,7 @@ func TestProductTSLRepository_FindByProductID(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{"id", "product_id", "tsl"}).
 		AddRow(1, 1, `{"properties":[]}`)
-	mock.ExpectQuery("SELECT .+ FROM `product_ts_ls`").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT .+ FROM `product_tsl`").WillReturnRows(rows)
 
 	tsl, err := tslRepo.FindByProductID(ctx, 1)
 	assert.NoError(t, err)
@@ -507,7 +507,7 @@ func TestProductTSLRepository_FindByProductID_NotFound(t *testing.T) {
 	tslRepo, mock := setupProductTSLRepository(t)
 	ctx := context.Background()
 
-	mock.ExpectQuery("SELECT .+ FROM `product_ts_ls`").WillReturnError(gorm.ErrRecordNotFound)
+	mock.ExpectQuery("SELECT .+ FROM `product_tsl`").WillReturnError(gorm.ErrRecordNotFound)
 
 	tsl, err := tslRepo.FindByProductID(ctx, 999)
 	assert.Error(t, err)
@@ -519,7 +519,7 @@ func TestProductTSLRepository_Create(t *testing.T) {
 	ctx := context.Background()
 
 	mock.ExpectBegin()
-	mock.ExpectExec("INSERT INTO `product_ts_ls`").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO `product_tsl`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
 	tsl := &model.ProductTSL{TSL: `{"properties":[]}`}
@@ -532,7 +532,7 @@ func TestProductTSLRepository_Save(t *testing.T) {
 	ctx := context.Background()
 
 	mock.ExpectBegin()
-	mock.ExpectExec("UPDATE `product_ts_ls`").WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("UPDATE `product_tsl`").WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
 
 	tsl := &model.ProductTSL{ID: 1, TSL: `{"properties":[{"name":"temp"}]}`}
@@ -545,7 +545,7 @@ func TestProductTSLRepository_Delete(t *testing.T) {
 	ctx := context.Background()
 
 	mock.ExpectBegin()
-	mock.ExpectExec("DELETE FROM `product_ts_ls`").WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("DELETE FROM `product_tsl`").WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
 
 	tsl := &model.ProductTSL{ID: 1}

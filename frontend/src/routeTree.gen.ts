@@ -51,6 +51,7 @@ import { Route as AuthenticatedDeviceManagementGroupsIndexRouteImport } from './
 import { Route as AuthenticatedDeviceManagementDevicesIndexRouteImport } from './routes/_authenticated/device-management/devices/index'
 import { Route as AuthenticatedRuleEngineSceneLinkageNewIndexRouteImport } from './routes/_authenticated/rule-engine/scene-linkage/new/index'
 import { Route as AuthenticatedRuleEngineSceneLinkageSceneIdIndexRouteImport } from './routes/_authenticated/rule-engine/scene-linkage/$sceneId/index'
+import { Route as AuthenticatedRuleEngineRuleChainsNewIndexRouteImport } from './routes/_authenticated/rule-engine/rule-chains/new/index'
 import { Route as AuthenticatedOperationsMonitoringOtaPackagesIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/packages/index'
 import { Route as AuthenticatedOperationsMonitoringOtaAnalyticsIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/analytics/index'
 import { Route as AuthenticatedDeviceManagementProductsProductKeyIndexRouteImport } from './routes/_authenticated/device-management/products/$productKey/index'
@@ -286,6 +287,12 @@ const AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute =
     path: '/scene-linkage/$sceneId/',
     getParentRoute: () => AuthenticatedRuleEngineRouteRoute,
   } as any)
+const AuthenticatedRuleEngineRuleChainsNewIndexRoute =
+  AuthenticatedRuleEngineRuleChainsNewIndexRouteImport.update({
+    id: '/rule-chains/new/',
+    path: '/rule-chains/new/',
+    getParentRoute: () => AuthenticatedRuleEngineRouteRoute,
+  } as any)
 const AuthenticatedOperationsMonitoringOtaPackagesIndexRoute =
   AuthenticatedOperationsMonitoringOtaPackagesIndexRouteImport.update({
     id: '/ota/packages/',
@@ -366,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/device-management/products/$productKey': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/operations-monitoring/ota/analytics': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/operations-monitoring/ota/packages': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
+  '/rule-engine/rule-chains/new': typeof AuthenticatedRuleEngineRuleChainsNewIndexRoute
   '/rule-engine/scene-linkage/$sceneId': typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute
   '/rule-engine/scene-linkage/new': typeof AuthenticatedRuleEngineSceneLinkageNewIndexRoute
   '/operations-monitoring/ota/packages/$id': typeof AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute
@@ -411,6 +419,7 @@ export interface FileRoutesByTo {
   '/device-management/products/$productKey': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/operations-monitoring/ota/analytics': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/operations-monitoring/ota/packages': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
+  '/rule-engine/rule-chains/new': typeof AuthenticatedRuleEngineRuleChainsNewIndexRoute
   '/rule-engine/scene-linkage/$sceneId': typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute
   '/rule-engine/scene-linkage/new': typeof AuthenticatedRuleEngineSceneLinkageNewIndexRoute
   '/operations-monitoring/ota/packages/$id': typeof AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute
@@ -462,6 +471,7 @@ export interface FileRoutesById {
   '/_authenticated/device-management/products/$productKey/': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/_authenticated/operations-monitoring/ota/analytics/': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/_authenticated/operations-monitoring/ota/packages/': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
+  '/_authenticated/rule-engine/rule-chains/new/': typeof AuthenticatedRuleEngineRuleChainsNewIndexRoute
   '/_authenticated/rule-engine/scene-linkage/$sceneId/': typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute
   '/_authenticated/rule-engine/scene-linkage/new/': typeof AuthenticatedRuleEngineSceneLinkageNewIndexRoute
   '/_authenticated/operations-monitoring/ota/packages/$id/': typeof AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute
@@ -511,6 +521,7 @@ export interface FileRouteTypes {
     | '/device-management/products/$productKey'
     | '/operations-monitoring/ota/analytics'
     | '/operations-monitoring/ota/packages'
+    | '/rule-engine/rule-chains/new'
     | '/rule-engine/scene-linkage/$sceneId'
     | '/rule-engine/scene-linkage/new'
     | '/operations-monitoring/ota/packages/$id'
@@ -556,6 +567,7 @@ export interface FileRouteTypes {
     | '/device-management/products/$productKey'
     | '/operations-monitoring/ota/analytics'
     | '/operations-monitoring/ota/packages'
+    | '/rule-engine/rule-chains/new'
     | '/rule-engine/scene-linkage/$sceneId'
     | '/rule-engine/scene-linkage/new'
     | '/operations-monitoring/ota/packages/$id'
@@ -606,6 +618,7 @@ export interface FileRouteTypes {
     | '/_authenticated/device-management/products/$productKey/'
     | '/_authenticated/operations-monitoring/ota/analytics/'
     | '/_authenticated/operations-monitoring/ota/packages/'
+    | '/_authenticated/rule-engine/rule-chains/new/'
     | '/_authenticated/rule-engine/scene-linkage/$sceneId/'
     | '/_authenticated/rule-engine/scene-linkage/new/'
     | '/_authenticated/operations-monitoring/ota/packages/$id/'
@@ -922,6 +935,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRouteImport
       parentRoute: typeof AuthenticatedRuleEngineRouteRoute
     }
+    '/_authenticated/rule-engine/rule-chains/new/': {
+      id: '/_authenticated/rule-engine/rule-chains/new/'
+      path: '/rule-chains/new'
+      fullPath: '/rule-engine/rule-chains/new'
+      preLoaderRoute: typeof AuthenticatedRuleEngineRuleChainsNewIndexRouteImport
+      parentRoute: typeof AuthenticatedRuleEngineRouteRoute
+    }
     '/_authenticated/operations-monitoring/ota/packages/': {
       id: '/_authenticated/operations-monitoring/ota/packages/'
       path: '/ota/packages'
@@ -1024,6 +1044,7 @@ const AuthenticatedOperationsMonitoringRouteRouteWithChildren =
 interface AuthenticatedRuleEngineRouteRouteChildren {
   AuthenticatedRuleEngineIndexRoute: typeof AuthenticatedRuleEngineIndexRoute
   AuthenticatedRuleEngineSceneLinkageIndexRoute: typeof AuthenticatedRuleEngineSceneLinkageIndexRoute
+  AuthenticatedRuleEngineRuleChainsNewIndexRoute: typeof AuthenticatedRuleEngineRuleChainsNewIndexRoute
   AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute: typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute
   AuthenticatedRuleEngineSceneLinkageNewIndexRoute: typeof AuthenticatedRuleEngineSceneLinkageNewIndexRoute
 }
@@ -1033,6 +1054,8 @@ const AuthenticatedRuleEngineRouteRouteChildren: AuthenticatedRuleEngineRouteRou
     AuthenticatedRuleEngineIndexRoute: AuthenticatedRuleEngineIndexRoute,
     AuthenticatedRuleEngineSceneLinkageIndexRoute:
       AuthenticatedRuleEngineSceneLinkageIndexRoute,
+    AuthenticatedRuleEngineRuleChainsNewIndexRoute:
+      AuthenticatedRuleEngineRuleChainsNewIndexRoute,
     AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute:
       AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute,
     AuthenticatedRuleEngineSceneLinkageNewIndexRoute:

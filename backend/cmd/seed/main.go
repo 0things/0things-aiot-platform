@@ -62,14 +62,14 @@ func main() {
 	deviceDB.Exec("DELETE FROM devices")
 	deviceDB.Exec("DELETE FROM product_message_parsers")
 	deviceDB.Exec("DELETE FROM product_protocols")
-	deviceDB.Exec("DELETE FROM product_ts_ls")
+	deviceDB.Exec("DELETE FROM product_tsl")
 	deviceDB.Exec("DELETE FROM products")
 	deviceDB.Exec("DELETE FROM categories")
 	deviceDB.Exec("DELETE FROM ota_device_upgrade_status")
 	deviceDB.Exec("DELETE FROM ota_upgrade_batches")
 	deviceDB.Exec("DELETE FROM ota_packages")
 	userDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('users','organizations','organization_users')")
-	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_service_invocations','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','categories','product_protocols','product_message_parsers','product_ts_ls','device_endpoints','device_push_records','device_groups','device_group_members','scene_linkage','scene_linkage_detail','ota_packages','ota_upgrade_batches','ota_device_upgrade_status')")
+	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_service_invocations','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','categories','product_protocols','product_message_parsers','product_tsl','device_endpoints','device_push_records','device_groups','device_group_members','scene_linkage','scene_linkage_detail','ota_packages','ota_upgrade_batches','ota_device_upgrade_status')")
 
 	// --- categories ---
 	fmt.Println("Seeding categories...")
@@ -406,8 +406,8 @@ func main() {
 		}
 	}
 
-	// --- product_ts_ls (50) ---
-	fmt.Println("Seeding product_ts_ls...")
+	// --- product_tsl (50) ---
+	fmt.Println("Seeding product_tsl...")
 	for i := 1; i <= 50; i++ {
 		tsl, _ := json.Marshal(map[string]interface{}{
 			"schema": "https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json",
@@ -439,7 +439,7 @@ func main() {
 				},
 			},
 		})
-		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO product_ts_ls (id, product_id, tsl, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
+		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO product_tsl (id, product_id, tsl, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
 			i,
 			int64(i),
 			string(tsl),

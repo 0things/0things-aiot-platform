@@ -26,4 +26,5 @@ type RouterDeps struct {
 	ProtocolHandler             *handler.ProtocolHandler
 	DeviceGroupHandler          *handler.DeviceGroupHandler
 	TelemetryHandler            *handler.TelemetryHandler
+	RuleNodeDefinitionHandler   *handler.RuleNodeDefinitionHandler
 }

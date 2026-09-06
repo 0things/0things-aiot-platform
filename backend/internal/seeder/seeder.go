@@ -13,6 +13,9 @@ func SeedDefaults(ctx context.Context, db *gorm.DB) error {
 	if err := seedDefaultCategories(ctx, db); err != nil {
 		return err
 	}
+	if err := seedRuleNodeDefinitions(ctx, db); err != nil {
+		return err
+	}
 	return nil
 }
 

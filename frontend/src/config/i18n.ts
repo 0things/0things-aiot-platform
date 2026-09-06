@@ -39,6 +39,7 @@ i18n
       'ota',
       'iotDashboard',
       'sceneLinkage',
+      'ruleChain',
     ],
     defaultNS: 'common',
 

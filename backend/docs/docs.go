@@ -2727,6 +2727,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/rule-node-definitions": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Lists all enabled system rule node definitions.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rule node definitions"
+                ],
+                "summary": "List rule node definitions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_ListRuleNodeDefinitionsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/scene-linkages": {
             "get": {
                 "security": [
@@ -3921,6 +3946,20 @@ const docTemplate = `{
                 },
                 "data": {
                     "$ref": "#/definitions/aiot-backend_api_v1.ListDeviceGroupsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-aiot-backend_api_v1_ListRuleNodeDefinitionsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.ListRuleNodeDefinitionsResponse"
                 },
                 "message": {
                     "type": "string"
@@ -5737,6 +5776,17 @@ const docTemplate = `{
                 }
             }
         },
+        "aiot-backend_api_v1.ListRuleNodeDefinitionsResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_v1.RuleNodeDefinition"
+                    }
+                }
+            }
+        },
         "aiot-backend_api_v1.MQTTEndpoint": {
             "type": "object",
             "properties": {
@@ -5796,6 +5846,47 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "transportProtocol": {
+                    "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_v1.RuleNodeDefinition": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "configSchema": {
+                    "type": "string"
+                },
+                "defaultConfig": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "executorKey": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "inputPorts": {
+                    "type": "string"
+                },
+                "isSystem": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "outputPorts": {
+                    "type": "string"
+                },
+                "uuid": {
                     "type": "string"
                 }
             }

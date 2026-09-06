@@ -1,0 +1,22 @@
+{
+  "title": "New rule chain",
+  "draft": "Unsaved draft",
+  "description": "Drag nodes in and connect an output to the next node.",
+  "saveComingSoon": "Save (coming soon)",
+  "palette": {
+    "title": "Node library",
+    "hint": "Click or drag into the canvas",
+    "searchPlaceholder": "Search nodes"
+  },
+  "inspector": {
+    "title": "Node configuration",
+    "configFields": "Configuration fields",
+    "noConfig": "This node has no configuration.",
+    "selectHint": "Select a node on the canvas to view its configuration."
+  },
+  "actions": {
+    "collapsePalette": "Collapse node library",
+    "expandPalette": "Expand node library"
+  },
+  "testComingSoon": "Test run (coming soon)"
+}

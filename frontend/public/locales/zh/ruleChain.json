@@ -1,0 +1,22 @@
+{
+  "title": "新建规则链",
+  "draft": "未保存草稿",
+  "description": "拖入节点并从输出端连接到下一个节点。",
+  "saveComingSoon": "保存（即将接入）",
+  "palette": {
+    "title": "节点库",
+    "hint": "点击或拖入画布",
+    "searchPlaceholder": "搜索节点"
+  },
+  "inspector": {
+    "title": "节点配置",
+    "configFields": "配置字段",
+    "noConfig": "该节点无需配置。",
+    "selectHint": "在画布中选择节点以查看配置。"
+  },
+  "actions": {
+    "collapsePalette": "收起节点库",
+    "expandPalette": "展开节点库"
+  },
+  "testComingSoon": "测试运行（即将接入）"
+}

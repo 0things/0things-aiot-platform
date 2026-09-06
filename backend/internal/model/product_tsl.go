@@ -10,4 +10,4 @@ type ProductTSL struct {
 	UpdatedAt time.Time `gorm:"column:updated_at"`
 }
 
-func (ProductTSL) TableName() string { return "product_ts_ls" }
+func (ProductTSL) TableName() string { return "product_tsl" }

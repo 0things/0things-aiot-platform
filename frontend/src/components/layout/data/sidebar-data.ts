@@ -138,6 +138,11 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
               url: '/rule-engine/scene-linkage',
               icon: Workflow,
             },
+            {
+              title: t('navigation:sidebar.ruleChains'),
+              url: '/rule-engine/rule-chains/new',
+              icon: Workflow,
+            },
           ],
         },
         {
