@@ -7,6 +7,10 @@ import { NavigationProgress } from '@/components/navigation-progress'
 import { GeneralError } from '@/features/errors/general-error'
 import { NotFoundError } from '@/features/errors/not-found-error'
 
+const isRouterDevtoolsEnabled =
+  import.meta.env.MODE === 'development' &&
+  import.meta.env.VITE_TANSTACK_ROUTER_DEVTOOLS === 'true'
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
@@ -19,7 +23,9 @@ export const Route = createRootRouteWithContext<{
         {import.meta.env.MODE === 'development' && (
           <>
             <ReactQueryDevtools buttonPosition='bottom-left' />
-            <TanStackRouterDevtools position='bottom-right' />
+            {isRouterDevtoolsEnabled && (
+              <TanStackRouterDevtools position='bottom-right' />
+            )}
           </>
         )}
       </>
