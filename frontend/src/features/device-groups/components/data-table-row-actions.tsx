@@ -41,8 +41,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             to='/device-management/groups/$uuid'
             params={{ uuid: row.original.groupUuid }}
           >
-            <Eye className='mr-2 h-4 w-4' />
             {t('detail')}
+            <DropdownMenuShortcut>
+              <Eye size={16} />
+            </DropdownMenuShortcut>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -52,9 +54,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             setOpen('edit')
           }}
         >
-          <Pencil className='mr-2 h-4 w-4' />
           {tCommon('edit')}
-          <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
+          <DropdownMenuShortcut>
+            <Pencil size={16} />
+          </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -64,9 +67,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             setOpen('delete')
           }}
         >
-          <Trash2 className='mr-2 h-4 w-4' />
           {tCommon('delete')}
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+          <DropdownMenuShortcut>
+            <Trash2 size={16} />
+          </DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
