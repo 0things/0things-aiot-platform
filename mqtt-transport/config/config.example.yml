@@ -1,10 +1,14 @@
 env: local
 
 mqtt:
-  broker: "tcp://127.0.0.1:1883"
+  broker: "ssl://127.0.0.1:8883"
   client_id: "0things-mqtt-transport"
   username: ""
   password: ""
+  tls:
+    ca_file: ""
+    cert_file: ""
+    key_file: ""
 
 kafka:
   brokers:

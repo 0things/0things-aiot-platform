@@ -1,0 +1,9 @@
+{
+  "event_type": "inform",
+  "batch_id": "batch-01J8Q8A9WYSK3F6PKPRC6B0Y9E",
+  "product_key": "environment-sensor",
+  "device_key": "sensor-001",
+  "module": "default",
+  "reported_at": "2026-09-08T09:35:00Z",
+  "reported_version": "2.4.0"
+}

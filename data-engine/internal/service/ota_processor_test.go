@@ -7,47 +7,52 @@ import (
 
 	"data-engine/internal/model"
 
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
+type reportStoreStub struct{ report model.OTAUpgradeReport }
+
+func (s *reportStoreStub) RecordReport(_ context.Context, report model.OTAUpgradeReport) error {
+	s.report = report
+	return nil
+}
+
 func TestOTAProcessor_HandleOTAReport(t *testing.T) {
 	logger := zap.NewNop()
-	proc := NewOTAProcessor(viper.New(), logger)
+	store := &reportStoreStub{}
+	proc := NewOTAProcessor(store, logger)
 
 	tests := []struct {
 		name   string
-		report model.OTADeviceUpgradeReportEvent
+		report model.OTAUpgradeReport
 	}{
 		{
 			name: "in progress 50%",
-			report: model.OTADeviceUpgradeReportEvent{
-				BatchID:   "batch_001",
-				DeviceKey: "dev_001",
-				Progress:  50,
-				Status:    "UPGRADING",
-				Timestamp: time.Now(),
+			report: model.OTAUpgradeReport{
+				BatchID:    "batch_001",
+				DeviceKey:  "dev_001",
+				EventType:  "progress",
+				ReportedAt: time.Now(),
 			},
 		},
 		{
 			name: "completed 100%",
-			report: model.OTADeviceUpgradeReportEvent{
-				BatchID:   "batch_001",
-				DeviceKey: "dev_001",
-				Progress:  100,
-				Version:   "v2.0.0",
-				Timestamp: time.Now(),
+			report: model.OTAUpgradeReport{
+				BatchID:         "batch_001",
+				DeviceKey:       "dev_001",
+				EventType:       "inform",
+				ReportedVersion: "v2.0.0",
+				ReportedAt:      time.Now(),
 			},
 		},
 		{
 			name: "failed report",
-			report: model.OTADeviceUpgradeReportEvent{
-				BatchID:   "batch_001",
-				DeviceKey: "dev_001",
-				Progress:  -1,
-				Status:    "FAILED",
-				Desc:      "checksum mismatch",
-				Timestamp: time.Now(),
+			report: model.OTAUpgradeReport{
+				BatchID:    "batch_001",
+				DeviceKey:  "dev_001",
+				EventType:  "progress",
+				Error:      &model.OTAReportError{Code: "checksum", Message: "checksum mismatch"},
+				ReportedAt: time.Now(),
 			},
 		},
 	}

@@ -1,19 +1,21 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "ota.upgrade.command.v1",
+  "title": "OTA Upgrade Command V1",
   "type": "object",
-  "required": ["batch_id", "package_id", "product_key", "device_key", "target_version", "module", "url", "size", "checksum"],
+  "additionalProperties": false,
+  "required": ["batch_id", "package_id", "product_key", "device_key", "module", "target_version", "download_url", "file_size", "sha256", "expires_at"],
   "properties": {
-    "batch_id": {"type": "string", "minLength": 1},
-    "package_id": {"type": "integer"},
-    "product_key": {"type": "string", "minLength": 1},
-    "device_key": {"type": "string", "minLength": 1},
-    "device_name": {"type": "string"},
-    "target_version": {"type": "string", "minLength": 1},
-    "module": {"const": "default"},
-    "url": {"type": "string", "format": "uri"},
-    "size": {"type": "integer", "minimum": 0},
-    "checksum": {"type": "string", "minLength": 1}
-  },
-  "additionalProperties": false
+    "batch_id": { "type": "string", "minLength": 1 },
+    "package_id": { "type": "integer", "minimum": 1 },
+    "product_key": { "type": "string", "minLength": 1 },
+    "device_key": { "type": "string", "minLength": 1 },
+    "device_name": { "type": "string", "minLength": 1 },
+    "module": { "const": "default" },
+    "target_version": { "type": "string", "minLength": 1 },
+    "download_url": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "file_size": { "type": "integer", "minimum": 1 },
+    "sha256": { "type": "string", "pattern": "^[A-Fa-f0-9]{64}$" },
+    "expires_at": { "type": "string", "format": "date-time" }
+  }
 }

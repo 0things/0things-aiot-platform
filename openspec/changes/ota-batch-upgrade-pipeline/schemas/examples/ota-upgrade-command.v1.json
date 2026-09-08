@@ -1,0 +1,13 @@
+{
+  "batch_id": "batch-01J8Q8A9WYSK3F6PKPRC6B0Y9E",
+  "package_id": 42,
+  "product_key": "environment-sensor",
+  "device_key": "sensor-001",
+  "device_name": "warehouse-sensor-001",
+  "module": "default",
+  "target_version": "2.4.0",
+  "download_url": "https://downloads.example.com/ota/firmware-2.4.0.bin?signature=example",
+  "file_size": 1048576,
+  "sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7c0e759b13b6c44",
+  "expires_at": "2026-09-09T00:00:00Z"
+}

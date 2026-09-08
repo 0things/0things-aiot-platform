@@ -4,7 +4,8 @@ kafka:
   brokers:
     - "127.0.0.1:9092"
   telemetry_consumer_group: "data-engine-telemetry-consumer-group"
-  ota_consumer_group: "data-engine-ota-consumer-group"
+  ota_command_consumer_group: "data-engine-ota-command-consumer-group"
+  ota_report_consumer_group: "data-engine-ota-report-consumer-group"
   event_consumer_group: "data-engine-event-consumer-group"
 
 # ==============================================================================
@@ -59,6 +60,23 @@ redis:
   addr: "127.0.0.1:6379"
   password: ""
   db: 0
+
+# 与 backend 共用 AIoT 业务数据库；OTA 状态由 data-engine 写入其中。
+data:
+  db:
+    aiot:
+      driver: "mysql"
+      dsn: "root:password@tcp(127.0.0.1:3306)/0things?parseTime=true&loc=Local"
+
+mqtt:
+  broker: "tcp://127.0.0.1:1883"
+  client_id: "0things-data-engine"
+  username: ""
+  password: ""
+  tls:
+    ca_file: ""
+    cert_file: ""
+    key_file: ""
 
 log:
   log_level: debug

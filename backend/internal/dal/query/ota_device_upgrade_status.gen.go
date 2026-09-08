@@ -32,6 +32,7 @@ func newDeviceUpgradeStatus(db *gorm.DB, opts ...gen.DOOption) deviceUpgradeStat
 	_deviceUpgradeStatus.OTAPackageID = field.NewString(tableName, "ota_package_id")
 	_deviceUpgradeStatus.UpgradeBatchID = field.NewString(tableName, "upgrade_batch_id")
 	_deviceUpgradeStatus.Status = field.NewString(tableName, "status")
+	_deviceUpgradeStatus.Module = field.NewString(tableName, "module")
 	_deviceUpgradeStatus.TargetVersion = field.NewString(tableName, "target_version")
 	_deviceUpgradeStatus.Progress = field.NewInt32(tableName, "progress")
 	_deviceUpgradeStatus.DispatchAttempts = field.NewInt32(tableName, "dispatch_attempts")
@@ -59,6 +60,7 @@ type deviceUpgradeStatus struct {
 	OTAPackageID         field.String
 	UpgradeBatchID       field.String
 	Status               field.String
+	Module               field.String
 	TargetVersion        field.String
 	Progress             field.Int32
 	DispatchAttempts     field.Int32
@@ -92,6 +94,7 @@ func (d *deviceUpgradeStatus) updateTableName(table string) *deviceUpgradeStatus
 	d.OTAPackageID = field.NewString(table, "ota_package_id")
 	d.UpgradeBatchID = field.NewString(table, "upgrade_batch_id")
 	d.Status = field.NewString(table, "status")
+	d.Module = field.NewString(table, "module")
 	d.TargetVersion = field.NewString(table, "target_version")
 	d.Progress = field.NewInt32(table, "progress")
 	d.DispatchAttempts = field.NewInt32(table, "dispatch_attempts")
@@ -132,12 +135,13 @@ func (d *deviceUpgradeStatus) GetFieldByName(fieldName string) (field.OrderExpr,
 }
 
 func (d *deviceUpgradeStatus) fillFieldMap() {
-	d.fieldMap = make(map[string]field.Expr, 17)
+	d.fieldMap = make(map[string]field.Expr, 18)
 	d.fieldMap["id"] = d.ID
 	d.fieldMap["device_id"] = d.DeviceID
 	d.fieldMap["ota_package_id"] = d.OTAPackageID
 	d.fieldMap["upgrade_batch_id"] = d.UpgradeBatchID
 	d.fieldMap["status"] = d.Status
+	d.fieldMap["module"] = d.Module
 	d.fieldMap["target_version"] = d.TargetVersion
 	d.fieldMap["progress"] = d.Progress
 	d.fieldMap["dispatch_attempts"] = d.DispatchAttempts

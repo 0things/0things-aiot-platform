@@ -1,70 +1,51 @@
 ## Purpose
 
-为 OTA 服务与设备之间建立基于 Kafka 和 MQTT 的可靠传输协议，支持在线推送、离线补发、设备进度回传以及最终版本确认。
+为 OTA MVP 建立 Kafka 到 MQTT 的命令传输和设备回报协议，以最终版本确认升级结果。
 
 ## ADDED Requirements
 
-### Requirement: OTA 命令必须通过版本化消息传输
+### Requirement: OTA 命令必须以版本化消息下发
 
-系统 SHALL 发布版本化的 OTA 命令消息，消息 MUST 包含 `batch_id`、设备标识、目标版本、下载地址或文件标识、摘要/签名和有效期。消息幂等键为 `batch_id + device_id + target_version`。
+系统 SHALL 在设备任务的批次事务提交后发布 `ota.upgrade.command.v1` Kafka 消息。消息 MUST 含 `batch_id`、设备标识、默认模块、目标版本、HTTPS 下载 URL、文件大小、SHA-256 摘要和有效期；data-engine MUST 通过 TLS 连接的 EMQX，以 QoS 1 向 `/ota/device/upgrade/{productKey}/{deviceName}` 发布升级元数据。mqtt-transport MUST 只生产 Kafka 上报事件，不得消费 Kafka 或执行 MQTT 下行。
 
-#### Scenario: 发布升级命令
+#### Scenario: 下发升级命令
 
-- **WHEN** 设备任务进入可发送状态
-- **THEN** 系统向 OTA Kafka 命令主题发布一条可幂等消费的升级消息
+- **WHEN** 后端成功创建批次设备任务
+- **THEN** data-engine 向对应设备 topic 下发完整升级元数据，并直接更新命令发布结果
 
-#### Scenario: 消息过期
+#### Scenario: 未授权 topic
 
-- **WHEN** 适配器消费到已超过有效期的升级命令
-- **THEN** 适配器不得向设备发布该命令，并将任务标记为过期或失败
+- **WHEN** 未获该产品或设备授权的 MQTT 客户端尝试发布或订阅 OTA topic
+- **THEN** EMQX 拒绝该操作
 
-### Requirement: MQTT 适配器必须支持设备在线和离线场景
+### Requirement: 进度上报必须关联任务但不得判定成功
 
-MQTT 适配器 SHALL 将有效 OTA 命令发布到 `/ota/device/upgrade/{productKey}/{deviceName}`。在线设备应立即接收，离线设备上线后系统 MUST 能补发仍有效且未完成的任务。重复命令 MUST 以 `batch_id + device_id + target_version` 幂等处理。
+系统 SHALL 接收带 `batch_id` 的 progress 上报，并按批次和设备更新阶段、百分比、错误和最后上报时间。progress 上报 MUST NOT 单独将任务标记为成功。
 
-#### Scenario: 在线设备推送
+#### Scenario: 上报完成进度
 
-- **WHEN** 批次任务发送时设备在线
-- **THEN** 适配器向对应 OTA upgrade topic 发布升级包信息并记录发布结果
+- **WHEN** 设备上报百分比为 100 的 progress
+- **THEN** 系统保留任务为未成功，直至收到匹配版本的 inform 上报
 
-#### Scenario: 离线设备上线
+### Requirement: OTA topic 必须由 data-engine 分别消费
 
-- **WHEN** 设备创建批次时离线，之后重新上线
-- **THEN** 系统向该设备补发未过期且未完成的升级任务
+data-engine SHALL 使用独立消费组分别消费 `ota.upgrade.command.v1` 和 `ota.upgrade.report.v1`，并直接写入 OTA 任务及批次状态。backend MUST NOT 消费这些 topic。
 
-### Requirement: 设备进度必须可关联到具体任务
+#### Scenario: MQTT 派发完成
 
-系统 SHALL 接收 `/ota/device/progress/{productKey}/{deviceName}` 上报，并要求消息携带 `batch_id` 关联信息、进度、阶段和错误描述。进度上报不得单独决定升级成功。
+- **WHEN** data-engine 向设备 topic 的 QoS 1 发布成功或失败
+- **THEN** 命令 consumer 直接更新对应设备任务
 
-#### Scenario: 上报下载进度
+### Requirement: 最终版本上报是成功的唯一设备依据
 
-- **WHEN** 设备上报下载阶段和百分比
-- **THEN** 系统更新对应任务的进度和最近上报时间，并保持任务为执行中
-
-#### Scenario: 上报失败
-
-- **WHEN** 设备上报下载、校验或烧写失败
-- **THEN** 系统记录错误码和描述，并根据批次重试策略安排重试或标记失败
-
-### Requirement: 最终版本上报是成功判定依据
-
-系统 SHALL 接收 `/ota/device/inform/{productKey}/{deviceName}` 的版本上报，并将其与任务目标版本和模块进行比较。只有版本匹配时，设备任务才能标记为成功；进度为 100% 不能替代最终版本确认。
+系统 SHALL 接收带 `batch_id` 的默认模块 inform 上报。只有该版本等于任务目标版本时，系统才可将任务标记为成功；版本不匹配时 MUST 保持非成功并记录当前版本。
 
 #### Scenario: 版本匹配
 
-- **WHEN** 设备重启后上报的模块版本等于任务目标版本
-- **THEN** 对应任务标记为成功，并更新批次成功统计
+- **WHEN** 设备上报的默认模块版本等于目标版本
+- **THEN** 对应任务标记成功，并重新计算批次状态
 
 #### Scenario: 版本不匹配
 
-- **WHEN** 设备上报的版本与目标版本不一致
-- **THEN** 任务不得标记为成功，并按失败或重试策略继续处理
-
-### Requirement: 下载信息必须支持安全校验
-
-系统 SHALL 在升级信息中提供固件大小、目标版本和摘要或签名。默认下载协议应支持 HTTPS；使用 MQTT 下载时 MUST 限制为设备和固件协议支持的单文件场景。设备必须在安装前完成摘要或签名校验。
-
-#### Scenario: 固件校验失败
-
-- **WHEN** 设备下载完成后摘要或签名校验不通过
-- **THEN** 设备上报校验失败，系统不得将任务标记为成功
+- **WHEN** 设备上报的默认模块版本不同于目标版本
+- **THEN** 系统更新当前版本但不得将任务标记成功

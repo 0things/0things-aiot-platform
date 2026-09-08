@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"mqtt-transport/internal/enum"
-	"mqtt-transport/internal/model"
 	"github.com/spf13/viper"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.uber.org/zap"
+	"mqtt-transport/internal/enum"
+	"mqtt-transport/internal/model"
 )
 
 // Producer 封装 Franz-Go Kafka 生产者，根据消息类型（遥测/OTA/事件）将报文动态路由至专属 Kafka Topic。
@@ -49,8 +49,6 @@ func NewProducer(config *viper.Viper, logger *zap.Logger) (*Producer, func(), er
 func (p *Producer) SendDeviceMessage(ctx context.Context, msg model.DeviceMessage) error {
 	var targetTopic string
 	switch msg.MessageType {
-	case "ota_report", "ota_progress":
-		targetTopic = enum.KafkaTopicOTAReport
 	case "event":
 		targetTopic = enum.KafkaTopicDeviceEvent
 	default:
@@ -78,4 +76,23 @@ func (p *Producer) SendDeviceMessage(ctx context.Context, msg model.DeviceMessag
 	}
 
 	return p.client.ProduceSync(ctx, record).FirstErr()
+}
+
+// SendOTAReport publishes an OTA report as its own contract, rather than
+// wrapping it in the generic device-message envelope.
+func (p *Producer) SendOTAReport(ctx context.Context, deviceKey string, report map[string]interface{}) error {
+	if p.client == nil {
+		p.logger.Debug("mock kafka produce", zap.String("target_topic", enum.KafkaTopicOTAReport), zap.String("device_key", deviceKey))
+		return nil
+	}
+
+	data, err := json.Marshal(report)
+	if err != nil {
+		return fmt.Errorf("failed to marshal OTA report: %w", err)
+	}
+	return p.client.ProduceSync(ctx, &kgo.Record{
+		Topic: enum.KafkaTopicOTAReport,
+		Key:   []byte(deviceKey),
+		Value: data,
+	}).FirstErr()
 }

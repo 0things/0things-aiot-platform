@@ -1,0 +1,10 @@
+{
+  "event_type": "progress",
+  "batch_id": "batch-01J8Q8A9WYSK3F6PKPRC6B0Y9E",
+  "product_key": "environment-sensor",
+  "device_key": "sensor-001",
+  "module": "default",
+  "reported_at": "2026-09-08T09:30:00Z",
+  "progress": 65,
+  "stage": "download"
+}

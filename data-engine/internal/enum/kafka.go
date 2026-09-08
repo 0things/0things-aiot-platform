@@ -6,13 +6,15 @@ const (
 	KafkaTopicDeviceTelemetry = "device.telemetry.v1"
 
 	// KafkaTopicOTAReport 设备 OTA 固件升级进度汇报主题 (由 data-engine 消费)
-	KafkaTopicOTAReport = "ota.report.v1"
+	KafkaTopicOTACommand = "ota.upgrade.command.v1"
+	KafkaTopicOTAReport  = "ota.upgrade.report.v1"
 
 	// KafkaTopicDeviceEvent 设备生命周期/异常告警事件主题 (由 data-engine 消费)
 	KafkaTopicDeviceEvent = "device.event.v1"
 
 	// 消费组默认名称
-	ConsumerGroupTelemetry = "data-engine-telemetry-consumer-group"
-	ConsumerGroupOTA       = "data-engine-ota-consumer-group"
-	ConsumerGroupEvent     = "data-engine-event-consumer-group"
+	ConsumerGroupTelemetry  = "data-engine-telemetry-consumer-group"
+	ConsumerGroupOTACommand = "data-engine-ota-command-consumer-group"
+	ConsumerGroupOTAReport  = "data-engine-ota-report-consumer-group"
+	ConsumerGroupEvent      = "data-engine-event-consumer-group"
 )

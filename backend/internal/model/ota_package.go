@@ -50,6 +50,7 @@ type DeviceUpgradeStatus struct {
 	OTAPackageID         string `gorm:"column:ota_package_id"`
 	UpgradeBatchID       string `gorm:"column:upgrade_batch_id;uniqueIndex:ux_ota_batch_device;index:idx_ota_batch_status"`
 	Status               string `gorm:"index:idx_ota_batch_status"`
+	Module               string `gorm:"column:module;not null;default:default"`
 	TargetVersion        string `gorm:"column:target_version"`
 	Progress             int32  `gorm:"column:progress"`
 	DispatchAttempts     int32  `gorm:"column:dispatch_attempts"`

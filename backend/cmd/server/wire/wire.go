@@ -60,7 +60,7 @@ var serviceSet = wire.NewSet(
 	service.NewSceneLinkageService,
 	service.NewSceneLinkageDetailService,
 	service.NewTelemetryService,
-	provideOTAService,
+	service.NewOTAService,
 	service.NewFileService,
 	service.NewDeviceEventService,
 	service.NewThingModelDataService,
@@ -104,10 +104,6 @@ var handlerSet = wire.NewSet(
 	handler.NewTelemetryHandler,
 	handler.NewRuleNodeDefinitionHandler,
 )
-
-func provideOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, kafka service.KafkaServiceInterface, protocols *repository.ProtocolRepository) *service.OTAService {
-	return service.NewOTAServiceWithProtocol(repo, productRepo, deviceRepo, kafka, protocols)
-}
 
 func provideProtocolService(repo *repository.ProtocolRepository, config *viper.Viper) *service.ProtocolService {
 	return service.NewProtocolService(repo, config)

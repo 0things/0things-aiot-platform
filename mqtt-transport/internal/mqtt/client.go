@@ -2,8 +2,11 @@ package mqtt
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -11,6 +14,7 @@ import (
 	"mqtt-transport/internal/enum"
 	"mqtt-transport/internal/kafka"
 	"mqtt-transport/internal/model"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -26,7 +30,7 @@ type Service struct {
 }
 
 // NewService 初始化 MQTT 客户端。
-func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Producer) *Service {
+func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Producer) (*Service, error) {
 	broker := config.GetString("mqtt.broker")
 	if broker == "" {
 		broker = "tcp://127.0.0.1:1883"
@@ -56,6 +60,14 @@ func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Produce
 			svc.logger.Warn("MQTT connection lost, waiting for auto-reconnect", zap.Error(err))
 		})
 
+	tlsConfig, err := mqttTLSConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	if tlsConfig != nil {
+		opts.SetTLSConfig(tlsConfig)
+	}
+
 	if username := config.GetString("mqtt.username"); username != "" {
 		opts.SetUsername(username)
 	}
@@ -64,7 +76,36 @@ func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Produce
 	}
 
 	svc.client = mqtt.NewClient(opts)
-	return svc
+	return svc, nil
+}
+
+func mqttTLSConfig(config *viper.Viper) (*tls.Config, error) {
+	caFile := config.GetString("mqtt.tls.ca_file")
+	certFile := config.GetString("mqtt.tls.cert_file")
+	keyFile := config.GetString("mqtt.tls.key_file")
+	if caFile == "" && certFile == "" && keyFile == "" {
+		return nil, nil
+	}
+	if certFile == "" || keyFile == "" {
+		return nil, fmt.Errorf("mqtt TLS requires both cert_file and key_file")
+	}
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return nil, fmt.Errorf("load mqtt client certificate: %w", err)
+	}
+	tlsConfig := &tls.Config{MinVersion: tls.VersionTLS12, Certificates: []tls.Certificate{cert}}
+	if caFile != "" {
+		pem, err := os.ReadFile(caFile)
+		if err != nil {
+			return nil, fmt.Errorf("read mqtt CA certificate: %w", err)
+		}
+		pool := x509.NewCertPool()
+		if !pool.AppendCertsFromPEM(pem) {
+			return nil, fmt.Errorf("parse mqtt CA certificate")
+		}
+		tlsConfig.RootCAs = pool
+	}
+	return tlsConfig, nil
 }
 
 // Start 建立连接，并保持服务运行。
@@ -95,6 +136,8 @@ func (s *Service) registerSubscriptions(c mqtt.Client) {
 
 	// 2. 标准 OTA 升级进度上报 ➔ 绑定 handleOtaProgress
 	s.subscribeTopicWithClient(c, enum.MQTTSubOTAProgress, s.handleOtaProgress)
+	s.subscribeTopicWithClient(c, enum.MQTTSubOTAProgressV1, s.handleOtaProgress)
+	s.subscribeTopicWithClient(c, enum.MQTTSubOTAInform, s.handleOtaProgress)
 
 	// 3. 标准业务事件上报 ➔ 绑定 handleDeviceEvent
 	s.subscribeTopicWithClient(c, enum.MQTTSubEvent, s.handleDeviceEvent)
@@ -109,16 +152,18 @@ func (s *Service) subscribeTopicWithClient(c mqtt.Client, topic string, handler 
 	}
 }
 
-// dispatchUplink 统一提取上行报文、解析 deviceKey 并投递到 Kafka 专属 Topic
+// dispatchUplink 统一提取上行报文、解析 deviceKey 与 productKey 并投递到 Kafka 专属 Topic
 func (s *Service) dispatchUplink(msgType string, topic string, payload []byte) {
 	deviceKey := ExtractDeviceKey(topic)
 	if deviceKey == "" {
 		s.logger.Warn("could not extract deviceKey from topic", zap.String("topic", topic), zap.String("msg_type", msgType))
 		return
 	}
+	productKey := ExtractProductKey(topic)
 
 	deviceMsg := model.DeviceMessage{
 		DeviceKey:   deviceKey,
+		ProductKey:  productKey,
 		Transport:   "mqtt",
 		MessageType: msgType,
 		Payload:     json.RawMessage(payload),
@@ -129,6 +174,7 @@ func (s *Service) dispatchUplink(msgType string, topic string, payload []byte) {
 	if err := s.producer.SendDeviceMessage(context.Background(), deviceMsg); err != nil {
 		s.logger.Error("failed to publish uplink message to kafka",
 			zap.String("topic", topic),
+			zap.String("product_key", productKey),
 			zap.String("device_key", deviceKey),
 			zap.String("msg_type", msgType),
 			zap.Error(err),
@@ -141,9 +187,32 @@ func (s *Service) handleTelemetry(_ mqtt.Client, msg mqtt.Message) {
 	s.dispatchUplink("telemetry", msg.Topic(), msg.Payload())
 }
 
-// handleOtaProgress 专职处理 OTA 固件升级进度 ➔ 投递至 ota.report.v1
+// handleOtaProgress 专职处理 OTA 固件升级进度 ➔ 投递至 ota.upgrade.report.v1
 func (s *Service) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
-	s.dispatchUplink("ota_report", msg.Topic(), msg.Payload())
+	deviceKey := ExtractDeviceKey(msg.Topic())
+	if deviceKey == "" {
+		s.logger.Warn("could not extract deviceKey from OTA topic", zap.String("topic", msg.Topic()))
+		return
+	}
+
+	var report map[string]interface{}
+	if err := json.Unmarshal(msg.Payload(), &report); err != nil {
+		s.logger.Warn("invalid OTA report payload", zap.String("topic", msg.Topic()), zap.Error(err))
+		return
+	}
+	// The topic authenticates the producer identity; preserve an explicit
+	// payload device_key when present, otherwise fill it from the topic.
+	if _, ok := report["device_key"]; !ok {
+		report["device_key"] = deviceKey
+	}
+	if _, ok := report["product_key"]; !ok {
+		if productKey := ExtractProductKey(msg.Topic()); productKey != "" {
+			report["product_key"] = productKey
+		}
+	}
+	if err := s.producer.SendOTAReport(context.Background(), deviceKey, report); err != nil {
+		s.logger.Error("failed to publish OTA report to kafka", zap.String("topic", msg.Topic()), zap.String("device_key", deviceKey), zap.Error(err))
+	}
 }
 
 // handleDeviceEvent 专职处理设备特定告警与事件 ➔ 投递至 device.event.v1
@@ -155,49 +224,32 @@ func (s *Service) handleDeviceEvent(_ mqtt.Client, msg mqtt.Message) {
 	s.dispatchUplink("event", msg.Topic(), msg.Payload())
 }
 
-// HandleDownlinkCommand 处理来自 Kafka 的下行控制指令并推向设备（使用标准枚举模板）
-func (s *Service) HandleDownlinkCommand(ctx context.Context, cmd model.DeviceCommand) error {
-	// 校验 deviceKey 与 endpoint 是否包含非法 MQTT 通配符防止注入
-	if strings.ContainsAny(cmd.DeviceKey, "+#\n\r") {
-		return fmt.Errorf("invalid device key containing MQTT wildcard: %s", cmd.DeviceKey)
-	}
-
-	topic := cmd.Endpoint
-	if topic == "" {
-		switch cmd.CommandType {
-		case "ota_upgrade", "ota":
-			topic = fmt.Sprintf(enum.MQTTTplOTAUpgrade, cmd.DeviceKey)
-		default:
-			topic = fmt.Sprintf(enum.MQTTTplPropertySet, cmd.DeviceKey)
-		}
-	} else if strings.ContainsAny(topic, "+#\n\r") {
-		return fmt.Errorf("invalid custom endpoint topic containing MQTT wildcard: %s", topic)
-	}
-
-	token := s.client.Publish(topic, 1, false, cmd.Payload)
-	if !token.WaitTimeout(5 * time.Second) {
-		return fmt.Errorf("publish to device timeout: %s", topic)
-	}
-	if err := token.Error(); err != nil {
-		return fmt.Errorf("publish to device failed: %w", err)
-	}
-
-	s.logger.Info("downlink command published to device",
-		zap.String("topic", topic),
-		zap.String("device_key", cmd.DeviceKey),
-		zap.String("command_type", cmd.CommandType),
-	)
-	return nil
-}
-
 // ExtractDeviceKey 统一从主题路径中提取设备唯一标识符 deviceKey。
 // 支持格式：
-// 1. 标准属性与事件上报: /sys/{deviceKey}/thing/...
-// 2. OTA 进度上报: /sys/{deviceKey}/ota/...
+// 1. 标准物模型及OTA上报: /sys/{productKey}/{deviceKey}/...
+// 2. 独立OTA路径上报: /ota/device/{action}/{productKey}/{deviceKey}
 func ExtractDeviceKey(topic string) string {
+	parts := strings.Split(topic, "/")
+	if len(parts) >= 4 && parts[1] == "sys" {
+		return parts[3]
+	}
+	if len(parts) >= 6 && parts[1] == "ota" && parts[2] == "device" && (parts[3] == "progress" || parts[3] == "inform") {
+		return parts[5]
+	}
+	return ""
+}
+
+// ExtractProductKey 统一从主题路径中提取产品标识符 productKey。
+// 支持格式：
+// 1. 标准物模型及OTA上报: /sys/{productKey}/{deviceKey}/...
+// 2. 独立OTA路径上报: /ota/device/{action}/{productKey}/{deviceKey}
+func ExtractProductKey(topic string) string {
 	parts := strings.Split(topic, "/")
 	if len(parts) >= 3 && parts[1] == "sys" {
 		return parts[2]
+	}
+	if len(parts) >= 6 && parts[1] == "ota" && parts[2] == "device" && (parts[3] == "progress" || parts[3] == "inform") {
+		return parts[4]
 	}
 	return ""
 }

@@ -74,18 +74,7 @@ func (s *OTAService) RetryBatch(ctx context.Context, uuid, batchID string) error
 		return err
 	}
 	for _, d := range deployments {
-		message := map[string]any{"batch_id": batchID, "package_id": pkg.ID, "product_key": d.ProductKey, "device_key": d.DeviceKey, "device_name": d.DeviceName, "target_version": d.TargetVersion, "module": "default", "url": pkg.FileURL, "size": pkg.FileSize, "checksum": pkg.Checksum, "transport_protocol": "mqtt"}
-		if s.protocolRepo != nil {
-			endpoint, endpointErr := s.protocolRepo.DeviceOTAEndpoint(ctx, d.DeviceID)
-			if endpointErr != nil {
-				return endpointErr
-			}
-			if endpoint != nil {
-				message["endpoint_id"] = endpoint.EndpointID
-				message["endpoint"] = endpoint.Endpoint
-				message["transport_protocol"] = endpoint.TransportProtocol
-			}
-		}
+		message := otaCommandV1(pkg, batchID, d.DeviceKey, d.DeviceName, d.TargetVersion)
 		if err := s.kafka.ProduceJSON(ctx, enum.KafkaTopicOTAUpgradeCommandV1, batchID+":"+d.DeviceKey, message); err != nil {
 			_ = s.repo.MarkDispatchResult(ctx, pkg.ID, d.DeviceID, batchID, enum.OTAStatusFailed, err.Error())
 			return err
@@ -98,11 +87,27 @@ func (s *OTAService) RetryBatch(ctx context.Context, uuid, batchID string) error
 }
 
 type OTAService struct {
-	repo         *repository.OTARepository
-	productRepo  *repository.ProductRepository
-	deviceRepo   *repository.DeviceRepository
-	protocolRepo *repository.ProtocolRepository
-	kafka        KafkaServiceInterface
+	repo        *repository.OTARepository
+	productRepo *repository.ProductRepository
+	deviceRepo  *repository.DeviceRepository
+	kafka       KafkaServiceInterface
+}
+
+// otaCommandV1 keeps Kafka commands aligned with the device-facing OTA contract.
+func otaCommandV1(pkg *model.OTAPackage, batchID string, deviceKey, deviceName, targetVersion string) map[string]any {
+	return map[string]any{
+		"batch_id":       batchID,
+		"package_id":     pkg.ID,
+		"product_key":    pkg.ProductKey,
+		"device_key":     deviceKey,
+		"device_name":    deviceName,
+		"module":         "default",
+		"target_version": targetVersion,
+		"download_url":   pkg.FileURL,
+		"file_size":      pkg.FileSize,
+		"sha256":         pkg.Checksum,
+		"expires_at":     time.Now().Add(24 * time.Hour).UTC().Format(time.RFC3339),
+	}
 }
 
 type UpgradeStatistics struct {
@@ -117,11 +122,6 @@ type UpgradeStatistics struct {
 
 func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, kafka KafkaServiceInterface) *OTAService {
 	return &OTAService{repo: repo, productRepo: productRepo, deviceRepo: deviceRepo, kafka: kafka}
-}
-
-// NewOTAServiceWithProtocol 注入协议仓储，使 OTA 命令可按设备协议端点选择传输方式。
-func NewOTAServiceWithProtocol(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, kafka KafkaServiceInterface, protocols *repository.ProtocolRepository) *OTAService {
-	return &OTAService{repo: repo, productRepo: productRepo, deviceRepo: deviceRepo, protocolRepo: protocols, kafka: kafka}
 }
 
 func (s *OTAService) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) {
@@ -161,9 +161,8 @@ func (s *OTAService) Delete(ctx context.Context, uuid string) error {
 	return s.repo.Delete(ctx, pkg.ID)
 }
 
-// BatchUpgrade 为指定升级包创建静态升级批次，并将所选设备加入该批次的升级
-// （每条设备记录状态为 pending，并关联 upgrade_batch_id）。升级包状态置为
-// deploying。返回创建好的批次。
+// BatchUpgrade creates a static upgrade batch for the specified package and devices,
+// creating records in pending status and setting the package status to deploying.
 func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys []string) (*model.UpgradeBatch, error) {
 	if s.kafka == nil {
 		return nil, errors.New("kafka service is required for OTA batch upgrade")
@@ -179,8 +178,16 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 	if len(devices) == 0 {
 		return nil, errors.New("no valid devices found for the given device keys")
 	}
+
+	seenDev := make(map[int64]struct{}, len(devices))
+	uniqueDevices := make([]*model.Device, 0, len(devices))
 	deviceIDs := make([]int64, 0, len(devices))
 	for _, d := range devices {
+		if _, exists := seenDev[d.ID]; exists {
+			continue
+		}
+		seenDev[d.ID] = struct{}{}
+		uniqueDevices = append(uniqueDevices, d)
 		deviceIDs = append(deviceIDs, d.ID)
 	}
 
@@ -196,31 +203,8 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 		return batch, err
 	}
 	var dispatchErr error
-	for _, device := range devices {
-		message := map[string]any{
-			"batch_id":           batchID,
-			"package_id":         pkg.ID,
-			"product_key":        pkg.ProductKey,
-			"device_key":         device.DeviceKey,
-			"device_name":        device.Name,
-			"target_version":     pkg.Version,
-			"module":             "default",
-			"url":                pkg.FileURL,
-			"size":               pkg.FileSize,
-			"checksum":           pkg.Checksum,
-			"transport_protocol": "mqtt",
-		}
-		if s.protocolRepo != nil {
-			endpoint, endpointErr := s.protocolRepo.DeviceOTAEndpoint(ctx, device.ID)
-			if endpointErr != nil {
-				return batch, endpointErr
-			}
-			if endpoint != nil {
-				message["endpoint_id"] = endpoint.EndpointID
-				message["endpoint"] = endpoint.Endpoint
-				message["transport_protocol"] = endpoint.TransportProtocol
-			}
-		}
+	for _, device := range uniqueDevices {
+		message := otaCommandV1(pkg, batchID, device.DeviceKey, device.Name, pkg.Version)
 		if err := s.kafka.ProduceJSON(ctx, enum.KafkaTopicOTAUpgradeCommandV1, batchID+":"+device.DeviceKey, message); err != nil {
 			_ = s.repo.MarkDispatchResult(ctx, pkg.ID, device.ID, batchID, enum.OTAStatusFailed, err.Error())
 			if dispatchErr == nil {
@@ -232,7 +216,7 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 			return batch, err
 		}
 	}
-	// 继续尝试其余设备，避免单台 Kafka 失败导致批次只下发一部分。
+	// Continue dispatching remaining devices to prevent a single Kafka failure from halting the whole batch.
 	pkg, err = s.repo.Find(ctx, pkg.ID)
 	if err != nil {
 		return batch, err
@@ -247,8 +231,7 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 	return batch, nil
 }
 
-// ReportStatus 上报某台设备对指定升级包的升级结果（in_progress/success/failed），
-// 更新设备升级记录并重新聚合升级包状态。
+// ReportStatus updates the upgrade status for a device against a package.
 func (s *OTAService) ReportStatus(ctx context.Context, uuid string, deviceKey string, status string) error {
 	if status != enum.OTAStatusInProgress && status != enum.OTAStatusSuccess && status != enum.OTAStatusFailed {
 		return errors.New("invalid upgrade status: " + status)
@@ -267,8 +250,8 @@ func (s *OTAService) ReportStatus(ctx context.Context, uuid string, deviceKey st
 	return s.recomputePackageStatus(ctx, pkg.ID)
 }
 
-// ReportBatchDevice 消费并处理设备升级状态/进度上报，自动进行版本匹配校验与超时判断，
-// 并联动更新批次内设备记录、升级包整体状态以及升级批次状态。
+// ReportBatchDevice handles device progress/status report, validates version matching and timeout,
+// and updates the batch and package status accordingly.
 func (s *OTAService) ReportBatchDevice(ctx context.Context, batchID, deviceKey, status, version string, progress int32, desc ...string) error {
 	if status != enum.OTAStatusInProgress && status != enum.OTAStatusSuccess && status != enum.OTAStatusFailed && status != enum.OTAStatusTimeout {
 		return errors.New("invalid upgrade status: " + status)
@@ -312,7 +295,7 @@ func (s *OTAService) ReportBatchDevice(ctx context.Context, batchID, deviceKey, 
 	return s.recomputeBatchStatus(ctx, batchID, packageIDValue)
 }
 
-// recomputeBatchStatus 根据批次内设备状态更新批次自身状态。
+// recomputeBatchStatus updates the batch status based on its device status aggregation.
 func (s *OTAService) recomputeBatchStatus(ctx context.Context, batchID string, packageID int64) error {
 	counts, err := s.repo.Statistics(ctx, packageID, batchID)
 	if err != nil {
@@ -329,21 +312,18 @@ func (s *OTAService) recomputeBatchStatus(ctx context.Context, batchID string, p
 	return s.repo.UpdateBatchStatus(ctx, batchID, status)
 }
 
-// ShouldDispatchBatchDevice prevents replayed Kafka commands from being sent
-// again after a task has already reached the broker.
-// ClaimBatchDeviceForMQTT 原子领取 Kafka 命令，确保同一设备任务只下发一次 MQTT。
+// ClaimBatchDeviceForMQTT atomically claims the Kafka command to prevent duplicate MQTT dispatch.
 func (s *OTAService) ClaimBatchDeviceForMQTT(ctx context.Context, batchID, deviceKey string) (bool, error) {
 	return s.repo.ClaimBatchDeviceForMQTT(ctx, batchID, deviceKey)
 }
 
-// ResetMQTTDispatch 将 MQTT 发布失败的任务恢复为 pending，供显式重试接口处理。
+// ResetMQTTDispatch resets a failed MQTT dispatch task back to pending for explicit retry.
 func (s *OTAService) ResetMQTTDispatch(ctx context.Context, batchID, deviceKey, dispatchError string) error {
 	return s.repo.ResetMQTTDispatch(ctx, batchID, deviceKey, dispatchError)
 }
 
-// recomputePackageStatus 根据设备升级记录聚合升级包状态：
-// 仍有 pending/in_progress 时保持 deploying；全部成功为 success；
-// 全部失败为 failed；部分成功部分失败为 partial。
+// recomputePackageStatus updates the overall package status based on device status aggregation:
+// stays deploying if pending/in_progress remain; success if all succeeded; failed if all failed; partial if mixed.
 func (s *OTAService) recomputePackageStatus(ctx context.Context, packageID int64) error {
 	counts, err := s.repo.Statistics(ctx, packageID)
 	if err != nil {

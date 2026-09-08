@@ -1,15 +1,32 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "ota.upgrade.report.v1",
+  "title": "OTA Upgrade Report V1",
   "type": "object",
-  "required": ["batch_id", "device_key", "status"],
+  "additionalProperties": false,
+  "required": ["event_type", "batch_id", "product_key", "device_key", "module", "reported_at"],
   "properties": {
-    "batch_id": {"type": "string", "minLength": 1},
-    "device_key": {"type": "string", "minLength": 1},
-    "status": {"enum": ["in_progress", "success", "failed", "timeout"]},
-    "version": {"type": "string"},
-    "progress": {"type": "integer", "minimum": 0, "maximum": 100},
-    "desc": {"type": "string"}
+    "event_type": { "enum": ["progress", "inform"] },
+    "batch_id": { "type": "string", "minLength": 1 },
+    "product_key": { "type": "string", "minLength": 1 },
+    "device_key": { "type": "string", "minLength": 1 },
+    "module": { "const": "default" },
+    "reported_at": { "type": "string", "format": "date-time" },
+    "progress": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "stage": { "enum": ["download", "verify", "install", "reboot"] },
+    "reported_version": { "type": "string", "minLength": 1 },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 }
+      }
+    }
   },
-  "additionalProperties": false
+  "allOf": [
+    { "if": { "properties": { "event_type": { "const": "progress" } } }, "then": { "required": ["progress", "stage"] } },
+    { "if": { "properties": { "event_type": { "const": "inform" } } }, "then": { "required": ["reported_version"] } }
+  ]
 }
