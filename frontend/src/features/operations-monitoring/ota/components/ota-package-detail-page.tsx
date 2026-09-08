@@ -261,7 +261,7 @@ function DeploymentPagination({
  * - Desktop (> 1024px): 4-column layout for statistics
  */
 export function OTAPackageDetailPage() {
-  const { t } = useTranslation('ota')
+  const { t } = useTranslation(['ota', 'common'])
   const navigate = useNavigate()
   const params = useParams({
     from: '/_authenticated/operations-monitoring/ota/packages/$id/',
@@ -367,9 +367,7 @@ export function OTAPackageDetailPage() {
         <div className='border-b pb-5'>
           <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>
             {packageQuery.isLoading ? (
-              <span className='animate-pulse'>
-                {t('packageDetail.loading')}
-              </span>
+              <span className='animate-pulse'>{t('common:loading')}</span>
             ) : (
               pkg?.packageName || t('packageDetail.unknownPackage')
             )}
@@ -415,7 +413,7 @@ export function OTAPackageDetailPage() {
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : statisticsQuery.isError ? (
                 <span className='text-sm text-red-600'>
-                  {t('packageDetail.error')}
+                  {t('common:error')}
                 </span>
               ) : (
                 (stats?.totalTargetDevices ?? '-')
@@ -431,7 +429,7 @@ export function OTAPackageDetailPage() {
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : statisticsQuery.isError ? (
                 <span className='text-sm text-red-600'>
-                  {t('packageDetail.error')}
+                  {t('common:error')}
                 </span>
               ) : (
                 (stats?.successfulUpgrades ?? '-')
@@ -447,7 +445,7 @@ export function OTAPackageDetailPage() {
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : statisticsQuery.isError ? (
                 <span className='text-sm text-red-600'>
-                  {t('packageDetail.error')}
+                  {t('common:error')}
                 </span>
               ) : (
                 (stats?.failedUpgrades ?? '-')
@@ -463,7 +461,7 @@ export function OTAPackageDetailPage() {
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : statisticsQuery.isError ? (
                 <span className='text-sm text-red-600'>
-                  {t('packageDetail.error')}
+                  {t('common:error')}
                 </span>
               ) : (
                 (stats?.inProgressUpgrades ?? '-')

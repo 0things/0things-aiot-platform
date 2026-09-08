@@ -55,7 +55,7 @@ export function ProductsActionDialog({
   open,
   onOpenChange,
 }: ProductActionDialogProps) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
   const isEdit = !!currentRow
 
   // Create and update mutations
@@ -365,7 +365,7 @@ export function ProductsActionDialog({
             {isSubmitting && (
               <span className='mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent' />
             )}
-            {t('productDetail.actions.save')}
+            {t('common:save')}
           </Button>
         </SheetFooter>
       </SheetContent>

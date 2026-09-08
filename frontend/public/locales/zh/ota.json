@@ -145,11 +145,9 @@
     }
   },
   "packageDetail": {
-    "loading": "加载中...",
     "unknownPackage": "未知升级包",
     "version": "版本：{{version}}",
     "type": "类型",
-    "error": "加载失败",
     "lastUpdated": {
       "label": "最后更新：{{time}}",
       "justNow": "刚刚",
@@ -281,9 +279,7 @@
       "title": "最近活动",
       "packageName": "升级包名称",
       "version": "版本号",
-      "action": "操作",
       "productName": "所属产品",
-      "status": "状态",
       "time": "时间",
       "noData": "暂无最近活动"
     },

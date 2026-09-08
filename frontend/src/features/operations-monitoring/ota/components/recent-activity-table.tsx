@@ -33,7 +33,7 @@ export function RecentActivityTable({
   data,
   isLoading,
 }: RecentActivityTableProps) {
-  const { t } = useTranslation('ota')
+  const { t } = useTranslation(['ota', 'common'])
 
   return (
     <Card>
@@ -62,13 +62,13 @@ export function RecentActivityTable({
                   {t('analytics.recentActivity.version')}
                 </TableHead>
                 <TableHead className='text-xs tracking-wide text-muted-foreground uppercase'>
-                  {t('analytics.recentActivity.action')}
+                  {t('common:actions')}
                 </TableHead>
                 <TableHead className='text-xs tracking-wide text-muted-foreground uppercase'>
                   {t('analytics.recentActivity.productName')}
                 </TableHead>
                 <TableHead className='text-xs tracking-wide text-muted-foreground uppercase'>
-                  {t('analytics.recentActivity.status')}
+                  {t('common:status')}
                 </TableHead>
                 <TableHead className='text-right text-xs tracking-wide text-muted-foreground uppercase'>
                   {t('analytics.recentActivity.time')}

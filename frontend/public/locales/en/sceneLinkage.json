@@ -4,7 +4,6 @@
   "description": "Run a sequence of actions when a device event matches your conditions.",
   "titleCreate": "Create scene linkage",
   "titleEdit": "Edit scene linkage",
-  "save": "Save",
   "created": "Scene created",
   "saved": "Scene saved",
   "saveFailed": "Failed to save, please retry",

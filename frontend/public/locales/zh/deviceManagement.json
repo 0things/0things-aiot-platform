@@ -13,21 +13,10 @@
   "productDetail": {
     "actions": {
       "create": "新建产品",
-      "edit": "编辑产品",
-      "save": "保存"
+      "edit": "编辑产品"
     },
     "protocols": {
-      "title": "接入协议",
-      "loading": "加载协议中...",
-      "empty": "暂未配置接入协议",
-      "ota": "支持 OTA",
-      "noOta": "不支持 OTA",
-      "add": "新增协议",
-      "transport": "传输协议",
-      "application": "应用协议",
-      "save": "保存"
-      ,"delete": "删除"
-      ,"edit": "编辑"
+      "application": "应用协议"
     },
     "header": {
       "productKey": "ProductKey",
@@ -48,11 +37,9 @@
     "backButton": "返回产品列表",
     "info": {
       "title": "产品信息",
-      "editButton": "编辑",
       "fields": {
         "name": "产品名称",
         "category": "所属品类",
-        "status": "状态",
         "nodeType": "节点类型",
         "connectivityMethod": "连网方式",
         "accessProtocol": "接入协议",
@@ -61,11 +48,10 @@
         "dataFormatValue": "ICA 标准数据格式",
         "authMethod": "认证方式",
         "authMethodValue": "设备密码",
-        "createdAt": "创建时间",
         "dataValidationLevel": "数据校验级别",
         "dataValidationValue": "弱校验",
-        "description": "产品描述"
-        ,"metadata": "元数据"
+        "description": "产品描述",
+        "metadata": "元数据"
       },
       "labels": {
         "title": "标签信息",
@@ -405,24 +391,9 @@
   },
   "deviceDetail": {
     "endpoints": {
-      "title": "接入端点",
-      "loading": "加载接入端点中...",
-      "empty": "暂未配置接入端点",
-      "noAddress": "未配置地址",
-      "add": "新增端点",
-      "selectProtocol": "选择协议",
-      "endpoint": "端点地址",
-      "save": "保存"
-      ,"delete": "删除"
-      ,"edit": "编辑"
-      ,"connectionData": "连接数据"
-      ,"clientId": "客户端 ID"
-      ,"username": "用户名"
-      ,"password": "密码"
-      ,"port": "端口"
-      ,"method": "请求方法"
-      ,"publishTopic": "发布主题"
-      ,"subscribeTopic": "订阅主题"
+      "connectionHint": "按设备协议生成，可直接复制使用",
+      "protocols": "个协议",
+      "empty": "暂未配置接入端点"
     },
     "header": {
       "backToList": "返回设备列表",
@@ -567,7 +538,6 @@
         "productKey": "ProductKey",
         "deviceKey": "DeviceKey",
         "nodeType": "节点类型",
-        "createdAt": "创建时间",
         "currentStatus": "当前状态",
         "ipAddress": "IP地址",
         "activationTime": "激活时间",
@@ -612,8 +582,7 @@
       "product": "产品",
       "state": "状态",
       "enabled": "启用",
-      "lastOnline": "最后在线",
-      "actions": "操作"
+      "lastOnline": "最后在线"
     },
     "state": {
       "online": "在线",
@@ -645,7 +614,6 @@
       "name": "设备名称",
       "product": "产品",
       "metadata": "元数据",
-      "saveButton": "保存",
       "placeholder": {
         "deviceKey": "device-001",
         "name": "我的设备 #1",
@@ -659,19 +627,14 @@
       "description": "从 CSV 或 Excel 文件批量上传设备。下载模板查看所需格式。",
       "downloadTemplate": "下载模板",
       "fileLabel": "文件 (CSV, Excel)",
-      "uploadButton": "上传",
       "uploading": "上传中...",
-      "succeeded": "成功",
       "failed": "失败",
       "errorDetails": "错误详情",
       "errorColumns": {
         "row": "行号",
         "deviceName": "设备名称",
-        "productKey": "产品标识",
-        "error": "错误"
+        "productKey": "产品标识"
       },
-      "closeButton": "关闭",
-      "cancelButton": "取消",
       "uploadAgainButton": "重新上传",
       "successMessage": "成功上传 {{count}} 个设备",
       "errorMessage": "上传设备失败，请重试。",

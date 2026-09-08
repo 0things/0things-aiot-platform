@@ -22,7 +22,7 @@ export function ForgotPasswordForm({
   className,
   ...props
 }: React.HTMLAttributes<HTMLFormElement>) {
-  const { t } = useTranslation('auth')
+  const { t } = useTranslation(['auth', 'common'])
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -53,7 +53,7 @@ export function ForgotPasswordForm({
         navigate({ to: '/otp' })
         return t('forgotPassword.emailSent', { email: data.email })
       },
-      error: t('forgotPassword.error'),
+      error: t('common:error'),
     })
   }
 

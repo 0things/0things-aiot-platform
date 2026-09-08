@@ -15,7 +15,7 @@ interface DeviceInfoTabProps {
 }
 
 export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
   const [logUploadEnabled, setLogUploadEnabled] = useState(false)
 
   const formatDate = (dateString: string | undefined) => {
@@ -67,7 +67,7 @@ export function DeviceInfoTab({ device }: DeviceInfoTabProps) {
 
               <div className='space-y-1'>
                 <p className='text-sm text-muted-foreground'>
-                  {t('deviceDetail.info.fields.createdAt')}
+                  {t('common:createdAt')}
                 </p>
                 <p className='font-medium'>{formatDate(device.createdAt)}</p>
               </div>

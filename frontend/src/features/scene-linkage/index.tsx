@@ -142,7 +142,7 @@ function SceneLinkageFormInner({
   id?: number
   initial: InitialValues
 }) {
-  const { t } = useTranslation('sceneLinkage')
+  const { t } = useTranslation(['sceneLinkage', 'common'])
   const navigate = useNavigate()
   const isEdit = mode === 'edit'
   const sceneId = id ?? 0
@@ -244,7 +244,7 @@ function SceneLinkageFormInner({
             ) : (
               <Save className='mr-2 size-4' />
             )}
-            {t('save')}
+            {t('common:save')}
           </Button>
         </div>
 

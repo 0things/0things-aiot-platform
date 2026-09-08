@@ -43,7 +43,7 @@ function errorMessage(error: unknown) {
 }
 
 export function MessageParsingTab({ productKey }: MessageParsingTabProps) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
   const queryClient = useQueryClient()
   const parserQuery = useGetProductsKeyProductKeyMessageParser(productKey)
   const saveParser = usePutProductsKeyProductKeyMessageParser()
@@ -256,7 +256,7 @@ export function MessageParsingTab({ productKey }: MessageParsingTabProps) {
           className='rounded-md'
         >
           <Save />
-          {t('productDetail.messageParsing.save')}
+          {t('common:save')}
         </Button>
       </div>
     </div>

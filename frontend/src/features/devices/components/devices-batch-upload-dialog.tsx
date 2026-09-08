@@ -61,7 +61,7 @@ export function DevicesBatchUploadDialog({
   open,
   onOpenChange,
 }: DevicesBatchUploadDialogProps) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
 
   const formSchema = z.object({
     file: z
@@ -197,7 +197,7 @@ export function DevicesBatchUploadDialog({
                   {uploadResult.successCount}
                 </div>
                 <div className='text-sm font-medium text-green-600 dark:text-green-400'>
-                  {t('dialog.batchUpload.succeeded')}
+                  {t('common:success')}
                 </div>
               </div>
               <div className='flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 dark:border-red-800 dark:bg-red-950'>
@@ -228,9 +228,7 @@ export function DevicesBatchUploadDialog({
                         <TableHead>
                           {t('dialog.batchUpload.errorColumns.productKey')}
                         </TableHead>
-                        <TableHead>
-                          {t('dialog.batchUpload.errorColumns.error')}
-                        </TableHead>
+                        <TableHead>{t('common:error')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -255,9 +253,7 @@ export function DevicesBatchUploadDialog({
         <DialogFooter className='gap-2'>
           <DialogClose asChild>
             <Button variant='outline'>
-              {uploadResult
-                ? t('dialog.batchUpload.closeButton')
-                : t('dialog.batchUpload.cancelButton')}
+              {uploadResult ? t('common:close') : t('common:cancel')}
             </Button>
           </DialogClose>
           {!uploadResult && (
@@ -271,7 +267,7 @@ export function DevicesBatchUploadDialog({
               ) : (
                 <>
                   <Upload className='mr-2 size-4' />
-                  {t('dialog.batchUpload.uploadButton')}
+                  {t('common:upload')}
                 </>
               )}
             </Button>

@@ -12,7 +12,7 @@ import { DataTableRowActions } from './data-table-row-actions'
 import { DeviceEnabledSwitch } from './device-enabled-switch'
 
 export const useDevicesColumns = (): ColumnDef<Device>[] => {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
 
   return [
     {
@@ -169,9 +169,7 @@ export const useDevicesColumns = (): ColumnDef<Device>[] => {
     },
     {
       id: 'actions',
-      header: () => (
-        <div className='text-center'>{t('devices.columns.actions')}</div>
-      ),
+      header: () => <div className='text-center'>{t('common:actions')}</div>,
       cell: DataTableRowActions,
       meta: {
         className: cn(

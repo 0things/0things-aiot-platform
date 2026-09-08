@@ -145,11 +145,9 @@
     }
   },
   "packageDetail": {
-    "loading": "Loading...",
     "unknownPackage": "Unknown package",
     "version": "Version: {{version}}",
     "type": "Type",
-    "error": "Error",
     "lastUpdated": {
       "label": "Last updated: {{time}}",
       "justNow": "Just now",
@@ -281,9 +279,7 @@
       "title": "Recent Activity",
       "packageName": "Package Name",
       "version": "Version",
-      "action": "Action",
       "productName": "Product Name",
-      "status": "Status",
       "time": "Time",
       "noData": "No recent activity"
     },

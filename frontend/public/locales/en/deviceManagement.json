@@ -13,21 +13,10 @@
   "productDetail": {
     "actions": {
       "create": "Create Product",
-      "edit": "Edit Product",
-      "save": "Save changes"
+      "edit": "Edit Product"
     },
     "protocols": {
-      "title": "Access Protocols",
-      "loading": "Loading protocols...",
-      "empty": "No access protocols configured",
-      "ota": "OTA supported",
-      "noOta": "OTA not supported",
-      "add": "Add protocol",
-      "transport": "Transport protocol",
-      "application": "Application protocol",
-      "save": "Save"
-      ,"delete": "Delete"
-      ,"edit": "Edit"
+      "application": "Application protocol"
     },
     "header": {
       "productKey": "ProductKey",
@@ -48,11 +37,9 @@
     "backButton": "Return to Products",
     "info": {
       "title": "Product Information",
-      "editButton": "Edit",
       "fields": {
         "name": "Product Name",
         "category": "Category",
-        "status": "Status",
         "nodeType": "Node Type",
         "connectivityMethod": "Connectivity Method",
         "accessProtocol": "Access Protocol",
@@ -61,7 +48,6 @@
         "dataFormatValue": "ICA Standard Data Format",
         "authMethod": "Authentication Method",
         "authMethodValue": "Device Password",
-        "createdAt": "Created At",
         "dataValidationLevel": "Data Validation Level",
         "dataValidationValue": "Weak Validation",
         "description": "Description",
@@ -405,24 +391,9 @@
   },
   "deviceDetail": {
     "endpoints": {
-      "title": "Access Endpoints",
-      "loading": "Loading access endpoints...",
-      "empty": "No access endpoints configured",
-      "noAddress": "No address configured",
-      "add": "Add endpoint",
-      "selectProtocol": "Select protocol",
-      "endpoint": "Endpoint address",
-      "save": "Save"
-      ,"delete": "Delete"
-      ,"edit": "Edit"
-      ,"connectionData": "Connection data"
-      ,"clientId": "Client ID"
-      ,"username": "Username"
-      ,"password": "Password"
-      ,"port": "Port"
-      ,"method": "Method"
-      ,"publishTopic": "Publish topic"
-      ,"subscribeTopic": "Subscribe topic"
+      "connectionHint": "Generated per device protocol, ready to copy",
+      "protocols": "protocols",
+      "empty": "No access endpoints configured"
     },
     "header": {
       "backToList": "Back to device list",
@@ -567,7 +538,6 @@
         "productKey": "ProductKey",
         "deviceKey": "DeviceKey",
         "nodeType": "Node Type",
-        "createdAt": "Created At",
         "currentStatus": "Current Status",
         "ipAddress": "IP Address",
         "activationTime": "Activation Time",
@@ -612,8 +582,7 @@
       "product": "Product",
       "state": "State",
       "enabled": "Enabled",
-      "lastOnline": "Last Online",
-      "actions": "Actions"
+      "lastOnline": "Last Online"
     },
     "state": {
       "online": "Online",
@@ -645,7 +614,6 @@
       "name": "Name",
       "product": "Product",
       "metadata": "Metadata",
-      "saveButton": "Save changes",
       "placeholder": {
         "deviceKey": "device-001",
         "name": "My Device #1",
@@ -659,19 +627,14 @@
       "description": "Upload multiple devices from a CSV or Excel file. Download the template to see the required format.",
       "downloadTemplate": "Download Template",
       "fileLabel": "File (CSV, Excel)",
-      "uploadButton": "Upload",
       "uploading": "Uploading...",
-      "succeeded": "Succeeded",
       "failed": "Failed",
       "errorDetails": "Error Details",
       "errorColumns": {
         "row": "Row",
         "deviceName": "Device Name",
-        "productKey": "Product Key",
-        "error": "Error"
+        "productKey": "Product Key"
       },
-      "closeButton": "Close",
-      "cancelButton": "Cancel",
       "uploadAgainButton": "Upload Again",
       "successMessage": "Successfully uploaded {{count}} devices",
       "errorMessage": "Failed to upload devices. Please try again.",

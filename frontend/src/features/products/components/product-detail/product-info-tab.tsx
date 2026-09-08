@@ -10,7 +10,7 @@ interface ProductInfoTabProps {
 }
 
 export function ProductInfoTab({ product }: ProductInfoTabProps) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
   const categoryQuery = useProductCategories()
 
   const getCategoryName = () => {
@@ -68,7 +68,7 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
         <CardHeader className='flex flex-row items-center justify-between'>
           <CardTitle>{t('productDetail.info.title')}</CardTitle>
           <Button variant='outline' size='sm'>
-            {t('productDetail.info.editButton')}
+            {t('common:edit')}
           </Button>
         </CardHeader>
         <CardContent>
@@ -91,7 +91,7 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
 
             <div className='space-y-1'>
               <p className='text-sm text-muted-foreground'>
-                {t('productDetail.info.fields.status')}
+                {t('common:status')}
               </p>
               <Badge variant={statusVariant}>{statusLabel}</Badge>
             </div>
@@ -114,7 +114,7 @@ export function ProductInfoTab({ product }: ProductInfoTabProps) {
 
             <div className='space-y-1'>
               <p className='text-sm text-muted-foreground'>
-                {t('productDetail.info.fields.createdAt')}
+                {t('common:createdAt')}
               </p>
               <p className='font-medium'>{formatDate(product.createdAt)}</p>
             </div>

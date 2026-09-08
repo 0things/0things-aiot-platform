@@ -51,7 +51,7 @@ export function DevicesActionDialog({
   onOpenChange,
 }: DeviceActionDialogProps) {
   const isEdit = !!currentRow
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
 
   // Fetch product options
   const { data: products = [], isLoading: isLoadingProducts } =
@@ -260,7 +260,7 @@ export function DevicesActionDialog({
             {isSubmitting && (
               <span className='mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent' />
             )}
-            {t('dialog.form.saveButton')}
+            {t('common:save')}
           </Button>
         </DialogFooter>
       </DialogContent>

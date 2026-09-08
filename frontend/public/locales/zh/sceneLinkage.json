@@ -4,7 +4,6 @@
   "description": "当设备事件满足条件时，自动执行一组场景动作。",
   "titleCreate": "新建场景联动",
   "titleEdit": "编辑场景联动",
-  "save": "保存",
   "created": "场景已创建",
   "saved": "场景已保存",
   "saveFailed": "保存失败，请重试",
