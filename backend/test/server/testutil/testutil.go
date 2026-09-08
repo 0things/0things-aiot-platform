@@ -78,7 +78,7 @@ func NewTestOTATotalService(db *gorm.DB) *service.OTAService {
 	otaRepo := repository.NewOTARepository(db)
 	productRepo := repository.NewProductRepository(db)
 	deviceRepo := repository.NewDeviceRepository(db, nil)
-	return service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	return service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 }
 
 func NewTestSceneLinkageService(db *gorm.DB) *service.SceneLinkageService {

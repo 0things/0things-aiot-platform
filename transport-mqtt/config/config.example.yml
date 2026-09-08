@@ -1,0 +1,26 @@
+env: local
+
+mqtt:
+  broker: "ssl://127.0.0.1:8883"
+  client_id: "0things-transport-mqtt"
+  username: ""
+  password: ""
+  tls:
+    ca_file: ""
+    cert_file: ""
+    key_file: ""
+
+event:
+  driver: "nats"
+  nats:
+    url: "nats://127.0.0.1:4222"
+
+log:
+  log_level: debug
+  mode: console
+  encoding: console
+  log_file_name: "./storage/logs/transport-mqtt.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true

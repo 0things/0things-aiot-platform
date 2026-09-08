@@ -15,6 +15,8 @@ import (
 	"aiot-backend/pkg/server/http"
 	"aiot-backend/pkg/sid"
 
+	"0things/pkg/event"
+
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
@@ -64,6 +66,7 @@ var serviceSet = wire.NewSet(
 	service.NewDeviceEventService,
 	service.NewThingModelDataService,
 	provideProtocolService,
+	provideEventProducer,
 	service.NewRuleNodeDefinitionService,
 	wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)),
 	wire.Bind(new(service.CategoryServiceInterface), new(*service.CategoryService)),
@@ -105,6 +108,18 @@ var handlerSet = wire.NewSet(
 
 func provideProtocolService(repo *repository.ProtocolRepository, config *viper.Viper) *service.ProtocolService {
 	return service.NewProtocolService(repo, config)
+}
+
+func provideEventProducer(conf *viper.Viper, logger *log.Logger) (event.Producer, func(), error) {
+	pub, _, err := event.NewBus(conf, logger.Logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	producer := event.NewProducer(pub)
+	cleanup := func() {
+		_ = producer.Close()
+	}
+	return producer, cleanup, nil
 }
 
 var serverSet = wire.NewSet(

@@ -16,8 +16,9 @@ test:
 	@echo "🧪 Running unit tests across all microservices and shared packages..."
 	@(cd pkg/protocol && go test ./...)
 	@(cd pkg/tsdb && go test ./...)
-	@(cd mqtt-transport && go test ./internal/...)
-	@(cd http-transport && go test ./internal/...)
+	@(cd pkg/event && go test ./...)
+	@(cd transport-mqtt && go test ./internal/...)
+	@(cd transport-http && go test ./internal/...)
 	@(cd data-engine && go test ./internal/...)
 	@(cd backend && go test ./...)
 	@echo "✅ All tests passed successfully!"
@@ -25,9 +26,9 @@ test:
 # 编译验证所有微服务二进制
 build:
 	@echo "🔨 Building all microservice binaries..."
-	@(cd mqtt-transport && go build -buildvcs=false -o /dev/null ./cmd/server)
-	@(cd http-transport && go build -buildvcs=false -o /dev/null ./cmd/server)
-	@(cd coap-transport && go build -buildvcs=false -o /dev/null ./cmd/server)
+	@(cd transport-mqtt && go build -buildvcs=false -o /dev/null ./cmd/server)
+	@(cd transport-http && go build -buildvcs=false -o /dev/null ./cmd/server)
+	@(cd transport-coap && go build -buildvcs=false -o /dev/null ./cmd/server)
 	@(cd data-engine && go build -buildvcs=false -o /dev/null ./cmd/server)
 	@(cd backend && go build -buildvcs=false -o /dev/null ./cmd/server)
 	@echo "✅ All binaries built cleanly!"

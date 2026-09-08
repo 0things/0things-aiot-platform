@@ -2,10 +2,11 @@ go 1.25.0
 
 use (
 	./backend
-	./coap-transport
 	./data-engine
-	./http-transport
-	./mqtt-transport
+	./pkg/event
 	./pkg/protocol
 	./pkg/tsdb
+	./transport-coap
+	./transport-http
+	./transport-mqtt
 )

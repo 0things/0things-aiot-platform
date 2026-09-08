@@ -1134,7 +1134,7 @@ func TestIntegrationOTAService_Create(t *testing.T) {
 	otaRepo := repository.NewOTARepository(db)
 	productRepo := repository.NewProductRepository(db)
 	deviceRepo := repository.NewDeviceRepository(db, nil)
-	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", OrganizationID: 1}
 	err := svc.Create(ctx2(), pkg, "P001")
@@ -1147,7 +1147,7 @@ func TestIntegrationOTAService_Create_ProductNotFound(t *testing.T) {
 	otaRepo := repository.NewOTARepository(db)
 	productRepo := repository.NewProductRepository(db)
 	deviceRepo := repository.NewDeviceRepository(db, nil)
-	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0", OrganizationID: 1}
 	err := svc.Create(ctx2(), pkg, "NONEXIST")
@@ -1160,7 +1160,7 @@ func TestIntegrationOTAService_Batches(t *testing.T) {
 	otaRepo := repository.NewOTARepository(db)
 	productRepo := repository.NewProductRepository(db)
 	deviceRepo := repository.NewDeviceRepository(db, nil)
-	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	// Create a package first
 	pkg := &model.OTAPackage{PackageName: "fw-batches", Version: "1.0", OrganizationID: 1}
@@ -1178,7 +1178,7 @@ func TestIntegrationOTAService_Deployments(t *testing.T) {
 	otaRepo := repository.NewOTARepository(db)
 	productRepo := repository.NewProductRepository(db)
 	deviceRepo := repository.NewDeviceRepository(db, nil)
-	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo)
+	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	// Create a package first
 	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", OrganizationID: 1}

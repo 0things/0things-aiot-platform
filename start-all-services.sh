@@ -155,9 +155,9 @@ start_ai_copilot() {
 # 1. 依次启动核心微服务
 start_go_service "backend"
 start_go_service "data-engine"
-start_go_service "mqtt-transport"
-start_go_service "http-transport"
-start_go_service "coap-transport"
+start_go_service "transport-mqtt"
+start_go_service "transport-http"
+start_go_service "transport-coap"
 
 # 2. 启动 MCP 服务与 AI Copilot
 start_mcp_service

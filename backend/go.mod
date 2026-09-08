@@ -3,6 +3,7 @@ module aiot-backend
 go 1.25.0
 
 require (
+	0things/pkg/event v0.0.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/aws/aws-sdk-go-v2 v1.43.7
 	github.com/aws/aws-sdk-go-v2/config v1.32.38
@@ -174,3 +175,6 @@ require (
 	modernc.org/sqlite v1.40.1 // indirect
 	moul.io/http2curl/v2 v2.3.0 // indirect
 )
+
+replace 0things/pkg/event => ../pkg/event
+

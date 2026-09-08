@@ -70,6 +70,12 @@ mqtt:
     cert_file: ""
     key_file: ""
 
+event:
+  driver: "nats"
+  nats:
+    url: "nats://127.0.0.1:4222"
+
+
 log:
   log_level: debug
   mode: console

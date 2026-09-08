@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"0things/pkg/event"
 	"aiot-backend/internal/enum"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
@@ -70,9 +71,10 @@ func (s *OTAService) RetryBatch(ctx context.Context, uuid, batchID string) error
 }
 
 type OTAService struct {
-	repo        *repository.OTARepository
-	productRepo *repository.ProductRepository
-	deviceRepo  *repository.DeviceRepository
+	repo          *repository.OTARepository
+	productRepo   *repository.ProductRepository
+	deviceRepo    *repository.DeviceRepository
+	eventProducer event.Producer
 }
 
 type UpgradeStatistics struct {
@@ -85,8 +87,8 @@ type UpgradeStatistics struct {
 	InProgressUpgrades int64
 }
 
-func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository) *OTAService {
-	return &OTAService{repo: repo, productRepo: productRepo, deviceRepo: deviceRepo}
+func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, eventProducer event.Producer) *OTAService {
+	return &OTAService{repo: repo, productRepo: productRepo, deviceRepo: deviceRepo, eventProducer: eventProducer}
 }
 
 func (s *OTAService) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) {
@@ -172,6 +174,26 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 	if err := s.repo.Save(ctx, pkg); err != nil {
 		return batch, err
 	}
+
+	for _, d := range uniqueDevices {
+		if s.eventProducer != nil {
+			cmd := &event.OTAUpgradeCommand{
+				BatchID:       batchID,
+				PackageID:     strconv.FormatInt(pkg.ID, 10),
+				ProductKey:    pkg.ProductKey,
+				DeviceKey:     d.DeviceKey,
+				DeviceName:    d.Name,
+				Module:        pkg.PackageType,
+				TargetVersion: pkg.Version,
+				DownloadURL:   pkg.FileURL,
+				FileSize:      pkg.FileSize,
+				SHA256:        pkg.Checksum,
+				ExpiresAt:     time.Now().Add(24 * time.Hour),
+			}
+			_ = s.eventProducer.Publish(ctx, event.TopicOTAUpgradeCommand, cmd)
+		}
+	}
+
 	return batch, nil
 }
 

@@ -41,6 +41,11 @@ data:
 # 切换数据库只需修改 `type` 字段 (tdengine | sqlite | postgresql | timescaledb | clickhouse | influxdb | iotdb | mock)
 # ==============================================================================
 tsdb:
+event:
+  driver: "nats"
+  nats:
+    url: "nats://127.0.0.1:4222"
+
 mcp:
   name: 0things-iot-mcp
   version: 0.1.0
