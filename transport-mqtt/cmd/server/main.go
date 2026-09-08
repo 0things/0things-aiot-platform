@@ -3,50 +3,44 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
-	"os/signal"
-	"syscall"
+	"fmt"
 
-	"transport-mqtt/internal/mqtt"
+	"transport-mqtt/cmd/server/wire"
 	"transport-mqtt/pkg/config"
 	"transport-mqtt/pkg/log"
-
-	"0things/pkg/event"
-
 	"go.uber.org/zap"
 )
 
-// main is the entrypoint for 0things MQTT Transport Service.
+// @title           Nunu Example API
+// @version         1.0.0
+// @description     This is a sample server celler server.
+// @termsOfService  http://swagger.io/terms/
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+// @host      localhost:8000
+// @securityDefinitions.apiKey Bearer
+// @in header
+// @name Authorization
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	var envConf = flag.String("conf", "config/local.yml", "config path, eg: -conf ./config/local.yml")
 	flag.Parse()
 	conf := config.NewConfig(*envConf)
+
 	logger := log.NewLog(conf)
 
-	logger.Info("starting 0things MQTT Transport Service...")
-
-	// 1. 初始化事件总线
-	pub, _, err := event.NewBus(conf, logger.Logger)
+	app, cleanup, err := wire.NewWire(conf, logger)
+	defer cleanup()
 	if err != nil {
-		logger.Fatal("failed to initialize event bus", zap.Error(err))
+		panic(err)
 	}
-	eventProducer := event.NewProducer(pub)
-	defer eventProducer.Close()
-
-	// 2. 初始化 MQTT 传输服务
-	mqttService, err := mqtt.NewService(conf, logger.Logger, eventProducer)
-	if err != nil {
-		logger.Fatal("failed to initialize MQTT transport", zap.Error(err))
+	logger.Info("server start", zap.String("host", fmt.Sprintf("http://%s:%d", conf.GetString("http.host"), conf.GetInt("http.port"))))
+	logger.Info("docs addr", zap.String("addr", fmt.Sprintf("http://%s:%d/swagger/index.html", conf.GetString("http.host"), conf.GetInt("http.port"))))
+	if err = app.Run(context.Background()); err != nil {
+		panic(err)
 	}
-
-	// 捕获系统终止信号，确保 K8s 滚动更新或本地停止时不丢失数据
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer cancel()
-
-	// 主协程阻塞运行 MQTT 客户端服务
-	if err := mqttService.Start(ctx); err != nil {
-		logger.Fatal("mqtt service stopped with error", zap.Error(err))
-	}
-
-	logger.Info("MQTT Transport Service stopped gracefully")
 }
