@@ -11,27 +11,27 @@ import (
 
 // EventConsumer handles device lifecycle and business alarm events.
 type EventConsumer struct {
-	processor *service.EventProcessor
-	logger    *zap.Logger
+	eventService service.EventService
+	logger       *zap.Logger
 }
 
-func NewEventConsumer(processor *service.EventProcessor, logger *zap.Logger) *EventConsumer {
+func NewEventConsumer(eventService service.EventService, logger *zap.Logger) *EventConsumer {
 	return &EventConsumer{
-		processor: processor,
-		logger:    logger,
+		eventService: eventService,
+		logger:       logger,
 	}
 }
 
 // HandleEvent processes device event reports.
 func (c *EventConsumer) HandleEvent(ctx context.Context, msg *event.DeviceMessage, meta map[string]string) error {
+	if msg == nil {
+		return nil
+	}
 	c.logger.Debug("handling device event report",
 		zap.String("device_key", msg.DeviceKey),
 		zap.String("transport", msg.Transport),
 		zap.String("type", msg.MessageType),
 	)
 
-	if msg == nil {
-		return nil
-	}
-	return c.processor.HandleEvent(ctx, *msg)
+	return c.eventService.HandleEvent(ctx, *msg)
 }

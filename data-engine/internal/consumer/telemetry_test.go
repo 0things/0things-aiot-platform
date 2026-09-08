@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"0things/pkg/event"
-	"data-engine/internal/engine"
-	"data-engine/internal/storage"
+	"data-engine/internal/repository"
+	"data-engine/internal/service"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -17,10 +17,10 @@ import (
 func TestTelemetryConsumer_HandleTelemetry(t *testing.T) {
 	v := viper.New()
 	logger := zap.NewNop()
-	shadow := storage.NewShadowStore(v, logger)
-	processor := engine.NewProcessor(v, logger, nil, shadow)
+	shadow := repository.NewShadowRepository(v, logger)
+	telemetryService := service.NewTelemetryService(v, logger, nil, shadow)
 
-	consumer := NewTelemetryConsumer(processor, logger)
+	consumer := NewTelemetryConsumer(telemetryService, logger)
 
 	rawPayload := []byte(`{"temperature": 26.5, "humidity": 65}`)
 	msg := &event.DeviceMessage{
@@ -50,10 +50,10 @@ func TestTelemetryConsumer_HandleTelemetry(t *testing.T) {
 func TestTelemetryConsumer_HandleAttribute(t *testing.T) {
 	v := viper.New()
 	logger := zap.NewNop()
-	shadow := storage.NewShadowStore(v, logger)
-	processor := engine.NewProcessor(v, logger, nil, shadow)
+	shadow := repository.NewShadowRepository(v, logger)
+	telemetryService := service.NewTelemetryService(v, logger, nil, shadow)
 
-	consumer := NewTelemetryConsumer(processor, logger)
+	consumer := NewTelemetryConsumer(telemetryService, logger)
 
 	rawPayload := []byte(`{"ip": "192.168.1.100", "battery": 90}`)
 	msg := &event.DeviceMessage{

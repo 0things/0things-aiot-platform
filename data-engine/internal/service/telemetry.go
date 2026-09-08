@@ -1,4 +1,4 @@
-package engine
+package service
 
 import (
 	"context"
@@ -11,40 +11,39 @@ import (
 	"0things/pkg/protocol"
 	"0things/pkg/tsdb"
 	"data-engine/internal/model"
-	"data-engine/internal/storage"
+	"data-engine/internal/repository"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-// Processor 是数据处理引擎的核心计算处理器，负责 TSL 物模型字段展开、TSDB 时序落库、设备影子更新与告警规则计算。
-type Processor struct {
+// TelemetryService processes device telemetry metrics, writes to TSDB, maintains device shadow state, and evaluates alarm rules.
+type TelemetryService interface {
+	ProcessMessage(ctx context.Context, msg event.DeviceMessage) error
+}
+
+type telemetryService struct {
 	tsdbClient tsdb.Client
-	shadow     storage.ShadowStore
+	shadowRepo repository.ShadowRepository
 	protocols  *protocol.Registry
 	logger     *zap.Logger
 }
 
-func NewProcessor(config *viper.Viper, logger *zap.Logger, tsdbClient tsdb.Client, shadow storage.ShadowStore) *Processor {
-	return &Processor{
+// NewTelemetryService creates an instance of TelemetryService.
+func NewTelemetryService(config *viper.Viper, logger *zap.Logger, tsdbClient tsdb.Client, shadowRepo repository.ShadowRepository) TelemetryService {
+	return &telemetryService{
 		tsdbClient: tsdbClient,
-		shadow:     shadow,
+		shadowRepo: shadowRepo,
 		protocols:  protocol.DefaultRegistry(),
 		logger:     logger,
 	}
 }
 
-// ProcessMessage 处理单条设备上行消息流。
-// 执行阶段：
-// 1. 通过应用层协议编解码器（JSON/Modbus/GB28181）解码载荷；
-// 2. 扁平化提取 params / values / 顶级字段为标准时序指标（tsdb.Record）；
-// 3. 异步写入 TSDB 统一时序客户端（支持 TDengine/IoTDB/ClickHouse/TimescaleDB/InfluxDB/Mock 可插拔）；
-// 4. 刷新 Redis / 内存设备影子最新快照；
-// 5. 执行告警规则判定（evaluateRule）。
-func (p *Processor) ProcessMessage(ctx context.Context, msg event.DeviceMessage) error {
-	// 1. 通过通用协议解码器解码载荷 (默认优先使用 json 编解码器)
+// ProcessMessage decodes payload, extracts metric records, persists to TSDB, updates shadow, and triggers rules.
+func (s *telemetryService) ProcessMessage(ctx context.Context, msg event.DeviceMessage) error {
+	// 1. Decode payload via application codec or fallback JSON unmarshal
 	var data map[string]interface{}
-	codec, ok := p.protocols.Get("json")
+	codec, ok := s.protocols.Get("json")
 	if ok {
 		decoded, err := codec.Decode(ctx, msg.Payload)
 		if err == nil {
@@ -54,19 +53,19 @@ func (p *Processor) ProcessMessage(ctx context.Context, msg event.DeviceMessage)
 
 	if data == nil {
 		if jsonErr := json.Unmarshal(msg.Payload, &data); jsonErr != nil {
-			p.logger.Warn("payload decoding yielded empty map, raw bytes skipped", zap.String("device_key", msg.DeviceKey))
+			s.logger.Warn("payload decoding yielded empty map, raw bytes skipped", zap.String("device_key", msg.DeviceKey))
 			return nil
 		}
 	}
 
-	// 兼容业界常见的物模型包装结构 (如 {"params": {...}} 或 {"values": {...}})
+	// Unwrap nested properties/params/values map if present
 	if params, ok := data["params"].(map[string]interface{}); ok {
 		data = params
 	} else if values, ok := data["values"].(map[string]interface{}); ok {
 		data = values
 	}
 
-	// 2. 扁平化抽取所有时序键值对
+	// 2. Extract standard metric records
 	records := make([]tsdb.Record, 0, len(data))
 	ts := msg.Timestamp
 	if ts.IsZero() {
@@ -74,7 +73,6 @@ func (p *Processor) ProcessMessage(ctx context.Context, msg event.DeviceMessage)
 	}
 
 	for k, v := range data {
-		// 递归或直接展开 params
 		if k == "params" || k == "values" || k == "properties" {
 			if subMap, ok := v.(map[string]interface{}); ok {
 				for subK, subV := range subMap {
@@ -84,7 +82,7 @@ func (p *Processor) ProcessMessage(ctx context.Context, msg event.DeviceMessage)
 						Value:     subV,
 						Timestamp: ts,
 					})
-					p.evaluateRule(msg.DeviceKey, subK, subV)
+					s.evaluateRule(msg.DeviceKey, subK, subV)
 				}
 				continue
 			}
@@ -96,27 +94,27 @@ func (p *Processor) ProcessMessage(ctx context.Context, msg event.DeviceMessage)
 			Value:     v,
 			Timestamp: ts,
 		})
-		p.evaluateRule(msg.DeviceKey, k, v)
+		s.evaluateRule(msg.DeviceKey, k, v)
 	}
 
-	// 3. 异步批量/单条写入统一 TSDB
-	if len(records) > 0 && p.tsdbClient != nil {
-		if err := p.tsdbClient.WriteBatch(ctx, records); err != nil {
-			p.logger.Error("failed to write records to TSDB client", zap.String("device_key", msg.DeviceKey), zap.Error(err))
+	// 3. Batch write extracted metrics to pluggable TSDB client
+	if len(records) > 0 && s.tsdbClient != nil {
+		if err := s.tsdbClient.WriteBatch(ctx, records); err != nil {
+			s.logger.Error("failed to write records to TSDB client", zap.String("device_key", msg.DeviceKey), zap.Error(err))
 		}
 	}
 
-	// 4. 更新设备影子快照
-	if p.shadow != nil && len(data) > 0 {
-		_ = p.shadow.UpdateShadow(ctx, msg.DeviceKey, data, msg.Timestamp)
+	// 4. Update device shadow snapshot
+	if s.shadowRepo != nil && len(data) > 0 {
+		_ = s.shadowRepo.UpdateShadow(ctx, msg.DeviceKey, data, msg.Timestamp)
 	}
 
-	p.logger.Debug("extracted & stored telemetry metrics via tsdb.Client", zap.String("device_key", msg.DeviceKey), zap.Int("count", len(records)))
+	s.logger.Debug("extracted & stored telemetry metrics via tsdb.Client", zap.String("device_key", msg.DeviceKey), zap.Int("count", len(records)))
 	return nil
 }
 
-// evaluateRule 评估单个指标值是否触发业务告警规则。
-func (p *Processor) evaluateRule(deviceKey, metric string, val interface{}) {
+// evaluateRule evaluates metric thresholds and emits alarm events.
+func (s *telemetryService) evaluateRule(deviceKey, metric string, val interface{}) {
 	if metric == "temperature" || metric == "temp" {
 		floatVal, ok := parseNumericValue(val)
 		if !ok {
@@ -131,7 +129,7 @@ func (p *Processor) evaluateRule(deviceKey, metric string, val interface{}) {
 				Description: fmt.Sprintf("device temperature reached %.1f°C exceeds threshold 70.0°C", floatVal),
 				Timestamp:   time.Now().UTC(),
 			}
-			p.logger.Warn("🚨 RULE TRIGGERED: Alarm generated!",
+			s.logger.Warn("🚨 RULE TRIGGERED: Alarm generated!",
 				zap.String("device_key", alarm.DeviceKey),
 				zap.String("rule", alarm.RuleName),
 				zap.String("level", alarm.Level),
@@ -141,7 +139,7 @@ func (p *Processor) evaluateRule(deviceKey, metric string, val interface{}) {
 	}
 }
 
-// parseNumericValue 稳健提取任意类型的数值
+// parseNumericValue robustly converts arbitrary numeric data types to float64.
 func parseNumericValue(val interface{}) (float64, bool) {
 	if val == nil {
 		return 0, false

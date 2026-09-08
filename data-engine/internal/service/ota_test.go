@@ -10,17 +10,19 @@ import (
 	"go.uber.org/zap"
 )
 
-type reportStoreStub struct{ report event.OTAUpgradeReport }
+type reportStoreStub struct {
+	report event.OTAUpgradeReport
+}
 
 func (s *reportStoreStub) RecordReport(_ context.Context, report event.OTAUpgradeReport) error {
 	s.report = report
 	return nil
 }
 
-func TestOTAProcessor_HandleOTAReport(t *testing.T) {
+func TestOTAService_HandleOTAReport(t *testing.T) {
 	logger := zap.NewNop()
 	store := &reportStoreStub{}
-	proc := NewOTAProcessor(store, logger)
+	svc := NewOTAService(store, logger)
 
 	tests := []struct {
 		name   string
@@ -59,7 +61,7 @@ func TestOTAProcessor_HandleOTAReport(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := proc.HandleOTAReport(context.Background(), tt.report); err != nil {
+			if err := svc.HandleOTAReport(context.Background(), tt.report); err != nil {
 				t.Errorf("HandleOTAReport returned error: %v", err)
 			}
 		})

@@ -16,8 +16,8 @@ import (
 func TestEventConsumer_HandleEvent(t *testing.T) {
 	v := viper.New()
 	logger := zap.NewNop()
-	processor := service.NewEventProcessor(v, logger)
-	consumer := NewEventConsumer(processor, logger)
+	eventService := service.NewEventService(v, logger)
+	consumer := NewEventConsumer(eventService, logger)
 
 	rawPayload := []byte(`{"alarm": "overvoltage", "val": 380}`)
 	msg := &event.DeviceMessage{

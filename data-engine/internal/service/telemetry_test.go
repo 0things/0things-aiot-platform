@@ -1,4 +1,4 @@
-package engine
+package service
 
 import (
 	"context"
@@ -8,20 +8,20 @@ import (
 
 	"0things/pkg/event"
 	"0things/pkg/tsdb"
-	"data-engine/internal/storage"
+	"data-engine/internal/repository"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func TestProcessor_ProcessMessage(t *testing.T) {
+func TestTelemetryService_ProcessMessage(t *testing.T) {
 	logger := zap.NewNop()
 	v := viper.New()
 	tsdbClient := tsdb.NewClient(v, logger)
 	defer tsdbClient.Close()
-	shadow := storage.NewShadowStore(v, logger)
+	shadow := repository.NewShadowRepository(v, logger)
 
-	proc := NewProcessor(v, logger, tsdbClient, shadow)
+	svc := NewTelemetryService(v, logger, tsdbClient, shadow)
 
 	// 1. 测试常规温度解析 (低于阈值)
 	normalMsg := event.DeviceMessage{
@@ -32,7 +32,7 @@ func TestProcessor_ProcessMessage(t *testing.T) {
 		Timestamp:   time.Now(),
 	}
 
-	if err := proc.ProcessMessage(context.Background(), normalMsg); err != nil {
+	if err := svc.ProcessMessage(context.Background(), normalMsg); err != nil {
 		t.Errorf("ProcessMessage failed on normal telemetry: %v", err)
 	}
 
@@ -54,7 +54,7 @@ func TestProcessor_ProcessMessage(t *testing.T) {
 		Timestamp:   time.Now(),
 	}
 
-	if err := proc.ProcessMessage(context.Background(), alarmMsg); err != nil {
+	if err := svc.ProcessMessage(context.Background(), alarmMsg); err != nil {
 		t.Errorf("ProcessMessage failed on high temperature: %v", err)
 	}
 
@@ -67,7 +67,7 @@ func TestProcessor_ProcessMessage(t *testing.T) {
 		Timestamp:   time.Now(),
 	}
 
-	if err := proc.ProcessMessage(context.Background(), nestedMsg); err != nil {
+	if err := svc.ProcessMessage(context.Background(), nestedMsg); err != nil {
 		t.Errorf("ProcessMessage failed on nested params: %v", err)
 	}
 }

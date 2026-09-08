@@ -23,8 +23,8 @@ func (s *reportStoreStub) RecordReport(_ context.Context, report event.OTAUpgrad
 func TestOTAProgressConsumer_HandleProgressReport(t *testing.T) {
 	logger := zap.NewNop()
 	store := &reportStoreStub{}
-	processor := service.NewOTAProcessor(store, logger)
-	consumer := NewOTAProgressConsumer(processor, logger)
+	otaService := service.NewOTAService(store, logger)
+	consumer := NewOTAProgressConsumer(otaService, logger)
 
 	progress := int32(50)
 	report := &event.OTAUpgradeReport{

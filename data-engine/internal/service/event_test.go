@@ -12,9 +12,9 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestEventProcessor_HandleEvent(t *testing.T) {
+func TestEventService_HandleEvent(t *testing.T) {
 	logger := zap.NewNop()
-	proc := NewEventProcessor(viper.New(), logger)
+	svc := NewEventService(viper.New(), logger)
 
 	msg := event.DeviceMessage{
 		DeviceKey:   "dev_event_01",
@@ -24,7 +24,7 @@ func TestEventProcessor_HandleEvent(t *testing.T) {
 		Timestamp:   time.Now(),
 	}
 
-	if err := proc.HandleEvent(context.Background(), msg); err != nil {
+	if err := svc.HandleEvent(context.Background(), msg); err != nil {
 		t.Errorf("HandleEvent returned error: %v", err)
 	}
 }

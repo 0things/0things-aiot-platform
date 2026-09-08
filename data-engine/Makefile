@@ -1,8 +1,14 @@
-.PHONY: init
+.PHONY: init gen
 init:
 	go install github.com/google/wire/cmd/wire@latest
 	go install github.com/golang/mock/mockgen@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
+
+gen:
+	go generate ./cmd/gormgen
+
+wire:
+	wire ./cmd/server/wire
 
 .PHONY: bootstrap
 bootstrap:
@@ -10,15 +16,9 @@ bootstrap:
 	go run ./cmd/migration
 	nunu run ./cmd/server
 
-.PHONY: mock
-mock:
-	mockgen -source=internal/service/user.go -destination test/mocks/service/user.go
-	mockgen -source=internal/repository/user.go -destination test/mocks/repository/user.go
-	mockgen -source=internal/repository/repository.go -destination test/mocks/repository/repository.go
-
 .PHONY: test
 test:
-	go test -coverpkg=./internal/handler,./internal/service,./internal/repository -coverprofile=./coverage.out ./test/server/...
+	go test -coverprofile=./coverage.out ./...
 	go tool cover -html=./coverage.out -o coverage.html
 
 .PHONY: build

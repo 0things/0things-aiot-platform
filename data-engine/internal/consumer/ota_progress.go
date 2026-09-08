@@ -11,19 +11,23 @@ import (
 
 // OTAProgressConsumer handles device OTA progress reporting and state aggregation.
 type OTAProgressConsumer struct {
-	processor *service.OTAProcessor
-	logger    *zap.Logger
+	otaService service.OTAService
+	logger     *zap.Logger
 }
 
-func NewOTAProgressConsumer(processor *service.OTAProcessor, logger *zap.Logger) *OTAProgressConsumer {
+func NewOTAProgressConsumer(otaService service.OTAService, logger *zap.Logger) *OTAProgressConsumer {
 	return &OTAProgressConsumer{
-		processor: processor,
-		logger:    logger,
+		otaService: otaService,
+		logger:     logger,
 	}
 }
 
 // HandleProgressReport handles device OTA progress report and advances state machine.
 func (c *OTAProgressConsumer) HandleProgressReport(ctx context.Context, report *event.OTAUpgradeReport, meta map[string]string) error {
+	if report == nil {
+		return nil
+	}
+
 	c.logger.Info("handling OTA progress report event",
 		zap.String("device_key", report.DeviceKey),
 		zap.String("batch_id", report.BatchID),
@@ -35,5 +39,5 @@ func (c *OTAProgressConsumer) HandleProgressReport(ctx context.Context, report *
 		rep.EventType = "progress"
 	}
 
-	return c.processor.HandleOTAReport(ctx, rep)
+	return c.otaService.HandleOTAReport(ctx, rep)
 }
