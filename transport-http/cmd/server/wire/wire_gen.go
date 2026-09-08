@@ -7,66 +7,37 @@
 package wire
 
 import (
-	"transport-http/internal/handler"
-	"transport-http/internal/job"
-	"transport-http/internal/repository"
-	"transport-http/internal/router"
-	"transport-http/internal/server"
-	"transport-http/internal/service"
-	"transport-http/pkg/app"
-	"transport-http/pkg/jwt"
-	"transport-http/pkg/log"
-	"transport-http/pkg/server/http"
-	"transport-http/pkg/sid"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
+	"transport-http/internal/handler"
+	"transport-http/internal/router"
+	"transport-http/internal/server"
+	"transport-http/pkg/app"
+	"transport-http/pkg/log"
+	"transport-http/pkg/server/http"
 )
 
 // Injectors from wire.go:
 
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
-	jwtJWT := jwt.NewJwt(viperViper)
-	handlerHandler := handler.NewHandler(logger)
-	db := repository.NewDB(viperViper, logger)
-	repositoryRepository := repository.NewRepository(logger, db)
-	transaction := repository.NewTransaction(repositoryRepository)
-	sidSid := sid.NewSid()
-	serviceService := service.NewService(transaction, logger, sidSid, jwtJWT)
-	userRepository := repository.NewUserRepository(repositoryRepository)
-	userService := service.NewUserService(serviceService, userRepository)
-	userHandler := handler.NewUserHandler(handlerHandler, userService)
-	routerDeps := router.RouterDeps{
-		Logger:      logger,
-		Config:      viperViper,
-		JWT:         jwtJWT,
-		UserHandler: userHandler,
-	}
-	httpServer := server.NewHTTPServer(routerDeps)
-	jobJob := job.NewJob(transaction, logger, sidSid)
-	userJob := job.NewUserJob(jobJob, userRepository)
-	jobServer := server.NewJobServer(logger, userJob)
-	appApp := newApp(httpServer, jobServer)
+	deviceHandler := handler.NewDeviceHandler(logger)
+	routerRouter := router.NewRouter(deviceHandler, viperViper, logger)
+	httpServer := server.NewHTTPServer(viperViper, logger, routerRouter)
+	appApp := newApp(httpServer)
 	return appApp, func() {
 	}, nil
 }
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository)
+var handlerSet = wire.NewSet(handler.NewDeviceHandler)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService)
+var routerSet = wire.NewSet(router.NewRouter)
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler)
+var serverSet = wire.NewSet(server.NewHTTPServer)
 
-var jobSet = wire.NewSet(job.NewJob, job.NewUserJob)
-
-var serverSet = wire.NewSet(server.NewHTTPServer, server.NewJobServer)
-
-// build App
 func newApp(
 	httpServer *http.Server,
-	jobServer *server.JobServer,
-
 ) *app.App {
-	return app.NewApp(app.WithServer(httpServer, jobServer), app.WithName("demo-server"))
+	return app.NewApp(app.WithServer(httpServer), app.WithName("0things-transport-http"))
 }

@@ -4,71 +4,45 @@
 package wire
 
 import (
-	"transport-mqtt/internal/handler"
-	"transport-mqtt/internal/job"
-	"transport-mqtt/internal/repository"
-	"transport-mqtt/internal/router"
 	"transport-mqtt/internal/server"
-	"transport-mqtt/internal/service"
 	"transport-mqtt/pkg/app"
-	"transport-mqtt/pkg/jwt"
 	"transport-mqtt/pkg/log"
-	"transport-mqtt/pkg/server/http"
-	"transport-mqtt/pkg/sid"
+
+	"0things/pkg/event"
+
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
 
-var repositorySet = wire.NewSet(
-	repository.NewDB,
-	//repository.NewRedis,
-	//repository.NewMongo,
-	repository.NewRepository,
-	repository.NewTransaction,
-	repository.NewUserRepository,
-)
+func provideEventProducer(conf *viper.Viper, logger *log.Logger) (event.Producer, func(), error) {
+	pub, _, err := event.NewBus(conf, logger.Logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	producer := event.NewProducer(pub)
+	cleanup := func() {
+		_ = producer.Close()
+	}
+	return producer, cleanup, nil
+}
 
-var serviceSet = wire.NewSet(
-	service.NewService,
-	service.NewUserService,
-)
-
-var handlerSet = wire.NewSet(
-	handler.NewHandler,
-	handler.NewUserHandler,
-)
-
-var jobSet = wire.NewSet(
-	job.NewJob,
-	job.NewUserJob,
-)
 var serverSet = wire.NewSet(
-	server.NewHTTPServer,
-	server.NewJobServer,
+	server.NewMQTTServer,
 )
 
-// build App
 func newApp(
-	httpServer *http.Server,
-	jobServer *server.JobServer,
-	// task *server.Task,
+	mqttServer *server.MQTTServer,
 ) *app.App {
 	return app.NewApp(
-		app.WithServer(httpServer, jobServer),
-		app.WithName("demo-server"),
+		app.WithServer(mqttServer),
+		app.WithName("0things-transport-mqtt"),
 	)
 }
 
 func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
 	panic(wire.Build(
-		repositorySet,
-		serviceSet,
-		handlerSet,
-		jobSet,
+		provideEventProducer,
 		serverSet,
-		wire.Struct(new(router.RouterDeps), "*"),
-		sid.NewSid,
-		jwt.NewJwt,
 		newApp,
 	))
 }

@@ -7,66 +7,50 @@
 package wire
 
 import (
-	"transport-mqtt/internal/handler"
-	"transport-mqtt/internal/job"
-	"transport-mqtt/internal/repository"
-	"transport-mqtt/internal/router"
-	"transport-mqtt/internal/server"
-	"transport-mqtt/internal/service"
-	"transport-mqtt/pkg/app"
-	"transport-mqtt/pkg/jwt"
-	"transport-mqtt/pkg/log"
-	"transport-mqtt/pkg/server/http"
-	"transport-mqtt/pkg/sid"
+	"0things/pkg/event"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
+	"transport-mqtt/internal/server"
+	"transport-mqtt/pkg/app"
+	"transport-mqtt/pkg/log"
 )
 
 // Injectors from wire.go:
 
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
-	jwtJWT := jwt.NewJwt(viperViper)
-	handlerHandler := handler.NewHandler(logger)
-	db := repository.NewDB(viperViper, logger)
-	repositoryRepository := repository.NewRepository(logger, db)
-	transaction := repository.NewTransaction(repositoryRepository)
-	sidSid := sid.NewSid()
-	serviceService := service.NewService(transaction, logger, sidSid, jwtJWT)
-	userRepository := repository.NewUserRepository(repositoryRepository)
-	userService := service.NewUserService(serviceService, userRepository)
-	userHandler := handler.NewUserHandler(handlerHandler, userService)
-	routerDeps := router.RouterDeps{
-		Logger:      logger,
-		Config:      viperViper,
-		JWT:         jwtJWT,
-		UserHandler: userHandler,
+	producer, cleanup, err := provideEventProducer(viperViper, logger)
+	if err != nil {
+		return nil, nil, err
 	}
-	httpServer := server.NewHTTPServer(routerDeps)
-	jobJob := job.NewJob(transaction, logger, sidSid)
-	userJob := job.NewUserJob(jobJob, userRepository)
-	jobServer := server.NewJobServer(logger, userJob)
-	appApp := newApp(httpServer, jobServer)
+	mqttServer, err := server.NewMQTTServer(viperViper, logger, producer)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	appApp := newApp(mqttServer)
 	return appApp, func() {
+		cleanup()
 	}, nil
 }
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository)
+func provideEventProducer(conf *viper.Viper, logger *log.Logger) (event.Producer, func(), error) {
+	pub, _, err := event.NewBus(conf, logger.Logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	producer := event.NewProducer(pub)
+	cleanup := func() {
+		_ = producer.Close()
+	}
+	return producer, cleanup, nil
+}
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService)
+var serverSet = wire.NewSet(server.NewMQTTServer)
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler)
-
-var jobSet = wire.NewSet(job.NewJob, job.NewUserJob)
-
-var serverSet = wire.NewSet(server.NewHTTPServer, server.NewJobServer)
-
-// build App
 func newApp(
-	httpServer *http.Server,
-	jobServer *server.JobServer,
-
+	mqttServer *server.MQTTServer,
 ) *app.App {
-	return app.NewApp(app.WithServer(httpServer, jobServer), app.WithName("demo-server"))
+	return app.NewApp(app.WithServer(mqttServer), app.WithName("0things-transport-mqtt"))
 }
