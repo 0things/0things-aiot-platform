@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"0things/pkg/event"
 	"0things/pkg/protocol"
 	"0things/pkg/tsdb"
 	"data-engine/internal/model"
@@ -40,7 +41,7 @@ func NewProcessor(config *viper.Viper, logger *zap.Logger, tsdbClient tsdb.Clien
 // 3. 异步写入 TSDB 统一时序客户端（支持 TDengine/IoTDB/ClickHouse/TimescaleDB/InfluxDB/Mock 可插拔）；
 // 4. 刷新 Redis / 内存设备影子最新快照；
 // 5. 执行告警规则判定（evaluateRule）。
-func (p *Processor) ProcessMessage(ctx context.Context, msg model.DeviceMessage) error {
+func (p *Processor) ProcessMessage(ctx context.Context, msg event.DeviceMessage) error {
 	// 1. 通过通用协议解码器解码载荷 (默认优先使用 json 编解码器)
 	var data map[string]interface{}
 	codec, ok := p.protocols.Get("json")

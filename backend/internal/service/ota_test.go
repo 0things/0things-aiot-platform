@@ -151,11 +151,48 @@ func TestOTAService_BatchUpgrade_PublishEvent(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, batch)
 	require.Equal(t, 2, len(mockProd.published))
-	require.Equal(t, event.TopicOTAUpgradeCommand, mockProd.topics[0])
+	require.Equal(t, event.TopicOTAUpgradeCommandMQTT, mockProd.topics[0])
 
 	cmd, ok := mockProd.published[0].(*event.OTAUpgradeCommand)
 	require.True(t, ok)
 	require.Equal(t, batch.BatchID, cmd.BatchID)
 	require.Equal(t, "2.0.0", cmd.TargetVersion)
 	require.Equal(t, "http://example.com/fw.bin", cmd.DownloadURL)
+}
+
+func TestOTAService_BatchUpgrade_ProtocolRouting(t *testing.T) {
+	ctx := context.Background()
+	db := newOTATestDB(t)
+	repo := repository.NewOTARepository(db)
+	productRepo := repository.NewProductRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
+	mockProd := &mockEventProducer{}
+	svc := NewOTAService(repo, productRepo, deviceRepo, mockProd)
+
+	// Create HTTP product & device
+	httpProd := &model.Product{ProductKey: "P_HTTP", Name: "HTTP Sensor", OrganizationID: 1, AccessProtocol: "http"}
+	require.NoError(t, db.WithContext(ctx).Create(httpProd).Error)
+	httpDev := &model.Device{DeviceKey: "DEV_HTTP", Name: "http_dev", ProductID: httpProd.ID, OrganizationID: 1}
+	require.NoError(t, db.WithContext(ctx).Create(httpDev).Error)
+
+	// Create CoAP product & device
+	coapProd := &model.Product{ProductKey: "P_COAP", Name: "CoAP Meter", OrganizationID: 1, AccessProtocol: "coap"}
+	require.NoError(t, db.WithContext(ctx).Create(coapProd).Error)
+	coapDev := &model.Device{DeviceKey: "DEV_COAP", Name: "coap_dev", ProductID: coapProd.ID, OrganizationID: 1}
+	require.NoError(t, db.WithContext(ctx).Create(coapDev).Error)
+
+	// 1. Batch upgrade on HTTP device -> should NOT publish event
+	pkgHTTP := &model.OTAPackage{PackageName: "fw-http", Version: "1.0.0", ProductID: httpProd.ID, FileURL: "http://example.com/http.bin"}
+	require.NoError(t, svc.Create(ctx, pkgHTTP, "P_HTTP"))
+	_, err := svc.BatchUpgrade(ctx, pkgHTTP.UUID, []string{"DEV_HTTP"})
+	require.NoError(t, err)
+	require.Equal(t, 0, len(mockProd.published))
+
+	// 2. Batch upgrade on CoAP device -> should publish to TopicOTAUpgradeCommandCoAP
+	pkgCoAP := &model.OTAPackage{PackageName: "fw-coap", Version: "1.0.0", ProductID: coapProd.ID, FileURL: "http://example.com/coap.bin"}
+	require.NoError(t, svc.Create(ctx, pkgCoAP, "P_COAP"))
+	_, err = svc.BatchUpgrade(ctx, pkgCoAP.UUID, []string{"DEV_COAP"})
+	require.NoError(t, err)
+	require.Equal(t, 1, len(mockProd.published))
+	require.Equal(t, event.TopicOTAUpgradeCommandCoAP, mockProd.topics[0])
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"0things/pkg/event"
@@ -176,13 +177,21 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 	}
 
 	for _, d := range uniqueDevices {
-		if s.eventProducer != nil {
+		protocol := strings.ToLower(d.Product.AccessProtocol)
+		if protocol == "" {
+			protocol = "mqtt"
+		}
+
+		// Protocol differentiation: MQTT devices receive active push event;
+		// HTTP devices pull firmware metadata on polling without an immediate push event.
+		if protocol != "http" && s.eventProducer != nil {
 			cmd := &event.OTAUpgradeCommand{
 				BatchID:       batchID,
 				PackageID:     strconv.FormatInt(pkg.ID, 10),
 				ProductKey:    pkg.ProductKey,
 				DeviceKey:     d.DeviceKey,
 				DeviceName:    d.Name,
+				Transport:     protocol,
 				Module:        pkg.PackageType,
 				TargetVersion: pkg.Version,
 				DownloadURL:   pkg.FileURL,
@@ -190,7 +199,8 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 				SHA256:        pkg.Checksum,
 				ExpiresAt:     time.Now().Add(24 * time.Hour),
 			}
-			_ = s.eventProducer.Publish(ctx, event.TopicOTAUpgradeCommand, cmd)
+			topic := event.TopicOTAUpgradeCommandByTransport(protocol)
+			_ = s.eventProducer.Publish(ctx, topic, cmd, event.WithTransport(protocol), event.WithDeviceKey(d.DeviceKey))
 		}
 	}
 

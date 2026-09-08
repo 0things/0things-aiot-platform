@@ -71,3 +71,22 @@ func TestDeviceRepository_TenantIsolation(t *testing.T) {
 	require.EqualValues(t, 1, total)
 	require.Len(t, items, 1)
 }
+
+func TestDeviceRepository_FindByKeys_PreloadProduct(t *testing.T) {
+	store := newRepositoryTestDB(t, &model.Product{}, &model.Device{}, &model.DeviceState{})
+	repo := NewDeviceRepository(store, nil)
+	ctx := context.Background()
+
+	product := &model.Product{ProductKey: "P_PRELOAD", Name: "Preload Product", OrganizationID: 1, AccessProtocol: "mqtt"}
+	require.NoError(t, store.Create(product).Error)
+
+	device := &model.Device{DeviceKey: "DEV_PRELOAD_01", Name: "Preload Dev", ProductID: product.ID, OrganizationID: 1}
+	require.NoError(t, store.Create(device).Error)
+
+	devices, err := repo.FindByKeys(ctx, []string{"DEV_PRELOAD_01"})
+	require.NoError(t, err)
+	require.Len(t, devices, 1)
+	require.Equal(t, "DEV_PRELOAD_01", devices[0].DeviceKey)
+	require.NotNil(t, devices[0].Product)
+	require.Equal(t, "mqtt", devices[0].Product.AccessProtocol)
+}

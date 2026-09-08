@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"data-engine/internal/model"
+	"0things/pkg/event"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -16,7 +16,7 @@ func TestEventProcessor_HandleEvent(t *testing.T) {
 	logger := zap.NewNop()
 	proc := NewEventProcessor(viper.New(), logger)
 
-	msg := model.DeviceMessage{
+	msg := event.DeviceMessage{
 		DeviceKey:   "dev_event_01",
 		Transport:   "mqtt",
 		MessageType: "event",

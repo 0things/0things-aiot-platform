@@ -10,6 +10,8 @@ import (
 	"0things/pkg/event"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
+	"transport-mqtt/internal/consumer"
+	"transport-mqtt/internal/handler"
 	"transport-mqtt/internal/server"
 	"transport-mqtt/pkg/app"
 	"transport-mqtt/pkg/log"
@@ -18,15 +20,21 @@ import (
 // Injectors from wire.go:
 
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
-	producer, cleanup, err := provideEventProducer(viperViper, logger)
+	wireEventBusHolder, cleanup, err := provideEventBus(viperViper, logger)
 	if err != nil {
 		return nil, nil, err
 	}
-	mqttServer, err := server.NewMQTTServer(viperViper, logger, producer)
+	producer := provideEventProducer(wireEventBusHolder)
+	ingressHandler := handler.NewIngressHandler(producer, logger)
+	client, err := server.NewMQTTClient(viperViper, logger, ingressHandler)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
+	eventConsumer := provideEventConsumer(wireEventBusHolder)
+	otaCommandConsumer := consumer.NewOTACommandConsumer(client, logger)
+	manager := consumer.NewManager(eventConsumer, otaCommandConsumer, logger)
+	mqttServer := server.NewMQTTServer(client, logger, manager)
 	appApp := newApp(mqttServer)
 	return appApp, func() {
 		cleanup()
@@ -35,19 +43,34 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-func provideEventProducer(conf *viper.Viper, logger *log.Logger) (event.Producer, func(), error) {
-	pub, _, err := event.NewBus(conf, logger.Logger)
+type eventBusHolder struct {
+	producer event.Producer
+	consumer event.Consumer
+}
+
+func provideEventBus(conf *viper.Viper, logger *log.Logger) (*eventBusHolder, func(), error) {
+	pub, sub, err := event.NewBus(conf, logger.Logger)
 	if err != nil {
 		return nil, nil, err
 	}
 	producer := event.NewProducer(pub)
+	consumer2 := event.NewConsumer(sub, logger.Logger)
 	cleanup := func() {
 		_ = producer.Close()
+		_ = consumer2.Close()
 	}
-	return producer, cleanup, nil
+	return &eventBusHolder{producer: producer, consumer: consumer2}, cleanup, nil
 }
 
-var serverSet = wire.NewSet(server.NewMQTTServer)
+func provideEventProducer(holder *eventBusHolder) event.Producer {
+	return holder.producer
+}
+
+func provideEventConsumer(holder *eventBusHolder) event.Consumer {
+	return holder.consumer
+}
+
+var serverSet = wire.NewSet(handler.NewIngressHandler, consumer.NewOTACommandConsumer, consumer.NewManager, server.NewMQTTClient, server.NewMQTTServer)
 
 func newApp(
 	mqttServer *server.MQTTServer,

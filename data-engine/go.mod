@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	0things/pkg/event v0.0.0
-	github.com/eclipse/paho.mqtt.golang v1.5.1
+	github.com/ThreeDotsLabs/watermill v1.5.3
 	github.com/spf13/viper v1.21.0
 	go.uber.org/zap v1.28.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
@@ -17,7 +17,6 @@ require (
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/IBM/sarama v1.50.1 // indirect
-	github.com/ThreeDotsLabs/watermill v1.5.3 // indirect
 	github.com/ThreeDotsLabs/watermill-kafka/v3 v3.1.4 // indirect
 	github.com/ThreeDotsLabs/watermill-nats/v2 v2.2.0 // indirect
 	github.com/ThreeDotsLabs/watermill-sql/v3 v3.1.0 // indirect
@@ -33,7 +32,6 @@ require (
 	github.com/go-sql-driver/mysql v1.10.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect

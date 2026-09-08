@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"0things/pkg/event"
 	"0things/pkg/tsdb"
-	"data-engine/internal/model"
 	"data-engine/internal/storage"
+
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -23,7 +24,7 @@ func TestProcessor_ProcessMessage(t *testing.T) {
 	proc := NewProcessor(v, logger, tsdbClient, shadow)
 
 	// 1. 测试常规温度解析 (低于阈值)
-	normalMsg := model.DeviceMessage{
+	normalMsg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_01",
 		Transport:   "mqtt",
 		MessageType: "telemetry",
@@ -45,7 +46,7 @@ func TestProcessor_ProcessMessage(t *testing.T) {
 	}
 
 	// 2. 测试高温告警触发分支 (高于 70.0°C)
-	alarmMsg := model.DeviceMessage{
+	alarmMsg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_02",
 		Transport:   "mqtt",
 		MessageType: "telemetry",
@@ -58,7 +59,7 @@ func TestProcessor_ProcessMessage(t *testing.T) {
 	}
 
 	// 3. 测试 params 嵌套格式
-	nestedMsg := model.DeviceMessage{
+	nestedMsg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_03",
 		Transport:   "http",
 		MessageType: "telemetry",

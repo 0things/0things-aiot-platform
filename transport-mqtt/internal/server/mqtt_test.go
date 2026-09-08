@@ -4,104 +4,16 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
-	"0things/pkg/event"
+	"transport-mqtt/internal/consumer"
 	"transport-mqtt/internal/enum"
+	"transport-mqtt/internal/handler"
 	"transport-mqtt/pkg/log"
 
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/spf13/viper"
 )
-
-func TestExtractDeviceKey(t *testing.T) {
-	tests := []struct {
-		name     string
-		topic    string
-		expected string
-	}{
-		{
-			name:     "standard telemetry topic",
-			topic:    "/sys/prod_xyz/device_abc_123/thing/event/property/post",
-			expected: "device_abc_123",
-		},
-		{
-			name:     "standard ota progress topic",
-			topic:    "/sys/prod_xyz/sensor_999/ota/device/progress",
-			expected: "sensor_999",
-		},
-		{
-			name:     "custom event topic",
-			topic:    "/sys/prod_xyz/meter_001/thing/event/high_voltage/post",
-			expected: "meter_001",
-		},
-		{
-			name:     "independent ota progress topic",
-			topic:    "/ota/device/progress/prod_xyz/sensor_999",
-			expected: "sensor_999",
-		},
-		{
-			name:     "invalid topic prefix",
-			topic:    "/other/prod_xyz/device_abc_123/property/post",
-			expected: "",
-		},
-		{
-			name:     "empty topic",
-			topic:    "",
-			expected: "",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := ExtractDeviceKey(tt.topic)
-			if actual != tt.expected {
-				t.Errorf("ExtractDeviceKey(%q) = %q; want %q", tt.topic, actual, tt.expected)
-			}
-		})
-	}
-}
-
-func TestExtractProductKey(t *testing.T) {
-	tests := []struct {
-		name     string
-		topic    string
-		expected string
-	}{
-		{
-			name:     "standard telemetry topic",
-			topic:    "/sys/prod_xyz/device_abc_123/thing/event/property/post",
-			expected: "prod_xyz",
-		},
-		{
-			name:     "standard ota progress topic",
-			topic:    "/sys/prod_xyz/sensor_999/ota/device/progress",
-			expected: "prod_xyz",
-		},
-		{
-			name:     "independent ota inform topic",
-			topic:    "/ota/device/inform/prod_xyz/sensor_999",
-			expected: "prod_xyz",
-		},
-		{
-			name:     "invalid topic prefix",
-			topic:    "/other/prod_xyz/device_abc_123/property/post",
-			expected: "",
-		},
-		{
-			name:     "empty topic",
-			topic:    "",
-			expected: "",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := ExtractProductKey(tt.topic)
-			if actual != tt.expected {
-				t.Errorf("ExtractProductKey(%q) = %q; want %q", tt.topic, actual, tt.expected)
-			}
-		})
-	}
-}
 
 func TestDownlinkTopicFormatting(t *testing.T) {
 	productKey := "prod_xyz"
@@ -123,135 +35,120 @@ func TestDownlinkTopicFormatting(t *testing.T) {
 	}
 }
 
-type mockEventProducer struct {
-	published []any
-	topics    []event.Topic
+func TestMQTTTLSConfig(t *testing.T) {
+	// 1. No TLS configured
+	v := viper.New()
+	tlsConfig, err := MQTTTLSConfig(v)
+	if err != nil {
+		t.Fatalf("expected nil error when no TLS configured, got %v", err)
+	}
+	if tlsConfig != nil {
+		t.Errorf("expected nil tlsConfig, got %v", tlsConfig)
+	}
+
+	// 2. Only cert_file configured (missing key_file)
+	v.Set("mqtt.tls.cert_file", "cert.pem")
+	_, err = MQTTTLSConfig(v)
+	if err == nil {
+		t.Fatalf("expected error when key_file is missing, got nil")
+	}
 }
 
-func (m *mockEventProducer) Publish(ctx context.Context, topic event.Topic, payload any, opts ...event.PublishOption) error {
-	m.topics = append(m.topics, topic)
-	m.published = append(m.published, payload)
-	return nil
+type mockToken struct {
+	err error
 }
 
-func (m *mockEventProducer) Close() error {
-	return nil
+func (t *mockToken) Wait() bool                        { return true }
+func (t *mockToken) WaitTimeout(_ time.Duration) bool { return true }
+func (t *mockToken) Done() <-chan struct{}             { ch := make(chan struct{}); close(ch); return ch }
+func (t *mockToken) Error() error                      { return t.err }
+
+type mockClientForServer struct {
+	mqtt.Client
+	subscribedTopics []string
+	connected        bool
+	disconnected     bool
 }
 
-type fakeMqttMessage struct {
-	topic   string
-	payload []byte
+func (m *mockClientForServer) Connect() mqtt.Token {
+	m.connected = true
+	return &mockToken{}
 }
 
-func (f *fakeMqttMessage) Duplicate() bool   { return false }
-func (f *fakeMqttMessage) Qos() byte         { return 0 }
-func (f *fakeMqttMessage) Retained() bool    { return false }
-func (f *fakeMqttMessage) Topic() string     { return f.topic }
-func (f *fakeMqttMessage) MessageID() uint16 { return 1 }
-func (f *fakeMqttMessage) Payload() []byte   { return f.payload }
-func (f *fakeMqttMessage) Ack()              {}
+func (m *mockClientForServer) Disconnect(quiesce uint) {
+	m.disconnected = true
+	m.connected = false
+}
 
-func TestHandleOtaProgressPublishEvent(t *testing.T) {
-	mockProd := &mockEventProducer{}
+func (m *mockClientForServer) IsConnected() bool {
+	return m.connected
+}
+
+func (m *mockClientForServer) Subscribe(topic string, qos byte, callback mqtt.MessageHandler) mqtt.Token {
+	m.subscribedTopics = append(m.subscribedTopics, topic)
+	return &mockToken{}
+}
+
+func TestRegisterSubscriptions(t *testing.T) {
 	v := viper.New()
 	v.Set("log.mode", "console")
 	v.Set("log.log_level", "error")
 	logger := log.NewLog(v)
 
-	svc := &MQTTServer{
-		logger:        logger,
-		eventProducer: mockProd,
+	mockClient := &mockClientForServer{}
+	ingressHandler := handler.NewIngressHandler(nil, logger)
+
+	// 1. Nil handler does nothing
+	RegisterSubscriptions(mockClient, nil, logger)
+	if len(mockClient.subscribedTopics) != 0 {
+		t.Fatalf("expected 0 subscriptions for nil handler, got %d", len(mockClient.subscribedTopics))
 	}
 
-	rawPayload := []byte(`{"batch_id":"b-123","progress":50,"stage":"DOWNLOADING"}`)
-	msg := &fakeMqttMessage{
-		topic:   "/sys/prod_demo/dev_demo_01/ota/device/progress",
-		payload: rawPayload,
-	}
-
-	svc.handleOtaProgress(nil, msg)
-
-	if len(mockProd.published) != 1 {
-		t.Fatalf("expected 1 published event, got %d", len(mockProd.published))
-	}
-	if mockProd.topics[0] != event.TopicOTAProgressReport {
-		t.Errorf("expected topic %s, got %s", event.TopicOTAProgressReport, mockProd.topics[0])
-	}
-	report, ok := mockProd.published[0].(*event.OTAUpgradeReport)
-	if !ok {
-		t.Fatalf("expected *event.OTAUpgradeReport, got %T", mockProd.published[0])
-	}
-	if report.BatchID != "b-123" || report.DeviceKey != "dev_demo_01" || report.ProductKey != "prod_demo" {
-		t.Errorf("unexpected report: %+v", report)
+	// 2. Valid handler registers all expected topics
+	RegisterSubscriptions(mockClient, ingressHandler, logger)
+	if len(mockClient.subscribedTopics) != 5 {
+		t.Errorf("expected 5 subscriptions, got %d", len(mockClient.subscribedTopics))
 	}
 }
 
-func TestHandleTelemetryPublishEvent(t *testing.T) {
-	mockProd := &mockEventProducer{}
+func TestNewMQTTServer_And_Stop(t *testing.T) {
 	v := viper.New()
 	v.Set("log.mode", "console")
 	v.Set("log.log_level", "error")
 	logger := log.NewLog(v)
 
-	svc := &MQTTServer{
-		logger:        logger,
-		eventProducer: mockProd,
+	mockClient := &mockClientForServer{connected: true}
+	consumerMgr := consumer.NewManager(nil, nil, logger)
+
+	server := NewMQTTServer(mockClient, logger, consumerMgr)
+	if server == nil {
+		t.Fatalf("expected non-nil server")
 	}
 
-	rawPayload := []byte(`{"temperature": 25.5, "humidity": 60}`)
-	msg := &fakeMqttMessage{
-		topic:   "/sys/prod_demo/dev_demo_01/thing/event/property/post",
-		payload: rawPayload,
+	err := server.Stop(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error on stop: %v", err)
 	}
-
-	svc.handleTelemetry(nil, msg)
-
-	if len(mockProd.published) != 1 {
-		t.Fatalf("expected 1 published event, got %d", len(mockProd.published))
-	}
-	if mockProd.topics[0] != event.TopicDeviceTelemetryReport {
-		t.Errorf("expected topic %s, got %s", event.TopicDeviceTelemetryReport, mockProd.topics[0])
-	}
-	deviceMsg, ok := mockProd.published[0].(*event.DeviceMessage)
-	if !ok {
-		t.Fatalf("expected *event.DeviceMessage, got %T", mockProd.published[0])
-	}
-	if deviceMsg.DeviceKey != "dev_demo_01" || deviceMsg.ProductKey != "prod_demo" || deviceMsg.MessageType != "telemetry" {
-		t.Errorf("unexpected deviceMsg: %+v", deviceMsg)
+	if !mockClient.disconnected {
+		t.Errorf("expected mock client to be disconnected")
 	}
 }
 
-func TestHandleDeviceEventPublishEvent(t *testing.T) {
-	mockProd := &mockEventProducer{}
+func TestNewMQTTClient_Configuration(t *testing.T) {
 	v := viper.New()
+	v.Set("mqtt.broker", "tcp://127.0.0.1:1883")
+	v.Set("mqtt.client_id", "test-client")
+	v.Set("mqtt.username", "admin")
+	v.Set("mqtt.password", "secret")
 	v.Set("log.mode", "console")
 	v.Set("log.log_level", "error")
 	logger := log.NewLog(v)
 
-	svc := &MQTTServer{
-		logger:        logger,
-		eventProducer: mockProd,
+	client, err := NewMQTTClient(v, logger, nil)
+	if err != nil {
+		t.Fatalf("unexpected error creating mqtt client: %v", err)
 	}
-
-	rawPayload := []byte(`{"error_code": 1001, "msg": "overheat"}`)
-	msg := &fakeMqttMessage{
-		topic:   "/sys/prod_demo/dev_demo_01/thing/event/overheat_alarm/post",
-		payload: rawPayload,
-	}
-
-	svc.handleDeviceEvent(nil, msg)
-
-	if len(mockProd.published) != 1 {
-		t.Fatalf("expected 1 published event, got %d", len(mockProd.published))
-	}
-	if mockProd.topics[0] != event.TopicDeviceEventReport {
-		t.Errorf("expected topic %s, got %s", event.TopicDeviceEventReport, mockProd.topics[0])
-	}
-	deviceMsg, ok := mockProd.published[0].(*event.DeviceMessage)
-	if !ok {
-		t.Fatalf("expected *event.DeviceMessage, got %T", mockProd.published[0])
-	}
-	if deviceMsg.DeviceKey != "dev_demo_01" || deviceMsg.ProductKey != "prod_demo" || deviceMsg.MessageType != "event" {
-		t.Errorf("unexpected deviceMsg: %+v", deviceMsg)
+	if client == nil {
+		t.Fatalf("expected non-nil client")
 	}
 }

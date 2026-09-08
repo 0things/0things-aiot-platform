@@ -73,6 +73,7 @@ func (r *DeviceRepository) FindByKeys(ctx context.Context, keys []string) ([]*mo
 	q := useQuery(r.db)
 	devices, err := q.Device.WithContext(ctx).
 		Where(q.Device.DeviceKey.In(keys...), q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).
+		Preload(q.Device.Product).
 		Find()
 	if err != nil {
 		return nil, err

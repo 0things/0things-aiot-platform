@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"data-engine/internal/model"
+	"0things/pkg/event"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -13,14 +13,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-)
-
-const (
-	otaStatusPending    = "pending"
-	otaStatusSent       = "sent"
-	otaStatusInProgress = "in_progress"
-	otaStatusSuccess    = "success"
-	otaStatusFailed     = "failed"
 )
 
 // OTAStore writes data-engine's OTA results to backend-owned tables. It never
@@ -53,45 +45,33 @@ func NewOTAStore(config *viper.Viper, logger *zap.Logger) (*OTAStore, error) {
 	return &OTAStore{db: db, logger: logger}, nil
 }
 
-func (s *OTAStore) RecordDispatchResult(ctx context.Context, batchID, deviceKey, dispatchError string) error {
-	updates := map[string]interface{}{"dispatch_attempts": gorm.Expr("dispatch_attempts + ?", 1), "last_status_change_ts": time.Now().UTC().Unix()}
-	if dispatchError == "" {
-		updates["status"] = otaStatusSent
-		updates["last_dispatch_error"] = ""
-	} else {
-		updates["status"] = otaStatusFailed
-		updates["last_dispatch_error"] = dispatchError
-	}
-	return s.updateDeviceTask(ctx, batchID, deviceKey, updates)
-}
-
-func (s *OTAStore) RecordReport(ctx context.Context, report model.OTAUpgradeReport) error {
+func (s *OTAStore) RecordReport(ctx context.Context, report event.OTAUpgradeReport) error {
 	now := report.ReportedAt
 	if now.IsZero() {
 		now = time.Now().UTC()
 	}
 	updates := map[string]interface{}{"last_report_at": now.Unix()}
-	if report.EventType == "progress" {
-		updates["status"] = otaStatusInProgress
+	if report.EventType == event.OTAEventTypeProgress {
+		updates["status"] = string(event.OTAStatusInProgress)
 		updates["last_status_change_ts"] = now.Unix()
 		updates["first_progress_at"] = gorm.Expr("COALESCE(first_progress_at, ?)", now.Unix())
 		if report.Progress != nil {
 			updates["progress"] = *report.Progress
 		}
 	}
-	if report.EventType == "inform" && report.ReportedVersion != "" {
+	if report.EventType == event.OTAEventTypeInform && report.ReportedVersion != "" {
 		updates["current_version"] = report.ReportedVersion
 		var targetVersion string
 		if err := s.db.WithContext(ctx).Table("ota_device_upgrade_status AS task").Joins("JOIN devices ON devices.id = task.device_id").Where("task.upgrade_batch_id = ? AND devices.device_key = ?", report.BatchID, report.DeviceKey).Pluck("task.target_version", &targetVersion).Error; err != nil {
 			return fmt.Errorf("read OTA target version: %w", err)
 		}
 		if targetVersion == report.ReportedVersion {
-			updates["status"] = otaStatusSuccess
+			updates["status"] = string(event.OTAStatusSuccess)
 			updates["last_status_change_ts"] = now.Unix()
 		}
 	}
 	if report.Error != nil {
-		updates["status"] = otaStatusFailed
+		updates["status"] = string(event.OTAStatusFailed)
 		updates["last_dispatch_error"] = report.Error.Code + ": " + report.Error.Message
 		updates["last_status_change_ts"] = now.Unix()
 	}
@@ -114,18 +94,18 @@ func (s *OTAStore) updateDeviceTask(ctx context.Context, batchID, deviceKey stri
 
 func (s *OTAStore) refreshBatchStatus(ctx context.Context, batchID string) error {
 	var total, succeeded, failed, active int64
-	row := s.db.WithContext(ctx).Table("ota_device_upgrade_status").Select("COUNT(*) AS total, SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS succeeded, SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS failed, SUM(CASE WHEN status IN (?, ?, ?) THEN 1 ELSE 0 END) AS active", otaStatusSuccess, otaStatusFailed, otaStatusPending, otaStatusSent, otaStatusInProgress).Where("upgrade_batch_id = ?", batchID).Row()
+	row := s.db.WithContext(ctx).Table("ota_device_upgrade_status").Select("COUNT(*) AS total, SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS succeeded, SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS failed, SUM(CASE WHEN status IN (?, ?, ?) THEN 1 ELSE 0 END) AS active", string(event.OTAStatusSuccess), string(event.OTAStatusFailed), string(event.OTAStatusPending), string(event.OTAStatusSent), string(event.OTAStatusInProgress)).Where("upgrade_batch_id = ?", batchID).Row()
 	if err := row.Scan(&total, &succeeded, &failed, &active); err != nil {
 		return fmt.Errorf("read ota batch state: %w", err)
 	}
 	if total == 0 {
 		return nil
 	}
-	status := otaStatusInProgress
+	status := string(event.OTAStatusInProgress)
 	if active == 0 && succeeded == total {
-		status = otaStatusSuccess
+		status = string(event.OTAStatusSuccess)
 	} else if active == 0 && failed == total {
-		status = otaStatusFailed
+		status = string(event.OTAStatusFailed)
 	} else if active == 0 {
 		status = "partial"
 	}

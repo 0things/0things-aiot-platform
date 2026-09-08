@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"data-engine/internal/model"
+	"0things/pkg/event"
 
 	"go.uber.org/zap"
 )
 
-type reportStoreStub struct{ report model.OTAUpgradeReport }
+type reportStoreStub struct{ report event.OTAUpgradeReport }
 
-func (s *reportStoreStub) RecordReport(_ context.Context, report model.OTAUpgradeReport) error {
+func (s *reportStoreStub) RecordReport(_ context.Context, report event.OTAUpgradeReport) error {
 	s.report = report
 	return nil
 }
@@ -24,11 +24,11 @@ func TestOTAProcessor_HandleOTAReport(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		report model.OTAUpgradeReport
+		report event.OTAUpgradeReport
 	}{
 		{
 			name: "in progress 50%",
-			report: model.OTAUpgradeReport{
+			report: event.OTAUpgradeReport{
 				BatchID:    "batch_001",
 				DeviceKey:  "dev_001",
 				EventType:  "progress",
@@ -37,7 +37,7 @@ func TestOTAProcessor_HandleOTAReport(t *testing.T) {
 		},
 		{
 			name: "completed 100%",
-			report: model.OTAUpgradeReport{
+			report: event.OTAUpgradeReport{
 				BatchID:         "batch_001",
 				DeviceKey:       "dev_001",
 				EventType:       "inform",
@@ -47,11 +47,11 @@ func TestOTAProcessor_HandleOTAReport(t *testing.T) {
 		},
 		{
 			name: "failed report",
-			report: model.OTAUpgradeReport{
+			report: event.OTAUpgradeReport{
 				BatchID:    "batch_001",
 				DeviceKey:  "dev_001",
 				EventType:  "progress",
-				Error:      &model.OTAReportError{Code: "checksum", Message: "checksum mismatch"},
+				Error:      &event.OTAReportError{Code: "checksum", Message: "checksum mismatch"},
 				ReportedAt: time.Now(),
 			},
 		},

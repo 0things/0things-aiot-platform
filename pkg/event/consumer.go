@@ -14,6 +14,7 @@ type Handler[T any] func(ctx context.Context, data *T, meta map[string]string) e
 
 type Consumer interface {
 	Subscriber() message.Subscriber
+	Logger() *zap.Logger
 	Close() error
 }
 
@@ -31,6 +32,10 @@ func NewConsumer(sub message.Subscriber, logger *zap.Logger) Consumer {
 
 func (c *watermillConsumer) Subscriber() message.Subscriber {
 	return c.sub
+}
+
+func (c *watermillConsumer) Logger() *zap.Logger {
+	return c.logger
 }
 
 func (c *watermillConsumer) Close() error {
@@ -52,29 +57,39 @@ func Subscribe[T any](ctx context.Context, consumer Consumer, topic Topic, handl
 		return fmt.Errorf("event: failed to subscribe to topic %s: %w", topic, err)
 	}
 
+	logger := consumer.Logger()
 	go func() {
 		for msg := range messages {
-			processMessage(msg, handler)
+			processMessage(msg, handler, logger)
 		}
 	}()
 
 	return nil
 }
 
-func processMessage[T any](msg *message.Message, handler Handler[T]) {
+func processMessage[T any](msg *message.Message, handler Handler[T], logger *zap.Logger) {
 	defer func() {
 		if r := recover(); r != nil {
+			if logger != nil {
+				logger.Error("event consumer recovered from panic", zap.Any("panic", r), zap.String("msg_uuid", msg.UUID))
+			}
 			msg.Nack()
 		}
 	}()
 
 	var target T
 	if err := json.Unmarshal(msg.Payload, &target); err != nil {
+		if logger != nil {
+			logger.Error("failed to unmarshal event payload", zap.Error(err), zap.String("msg_uuid", msg.UUID))
+		}
 		msg.Nack()
 		return
 	}
 
 	if err := handler(msg.Context(), &target, msg.Metadata); err != nil {
+		if logger != nil {
+			logger.Error("event consumer handler execution failed", zap.Error(err), zap.String("msg_uuid", msg.UUID))
+		}
 		msg.Nack()
 		return
 	}

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"data-engine/internal/model"
+	"0things/pkg/event"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -22,7 +22,7 @@ func NewEventProcessor(config *viper.Viper, logger *zap.Logger) *EventProcessor 
 }
 
 // HandleEvent 处理单条设备事件消息。
-func (p *EventProcessor) HandleEvent(ctx context.Context, msg model.DeviceMessage) error {
+func (p *EventProcessor) HandleEvent(ctx context.Context, msg event.DeviceMessage) error {
 	p.logger.Info("processing device event",
 		zap.String("device_key", msg.DeviceKey),
 		zap.String("transport", msg.Transport),

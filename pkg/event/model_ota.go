@@ -9,6 +9,7 @@ type OTAUpgradeCommand struct {
 	ProductKey    string    `json:"product_key"`
 	DeviceKey     string    `json:"device_key"`
 	DeviceName    string    `json:"device_name,omitempty"`
+	Transport     string    `json:"transport,omitempty"`
 	Module        string    `json:"module"`
 	TargetVersion string    `json:"target_version"`
 	DownloadURL   string    `json:"download_url"`
@@ -23,9 +24,28 @@ type OTAReportError struct {
 	Message string `json:"message"`
 }
 
+// OTAEventType represents standard OTA reporting event types.
+type OTAEventType string
+
+const (
+	OTAEventTypeProgress OTAEventType = "progress"
+	OTAEventTypeInform   OTAEventType = "inform"
+)
+
+// OTAStatus represents device OTA execution status.
+type OTAStatus string
+
+const (
+	OTAStatusPending    OTAStatus = "pending"
+	OTAStatusSent       OTAStatus = "sent"
+	OTAStatusInProgress OTAStatus = "in_progress"
+	OTAStatusSuccess    OTAStatus = "success"
+	OTAStatusFailed     OTAStatus = "failed"
+)
+
 // OTAUpgradeReport is published by transports when a device reports progress/status.
 type OTAUpgradeReport struct {
-	EventType       string          `json:"event_type,omitempty"`
+	EventType       OTAEventType    `json:"event_type,omitempty"`
 	BatchID         string          `json:"batch_id"`
 	ProductKey      string          `json:"product_key,omitempty"`
 	DeviceKey       string          `json:"device_key"`

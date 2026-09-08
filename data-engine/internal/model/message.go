@@ -1,20 +1,8 @@
 package model
 
 import (
-	"encoding/json"
 	"time"
 )
-
-// DeviceMessage 是遥测和业务事件的标准设备上行消息；OTA 使用独立契约。
-type DeviceMessage struct {
-	DeviceKey   string            `json:"device_key"`            // 设备全局唯一标识 Key
-	ProductKey  string            `json:"product_key,omitempty"`  // 产品 Key
-	Transport   string            `json:"transport"`             // 来源协议：mqtt / http / coap
-	MessageType string            `json:"message_type"`          // 消息类型：telemetry / attributes / event
-	Payload     json.RawMessage   `json:"payload"`               // 原始载荷 JSON
-	Timestamp   time.Time         `json:"timestamp"`             // 上报时间（UTC）
-	Headers     map[string]string `json:"headers,omitempty"`     // 协议扩展元数据
-}
 
 // TelemetryRecord 是规则引擎从上报 Payload 中提取出的单条标准化时序指标。
 type TelemetryRecord struct {

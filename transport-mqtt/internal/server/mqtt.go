@@ -4,18 +4,16 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
+	"transport-mqtt/internal/consumer"
 	"transport-mqtt/internal/enum"
+	"transport-mqtt/internal/handler"
 	"transport-mqtt/pkg/log"
 	"transport-mqtt/pkg/server"
-
-	"0things/pkg/event"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
@@ -23,18 +21,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// MQTTServer manages MQTT broker connections, subscriptions and event publishing.
+// MQTTServer manages MQTT broker connections, subscriptions and background event consumers.
 type MQTTServer struct {
-	client        mqtt.Client
-	logger        *log.Logger
-	eventProducer event.Producer
-	mu            sync.Mutex
+	client          mqtt.Client
+	logger          *log.Logger
+	consumerManager *consumer.Manager
+	mu              sync.Mutex
 }
 
 var _ server.Server = (*MQTTServer)(nil)
 
-// NewMQTTServer initializes the MQTT transport server.
-func NewMQTTServer(config *viper.Viper, logger *log.Logger, eventProducer event.Producer) (*MQTTServer, error) {
+// NewMQTTClient creates a configured Eclipse Paho MQTT client instance.
+func NewMQTTClient(config *viper.Viper, logger *log.Logger, ingressHandler *handler.IngressHandler) (mqtt.Client, error) {
 	broker := config.GetString("mqtt.broker")
 	if broker == "" {
 		broker = "tcp://127.0.0.1:1883"
@@ -45,11 +43,6 @@ func NewMQTTServer(config *viper.Viper, logger *log.Logger, eventProducer event.
 		clientID = "0things-mqtt-transport-" + uuid.NewString()[:8]
 	}
 
-	svc := &MQTTServer{
-		logger:        logger,
-		eventProducer: eventProducer,
-	}
-
 	opts := mqtt.NewClientOptions().
 		AddBroker(broker).
 		SetClientID(clientID).
@@ -57,14 +50,14 @@ func NewMQTTServer(config *viper.Viper, logger *log.Logger, eventProducer event.
 		SetConnectRetry(true).
 		SetKeepAlive(60 * time.Second).
 		SetOnConnectHandler(func(c mqtt.Client) {
-			svc.logger.Info("connected/reconnected to MQTT broker, registering subscriptions...")
-			svc.registerSubscriptions(c)
+			logger.Info("connected/reconnected to MQTT broker, registering subscriptions...")
+			RegisterSubscriptions(c, ingressHandler, logger)
 		}).
 		SetConnectionLostHandler(func(_ mqtt.Client, err error) {
-			svc.logger.Warn("MQTT connection lost, waiting for auto-reconnect", zap.Error(err))
+			logger.Warn("MQTT connection lost, waiting for auto-reconnect", zap.Error(err))
 		})
 
-	tlsConfig, err := mqttTLSConfig(config)
+	tlsConfig, err := MQTTTLSConfig(config)
 	if err != nil {
 		return nil, err
 	}
@@ -79,11 +72,20 @@ func NewMQTTServer(config *viper.Viper, logger *log.Logger, eventProducer event.
 		opts.SetPassword(password)
 	}
 
-	svc.client = mqtt.NewClient(opts)
-	return svc, nil
+	return mqtt.NewClient(opts), nil
 }
 
-func mqttTLSConfig(config *viper.Viper) (*tls.Config, error) {
+// NewMQTTServer initializes the MQTT transport server.
+func NewMQTTServer(client mqtt.Client, logger *log.Logger, consumerManager *consumer.Manager) *MQTTServer {
+	return &MQTTServer{
+		client:          client,
+		logger:          logger,
+		consumerManager: consumerManager,
+	}
+}
+
+// MQTTTLSConfig parses optional TLS certificates from configuration.
+func MQTTTLSConfig(config *viper.Viper) (*tls.Config, error) {
 	caFile := config.GetString("mqtt.tls.ca_file")
 	certFile := config.GetString("mqtt.tls.cert_file")
 	keyFile := config.GetString("mqtt.tls.key_file")
@@ -112,7 +114,7 @@ func mqttTLSConfig(config *viper.Viper) (*tls.Config, error) {
 	return tlsConfig, nil
 }
 
-// Start connects to the broker and keeps running until context is cancelled.
+// Start connects to the broker and starts NATS consumers until context is cancelled.
 func (s *MQTTServer) Start(ctx context.Context) error {
 	s.mu.Lock()
 	token := s.client.Connect()
@@ -126,6 +128,14 @@ func (s *MQTTServer) Start(ctx context.Context) error {
 	}
 
 	s.logger.Info("MQTT server connected and listening...")
+
+	if s.consumerManager != nil {
+		if err := s.consumerManager.Start(ctx); err != nil {
+			s.logger.Error("failed to start NATS consumer manager", zap.Error(err))
+			return err
+		}
+	}
+
 	<-ctx.Done()
 	return nil
 }
@@ -141,149 +151,23 @@ func (s *MQTTServer) Stop(ctx context.Context) error {
 	return nil
 }
 
-// registerSubscriptions registers handlers for incoming MQTT topics.
-func (s *MQTTServer) registerSubscriptions(c mqtt.Client) {
-	s.subscribeTopicWithClient(c, enum.MQTTSubTelemetry, s.handleTelemetry)
-	s.subscribeTopicWithClient(c, enum.MQTTSubOTAProgress, s.handleOtaProgress)
-	s.subscribeTopicWithClient(c, enum.MQTTSubOTAProgressV1, s.handleOtaProgress)
-	s.subscribeTopicWithClient(c, enum.MQTTSubOTAInform, s.handleOtaProgress)
-	s.subscribeTopicWithClient(c, enum.MQTTSubEvent, s.handleDeviceEvent)
+// RegisterSubscriptions registers handlers for incoming device MQTT topics.
+func RegisterSubscriptions(c mqtt.Client, h *handler.IngressHandler, logger *log.Logger) {
+	if h == nil {
+		return
+	}
+	subscribeTopicWithClient(c, enum.MQTTSubTelemetry, h.HandleTelemetry, logger)
+	subscribeTopicWithClient(c, enum.MQTTSubOTAProgress, h.HandleOTAProgress, logger)
+	subscribeTopicWithClient(c, enum.MQTTSubOTAProgressV1, h.HandleOTAProgress, logger)
+	subscribeTopicWithClient(c, enum.MQTTSubOTAInform, h.HandleOTAProgress, logger)
+	subscribeTopicWithClient(c, enum.MQTTSubEvent, h.HandleDeviceEvent, logger)
 }
 
-func (s *MQTTServer) subscribeTopicWithClient(c mqtt.Client, topic string, handler mqtt.MessageHandler) {
-	subToken := c.Subscribe(topic, 0, handler)
+func subscribeTopicWithClient(c mqtt.Client, topic string, msgHandler mqtt.MessageHandler, logger *log.Logger) {
+	subToken := c.Subscribe(topic, 0, msgHandler)
 	if subToken.Wait() && subToken.Error() != nil {
-		s.logger.Error("failed to subscribe to topic", zap.String("topic", topic), zap.Error(subToken.Error()))
+		logger.Error("failed to subscribe to topic", zap.String("topic", topic), zap.Error(subToken.Error()))
 	} else {
-		s.logger.Info("registered dedicated handler for MQTT topic", zap.String("topic", topic))
+		logger.Info("registered dedicated handler for MQTT topic", zap.String("topic", topic))
 	}
-}
-
-func (s *MQTTServer) handleTelemetry(_ mqtt.Client, msg mqtt.Message) {
-	deviceKey := ExtractDeviceKey(msg.Topic())
-	if deviceKey == "" {
-		s.logger.Warn("could not extract deviceKey from telemetry topic", zap.String("topic", msg.Topic()))
-		return
-	}
-	productKey := ExtractProductKey(msg.Topic())
-
-	deviceMsg := event.DeviceMessage{
-		DeviceKey:   deviceKey,
-		ProductKey:  productKey,
-		Transport:   "mqtt",
-		MessageType: "telemetry",
-		Payload:     json.RawMessage(msg.Payload()),
-		Timestamp:   time.Now().UTC(),
-		Headers:     map[string]string{"topic": msg.Topic()},
-	}
-
-	s.logger.Info("received MQTT telemetry message",
-		zap.String("topic", msg.Topic()),
-		zap.String("device_key", deviceKey),
-		zap.String("product_key", productKey),
-		zap.Int("payload_bytes", len(msg.Payload())),
-	)
-
-	if s.eventProducer != nil {
-		if err := s.eventProducer.Publish(context.Background(), event.TopicDeviceTelemetryReport, &deviceMsg); err != nil {
-			s.logger.Error("failed to publish device telemetry event", zap.Error(err))
-		}
-	}
-}
-
-func (s *MQTTServer) handleDeviceEvent(_ mqtt.Client, msg mqtt.Message) {
-	if strings.HasSuffix(msg.Topic(), "/thing/event/property/post") {
-		return
-	}
-
-	deviceKey := ExtractDeviceKey(msg.Topic())
-	if deviceKey == "" {
-		s.logger.Warn("could not extract deviceKey from event topic", zap.String("topic", msg.Topic()))
-		return
-	}
-	productKey := ExtractProductKey(msg.Topic())
-
-	deviceMsg := event.DeviceMessage{
-		DeviceKey:   deviceKey,
-		ProductKey:  productKey,
-		Transport:   "mqtt",
-		MessageType: "event",
-		Payload:     json.RawMessage(msg.Payload()),
-		Timestamp:   time.Now().UTC(),
-		Headers:     map[string]string{"topic": msg.Topic()},
-	}
-
-	s.logger.Info("received MQTT event message",
-		zap.String("topic", msg.Topic()),
-		zap.String("device_key", deviceKey),
-		zap.String("product_key", productKey),
-		zap.Int("payload_bytes", len(msg.Payload())),
-	)
-
-	if s.eventProducer != nil {
-		if err := s.eventProducer.Publish(context.Background(), event.TopicDeviceEventReport, &deviceMsg); err != nil {
-			s.logger.Error("failed to publish device event report", zap.Error(err))
-		}
-	}
-}
-
-func (s *MQTTServer) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
-	deviceKey := ExtractDeviceKey(msg.Topic())
-	if deviceKey == "" {
-		s.logger.Warn("could not extract deviceKey from OTA topic", zap.String("topic", msg.Topic()))
-		return
-	}
-
-	var report event.OTAUpgradeReport
-	if err := json.Unmarshal(msg.Payload(), &report); err != nil {
-		s.logger.Warn("invalid OTA report payload", zap.String("topic", msg.Topic()), zap.Error(err))
-		return
-	}
-	if report.DeviceKey == "" {
-		report.DeviceKey = deviceKey
-	}
-	if report.ProductKey == "" {
-		if productKey := ExtractProductKey(msg.Topic()); productKey != "" {
-			report.ProductKey = productKey
-		}
-	}
-	if report.ReportedAt.IsZero() {
-		report.ReportedAt = time.Now()
-	}
-
-	s.logger.Info("received OTA progress report",
-		zap.String("topic", msg.Topic()),
-		zap.String("device_key", deviceKey),
-		zap.Any("report", report),
-	)
-
-	if s.eventProducer != nil {
-		if err := s.eventProducer.Publish(context.Background(), event.TopicOTAProgressReport, &report); err != nil {
-			s.logger.Error("failed to publish OTA progress report event", zap.Error(err))
-		}
-	}
-}
-
-// ExtractDeviceKey extracts deviceKey from topic path.
-func ExtractDeviceKey(topic string) string {
-	parts := strings.Split(topic, "/")
-	if len(parts) >= 4 && parts[1] == "sys" {
-		return parts[3]
-	}
-	if len(parts) >= 6 && parts[1] == "ota" && parts[2] == "device" && (parts[3] == "progress" || parts[3] == "inform") {
-		return parts[5]
-	}
-	return ""
-}
-
-// ExtractProductKey extracts productKey from topic path.
-func ExtractProductKey(topic string) string {
-	parts := strings.Split(topic, "/")
-	if len(parts) >= 3 && parts[1] == "sys" {
-		return parts[2]
-	}
-	if len(parts) >= 6 && parts[1] == "ota" && parts[2] == "device" && (parts[3] == "progress" || parts[3] == "inform") {
-		return parts[4]
-	}
-	return ""
 }
