@@ -1093,15 +1093,17 @@ export function FeatureDefinitionTab({
                           <span className='font-mono text-sm font-medium'>
                             {property.identifier}
                           </span>
-                          <Badge variant='outline' className='text-xs'>
-                            {t(
-                              `featureDefinition.accessMode.${property.accessMode}`
-                            )}
+                          <Badge
+                            variant='outline'
+                            className='font-mono text-xs uppercase'
+                          >
+                            {property.accessMode}
                           </Badge>
-                          <Badge variant='outline' className='text-xs'>
-                            {t(
-                              `featureDefinition.dataTypes.${property.dataType.type}`
-                            )}
+                          <Badge
+                            variant='outline'
+                            className='font-mono text-xs text-primary'
+                          >
+                            {property.dataType.type}
                           </Badge>
                         </div>
                         <p className='mt-1 text-xs text-muted-foreground'>
@@ -1164,10 +1166,11 @@ export function FeatureDefinitionTab({
                           <span className='font-mono text-sm font-medium'>
                             {service.identifier}
                           </span>
-                          <Badge variant='outline' className='text-xs'>
-                            {t(
-                              `featureDefinition.serviceDialog.${service.callType}`
-                            )}
+                          <Badge
+                            variant='outline'
+                            className='font-mono text-xs uppercase'
+                          >
+                            {service.callType}
                           </Badge>
                           <Badge variant='outline' className='text-xs'>
                             {t(
@@ -1242,8 +1245,11 @@ export function FeatureDefinitionTab({
                           <span className='font-mono text-sm font-medium'>
                             {event.identifier}
                           </span>
-                          <Badge variant='outline' className='text-xs'>
-                            {t(`featureDefinition.eventTypes.${event.type}`)}
+                          <Badge
+                            variant='outline'
+                            className='font-mono text-xs uppercase'
+                          >
+                            {event.type}
                           </Badge>
                           <Badge variant='outline' className='text-xs'>
                             {t(

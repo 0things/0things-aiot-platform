@@ -179,9 +179,8 @@
       "execute": "执行",
       "executionError": "执行失败",
       "emptyResult": "运行结果会显示在这里"
-    }
-  },
-  "featureDefinition": {
+    },
+    "featureDefinition": {
     "templates": {
       "label": "快速模板：",
       "empty": "空模板",
