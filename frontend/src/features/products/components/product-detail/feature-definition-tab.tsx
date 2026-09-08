@@ -406,14 +406,34 @@ const eventSchema = z.object({
 })
 
 const tslSchema = z.object({
-  schema: z.string(),
-  profile: z.object({
-    productKey: z.string().min(1),
-  }),
-  properties: z.array(propertySchema),
-  events: z.array(eventSchema),
-  services: z.array(serviceSchema),
+  schema: z.string().optional().default('schema.json'),
+  profile: z
+    .object({
+      productKey: z.string().min(1),
+    })
+    .optional(),
+  properties: z.array(propertySchema).optional().default([]),
+  events: z.array(eventSchema).optional().default([]),
+  services: z.array(serviceSchema).optional().default([]),
 })
+
+function normalizeTSLModel(
+  model: Partial<TSLModel> | null | undefined
+): TSLModel {
+  if (!model) {
+    return TSL_TEMPLATES.empty.value as TSLModel
+  }
+  return {
+    schema: model.schema || 'schema.json',
+    version: model.version || '1.0.0',
+    profile: {
+      productKey: model.profile?.productKey || '',
+    },
+    properties: Array.isArray(model.properties) ? model.properties : [],
+    events: Array.isArray(model.events) ? model.events : [],
+    services: Array.isArray(model.services) ? model.services : [],
+  }
+}
 
 interface FeatureDefinitionTabProps {
   productKey: string
@@ -437,7 +457,8 @@ export function FeatureDefinitionTab({
         const response = await getProductsProductKeyTsl(productKey)
         // Parse the TSL string from API into TSLModel
         if (response.data?.productTsl?.tsl) {
-          return JSON.parse(response.data.productTsl.tsl) as TSLModel
+          const parsed = JSON.parse(response.data.productTsl.tsl)
+          return normalizeTSLModel(parsed)
         }
         return null
       } catch (error: unknown) {
@@ -481,7 +502,7 @@ export function FeatureDefinitionTab({
   })
 
   const [tslModel, setTslModel] = useState<TSLModel>(
-    TSL_TEMPLATES.empty.value as TSLModel
+    normalizeTSLModel(TSL_TEMPLATES.empty.value as TSLModel)
   )
   const [tslText, setTslText] = useState<string>(
     JSON.stringify(TSL_TEMPLATES.empty.value, null, 2)
@@ -519,14 +540,17 @@ export function FeatureDefinitionTab({
     const id = setTimeout(() => {
       if (cancelled) return
       if (tslData) {
-        setTslModel(tslData)
-        setTslText(JSON.stringify(tslData, null, 2))
+        const normalized = normalizeTSLModel(tslData)
+        setTslModel(normalized)
+        setTslText(JSON.stringify(normalized, null, 2))
         setError('')
         setSuccess('')
         setCurrentTemplate('empty') // Reset template selection
       } else if (!isLoadingTSL && !tslError) {
         // No TSL data exists, use empty template
-        const emptyModel = TSL_TEMPLATES.empty.value as TSLModel
+        const emptyModel = normalizeTSLModel(
+          TSL_TEMPLATES.empty.value as TSLModel
+        )
         setTslModel(emptyModel)
         setTslText(JSON.stringify(emptyModel, null, 2))
         setCurrentTemplate('empty')
@@ -542,7 +566,8 @@ export function FeatureDefinitionTab({
   const syncFromJson = (text: string) => {
     try {
       const parsed = JSON.parse(text)
-      setTslModel(parsed)
+      const normalized = normalizeTSLModel(parsed)
+      setTslModel(normalized)
       setError('')
       return true
     } catch (e) {
@@ -556,7 +581,8 @@ export function FeatureDefinitionTab({
 
   // 从模型更新 JSON
   const syncToJson = (model: TSLModel) => {
-    const formatted = JSON.stringify(model, null, 2)
+    const normalized = normalizeTSLModel(model)
+    const formatted = JSON.stringify(normalized, null, 2)
     setTslText(formatted)
   }
 
@@ -656,7 +682,7 @@ export function FeatureDefinitionTab({
   const loadTemplate = (templateKey: string) => {
     const template = TSL_TEMPLATES[templateKey as keyof typeof TSL_TEMPLATES]
     if (template) {
-      const newModel = template.value as TSLModel
+      const newModel = normalizeTSLModel(template.value as TSLModel)
       setTslModel(newModel)
       syncToJson(newModel)
       setCurrentTemplate(templateKey)
@@ -678,9 +704,10 @@ export function FeatureDefinitionTab({
       // 使用 zod 验证
       tslSchema.parse(parsed)
 
-      const formatted = JSON.stringify(parsed, null, 2)
+      const normalized = normalizeTSLModel(parsed)
+      const formatted = JSON.stringify(normalized, null, 2)
       setTslText(formatted)
-      setTslModel(parsed)
+      setTslModel(normalized)
       setJsonValid(true)
       setValidationError('')
       setError('')
@@ -739,14 +766,15 @@ export function FeatureDefinitionTab({
       editMode === 'json' ? tslText : JSON.stringify(tslModel)
     if (validateTSL(jsonToValidate)) {
       // Use the correct model based on edit mode
-      const modelToSave = editMode === 'json' ? JSON.parse(tslText) : tslModel
+      const modelToSave =
+        editMode === 'json' ? normalizeTSLModel(JSON.parse(tslText)) : tslModel
       saveTSLMutation.mutate(modelToSave)
     }
   }
 
   // 清空编辑器
   const clearTSL = () => {
-    const emptyModel = TSL_TEMPLATES.empty.value as TSLModel
+    const emptyModel = normalizeTSLModel(TSL_TEMPLATES.empty.value as TSLModel)
     setTslModel(emptyModel)
     syncToJson(emptyModel)
     setError('')
@@ -775,12 +803,13 @@ export function FeatureDefinitionTab({
   }
 
   const saveProperty = (property: Property) => {
-    const newModel = { ...tslModel }
+    const properties = [...(tslModel.properties || [])]
     if (editingPropertyIndex >= 0) {
-      newModel.properties[editingPropertyIndex] = property
+      properties[editingPropertyIndex] = property
     } else {
-      newModel.properties.push(property)
+      properties.push(property)
     }
+    const newModel = { ...tslModel, properties }
     setTslModel(newModel)
     syncToJson(newModel)
     setPropertyDialogOpen(false)
@@ -793,8 +822,9 @@ export function FeatureDefinitionTab({
   }
 
   const deleteProperty = (index: number) => {
-    const newModel = { ...tslModel }
-    newModel.properties.splice(index, 1)
+    const properties = [...(tslModel.properties || [])]
+    properties.splice(index, 1)
+    const newModel = { ...tslModel, properties }
     setTslModel(newModel)
     syncToJson(newModel)
     setSuccess(t('productDetail.featureDefinition.status.propertyDeleted'))
@@ -821,12 +851,13 @@ export function FeatureDefinitionTab({
   }
 
   const saveService = (service: Service) => {
-    const newModel = { ...tslModel }
+    const services = [...(tslModel.services || [])]
     if (editingServiceIndex >= 0) {
-      newModel.services[editingServiceIndex] = service
+      services[editingServiceIndex] = service
     } else {
-      newModel.services.push(service)
+      services.push(service)
     }
+    const newModel = { ...tslModel, services }
     setTslModel(newModel)
     syncToJson(newModel)
     setServiceDialogOpen(false)
@@ -839,8 +870,9 @@ export function FeatureDefinitionTab({
   }
 
   const deleteService = (index: number) => {
-    const newModel = { ...tslModel }
-    newModel.services.splice(index, 1)
+    const services = [...(tslModel.services || [])]
+    services.splice(index, 1)
+    const newModel = { ...tslModel, services }
     setTslModel(newModel)
     syncToJson(newModel)
     setSuccess(t('productDetail.featureDefinition.status.serviceDeleted'))
@@ -866,12 +898,13 @@ export function FeatureDefinitionTab({
   }
 
   const saveEvent = (event: Event) => {
-    const newModel = { ...tslModel }
+    const events = [...(tslModel.events || [])]
     if (editingEventIndex >= 0) {
-      newModel.events[editingEventIndex] = event
+      events[editingEventIndex] = event
     } else {
-      newModel.events.push(event)
+      events.push(event)
     }
+    const newModel = { ...tslModel, events }
     setTslModel(newModel)
     syncToJson(newModel)
     setEventDialogOpen(false)
@@ -884,8 +917,9 @@ export function FeatureDefinitionTab({
   }
 
   const deleteEvent = (index: number) => {
-    const newModel = { ...tslModel }
-    newModel.events.splice(index, 1)
+    const events = [...(tslModel.events || [])]
+    events.splice(index, 1)
+    const newModel = { ...tslModel, events }
     setTslModel(newModel)
     syncToJson(newModel)
     setSuccess(t('productDetail.featureDefinition.status.eventDeleted'))
@@ -1033,7 +1067,9 @@ export function FeatureDefinitionTab({
                 <h4 className='text-sm font-semibold'>
                   {t('productDetail.featureDefinition.sections.properties')}
                 </h4>
-                <Badge variant='secondary'>{tslModel.properties.length}</Badge>
+                <Badge variant='secondary'>
+                  {(tslModel?.properties || []).length}
+                </Badge>
               </div>
               <Button size='sm' onClick={() => openPropertyDialog()}>
                 <Plus className='mr-1 h-3 w-3' />
@@ -1041,13 +1077,13 @@ export function FeatureDefinitionTab({
               </Button>
             </div>
             <div className='p-4'>
-              {tslModel.properties.length === 0 ? (
+              {(tslModel?.properties || []).length === 0 ? (
                 <div className='py-8 text-center text-sm text-muted-foreground'>
                   {t('productDetail.featureDefinition.empty.properties')}
                 </div>
               ) : (
                 <div className='space-y-2'>
-                  {tslModel.properties.map((property, index) => (
+                  {(tslModel?.properties || []).map((property, index) => (
                     <div
                       key={index}
                       className='flex items-center justify-between rounded-md border p-3 hover:bg-muted/50'
@@ -1102,7 +1138,9 @@ export function FeatureDefinitionTab({
                 <h4 className='text-sm font-semibold'>
                   {t('productDetail.featureDefinition.sections.services')}
                 </h4>
-                <Badge variant='secondary'>{tslModel.services.length}</Badge>
+                <Badge variant='secondary'>
+                  {(tslModel?.services || []).length}
+                </Badge>
               </div>
               <Button size='sm' onClick={() => openServiceDialog()}>
                 <Plus className='mr-1 h-3 w-3' />
@@ -1110,13 +1148,13 @@ export function FeatureDefinitionTab({
               </Button>
             </div>
             <div className='p-4'>
-              {tslModel.services.length === 0 ? (
+              {(tslModel?.services || []).length === 0 ? (
                 <div className='py-8 text-center text-sm text-muted-foreground'>
                   {t('productDetail.featureDefinition.empty.services')}
                 </div>
               ) : (
                 <div className='space-y-2'>
-                  {tslModel.services.map((service, index) => (
+                  {(tslModel?.services || []).map((service, index) => (
                     <div
                       key={index}
                       className='flex items-center justify-between rounded-md border p-3 hover:bg-muted/50'
@@ -1178,7 +1216,9 @@ export function FeatureDefinitionTab({
                 <h4 className='text-sm font-semibold'>
                   {t('productDetail.featureDefinition.sections.events')}
                 </h4>
-                <Badge variant='secondary'>{tslModel.events.length}</Badge>
+                <Badge variant='secondary'>
+                  {(tslModel?.events || []).length}
+                </Badge>
               </div>
               <Button size='sm' onClick={() => openEventDialog()}>
                 <Plus className='mr-1 h-3 w-3' />
@@ -1186,13 +1226,13 @@ export function FeatureDefinitionTab({
               </Button>
             </div>
             <div className='p-4'>
-              {tslModel.events.length === 0 ? (
+              {(tslModel?.events || []).length === 0 ? (
                 <div className='py-8 text-center text-sm text-muted-foreground'>
                   {t('productDetail.featureDefinition.empty.events')}
                 </div>
               ) : (
                 <div className='space-y-2'>
-                  {tslModel.events.map((event, index) => (
+                  {(tslModel?.events || []).map((event, index) => (
                     <div
                       key={index}
                       className='flex items-center justify-between rounded-md border p-3 hover:bg-muted/50'
