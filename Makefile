@@ -17,9 +17,10 @@ test:
 	@(cd pkg/protocol && go test ./...)
 	@(cd pkg/tsdb && go test ./...)
 	@(cd pkg/event && go test ./...)
-	@(cd transport-mqtt && go test ./internal/...)
-	@(cd transport-http && go test ./internal/...)
-	@(cd data-engine && go test ./internal/...)
+	@(cd transport-mqtt && go test ./...)
+	@(cd transport-http && go test ./...)
+	@(cd transport-coap && go test ./...)
+	@(cd data-engine && go test ./...)
 	@(cd backend && go test ./...)
 	@echo "✅ All tests passed successfully!"
 
