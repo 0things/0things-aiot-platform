@@ -38,15 +38,12 @@ func main() {
 
 	// 3. 初始化核心计算、OTA 状态存储与业务处理器
 	ruleProcessor := engine.NewProcessor(conf, logger.Logger, tsdbClient, shadowStore)
-	_ = ruleProcessor
-
 	otaStore, err := storage.NewOTAStore(conf, logger.Logger)
 	if err != nil {
 		logger.Fatal("failed to initialize OTA state store", zap.Error(err))
 	}
 	otaProcessor := service.NewOTAProcessor(otaStore, logger.Logger)
 	eventProcessor := service.NewEventProcessor(conf, logger.Logger)
-	_ = eventProcessor
 
 	// 4. 初始化 OTA MQTT 调度器
 	otaDispatcher, err := service.NewOTADispatcher(conf)
@@ -64,7 +61,57 @@ func main() {
 	consumer := event.NewConsumer(sub, logger.Logger)
 	defer consumer.Close()
 
-	// 6. 订阅 OTA 下发升级指令
+	// 6. 订阅设备遥测与属性上报
+	err = event.Subscribe(ctx, consumer, event.TopicDeviceTelemetryReport, func(ctx context.Context, msg *event.DeviceMessage, meta map[string]string) error {
+		modelMsg := model.DeviceMessage{
+			DeviceKey:   msg.DeviceKey,
+			ProductKey:  msg.ProductKey,
+			Transport:   msg.Transport,
+			MessageType: msg.MessageType,
+			Payload:     msg.Payload,
+			Timestamp:   msg.Timestamp,
+			Headers:     msg.Headers,
+		}
+		return ruleProcessor.ProcessMessage(ctx, modelMsg)
+	})
+	if err != nil {
+		logger.Fatal("failed to subscribe to device telemetry reports", zap.Error(err))
+	}
+
+	err = event.Subscribe(ctx, consumer, event.TopicDeviceAttributeReport, func(ctx context.Context, msg *event.DeviceMessage, meta map[string]string) error {
+		modelMsg := model.DeviceMessage{
+			DeviceKey:   msg.DeviceKey,
+			ProductKey:  msg.ProductKey,
+			Transport:   msg.Transport,
+			MessageType: msg.MessageType,
+			Payload:     msg.Payload,
+			Timestamp:   msg.Timestamp,
+			Headers:     msg.Headers,
+		}
+		return ruleProcessor.ProcessMessage(ctx, modelMsg)
+	})
+	if err != nil {
+		logger.Fatal("failed to subscribe to device attribute reports", zap.Error(err))
+	}
+
+	// 7. 订阅设备自定义业务告警/事件上报
+	err = event.Subscribe(ctx, consumer, event.TopicDeviceEventReport, func(ctx context.Context, msg *event.DeviceMessage, meta map[string]string) error {
+		modelMsg := model.DeviceMessage{
+			DeviceKey:   msg.DeviceKey,
+			ProductKey:  msg.ProductKey,
+			Transport:   msg.Transport,
+			MessageType: msg.MessageType,
+			Payload:     msg.Payload,
+			Timestamp:   msg.Timestamp,
+			Headers:     msg.Headers,
+		}
+		return eventProcessor.HandleEvent(ctx, modelMsg)
+	})
+	if err != nil {
+		logger.Fatal("failed to subscribe to device event reports", zap.Error(err))
+	}
+
+	// 8. 订阅 OTA 下发升级指令
 	err = event.Subscribe(ctx, consumer, event.TopicOTAUpgradeCommand, func(ctx context.Context, cmd *event.OTAUpgradeCommand, meta map[string]string) error {
 		logger.Info("received OTA upgrade command event",
 			zap.String("device_key", cmd.DeviceKey),
@@ -96,7 +143,7 @@ func main() {
 		logger.Fatal("failed to subscribe to OTA upgrade commands", zap.Error(err))
 	}
 
-	// 7. 订阅设备 OTA 进度上报
+	// 9. 订阅设备 OTA 进度上报
 	err = event.Subscribe(ctx, consumer, event.TopicOTAProgressReport, func(ctx context.Context, report *event.OTAUpgradeReport, meta map[string]string) error {
 		logger.Info("received OTA progress report event",
 			zap.String("device_key", report.DeviceKey),
@@ -123,9 +170,9 @@ func main() {
 		logger.Fatal("failed to subscribe to OTA progress reports", zap.Error(err))
 	}
 
-	logger.Info("0things data-engine initialized successfully with OTA event consumers")
+	logger.Info("0things data-engine initialized successfully with telemetry and OTA event consumers")
 
-	// 8. 监听系统优雅关闭信号
+	// 10. 监听系统优雅关闭信号
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

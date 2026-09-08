@@ -159,25 +159,72 @@ func (s *MQTTServer) subscribeTopicWithClient(c mqtt.Client, topic string, handl
 	}
 }
 
-func (s *MQTTServer) dispatchUplink(msgType string, topic string, payload []byte) {
-	deviceKey := ExtractDeviceKey(topic)
+func (s *MQTTServer) handleTelemetry(_ mqtt.Client, msg mqtt.Message) {
+	deviceKey := ExtractDeviceKey(msg.Topic())
 	if deviceKey == "" {
-		s.logger.Warn("could not extract deviceKey from topic", zap.String("topic", topic), zap.String("msg_type", msgType))
+		s.logger.Warn("could not extract deviceKey from telemetry topic", zap.String("topic", msg.Topic()))
 		return
 	}
-	productKey := ExtractProductKey(topic)
+	productKey := ExtractProductKey(msg.Topic())
 
-	s.logger.Info("received MQTT uplink message",
-		zap.String("topic", topic),
-		zap.String("product_key", productKey),
+	deviceMsg := event.DeviceMessage{
+		DeviceKey:   deviceKey,
+		ProductKey:  productKey,
+		Transport:   "mqtt",
+		MessageType: "telemetry",
+		Payload:     json.RawMessage(msg.Payload()),
+		Timestamp:   time.Now().UTC(),
+		Headers:     map[string]string{"topic": msg.Topic()},
+	}
+
+	s.logger.Info("received MQTT telemetry message",
+		zap.String("topic", msg.Topic()),
 		zap.String("device_key", deviceKey),
-		zap.String("msg_type", msgType),
-		zap.Int("payload_bytes", len(payload)),
+		zap.String("product_key", productKey),
+		zap.Int("payload_bytes", len(msg.Payload())),
 	)
+
+	if s.eventProducer != nil {
+		if err := s.eventProducer.Publish(context.Background(), event.TopicDeviceTelemetryReport, &deviceMsg); err != nil {
+			s.logger.Error("failed to publish device telemetry event", zap.Error(err))
+		}
+	}
 }
 
-func (s *MQTTServer) handleTelemetry(_ mqtt.Client, msg mqtt.Message) {
-	s.dispatchUplink("telemetry", msg.Topic(), msg.Payload())
+func (s *MQTTServer) handleDeviceEvent(_ mqtt.Client, msg mqtt.Message) {
+	if strings.HasSuffix(msg.Topic(), "/thing/event/property/post") {
+		return
+	}
+
+	deviceKey := ExtractDeviceKey(msg.Topic())
+	if deviceKey == "" {
+		s.logger.Warn("could not extract deviceKey from event topic", zap.String("topic", msg.Topic()))
+		return
+	}
+	productKey := ExtractProductKey(msg.Topic())
+
+	deviceMsg := event.DeviceMessage{
+		DeviceKey:   deviceKey,
+		ProductKey:  productKey,
+		Transport:   "mqtt",
+		MessageType: "event",
+		Payload:     json.RawMessage(msg.Payload()),
+		Timestamp:   time.Now().UTC(),
+		Headers:     map[string]string{"topic": msg.Topic()},
+	}
+
+	s.logger.Info("received MQTT event message",
+		zap.String("topic", msg.Topic()),
+		zap.String("device_key", deviceKey),
+		zap.String("product_key", productKey),
+		zap.Int("payload_bytes", len(msg.Payload())),
+	)
+
+	if s.eventProducer != nil {
+		if err := s.eventProducer.Publish(context.Background(), event.TopicDeviceEventReport, &deviceMsg); err != nil {
+			s.logger.Error("failed to publish device event report", zap.Error(err))
+		}
+	}
 }
 
 func (s *MQTTServer) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
@@ -215,13 +262,6 @@ func (s *MQTTServer) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
 			s.logger.Error("failed to publish OTA progress report event", zap.Error(err))
 		}
 	}
-}
-
-func (s *MQTTServer) handleDeviceEvent(_ mqtt.Client, msg mqtt.Message) {
-	if strings.HasSuffix(msg.Topic(), "/thing/event/property/post") {
-		return
-	}
-	s.dispatchUplink("event", msg.Topic(), msg.Payload())
 }
 
 // ExtractDeviceKey extracts deviceKey from topic path.

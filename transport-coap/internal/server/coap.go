@@ -3,12 +3,16 @@ package server
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"transport-coap/pkg/log"
 	"transport-coap/pkg/server"
+
+	"0things/pkg/event"
 
 	"github.com/plgd-dev/go-coap/v3/message"
 	"github.com/plgd-dev/go-coap/v3/message/codes"
@@ -22,24 +26,26 @@ import (
 
 // CoAPServer wraps a UDP-based CoAP server for constrained device ingress.
 type CoAPServer struct {
-	addr   string
-	server *coapserver.Server
-	conn   *coapnet.UDPConn
-	logger *log.Logger
-	mu     sync.Mutex
+	addr          string
+	server        *coapserver.Server
+	conn          *coapnet.UDPConn
+	logger        *log.Logger
+	eventProducer event.Producer
+	mu            sync.Mutex
 }
 
 var _ server.Server = (*CoAPServer)(nil)
 
 // NewCoAPServer initializes CoAP UDP service.
-func NewCoAPServer(config *viper.Viper, logger *log.Logger) *CoAPServer {
+func NewCoAPServer(config *viper.Viper, logger *log.Logger, eventProducer event.Producer) *CoAPServer {
 	addr := config.GetString("coap.addr")
 	if addr == "" {
 		addr = ":5683" // Standard CoAP port
 	}
 	return &CoAPServer{
-		addr:   addr,
-		logger: logger,
+		addr:          addr,
+		logger:        logger,
+		eventProducer: eventProducer,
 	}
 }
 
@@ -97,6 +103,20 @@ func (s *CoAPServer) handleDeviceIngress(w mux.ResponseWriter, r *mux.Message) {
 		zap.String("device_key", deviceKey),
 		zap.Int("payload_bytes", len(payload)),
 	)
+
+	// 投递至事件总线
+	if s.eventProducer != nil {
+		msg := event.DeviceMessage{
+			DeviceKey:   deviceKey,
+			Transport:   "coap",
+			MessageType: "telemetry",
+			Payload:     json.RawMessage(payload),
+			Timestamp:   time.Now().UTC(),
+		}
+		if err := s.eventProducer.Publish(context.Background(), event.TopicDeviceTelemetryReport, &msg); err != nil {
+			s.logger.Error("failed to publish CoAP device telemetry event", zap.Error(err))
+		}
+	}
 
 	// Reply CoAP 2.04 Changed so device can re-enter PSM power saving mode
 	_ = w.SetResponse(codes.Changed, message.TextPlain, strings.NewReader("accepted"))

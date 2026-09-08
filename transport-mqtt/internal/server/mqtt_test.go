@@ -185,3 +185,73 @@ func TestHandleOtaProgressPublishEvent(t *testing.T) {
 		t.Errorf("unexpected report: %+v", report)
 	}
 }
+
+func TestHandleTelemetryPublishEvent(t *testing.T) {
+	mockProd := &mockEventProducer{}
+	v := viper.New()
+	v.Set("log.mode", "console")
+	v.Set("log.log_level", "error")
+	logger := log.NewLog(v)
+
+	svc := &MQTTServer{
+		logger:        logger,
+		eventProducer: mockProd,
+	}
+
+	rawPayload := []byte(`{"temperature": 25.5, "humidity": 60}`)
+	msg := &fakeMqttMessage{
+		topic:   "/sys/prod_demo/dev_demo_01/thing/event/property/post",
+		payload: rawPayload,
+	}
+
+	svc.handleTelemetry(nil, msg)
+
+	if len(mockProd.published) != 1 {
+		t.Fatalf("expected 1 published event, got %d", len(mockProd.published))
+	}
+	if mockProd.topics[0] != event.TopicDeviceTelemetryReport {
+		t.Errorf("expected topic %s, got %s", event.TopicDeviceTelemetryReport, mockProd.topics[0])
+	}
+	deviceMsg, ok := mockProd.published[0].(*event.DeviceMessage)
+	if !ok {
+		t.Fatalf("expected *event.DeviceMessage, got %T", mockProd.published[0])
+	}
+	if deviceMsg.DeviceKey != "dev_demo_01" || deviceMsg.ProductKey != "prod_demo" || deviceMsg.MessageType != "telemetry" {
+		t.Errorf("unexpected deviceMsg: %+v", deviceMsg)
+	}
+}
+
+func TestHandleDeviceEventPublishEvent(t *testing.T) {
+	mockProd := &mockEventProducer{}
+	v := viper.New()
+	v.Set("log.mode", "console")
+	v.Set("log.log_level", "error")
+	logger := log.NewLog(v)
+
+	svc := &MQTTServer{
+		logger:        logger,
+		eventProducer: mockProd,
+	}
+
+	rawPayload := []byte(`{"error_code": 1001, "msg": "overheat"}`)
+	msg := &fakeMqttMessage{
+		topic:   "/sys/prod_demo/dev_demo_01/thing/event/overheat_alarm/post",
+		payload: rawPayload,
+	}
+
+	svc.handleDeviceEvent(nil, msg)
+
+	if len(mockProd.published) != 1 {
+		t.Fatalf("expected 1 published event, got %d", len(mockProd.published))
+	}
+	if mockProd.topics[0] != event.TopicDeviceEventReport {
+		t.Errorf("expected topic %s, got %s", event.TopicDeviceEventReport, mockProd.topics[0])
+	}
+	deviceMsg, ok := mockProd.published[0].(*event.DeviceMessage)
+	if !ok {
+		t.Fatalf("expected *event.DeviceMessage, got %T", mockProd.published[0])
+	}
+	if deviceMsg.DeviceKey != "dev_demo_01" || deviceMsg.ProductKey != "prod_demo" || deviceMsg.MessageType != "event" {
+		t.Errorf("unexpected deviceMsg: %+v", deviceMsg)
+	}
+}

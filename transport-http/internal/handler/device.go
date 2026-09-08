@@ -1,14 +1,16 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 
-	"transport-http/internal/model"
 	"transport-http/pkg/log"
+
+	"0things/pkg/event"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -16,13 +18,15 @@ import (
 
 // DeviceHandler provides RESTful ingress endpoints for HTTP devices and gateways.
 type DeviceHandler struct {
-	logger *log.Logger
+	logger        *log.Logger
+	eventProducer event.Producer
 }
 
 // NewDeviceHandler initializes DeviceHandler.
-func NewDeviceHandler(logger *log.Logger) *DeviceHandler {
+func NewDeviceHandler(logger *log.Logger, eventProducer event.Producer) *DeviceHandler {
 	return &DeviceHandler{
-		logger: logger,
+		logger:        logger,
+		eventProducer: eventProducer,
 	}
 }
 
@@ -80,22 +84,62 @@ func (h *DeviceHandler) handleIngress(c *gin.Context, msgType string, extraHeade
 		headers[k] = v
 	}
 
-	msg := model.DeviceMessage{
-		DeviceKey:   deviceKey,
-		ProductKey:  c.GetHeader("X-Product-Key"),
-		Transport:   "http",
-		MessageType: msgType,
-		Payload:     json.RawMessage(body),
-		Timestamp:   time.Now().UTC(),
-		Headers:     headers,
-	}
-
 	h.logger.Info("received HTTP ingress message",
-		zap.String("device_key", msg.DeviceKey),
-		zap.String("product_key", msg.ProductKey),
-		zap.String("msg_type", msg.MessageType),
+		zap.String("device_key", deviceKey),
+		zap.String("product_key", c.GetHeader("X-Product-Key")),
+		zap.String("msg_type", msgType),
 		zap.Int("payload_bytes", len(body)),
 	)
+
+	ctx := c.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	// 投递至事件总线
+	if h.eventProducer != nil {
+		if msgType == "ota_report" {
+			var report event.OTAUpgradeReport
+			if err := json.Unmarshal(body, &report); err == nil {
+				if report.DeviceKey == "" {
+					report.DeviceKey = deviceKey
+				}
+				if report.ProductKey == "" {
+					report.ProductKey = c.GetHeader("X-Product-Key")
+				}
+				if report.ReportedAt.IsZero() {
+					report.ReportedAt = time.Now().UTC()
+				}
+				if err := h.eventProducer.Publish(ctx, event.TopicOTAProgressReport, &report); err != nil {
+					h.logger.Error("failed to publish OTA progress report event", zap.Error(err))
+				}
+			}
+		} else {
+			msg := event.DeviceMessage{
+				DeviceKey:   deviceKey,
+				ProductKey:  c.GetHeader("X-Product-Key"),
+				Transport:   "http",
+				MessageType: msgType,
+				Payload:     json.RawMessage(body),
+				Timestamp:   time.Now().UTC(),
+				Headers:     headers,
+			}
+
+			var topic event.Topic
+			switch msgType {
+			case "attributes":
+				topic = event.TopicDeviceAttributeReport
+			case "event":
+				topic = event.TopicDeviceEventReport
+			default:
+				topic = event.TopicDeviceTelemetryReport
+			}
+
+			if err := h.eventProducer.Publish(ctx, topic, &msg); err != nil {
+				h.logger.Error("failed to publish device message event", zap.String("topic", topic.String()), zap.Error(err))
+			}
+		}
+	}
 
 	c.JSON(http.StatusAccepted, gin.H{
 		"code":      200,

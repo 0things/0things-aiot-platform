@@ -1,0 +1,24 @@
+env: local
+
+http:
+  host: 0.0.0.0
+  port: 8081
+
+auth:
+  enabled: false
+  token: ""
+
+event:
+  driver: "nats"
+  nats:
+    url: "nats://127.0.0.1:4222"
+
+log:
+  log_level: debug
+  mode: console
+  encoding: console
+  log_file_name: "./storage/logs/transport-http.log"
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true

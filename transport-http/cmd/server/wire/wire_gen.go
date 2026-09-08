@@ -7,6 +7,7 @@
 package wire
 
 import (
+	"0things/pkg/event"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 	"transport-http/internal/handler"
@@ -20,15 +21,32 @@ import (
 // Injectors from wire.go:
 
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
-	deviceHandler := handler.NewDeviceHandler(logger)
+	producer, cleanup, err := provideEventProducer(viperViper, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	deviceHandler := handler.NewDeviceHandler(logger, producer)
 	routerRouter := router.NewRouter(deviceHandler, viperViper, logger)
 	httpServer := server.NewHTTPServer(viperViper, logger, routerRouter)
 	appApp := newApp(httpServer)
 	return appApp, func() {
+		cleanup()
 	}, nil
 }
 
 // wire.go:
+
+func provideEventProducer(conf *viper.Viper, logger *log.Logger) (event.Producer, func(), error) {
+	pub, _, err := event.NewBus(conf, logger.Logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	producer := event.NewProducer(pub)
+	cleanup := func() {
+		_ = producer.Close()
+	}
+	return producer, cleanup, nil
+}
 
 var handlerSet = wire.NewSet(handler.NewDeviceHandler)
 
