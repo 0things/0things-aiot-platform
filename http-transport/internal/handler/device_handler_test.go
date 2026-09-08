@@ -6,10 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"http-transport/internal/kafka"
-
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -17,10 +14,8 @@ func setupTestRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 
-	v := viper.New()
 	logger := zap.NewNop()
-	producer, _, _ := kafka.NewProducer(v, logger)
-	h := NewDeviceHandler(producer, logger)
+	h := NewDeviceHandler(logger)
 
 	api := r.Group("/api/v1/:deviceKey")
 	{

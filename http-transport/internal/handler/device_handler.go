@@ -7,40 +7,34 @@ import (
 	"strings"
 	"time"
 
-	"http-transport/internal/kafka"
 	"http-transport/internal/model"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-// DeviceHandler 提供针对 HTTP 设备/网关的标准 RESTful 数据上报接口。
+// DeviceHandler provides RESTful ingress endpoints for HTTP devices and gateways.
 type DeviceHandler struct {
-	producer *kafka.Producer
-	logger   *zap.Logger
+	logger *zap.Logger
 }
 
-func NewDeviceHandler(producer *kafka.Producer, logger *zap.Logger) *DeviceHandler {
+func NewDeviceHandler(logger *zap.Logger) *DeviceHandler {
 	return &DeviceHandler{
-		producer: producer,
-		logger:   logger,
+		logger: logger,
 	}
 }
 
-// PostTelemetry 处理设备时序遥测数据上报
-// 接口：POST /api/v1/:deviceKey/telemetry ➔ 投递到 device.telemetry.v1
+// PostTelemetry handles telemetry and property updates.
 func (h *DeviceHandler) PostTelemetry(c *gin.Context) {
 	h.handleIngress(c, "telemetry", nil)
 }
 
-// PostAttributes 处理设备属性更新上报
-// 接口：POST /api/v1/:deviceKey/attributes ➔ 投递到 device.telemetry.v1
+// PostAttributes handles attributes report.
 func (h *DeviceHandler) PostAttributes(c *gin.Context) {
 	h.handleIngress(c, "attributes", nil)
 }
 
-// PostEvent 处理设备特定事件上报（如告警、故障）
-// 接口：POST /api/v1/:deviceKey/events/:eventType ➔ 投递到 device.event.v1
+// PostEvent handles custom device event/alarm reports.
 func (h *DeviceHandler) PostEvent(c *gin.Context) {
 	eventType := c.Param("eventType")
 	if eventType == "" {
@@ -49,14 +43,12 @@ func (h *DeviceHandler) PostEvent(c *gin.Context) {
 	h.handleIngress(c, "event", map[string]string{"event_type": eventType})
 }
 
-// PostOtaProgress 处理设备 OTA 升级进度上报
-// 接口：POST /api/v1/:deviceKey/ota/progress ➔ 投递到 ota.report.v1
+// PostOtaProgress handles device OTA progress reports.
 func (h *DeviceHandler) PostOtaProgress(c *gin.Context) {
 	h.handleIngress(c, "ota_report", nil)
 }
 
-// DeviceIngressLegacy 兼容老网关上报路径
-// 接口：POST /v1/device-ingress/:deviceKey
+// DeviceIngressLegacy handles legacy ingress path.
 func (h *DeviceHandler) DeviceIngressLegacy(c *gin.Context) {
 	msgType := c.GetHeader("X-Device-Message-Type")
 	if msgType == "" {
@@ -65,7 +57,6 @@ func (h *DeviceHandler) DeviceIngressLegacy(c *gin.Context) {
 	h.handleIngress(c, msgType, nil)
 }
 
-// handleIngress 统一校验请求参数，组装 DeviceMessage 并异步投递 Kafka，快速返回 202 Accepted 避免设备端等待。
 func (h *DeviceHandler) handleIngress(c *gin.Context, msgType string, extraHeaders map[string]string) {
 	deviceKey := strings.TrimSpace(c.Param("deviceKey"))
 	if deviceKey == "" {
@@ -97,11 +88,12 @@ func (h *DeviceHandler) handleIngress(c *gin.Context, msgType string, extraHeade
 		Headers:     headers,
 	}
 
-	if err := h.producer.SendDeviceMessage(c.Request.Context(), msg); err != nil {
-		h.logger.Error("failed to produce http message to kafka", zap.String("device_key", deviceKey), zap.Error(err))
-		c.JSON(http.StatusBadGateway, gin.H{"code": 502, "message": "message queue dispatch failed"})
-		return
-	}
+	h.logger.Info("received HTTP ingress message",
+		zap.String("device_key", msg.DeviceKey),
+		zap.String("product_key", msg.ProductKey),
+		zap.String("msg_type", msg.MessageType),
+		zap.Int("payload_bytes", len(body)),
+	)
 
 	c.JSON(http.StatusAccepted, gin.H{
 		"code":      200,

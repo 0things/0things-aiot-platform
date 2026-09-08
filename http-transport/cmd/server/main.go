@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"http-transport/internal/handler"
-	"http-transport/internal/kafka"
 	"http-transport/internal/middleware"
 	"http-transport/pkg/config"
 	"http-transport/pkg/log"
@@ -21,7 +20,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// main 是 0things HTTP 传输微服务的启动入口。
+// main is the entrypoint for 0things HTTP Transport Service.
 func main() {
 	var envConf = flag.String("conf", "config/local.yml", "config path, eg: -conf ./config/local.yml")
 	flag.Parse()
@@ -30,19 +29,12 @@ func main() {
 
 	logger.Info("starting 0things HTTP Transport Service...")
 
-	// 1. 初始化 Kafka Producer
-	producer, cleanupProducer, err := kafka.NewProducer(conf, logger.Logger)
-	if err != nil {
-		logger.Fatal("failed to initialize kafka producer", zap.Error(err))
-	}
-	defer cleanupProducer()
-
-	// 2. 初始化 Gin Web 引擎
+	// 1. 初始化 Gin Web 引擎
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
 
-	deviceHandler := handler.NewDeviceHandler(producer, logger.Logger)
+	deviceHandler := handler.NewDeviceHandler(logger.Logger)
 	authMiddleware := middleware.DeviceAuthMiddleware(conf, logger.Logger)
 
 	// 注册标准设备上报路由

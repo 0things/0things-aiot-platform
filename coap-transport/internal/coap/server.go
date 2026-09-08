@@ -3,14 +3,9 @@ package coap
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
-	"time"
-
-	"coap-transport/internal/kafka"
-	"coap-transport/internal/model"
 
 	"github.com/plgd-dev/go-coap/v3/message"
 	"github.com/plgd-dev/go-coap/v3/message/codes"
@@ -22,34 +17,31 @@ import (
 	"go.uber.org/zap"
 )
 
-// Service 封装基于 UDP 的 CoAP 服务端，专职接收 NB-IoT 与受限低功耗设备上报。
+// Service wraps a UDP-based CoAP server for constrained device ingress.
 type Service struct {
-	addr     string
-	producer *kafka.Producer
-	server   *coapserver.Server
-	conn     *coapnet.UDPConn
-	logger   *zap.Logger
-	mu       sync.Mutex
+	addr   string
+	server *coapserver.Server
+	conn   *coapnet.UDPConn
+	logger *zap.Logger
+	mu     sync.Mutex
 }
 
-// NewService 初始化 CoAP UDP 监听服务。
-func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Producer) *Service {
+// NewService initializes CoAP UDP service.
+func NewService(config *viper.Viper, logger *zap.Logger) *Service {
 	addr := config.GetString("coap.addr")
 	if addr == "" {
-		addr = ":5683" // CoAP 标准默认端口
+		addr = ":5683" // Standard CoAP port
 	}
 	return &Service{
-		addr:     addr,
-		producer: producer,
-		logger:   logger,
+		addr:   addr,
+		logger: logger,
 	}
 }
 
-// Start 启动 UDP 监听并挂载 CoAP 资源路由。
+// Start launches UDP listener and registers CoAP routes.
 func (s *Service) Start(ctx context.Context) error {
 	router := mux.NewRouter()
 
-	// 注册 CoAP 设备上报路径（支持老网关路径与标准 v1 路径）
 	router.Handle("/v1/device-ingress/{deviceKey}", mux.HandlerFunc(s.handleDeviceIngress))
 	router.Handle("/api/v1/{deviceKey}/telemetry", mux.HandlerFunc(s.handleDeviceIngress))
 
@@ -83,7 +75,7 @@ func (s *Service) Start(ctx context.Context) error {
 	}
 }
 
-// handleDeviceIngress 处理单个 CoAP 报文，提取 deviceKey 与 Body 后封装入 Kafka，并向设备回复 CoAP 2.04 Changed 响应。
+// handleDeviceIngress processes a single CoAP datagram and responds with 2.04 Changed.
 func (s *Service) handleDeviceIngress(w mux.ResponseWriter, r *mux.Message) {
 	deviceKey := r.RouteParams.Vars["deviceKey"]
 	if strings.TrimSpace(deviceKey) == "" {
@@ -97,31 +89,12 @@ func (s *Service) handleDeviceIngress(w mux.ResponseWriter, r *mux.Message) {
 		return
 	}
 
-	msg := model.DeviceMessage{
-		DeviceKey:   deviceKey,
-		Transport:   "coap",
-		MessageType: "telemetry",
-		Payload:     json.RawMessage(payload),
-		Timestamp:   time.Now().UTC(),
-		Headers: func() map[string]string {
-			h := make(map[string]string)
-			if addrVal := r.Context().Value("remote-addr"); addrVal != nil {
-				if s, ok := addrVal.(fmt.Stringer); ok {
-					h["remote-addr"] = s.String()
-				}
-			}
-			return h
-		}(),
-	}
+	s.logger.Info("received CoAP ingress message",
+		zap.String("device_key", deviceKey),
+		zap.Int("payload_bytes", len(payload)),
+	)
 
-	// 投递 Kafka
-	if err := s.producer.SendDeviceMessage(r.Context(), msg); err != nil {
-		s.logger.Error("failed to produce coap message to kafka", zap.String("device_key", deviceKey), zap.Error(err))
-		_ = w.SetResponse(codes.BadGateway, message.TextPlain, strings.NewReader("queue error"))
-		return
-	}
-
-	// 向低功耗终端回复标准 CoAP 2.04 Changed 状态码，使设备能够快速重新进入深度休眠（PSM）
+	// Reply CoAP 2.04 Changed so device can re-enter PSM power saving mode
 	_ = w.SetResponse(codes.Changed, message.TextPlain, strings.NewReader("accepted"))
 }
 

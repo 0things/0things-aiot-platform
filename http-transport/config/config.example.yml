@@ -4,9 +4,6 @@ http:
   host: 0.0.0.0
   port: 8081
 
-kafka:
-  brokers:
-    - "127.0.0.1:9092"
 
 log:
   log_level: debug

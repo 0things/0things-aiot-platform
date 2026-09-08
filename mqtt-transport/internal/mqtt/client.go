@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"mqtt-transport/internal/enum"
-	"mqtt-transport/internal/kafka"
-	"mqtt-transport/internal/model"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
@@ -23,14 +21,13 @@ import (
 
 // Service 负责管理与 MQTT Broker 的连接，并将标准 MQTT 主题精准绑定至专属 Handler。
 type Service struct {
-	client   mqtt.Client
-	producer *kafka.Producer
-	logger   *zap.Logger
-	mu       sync.Mutex
+	client mqtt.Client
+	logger *zap.Logger
+	mu     sync.Mutex
 }
 
 // NewService 初始化 MQTT 客户端。
-func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Producer) (*Service, error) {
+func NewService(config *viper.Viper, logger *zap.Logger) (*Service, error) {
 	broker := config.GetString("mqtt.broker")
 	if broker == "" {
 		broker = "tcp://127.0.0.1:1883"
@@ -42,8 +39,7 @@ func NewService(config *viper.Viper, logger *zap.Logger, producer *kafka.Produce
 	}
 
 	svc := &Service{
-		producer: producer,
-		logger:   logger,
+		logger: logger,
 	}
 
 	opts := mqtt.NewClientOptions().
@@ -152,7 +148,7 @@ func (s *Service) subscribeTopicWithClient(c mqtt.Client, topic string, handler 
 	}
 }
 
-// dispatchUplink 统一提取上行报文、解析 deviceKey 与 productKey 并投递到 Kafka 专属 Topic
+// dispatchUplink extracts uplink message metadata (deviceKey, productKey, msgType) and logs the event.
 func (s *Service) dispatchUplink(msgType string, topic string, payload []byte) {
 	deviceKey := ExtractDeviceKey(topic)
 	if deviceKey == "" {
@@ -161,33 +157,21 @@ func (s *Service) dispatchUplink(msgType string, topic string, payload []byte) {
 	}
 	productKey := ExtractProductKey(topic)
 
-	deviceMsg := model.DeviceMessage{
-		DeviceKey:   deviceKey,
-		ProductKey:  productKey,
-		Transport:   "mqtt",
-		MessageType: msgType,
-		Payload:     json.RawMessage(payload),
-		Timestamp:   time.Now().UTC(),
-		Headers:     map[string]string{"topic": topic},
-	}
-
-	if err := s.producer.SendDeviceMessage(context.Background(), deviceMsg); err != nil {
-		s.logger.Error("failed to publish uplink message to kafka",
-			zap.String("topic", topic),
-			zap.String("product_key", productKey),
-			zap.String("device_key", deviceKey),
-			zap.String("msg_type", msgType),
-			zap.Error(err),
-		)
-	}
+	s.logger.Info("received MQTT uplink message",
+		zap.String("topic", topic),
+		zap.String("product_key", productKey),
+		zap.String("device_key", deviceKey),
+		zap.String("msg_type", msgType),
+		zap.Int("payload_bytes", len(payload)),
+	)
 }
 
-// handleTelemetry 专职处理时序遥测与属性 ➔ 投递至 device.telemetry.v1
+// handleTelemetry handles telemetry and property report.
 func (s *Service) handleTelemetry(_ mqtt.Client, msg mqtt.Message) {
 	s.dispatchUplink("telemetry", msg.Topic(), msg.Payload())
 }
 
-// handleOtaProgress 专职处理 OTA 固件升级进度 ➔ 投递至 ota.upgrade.report.v1
+// handleOtaProgress handles OTA firmware upgrade progress report.
 func (s *Service) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
 	deviceKey := ExtractDeviceKey(msg.Topic())
 	if deviceKey == "" {
@@ -200,8 +184,6 @@ func (s *Service) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
 		s.logger.Warn("invalid OTA report payload", zap.String("topic", msg.Topic()), zap.Error(err))
 		return
 	}
-	// The topic authenticates the producer identity; preserve an explicit
-	// payload device_key when present, otherwise fill it from the topic.
 	if _, ok := report["device_key"]; !ok {
 		report["device_key"] = deviceKey
 	}
@@ -210,9 +192,11 @@ func (s *Service) handleOtaProgress(_ mqtt.Client, msg mqtt.Message) {
 			report["product_key"] = productKey
 		}
 	}
-	if err := s.producer.SendOTAReport(context.Background(), deviceKey, report); err != nil {
-		s.logger.Error("failed to publish OTA report to kafka", zap.String("topic", msg.Topic()), zap.String("device_key", deviceKey), zap.Error(err))
-	}
+	s.logger.Info("received OTA progress report",
+		zap.String("topic", msg.Topic()),
+		zap.String("device_key", deviceKey),
+		zap.Any("report", report),
+	)
 }
 
 // handleDeviceEvent 专职处理设备特定告警与事件 ➔ 投递至 device.event.v1

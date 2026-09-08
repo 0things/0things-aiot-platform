@@ -10,10 +10,6 @@ mqtt:
     cert_file: ""
     key_file: ""
 
-kafka:
-  brokers:
-    - "127.0.0.1:9092"
-  consumer_group: "mqtt-transport-downlink-group"
 
 log:
   log_level: debug

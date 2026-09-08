@@ -7,19 +7,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"go.uber.org/zap"
-	"mqtt-transport/internal/kafka"
 	"mqtt-transport/internal/mqtt"
 	"mqtt-transport/pkg/config"
 	"mqtt-transport/pkg/log"
+
+	"go.uber.org/zap"
 )
 
-// main 是 0things MQTT 传输微服务的启动入口。
-// 职责：
-// 1. 初始化配置与全局日志；
-// 2. 建立 Kafka 上行生产通道；
-// 3. 启动 Paho MQTT 客户端订阅上行报文并桥接到 Kafka；
-// 4. 监听操作系统信号（SIGINT/SIGTERM），实现优雅停机。
+// main is the entrypoint for 0things MQTT Transport Service.
 func main() {
 	var envConf = flag.String("conf", "config/local.yml", "config path, eg: -conf ./config/local.yml")
 	flag.Parse()
@@ -28,15 +23,8 @@ func main() {
 
 	logger.Info("starting 0things MQTT Transport Service...")
 
-	// 1. 初始化 Kafka Producer（用于将设备 MQTT 上行报文投递到专属 topic）
-	producer, cleanupProducer, err := kafka.NewProducer(conf, logger.Logger)
-	if err != nil {
-		logger.Fatal("failed to initialize kafka producer", zap.Error(err))
-	}
-	defer cleanupProducer()
-
-	// 2. 初始化 MQTT 传输服务（维持与 Broker 的连接与 Topic 订阅）
-	mqttService, err := mqtt.NewService(conf, logger.Logger, producer)
+	// 1. 初始化 MQTT 传输服务
+	mqttService, err := mqtt.NewService(conf, logger.Logger)
 	if err != nil {
 		logger.Fatal("failed to initialize MQTT transport", zap.Error(err))
 	}

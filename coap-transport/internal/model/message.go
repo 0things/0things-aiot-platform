@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-// DeviceMessage 是 CoAP 协议设备上行数据投递到 Kafka device.message.v1 的统一格式。
+// DeviceMessage 是 CoAP 协议设备上行数据的统一格式。
 type DeviceMessage struct {
 	DeviceKey   string            `json:"device_key"`            // 设备全局唯一标识 Key
-	ProductKey  string            `json:"product_key,omitempty"`  // 产品 Key（可选）
+	ProductKey  string            `json:"product_key,omitempty"` // 产品 Key（可选）
 	Transport   string            `json:"transport"`             // 接入物理协议，固定为 "coap"
 	MessageType string            `json:"message_type"`          // 上行类型：telemetry / attributes
 	Payload     json.RawMessage   `json:"payload"`               // CoAP 报文体 JSON

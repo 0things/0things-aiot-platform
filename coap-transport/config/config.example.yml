@@ -3,9 +3,6 @@ env: local
 coap:
   addr: ":5683"
 
-kafka:
-  brokers:
-    - "127.0.0.1:9092"
 
 log:
   log_level: debug
