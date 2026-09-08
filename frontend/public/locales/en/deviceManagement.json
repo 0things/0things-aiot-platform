@@ -189,18 +189,6 @@
         "switch": "Switch Template",
         "advanced": "Advanced Example"
       },
-      "templateContent": {
-        "temperature": "Temperature",
-        "humidity": "Humidity",
-        "powerstate": "Power State",
-        "location": "Location",
-        "status": "Status",
-        "tags": "Tags",
-        "temp_humi_report": "Temperature and Humidity Report",
-        "set": "Set",
-        "fault": "Fault Alert",
-        "reboot": "Reboot"
-      },
       "title": "Thing Specification Language (TSL)",
       "description": "TSL is a JSON format language for describing IoT device capabilities, including three core elements: properties, events, and services.",
       "badge": {
@@ -210,16 +198,9 @@
       },
       "buttons": {
         "format": "Format",
-        "clear": "Clear",
-        "save": "Save TSL",
         "addProperty": "Add Property",
         "addService": "Add Service",
-        "addEvent": "Add Event",
-        "edit": "Edit",
-        "delete": "Delete",
-        "cancel": "Cancel",
-        "confirmDelete": "Confirm Delete",
-        "saveChange": "Save"
+        "addEvent": "Add Event"
       },
       "status": {
         "propertyAdded": "Property added successfully",
@@ -233,9 +214,6 @@
         "eventDeleted": "Event deleted successfully",
         "templateLoaded": "Template loaded: {{name}}",
         "jsonFormatted": "JSON formatted successfully",
-        "validationPassed": "TSL validation passed, saved successfully!",
-        "noContentToFormat": "No content to format",
-        "tslContentEmpty": "TSL content cannot be empty",
         "validationFailed": "Validation failed",
         "saveSuccess": "TSL saved successfully",
         "deleteSuccess": "TSL deleted successfully"
@@ -247,25 +225,32 @@
       "sections": {
         "properties": "Properties",
         "services": "Services",
-        "events": "Events"
+        "events": "Events",
+        "propertiesOnly": "Property",
+        "servicesOnly": "Service",
+        "eventsOnly": "Event"
       },
       "propertyDialog": {
         "title": "{{isEdit}} Property",
+        "featureType": "Feature Type",
+        "featureTypeTooltip": "Supports Property, Service, and Event feature types",
+        "nameTooltip": "Feature display name, supports Chinese, English, numbers and underscores",
+        "identifierTooltip": "Unique identifier, letters, numbers, and underscores starting with a letter",
+        "range": "Value Range",
+        "descriptionLabel": "Description",
         "add": "Add",
         "edit": "Edit",
-        "description": "Configure device property basic information and data type",
         "identifier": "Identifier",
-        "name": "Name",
+        "name": "Feature Name",
         "accessMode": "Access Mode",
         "dataType": "Data Type",
-        "dataSpecs": "Data Specifications",
         "min": "Min",
         "max": "Max",
         "step": "Step",
         "unit": "Unit",
-        "enumValues": "Enum Values (JSON format)",
-        "structDef": "Struct Definition (JSON format)",
-        "arrayElemType": "Array Element Type (JSON format)",
+        "enumValues": "Enum Items",
+        "structDef": "Struct Definition",
+        "arrayElemType": "Array Element Type",
         "arrayElemDesc": "Define array element type and size constraints",
         "structDefDesc": "Define struct fields, each containing type and other attributes"
       },
@@ -290,18 +275,19 @@
         "identifier": "Identifier",
         "name": "Name",
         "eventType": "Event Type",
-        "info": "Info",
-        "alert": "Alert",
-        "error": "Error",
         "outputData": "Output Data (JSON array format)"
       },
       "placeholders": {
-        "propertyId": "e.g., temperature",
-        "propertyName": "e.g., Temperature",
+        "propertyId": "Please enter identifier",
+        "propertyName": "Please enter feature name",
         "serviceId": "e.g., setMotor",
         "serviceName": "e.g., Set Motor Speed",
         "eventId": "e.g., lowBattery",
-        "eventName": "e.g., Low Battery Alert"
+        "eventName": "e.g., Low Battery Alert",
+        "step": "Please enter step",
+        "unit": "Please select unit",
+        "customUnit": "Please enter custom unit",
+        "desc": "Please enter description"
       },
       "instructions": {
         "title": "Instructions",
@@ -314,16 +300,6 @@
       "accessMode": {
         "r": "Read-only (r)",
         "rw": "Read-write (rw)"
-      },
-      "dataTypes": {
-        "int": "Integer (int)",
-        "float": "Float (float)",
-        "double": "Double (double)",
-        "bool": "Boolean (bool)",
-        "string": "String (string)",
-        "enum": "Enum (enum)",
-        "struct": "Struct (struct)",
-        "array": "Array (array)"
       },
       "eventTypes": {
         "info": "Info (info)",

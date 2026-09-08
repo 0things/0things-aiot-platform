@@ -179,26 +179,15 @@
       "execute": "执行",
       "executionError": "执行失败",
       "emptyResult": "运行结果会显示在这里"
-    },
-    "featureDefinition": {
+    }
+  },
+  "featureDefinition": {
     "templates": {
       "label": "快速模板：",
       "empty": "空模板",
       "sensor": "传感器模板",
       "switch": "开关模板",
       "advanced": "高级示例"
-    },
-    "templateContent": {
-      "temperature": "温度",
-      "humidity": "湿度",
-      "powerstate": "电源状态",
-      "location": "位置",
-      "status": "状态",
-      "tags": "标签",
-      "temp_humi_report": "温湿度报告",
-      "set": "设置",
-      "fault": "故障警报",
-      "reboot": "重启"
     },
     "title": "Thing Specification Language (TSL)",
     "description": "TSL是描述物联网设备功能的JSON格式语言，包含属性、事件和服务三大核心要素。",
@@ -209,16 +198,9 @@
     },
     "buttons": {
       "format": "格式化",
-      "clear": "清空",
-      "save": "保存TSL",
       "addProperty": "添加属性",
       "addService": "添加服务",
-      "addEvent": "添加事件",
-      "edit": "编辑",
-      "delete": "删除",
-      "cancel": "取消",
-      "confirmDelete": "确认删除",
-      "saveChange": "保存"
+      "addEvent": "添加事件"
     },
     "status": {
       "propertyAdded": "属性添加成功",
@@ -232,9 +214,6 @@
       "eventDeleted": "事件删除成功",
       "templateLoaded": "已加载模板：{{name}}",
       "jsonFormatted": "JSON格式化成功",
-      "validationPassed": "TSL验证通过，保存成功！",
-      "noContentToFormat": "没有内容可以格式化",
-      "tslContentEmpty": "TSL内容不能为空",
       "validationFailed": "验证失败",
       "saveSuccess": "TSL保存成功",
       "deleteSuccess": "TSL删除成功"
@@ -246,25 +225,32 @@
     "sections": {
       "properties": "属性 (Properties)",
       "services": "服务 (Services)",
-      "events": "事件 (Events)"
+      "events": "事件 (Events)",
+      "propertiesOnly": "属性",
+      "servicesOnly": "服务",
+      "eventsOnly": "事件"
     },
     "propertyDialog": {
       "title": "{{isEdit}}属性",
+      "featureType": "功能类型",
+      "featureTypeTooltip": "支持属性、服务、事件三种物模型功能类型",
+      "nameTooltip": "功能展示名称，支持中英文、数字和下划线",
+      "identifierTooltip": "属性唯一标识符，英文、数字和下划线，首字符为英文字母",
+      "range": "取值范围",
+      "descriptionLabel": "描述",
       "add": "添加",
       "edit": "编辑",
-      "description": "配置设备属性的基本信息和数据类型",
-      "identifier": "标识符 (identifier)",
-      "name": "名称",
-      "accessMode": "访问模式",
+      "identifier": "标识符",
+      "name": "功能名称",
+      "accessMode": "读写类型",
       "dataType": "数据类型",
-      "dataSpecs": "数据规格",
       "min": "最小值",
       "max": "最大值",
       "step": "步长",
       "unit": "单位",
-      "enumValues": "枚举值（JSON格式）",
-      "structDef": "结构体定义（JSON格式）",
-      "arrayElemType": "数组元素类型（JSON格式）",
+      "enumValues": "枚举项",
+      "structDef": "结构体定义",
+      "arrayElemType": "数组元素类型",
       "arrayElemDesc": "定义数组元素的类型和大小限制",
       "structDefDesc": "定义结构体的字段，每个字段包含 type 等属性"
     },
@@ -289,18 +275,19 @@
       "identifier": "标识符 (identifier)",
       "name": "名称",
       "eventType": "事件类型",
-      "info": "信息",
-      "alert": "告警",
-      "error": "错误",
       "outputData": "输出数据（JSON数组格式）"
     },
     "placeholders": {
-      "propertyId": "例如: temperature",
-      "propertyName": "例如: 温度",
+      "propertyId": "请输入您的标识符",
+      "propertyName": "请输入您的功能名称",
       "serviceId": "例如: setMotor",
       "serviceName": "例如: 设置电机速度",
       "eventId": "例如: lowBattery",
-      "eventName": "例如: 低电量告警"
+      "eventName": "例如: 低电量告警",
+      "step": "请输入步长",
+      "unit": "请选择单位",
+      "customUnit": "请输入自定义单位",
+      "desc": "请输入描述"
     },
     "instructions": {
       "title": "使用说明",
@@ -313,16 +300,6 @@
     "accessMode": {
       "r": "只读 (r)",
       "rw": "读写 (rw)"
-    },
-    "dataTypes": {
-      "int": "整数 (int)",
-      "float": "浮点数 (float)",
-      "double": "双精度 (double)",
-      "bool": "布尔 (bool)",
-      "string": "字符串 (string)",
-      "enum": "枚举 (enum)",
-      "struct": "结构体 (struct)",
-      "array": "数组 (array)"
     },
     "eventTypes": {
       "info": "信息 (info)",

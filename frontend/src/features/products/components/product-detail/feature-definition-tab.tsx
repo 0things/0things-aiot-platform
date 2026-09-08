@@ -17,6 +17,7 @@ import {
   CheckCheck,
   XCircle,
   Loader2,
+  HelpCircle,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -38,6 +39,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -47,6 +49,11 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 // TSL 类型定义
 interface DataTypeSpecs {
@@ -68,6 +75,8 @@ interface Property {
   name: string
   accessMode: 'r' | 'rw'
   required: boolean
+  desc?: string
+  description?: string
   dataType: DataType
 }
 
@@ -442,7 +451,7 @@ interface FeatureDefinitionTabProps {
 export function FeatureDefinitionTab({
   productKey,
 }: FeatureDefinitionTabProps) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
   const queryClient = useQueryClient()
 
   // Query for fetching TSL data
@@ -790,7 +799,7 @@ export function FeatureDefinitionTab({
       setEditingProperty({
         identifier: '',
         name: '',
-        accessMode: 'r',
+        accessMode: 'rw',
         required: false,
         dataType: {
           type: 'int',
@@ -996,7 +1005,7 @@ export function FeatureDefinitionTab({
             onClick={clearTSL}
             className='h-7 text-xs'
           >
-            {t('productDetail.featureDefinition.buttons.clear')}
+            {t('common:clear')}
           </Button>
         </div>
       </div>
@@ -1046,7 +1055,7 @@ export function FeatureDefinitionTab({
             <div className='flex items-center justify-center py-8'>
               <Loader2 className='h-6 w-6 animate-spin' />
               <span className='ml-2 text-sm text-muted-foreground'>
-                {t('productDetail.featureDefinition.status.loading')}
+                {t('common:loading')}
               </span>
             </div>
           )}
@@ -1379,7 +1388,7 @@ export function FeatureDefinitionTab({
             {deleteTSLMutation.isPending ? (
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
             ) : null}
-            {t('productDetail.featureDefinition.buttons.delete')}
+            {t('common:delete')}
           </Button>
         )}
         <Button
@@ -1390,7 +1399,7 @@ export function FeatureDefinitionTab({
           {saveTSLMutation.isPending ? (
             <Loader2 className='mr-2 h-4 w-4 animate-spin' />
           ) : null}
-          {t('productDetail.featureDefinition.buttons.save')}
+          {t('common:save')}
         </Button>
       </div>
 
@@ -1453,7 +1462,7 @@ export function FeatureDefinitionTab({
               onClick={() => setDeleteDialogOpen(false)}
               disabled={deleteTSLMutation.isPending}
             >
-              {t('productDetail.featureDefinition.buttons.cancel')}
+              {t('common:cancel')}
             </Button>
             <Button
               variant='destructive'
@@ -1466,7 +1475,7 @@ export function FeatureDefinitionTab({
               {deleteTSLMutation.isPending ? (
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               ) : null}
-              {t('productDetail.featureDefinition.buttons.confirmDelete')}
+              {t('common:delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1474,6 +1483,37 @@ export function FeatureDefinitionTab({
     </div>
   )
 }
+
+// 常用工程单位
+const COMMON_UNITS = [
+  { value: 'none', label: '无单位' },
+  { value: '°C', label: '℃ (摄氏度)' },
+  { value: '°F', label: '℉ (华氏度)' },
+  { value: '%', label: '% (百分比)' },
+  { value: 'V', label: 'V (伏特)' },
+  { value: 'mV', label: 'mV (毫伏)' },
+  { value: 'A', label: 'A (安培)' },
+  { value: 'mA', label: 'mA (毫安)' },
+  { value: 'W', label: 'W (瓦特)' },
+  { value: 'kW', label: 'kW (千瓦)' },
+  { value: 'kW·h', label: 'kW·h (千瓦·时)' },
+  { value: 'Pa', label: 'Pa (帕斯卡)' },
+  { value: 'kPa', label: 'kPa (千帕)' },
+  { value: 'MPa', label: 'MPa (兆帕)' },
+  { value: 'bar', label: 'bar (巴)' },
+  { value: 'm/s', label: 'm/s (米/秒)' },
+  { value: 'km/h', label: 'km/h (千米/时)' },
+  { value: 'rpm', label: 'rpm (转/分)' },
+  { value: 'lx', label: 'lx (勒克斯)' },
+  { value: 'dB', label: 'dB (分贝)' },
+  { value: 'ppm', label: 'ppm (百万分率)' },
+  { value: 'mg/L', label: 'mg/L (毫克/升)' },
+  { value: 'μg/m³', label: 'μg/m³ (微克/立方米)' },
+  { value: 's', label: 's (秒)' },
+  { value: 'min', label: 'min (分钟)' },
+  { value: 'h', label: 'h (小时)' },
+  { value: 'custom', label: '自定义单位...' },
+]
 
 // 属性编辑对话框组件
 function PropertyDialog({
@@ -1487,14 +1527,20 @@ function PropertyDialog({
   property: Property | null
   onSave: (property: Property) => void
 }) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
   const [formData, setFormData] = useState<Property | null>(null)
+  const [isCustomUnit, setIsCustomUnit] = useState(false)
 
   // 只在对话框打开时初始化表单数据
   useEffect(() => {
     if (open && property) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData(JSON.parse(JSON.stringify(property)))
+      const cloned = JSON.parse(JSON.stringify(property))
+      setFormData(cloned)
+      const currentUnit = cloned.dataType?.specs?.unit
+      const isInList = COMMON_UNITS.some(
+        (u) => u.value === currentUnit || (u.value === 'none' && !currentUnit)
+      )
+      setIsCustomUnit(Boolean(currentUnit && !isInList))
     }
   }, [open, property])
 
@@ -1506,151 +1552,223 @@ function PropertyDialog({
 
   if (!formData) return null
 
+  const isEdit = Boolean(property && property.identifier)
+  const currentUnitValue = isCustomUnit
+    ? 'custom'
+    : formData.dataType?.specs?.unit || 'none'
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[90vh] max-w-2xl overflow-hidden'>
-        <DialogHeader>
-          <DialogTitle>
-            {t('productDetail.featureDefinition.propertyDialog.title', {
-              isEdit: formData.identifier
-                ? t('productDetail.featureDefinition.propertyDialog.edit')
-                : t('productDetail.featureDefinition.propertyDialog.add'),
-            })}
+      <DialogContent className='max-h-[90vh] max-w-lg overflow-y-auto p-5'>
+        <DialogHeader className='pb-1'>
+          <DialogTitle className='text-base font-semibold'>
+            {isEdit
+              ? t(
+                  'productDetail.featureDefinition.propertyDialog.editTitle',
+                  '编辑自定义功能'
+                )
+              : t(
+                  'productDetail.featureDefinition.propertyDialog.addTitle',
+                  '添加自定义功能'
+                )}
           </DialogTitle>
-          <DialogDescription>
-            {t('productDetail.featureDefinition.propertyDialog.description')}
-          </DialogDescription>
         </DialogHeader>
-        <div className='max-h-[calc(90vh-200px)] overflow-y-auto'>
-          <div className='space-y-4'>
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='space-y-2'>
-                <Label>
-                  {t(
-                    'productDetail.featureDefinition.propertyDialog.identifier'
-                  )}
-                </Label>
-                <Input
-                  value={formData.identifier}
-                  onChange={(e) =>
-                    setFormData({ ...formData, identifier: e.target.value })
-                  }
-                  placeholder={t(
-                    'productDetail.featureDefinition.placeholders.propertyId'
-                  )}
-                />
-              </div>
-              <div className='space-y-2'>
-                <Label>
-                  {t('productDetail.featureDefinition.propertyDialog.name')}
-                </Label>
-                <Input
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder={t(
-                    'productDetail.featureDefinition.placeholders.propertyName'
-                  )}
-                />
-              </div>
-            </div>
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='space-y-2'>
-                <Label>
-                  {t(
-                    'productDetail.featureDefinition.propertyDialog.accessMode'
-                  )}
-                </Label>
-                <Select
-                  value={formData.accessMode}
-                  onValueChange={(value: 'r' | 'rw') =>
-                    setFormData({ ...formData, accessMode: value })
-                  }
-                >
-                  <SelectTrigger className='w-full'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='r'>
-                      {t('productDetail.featureDefinition.accessMode.r')}
-                    </SelectItem>
-                    <SelectItem value='rw'>
-                      {t('productDetail.featureDefinition.accessMode.rw')}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className='space-y-2'>
-                <Label>
-                  {t('productDetail.featureDefinition.propertyDialog.dataType')}
-                </Label>
-                <Select
-                  value={formData.dataType.type}
-                  onValueChange={(
-                    value:
-                      | 'int'
-                      | 'float'
-                      | 'double'
-                      | 'bool'
-                      | 'string'
-                      | 'enum'
-                      | 'struct'
-                      | 'array'
-                  ) =>
-                    setFormData({
-                      ...formData,
-                      dataType: { ...formData.dataType, type: value },
-                    })
-                  }
-                >
-                  <SelectTrigger className='w-full'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='int'>
-                      {t('productDetail.featureDefinition.dataTypes.int')}
-                    </SelectItem>
-                    <SelectItem value='float'>
-                      {t('productDetail.featureDefinition.dataTypes.float')}
-                    </SelectItem>
-                    <SelectItem value='double'>
-                      {t('productDetail.featureDefinition.dataTypes.double')}
-                    </SelectItem>
-                    <SelectItem value='bool'>
-                      {t('productDetail.featureDefinition.dataTypes.bool')}
-                    </SelectItem>
-                    <SelectItem value='string'>
-                      {t('productDetail.featureDefinition.dataTypes.string')}
-                    </SelectItem>
-                    <SelectItem value='enum'>
-                      {t('productDetail.featureDefinition.dataTypes.enum')}
-                    </SelectItem>
-                    <SelectItem value='struct'>
-                      {t('productDetail.featureDefinition.dataTypes.struct')}
-                    </SelectItem>
-                    <SelectItem value='array'>
-                      {t('productDetail.featureDefinition.dataTypes.array')}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
-            {/* 数值类型的规格 */}
-            {['int', 'float', 'double'].includes(formData.dataType.type) && (
-              <div className='space-y-2'>
-                <Label>
+        <div className='space-y-3 py-1 text-xs'>
+          {/* 功能类型 */}
+          <div className='space-y-1.5'>
+            <div className='flex items-center gap-1.5'>
+              <Label className='flex items-center gap-1 text-xs font-medium'>
+                <span className='text-destructive'>*</span>
+                {t(
+                  'productDetail.featureDefinition.propertyDialog.featureType',
+                  '功能类型'
+                )}
+              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className='size-3.5 cursor-pointer text-muted-foreground/70 transition-colors hover:text-foreground' />
+                </TooltipTrigger>
+                <TooltipContent side='top'>
+                  <span>
+                    {t(
+                      'productDetail.featureDefinition.propertyDialog.featureTypeTooltip',
+                      '支持属性、服务、事件三种物模型功能类型'
+                    )}
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className='inline-flex h-8 rounded-sm border border-input bg-muted/20 p-0.5 text-xs'>
+              <button
+                type='button'
+                className='rounded-xs border border-primary bg-primary/5 px-3.5 font-medium text-primary shadow-2xs'
+              >
+                {t(
+                  'productDetail.featureDefinition.sections.propertiesOnly',
+                  '属性'
+                )}
+              </button>
+              <button
+                type='button'
+                disabled
+                className='cursor-not-allowed px-3.5 text-muted-foreground/50'
+              >
+                {t(
+                  'productDetail.featureDefinition.sections.servicesOnly',
+                  '服务'
+                )}
+              </button>
+              <button
+                type='button'
+                disabled
+                className='cursor-not-allowed px-3.5 text-muted-foreground/50'
+              >
+                {t(
+                  'productDetail.featureDefinition.sections.eventsOnly',
+                  '事件'
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* 功能名称 */}
+          <div className='space-y-1.5'>
+            <div className='flex items-center gap-1.5'>
+              <Label className='flex items-center gap-1 text-xs font-medium'>
+                <span className='text-destructive'>*</span>
+                {t(
+                  'productDetail.featureDefinition.propertyDialog.name',
+                  '功能名称'
+                )}
+              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className='size-3.5 cursor-pointer text-muted-foreground/70 transition-colors hover:text-foreground' />
+                </TooltipTrigger>
+                <TooltipContent side='top'>
+                  <span>
+                    {t(
+                      'productDetail.featureDefinition.propertyDialog.nameTooltip',
+                      '功能展示名称，支持中英文、数字和下划线'
+                    )}
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <Input
+              className='h-8 text-xs'
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              placeholder={t(
+                'productDetail.featureDefinition.placeholders.propertyName',
+                '请输入您的功能名称'
+              )}
+            />
+          </div>
+
+          {/* 标识符 */}
+          <div className='space-y-1.5'>
+            <div className='flex items-center gap-1.5'>
+              <Label className='flex items-center gap-1 text-xs font-medium'>
+                <span className='text-destructive'>*</span>
+                {t(
+                  'productDetail.featureDefinition.propertyDialog.identifier',
+                  '标识符'
+                )}
+              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className='size-3.5 cursor-pointer text-muted-foreground/70 transition-colors hover:text-foreground' />
+                </TooltipTrigger>
+                <TooltipContent side='top'>
+                  <span>
+                    {t(
+                      'productDetail.featureDefinition.propertyDialog.identifierTooltip',
+                      '属性唯一标识符，英文、数字和下划线，首字符为英文字母'
+                    )}
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <Input
+              className='h-8 font-mono text-xs'
+              value={formData.identifier}
+              onChange={(e) =>
+                setFormData({ ...formData, identifier: e.target.value })
+              }
+              placeholder={t(
+                'productDetail.featureDefinition.placeholders.propertyId',
+                '请输入您的标识符'
+              )}
+            />
+          </div>
+
+          {/* 数据类型 */}
+          <div className='space-y-1.5'>
+            <Label className='flex items-center gap-1 text-xs font-medium'>
+              <span className='text-destructive'>*</span>
+              {t(
+                'productDetail.featureDefinition.propertyDialog.dataType',
+                '数据类型'
+              )}
+            </Label>
+            <Select
+              value={formData.dataType.type}
+              onValueChange={(
+                value:
+                  | 'int'
+                  | 'float'
+                  | 'double'
+                  | 'bool'
+                  | 'string'
+                  | 'enum'
+                  | 'struct'
+                  | 'array'
+              ) =>
+                setFormData({
+                  ...formData,
+                  dataType: { ...formData.dataType, type: value },
+                })
+              }
+            >
+              <SelectTrigger className='h-8 w-full text-xs'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='int'>int32 (整数型)</SelectItem>
+                <SelectItem value='float'>float (单精度浮点型)</SelectItem>
+                <SelectItem value='double'>double (双精度浮点型)</SelectItem>
+                <SelectItem value='bool'>bool (布尔型)</SelectItem>
+                <SelectItem value='string'>text (字符串)</SelectItem>
+                <SelectItem value='enum'>enum (枚举型)</SelectItem>
+                <SelectItem value='struct'>struct (结构体)</SelectItem>
+                <SelectItem value='array'>array (数组)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 数值类型的规格：取值范围、步长、单位 */}
+          {['int', 'float', 'double'].includes(formData.dataType.type) && (
+            <>
+              {/* 取值范围 */}
+              <div className='space-y-1.5'>
+                <Label className='text-xs font-medium'>
                   {t(
-                    'productDetail.featureDefinition.propertyDialog.dataSpecs'
+                    'productDetail.featureDefinition.propertyDialog.range',
+                    '取值范围'
                   )}
                 </Label>
-                <div className='grid grid-cols-4 gap-2'>
+                <div className='flex items-center gap-2'>
                   <Input
+                    className='h-8 text-xs'
                     placeholder={t(
-                      'productDetail.featureDefinition.propertyDialog.min'
+                      'productDetail.featureDefinition.propertyDialog.min',
+                      '最小值'
                     )}
-                    value={formData.dataType.specs?.min || ''}
+                    value={formData.dataType.specs?.min ?? ''}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -1664,11 +1782,16 @@ function PropertyDialog({
                       })
                     }
                   />
+                  <span className='text-xs text-muted-foreground select-none'>
+                    ~
+                  </span>
                   <Input
+                    className='h-8 text-xs'
                     placeholder={t(
-                      'productDetail.featureDefinition.propertyDialog.max'
+                      'productDetail.featureDefinition.propertyDialog.max',
+                      '最大值'
                     )}
-                    value={formData.dataType.specs?.max || ''}
+                    value={formData.dataType.specs?.max ?? ''}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -1682,144 +1805,309 @@ function PropertyDialog({
                       })
                     }
                   />
-                  <Input
-                    placeholder={t(
-                      'productDetail.featureDefinition.propertyDialog.step'
-                    )}
-                    value={formData.dataType.specs?.step || ''}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        dataType: {
-                          ...formData.dataType,
-                          specs: {
-                            ...formData.dataType.specs,
-                            step: e.target.value,
-                          },
-                        },
-                      })
-                    }
-                  />
-                  <Input
-                    placeholder={t(
-                      'productDetail.featureDefinition.propertyDialog.unit'
-                    )}
-                    value={formData.dataType.specs?.unit || ''}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        dataType: {
-                          ...formData.dataType,
-                          specs: {
-                            ...formData.dataType.specs,
-                            unit: e.target.value,
-                          },
-                        },
-                      })
-                    }
-                  />
                 </div>
               </div>
-            )}
 
-            {/* 枚举类型的规格 */}
-            {formData.dataType.type === 'enum' && (
-              <div className='space-y-2'>
-                <Label>
+              {/* 步长 */}
+              <div className='space-y-1.5'>
+                <Label className='text-xs font-medium'>
                   {t(
-                    'productDetail.featureDefinition.propertyDialog.enumValues'
+                    'productDetail.featureDefinition.propertyDialog.step',
+                    '步长'
                   )}
                 </Label>
-                <Textarea
-                  placeholder='{"0": "Off", "1": "On"}'
-                  value={JSON.stringify(formData.dataType.specs || {}, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      const specs = JSON.parse(e.target.value)
-                      setFormData({
-                        ...formData,
-                        dataType: { ...formData.dataType, specs },
-                      })
-                    } catch {
-                      // 忽略 JSON 解析错误，用户可能还在输入
-                    }
-                  }}
-                  className='font-mono text-sm'
+                <Input
+                  className='h-8 text-xs'
+                  placeholder={t(
+                    'productDetail.featureDefinition.placeholders.step',
+                    '请输入步长'
+                  )}
+                  value={formData.dataType.specs?.step ?? ''}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      dataType: {
+                        ...formData.dataType,
+                        specs: {
+                          ...formData.dataType.specs,
+                          step: e.target.value,
+                        },
+                      },
+                    })
+                  }
                 />
               </div>
-            )}
 
-            {/* 结构体类型的规格 */}
-            {formData.dataType.type === 'struct' && (
-              <div className='space-y-2'>
-                <Label>
+              {/* 单位 */}
+              <div className='space-y-1.5'>
+                <Label className='text-xs font-medium'>
                   {t(
-                    'productDetail.featureDefinition.propertyDialog.structDef'
+                    'productDetail.featureDefinition.propertyDialog.unit',
+                    '单位'
                   )}
                 </Label>
-                <Textarea
-                  placeholder='{"lng": {"type": "double"}, "lat": {"type": "double"}}'
-                  value={JSON.stringify(formData.dataType.specs || {}, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      const specs = JSON.parse(e.target.value)
+                <Select
+                  value={currentUnitValue}
+                  onValueChange={(val) => {
+                    if (val === 'custom') {
+                      setIsCustomUnit(true)
+                    } else {
+                      setIsCustomUnit(false)
                       setFormData({
                         ...formData,
-                        dataType: { ...formData.dataType, specs },
+                        dataType: {
+                          ...formData.dataType,
+                          specs: {
+                            ...formData.dataType.specs,
+                            unit: val === 'none' ? '' : val,
+                          },
+                        },
                       })
-                    } catch {
-                      // 忽略 JSON 解析错误，用户可能还在输入
                     }
                   }}
-                  className='min-h-[120px] font-mono text-sm'
-                />
-                <p className='text-xs text-muted-foreground'>
-                  {t(
-                    'productDetail.featureDefinition.propertyDialog.structDefDesc'
-                  )}
-                </p>
+                >
+                  <SelectTrigger className='h-8 w-full text-xs'>
+                    <SelectValue
+                      placeholder={t(
+                        'productDetail.featureDefinition.placeholders.unit',
+                        '请选择单位'
+                      )}
+                    />
+                  </SelectTrigger>
+                  <SelectContent className='max-h-56'>
+                    {COMMON_UNITS.map((unit) => (
+                      <SelectItem key={unit.value} value={unit.value}>
+                        {unit.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {isCustomUnit && (
+                  <div className='flex gap-1.5 pt-1'>
+                    <Input
+                      placeholder={t(
+                        'productDetail.featureDefinition.placeholders.customUnit',
+                        '请输入自定义单位'
+                      )}
+                      value={formData.dataType.specs?.unit ?? ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          dataType: {
+                            ...formData.dataType,
+                            specs: {
+                              ...formData.dataType.specs,
+                              unit: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                      className='h-8 flex-1 text-xs'
+                    />
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      className='h-8 px-2 text-xs text-muted-foreground'
+                      onClick={() => {
+                        setIsCustomUnit(false)
+                        setFormData({
+                          ...formData,
+                          dataType: {
+                            ...formData.dataType,
+                            specs: {
+                              ...formData.dataType.specs,
+                              unit: '',
+                            },
+                          },
+                        })
+                      }}
+                    >
+                      {t('common:cancel')}
+                    </Button>
+                  </div>
+                )}
               </div>
-            )}
+            </>
+          )}
 
-            {/* 数组类型的规格 */}
-            {formData.dataType.type === 'array' && (
-              <div className='space-y-2'>
-                <Label>
-                  {t(
-                    'productDetail.featureDefinition.propertyDialog.arrayElemType'
-                  )}
+          {/* 枚举类型规格 */}
+          {formData.dataType.type === 'enum' && (
+            <div className='space-y-1.5'>
+              <Label className='text-xs font-medium'>
+                {t(
+                  'productDetail.featureDefinition.propertyDialog.enumValues',
+                  '枚举项'
+                )}
+              </Label>
+              <Textarea
+                placeholder='{"0": "关", "1": "开"}'
+                value={JSON.stringify(formData.dataType.specs || {}, null, 2)}
+                onChange={(e) => {
+                  try {
+                    const specs = JSON.parse(e.target.value)
+                    setFormData({
+                      ...formData,
+                      dataType: { ...formData.dataType, specs },
+                    })
+                  } catch {
+                    // 允许输入过程中的临时非标准JSON
+                  }
+                }}
+                className='min-h-[64px] font-mono text-xs'
+              />
+            </div>
+          )}
+
+          {/* 结构体规格 */}
+          {formData.dataType.type === 'struct' && (
+            <div className='space-y-1.5'>
+              <Label className='text-xs font-medium'>
+                {t(
+                  'productDetail.featureDefinition.propertyDialog.structDef',
+                  '结构体定义'
+                )}
+              </Label>
+              <Textarea
+                placeholder='{"lng": {"type": "double"}, "lat": {"type": "double"}}'
+                value={JSON.stringify(formData.dataType.specs || {}, null, 2)}
+                onChange={(e) => {
+                  try {
+                    const specs = JSON.parse(e.target.value)
+                    setFormData({
+                      ...formData,
+                      dataType: { ...formData.dataType, specs },
+                    })
+                  } catch {
+                    // 忽略 JSON 解析错误
+                  }
+                }}
+                className='min-h-[72px] font-mono text-xs'
+              />
+              <p className='text-[11px] text-muted-foreground'>
+                {t(
+                  'productDetail.featureDefinition.propertyDialog.structDefDesc',
+                  '定义结构体的字段，每个字段包含 type 等属性'
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* 数组规格 */}
+          {formData.dataType.type === 'array' && (
+            <div className='space-y-1.5'>
+              <Label className='text-xs font-medium'>
+                {t(
+                  'productDetail.featureDefinition.propertyDialog.arrayElemType',
+                  '数组元素类型'
+                )}
+              </Label>
+              <Textarea
+                placeholder='{"type": "int", "size": 128}'
+                value={JSON.stringify(formData.dataType.specs || {}, null, 2)}
+                onChange={(e) => {
+                  try {
+                    const specs = JSON.parse(e.target.value)
+                    setFormData({
+                      ...formData,
+                      dataType: { ...formData.dataType, specs },
+                    })
+                  } catch {
+                    // 忽略 JSON 解析错误
+                  }
+                }}
+                className='min-h-[72px] font-mono text-xs'
+              />
+              <p className='text-[11px] text-muted-foreground'>
+                {t(
+                  'productDetail.featureDefinition.propertyDialog.arrayElemDesc',
+                  '定义数组元素的类型和大小限制'
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* 读写类型 */}
+          <div className='space-y-1.5'>
+            <Label className='flex items-center gap-1 text-xs font-medium'>
+              <span className='text-destructive'>*</span>
+              {t(
+                'productDetail.featureDefinition.propertyDialog.accessMode',
+                '读写类型'
+              )}
+            </Label>
+            <RadioGroup
+              value={formData.accessMode}
+              onValueChange={(value: 'r' | 'rw') =>
+                setFormData({ ...formData, accessMode: value })
+              }
+              className='flex items-center gap-8 pt-0.5'
+            >
+              <div className='flex items-center space-x-2'>
+                <RadioGroupItem value='rw' id='access-rw' />
+                <Label
+                  htmlFor='access-rw'
+                  className='cursor-pointer text-xs font-normal'
+                >
+                  {t('productDetail.featureDefinition.accessMode.rw', '读写')}
                 </Label>
-                <Textarea
-                  placeholder='{"type": "int", "size": 128}'
-                  value={JSON.stringify(formData.dataType.specs || {}, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      const specs = JSON.parse(e.target.value)
-                      setFormData({
-                        ...formData,
-                        dataType: { ...formData.dataType, specs },
-                      })
-                    } catch {
-                      // 忽略 JSON 解析错误，用户可能还在输入
-                    }
-                  }}
-                  className='min-h-[100px] font-mono text-sm'
-                />
-                <p className='text-xs text-muted-foreground'>
-                  {t(
-                    'productDetail.featureDefinition.propertyDialog.arrayElemDesc'
-                  )}
-                </p>
               </div>
-            )}
+              <div className='flex items-center space-x-2'>
+                <RadioGroupItem value='r' id='access-r' />
+                <Label
+                  htmlFor='access-r'
+                  className='cursor-pointer text-xs font-normal'
+                >
+                  {t('productDetail.featureDefinition.accessMode.r', '只读')}
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* 描述 */}
+          <div className='space-y-1.5'>
+            <Label className='text-xs font-medium'>
+              {t(
+                'productDetail.featureDefinition.propertyDialog.descriptionLabel',
+                '描述'
+              )}
+            </Label>
+            <div className='relative'>
+              <Textarea
+                placeholder={t(
+                  'productDetail.featureDefinition.placeholders.desc',
+                  '请输入描述'
+                )}
+                maxLength={100}
+                rows={2}
+                value={formData.desc || formData.description || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    desc: e.target.value,
+                    description: e.target.value,
+                  })
+                }
+                className='h-[56px] min-h-[56px] resize-none pb-5 text-xs'
+              />
+              <div className='pointer-events-none absolute right-2.5 bottom-1 text-[11px] text-muted-foreground select-none'>
+                {(formData.desc || formData.description || '').length}/100
+              </div>
+            </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOpenChange(false)}>
-            {t('productDetail.featureDefinition.buttons.cancel')}
+
+        <DialogFooter className='flex justify-end gap-2 pt-1'>
+          <Button size='sm' onClick={handleSave} className='h-8 text-xs'>
+            {t('common:confirm')}
           </Button>
-          <Button onClick={handleSave}>
-            {t('productDetail.featureDefinition.buttons.saveChange')}
+          <Button
+            size='sm'
+            variant='outline'
+            onClick={() => onOpenChange(false)}
+            className='h-8 text-xs'
+          >
+            {t('common:cancel')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1839,7 +2127,7 @@ function ServiceDialog({
   service: Service | null
   onSave: (service: Service) => void
 }) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
   const [formData, setFormData] = useState<Service | null>(null)
 
   // 只在对话框打开时初始化表单数据
@@ -1974,11 +2262,9 @@ function ServiceDialog({
         </div>
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            {t('productDetail.featureDefinition.buttons.cancel')}
+            {t('common:cancel')}
           </Button>
-          <Button onClick={handleSave}>
-            {t('productDetail.featureDefinition.buttons.saveChange')}
-          </Button>
+          <Button onClick={handleSave}>{t('common:confirm')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1997,7 +2283,7 @@ function EventDialog({
   event: Event | null
   onSave: (event: Event) => void
 }) {
-  const { t } = useTranslation('deviceManagement')
+  const { t } = useTranslation(['deviceManagement', 'common'])
   const [formData, setFormData] = useState<Event | null>(null)
 
   // 只在对话框打开时初始化表单数据
@@ -2112,11 +2398,9 @@ function EventDialog({
         </div>
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            {t('productDetail.featureDefinition.buttons.cancel')}
+            {t('common:cancel')}
           </Button>
-          <Button onClick={handleSave}>
-            {t('productDetail.featureDefinition.buttons.saveChange')}
-          </Button>
+          <Button onClick={handleSave}>{t('common:confirm')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
