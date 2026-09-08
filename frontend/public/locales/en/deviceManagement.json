@@ -218,6 +218,8 @@
       },
       "propertyDialog": {
         "title": "{{isEdit}} Property",
+        "addTitle": "Add Custom Feature",
+        "editTitle": "Edit Custom Feature",
         "featureType": "Feature Type",
         "featureTypeTooltip": "Supports Property, Service, and Event feature types",
         "nameTooltip": "Feature display name, supports Chinese, English, numbers and underscores",
@@ -242,26 +244,37 @@
       },
       "serviceDialog": {
         "title": "{{isEdit}} Service",
+        "addTitle": "Add Custom Feature",
+        "editTitle": "Edit Custom Feature",
         "add": "Add",
         "edit": "Edit",
         "description": "Configure device service basic information and input/output parameters",
         "identifier": "Identifier",
-        "name": "Name",
+        "identifierTooltip": "Unique service identifier, letters, numbers, and underscores, starting with a letter",
+        "name": "Feature Name",
+        "nameTooltip": "Service display name, supporting Chinese, English, numbers and underscores",
         "callType": "Call Type",
         "async": "Async",
         "sync": "Sync",
-        "inputParams": "Input Parameters (JSON array format)",
-        "outputParams": "Output Parameters (JSON array format)"
+        "inputParams": "Input Parameters",
+        "inputParamsTooltip": "Service input parameters (JSON array format)",
+        "outputParams": "Output Parameters",
+        "outputParamsTooltip": "Service output parameters (JSON array format)"
       },
       "eventDialog": {
         "title": "{{isEdit}} Event",
+        "addTitle": "Add Custom Feature",
+        "editTitle": "Edit Custom Feature",
         "add": "Add",
         "edit": "Edit",
         "description": "Configure device event basic information and output data",
         "identifier": "Identifier",
-        "name": "Name",
+        "identifierTooltip": "Unique event identifier, letters, numbers, and underscores, starting with a letter",
+        "name": "Feature Name",
+        "nameTooltip": "Event display name, supporting Chinese, English, numbers and underscores",
         "eventType": "Event Type",
-        "outputData": "Output Data (JSON array format)"
+        "outputData": "Output Parameters",
+        "outputDataTooltip": "Event output parameters (JSON array format)"
       },
       "placeholders": {
         "propertyId": "Please enter identifier",
