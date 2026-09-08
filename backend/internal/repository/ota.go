@@ -271,25 +271,6 @@ func (r *OTARepository) CreateBatchDeployments(ctx context.Context, packageID in
 	return len(rows), nil
 }
 
-func (r *OTARepository) MarkDispatchResult(ctx context.Context, packageID, deviceID int64, batchID, status, dispatchError string) error {
-	updates := map[string]interface{}{
-		"status":                status,
-		"dispatch_attempts":     gorm.Expr("dispatch_attempts + 1"),
-		"last_dispatch_error":   dispatchError,
-		"last_status_change_ts": time.Now().Unix(),
-	}
-	return r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
-		Where("ota_package_id = ? AND upgrade_batch_id = ? AND device_id = ? AND status = ?", strconv.FormatInt(packageID, 10), batchID, deviceID, enum.OTAStatusPending).
-		Updates(updates).Error
-}
-
-// RecordKafkaDispatch records that a command was published to Kafka.
-func (r *OTARepository) RecordKafkaDispatch(ctx context.Context, packageID, deviceID int64, batchID string) error {
-	return r.DB(ctx).Model(&model.DeviceUpgradeStatus{}).
-		Where("ota_package_id = ? AND upgrade_batch_id = ? AND device_id = ? AND status = ?", strconv.FormatInt(packageID, 10), batchID, deviceID, enum.OTAStatusPending).
-		Updates(map[string]interface{}{"dispatch_attempts": gorm.Expr("dispatch_attempts + 1"), "last_dispatch_error": ""}).Error
-}
-
 func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, size int, status string, batchID ...string) ([]model.DeviceDeployment, int64, error) {
 	query := r.DB(ctx).Table("ota_device_upgrade_status dus").
 		Select("dus.device_id, d.device_key, d.name as device_name, d.product_id, p.product_key, dus.current_version, dus.target_version, dus.progress, dus.upgrade_batch_id, dus.status, dus.last_status_change_ts, dus.created_at").

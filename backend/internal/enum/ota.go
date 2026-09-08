@@ -3,7 +3,7 @@ package enum
 const (
 	// OTAStatusPending 表示任务已创建，等待下发。
 	OTAStatusPending = "pending"
-	// OTAStatusSent 表示升级指令已发送到 Kafka。
+	// OTAStatusSent 表示升级指令已发送。
 	OTAStatusSent = "sent"
 	// OTAStatusInProgress 表示设备已开始执行升级。
 	OTAStatusInProgress = "in_progress"

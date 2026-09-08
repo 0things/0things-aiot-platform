@@ -24,7 +24,6 @@ func setupDeviceRouterRemaining(mockService *mock_service.MockDeviceServiceInter
 	router := gin.New()
 	h := &handler.Handler{}
 	config := viper.New()
-	config.Set("data.kafka.device.brokers", []string{"localhost:9092"})
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 
 	router.PUT("/devices/:deviceKey/shadow/desired", deviceHandler.Desired)

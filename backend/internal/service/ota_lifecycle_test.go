@@ -12,15 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type testKafkaService struct{}
-
-func (testKafkaService) Produce(context.Context, string, []byte, []byte) error              { return nil }
-func (testKafkaService) ProduceJSON(context.Context, string, string, any) error             { return nil }
-func (testKafkaService) ProduceAsync(context.Context, string, []byte, []byte, func(error))  {}
-func (testKafkaService) ProduceJSONAsync(context.Context, string, string, any, func(error)) {}
-func (testKafkaService) Flush(context.Context) error                                        { return nil }
-func (testKafkaService) Close()                                                             {}
-
 func newOTATestDB(t *testing.T) *gorm.DB {
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
@@ -40,7 +31,7 @@ func newOTAServiceForTest(t *testing.T) (*OTAService, *gorm.DB) {
 	repo := repository.NewOTARepository(db)
 	productRepo := repository.NewProductRepository(db)
 	deviceRepo := repository.NewDeviceRepository(db, nil)
-	return NewOTAService(repo, productRepo, deviceRepo, testKafkaService{}), db
+	return NewOTAService(repo, productRepo, deviceRepo), db
 }
 
 func seedOTAProductAndDevices(t *testing.T, db *gorm.DB) (int64, []string) {

@@ -52,9 +52,6 @@ func (s *OTAService) CancelBatch(ctx context.Context, uuid, batchID string) erro
 }
 
 func (s *OTAService) RetryBatch(ctx context.Context, uuid, batchID string) error {
-	if s.kafka == nil {
-		return errors.New("kafka service is required for OTA batch retry")
-	}
 	pkg, err := s.batchPackage(ctx, uuid, batchID)
 	if err != nil {
 		return err
@@ -69,20 +66,6 @@ func (s *OTAService) RetryBatch(ctx context.Context, uuid, batchID string) error
 	if err := s.repo.UpdateBatchDevicesStatus(ctx, pkg.ID, batchID, []string{enum.OTAStatusFailed, enum.OTAStatusTimeout}, enum.OTAStatusPending); err != nil {
 		return err
 	}
-	deployments, _, err := s.repo.Deployments(ctx, pkg.ID, 1, 100000, enum.OTAStatusPending, batchID)
-	if err != nil {
-		return err
-	}
-	for _, d := range deployments {
-		message := otaCommandV1(pkg, batchID, d.DeviceKey, d.DeviceName, d.TargetVersion)
-		if err := s.kafka.ProduceJSON(ctx, enum.KafkaTopicOTAUpgradeCommandV1, batchID+":"+d.DeviceKey, message); err != nil {
-			_ = s.repo.MarkDispatchResult(ctx, pkg.ID, d.DeviceID, batchID, enum.OTAStatusFailed, err.Error())
-			return err
-		}
-		if err := s.repo.RecordKafkaDispatch(ctx, pkg.ID, d.DeviceID, batchID); err != nil {
-			return err
-		}
-	}
 	return s.repo.UpdateBatchStatus(ctx, batchID, enum.OTAStatusPending)
 }
 
@@ -90,24 +73,6 @@ type OTAService struct {
 	repo        *repository.OTARepository
 	productRepo *repository.ProductRepository
 	deviceRepo  *repository.DeviceRepository
-	kafka       KafkaServiceInterface
-}
-
-// otaCommandV1 keeps Kafka commands aligned with the device-facing OTA contract.
-func otaCommandV1(pkg *model.OTAPackage, batchID string, deviceKey, deviceName, targetVersion string) map[string]any {
-	return map[string]any{
-		"batch_id":       batchID,
-		"package_id":     pkg.ID,
-		"product_key":    pkg.ProductKey,
-		"device_key":     deviceKey,
-		"device_name":    deviceName,
-		"module":         "default",
-		"target_version": targetVersion,
-		"download_url":   pkg.FileURL,
-		"file_size":      pkg.FileSize,
-		"sha256":         pkg.Checksum,
-		"expires_at":     time.Now().Add(24 * time.Hour).UTC().Format(time.RFC3339),
-	}
 }
 
 type UpgradeStatistics struct {
@@ -120,8 +85,8 @@ type UpgradeStatistics struct {
 	InProgressUpgrades int64
 }
 
-func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository, kafka KafkaServiceInterface) *OTAService {
-	return &OTAService{repo: repo, productRepo: productRepo, deviceRepo: deviceRepo, kafka: kafka}
+func NewOTAService(repo *repository.OTARepository, productRepo *repository.ProductRepository, deviceRepo *repository.DeviceRepository) *OTAService {
+	return &OTAService{repo: repo, productRepo: productRepo, deviceRepo: deviceRepo}
 }
 
 func (s *OTAService) List(ctx context.Context, page, size int) ([]model.OTAPackage, int64, error) {
@@ -164,9 +129,6 @@ func (s *OTAService) Delete(ctx context.Context, uuid string) error {
 // BatchUpgrade creates a static upgrade batch for the specified package and devices,
 // creating records in pending status and setting the package status to deploying.
 func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys []string) (*model.UpgradeBatch, error) {
-	if s.kafka == nil {
-		return nil, errors.New("kafka service is required for OTA batch upgrade")
-	}
 	pkg, err := s.repo.FindByUUID(ctx, uuid)
 	if err != nil {
 		return nil, err
@@ -202,21 +164,6 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 	if err := s.repo.CreateBatchWithDeployments(ctx, batch, pkg.ID, deviceIDs, pkg.Version); err != nil {
 		return batch, err
 	}
-	var dispatchErr error
-	for _, device := range uniqueDevices {
-		message := otaCommandV1(pkg, batchID, device.DeviceKey, device.Name, pkg.Version)
-		if err := s.kafka.ProduceJSON(ctx, enum.KafkaTopicOTAUpgradeCommandV1, batchID+":"+device.DeviceKey, message); err != nil {
-			_ = s.repo.MarkDispatchResult(ctx, pkg.ID, device.ID, batchID, enum.OTAStatusFailed, err.Error())
-			if dispatchErr == nil {
-				dispatchErr = err
-			}
-			continue
-		}
-		if err := s.repo.RecordKafkaDispatch(ctx, pkg.ID, device.ID, batchID); err != nil {
-			return batch, err
-		}
-	}
-	// Continue dispatching remaining devices to prevent a single Kafka failure from halting the whole batch.
 	pkg, err = s.repo.Find(ctx, pkg.ID)
 	if err != nil {
 		return batch, err
@@ -224,9 +171,6 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 	pkg.Status = enum.OTAPackageDeploying
 	if err := s.repo.Save(ctx, pkg); err != nil {
 		return batch, err
-	}
-	if dispatchErr != nil {
-		return batch, dispatchErr
 	}
 	return batch, nil
 }
@@ -312,7 +256,7 @@ func (s *OTAService) recomputeBatchStatus(ctx context.Context, batchID string, p
 	return s.repo.UpdateBatchStatus(ctx, batchID, status)
 }
 
-// ClaimBatchDeviceForMQTT atomically claims the Kafka command to prevent duplicate MQTT dispatch.
+// ClaimBatchDeviceForMQTT atomically claims the upgrade task to prevent duplicate MQTT dispatch.
 func (s *OTAService) ClaimBatchDeviceForMQTT(ctx context.Context, batchID, deviceKey string) (bool, error) {
 	return s.repo.ClaimBatchDeviceForMQTT(ctx, batchID, deviceKey)
 }
