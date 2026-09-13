@@ -47,8 +47,6 @@ func main() {
 	userDB.Exec("DELETE FROM organization_users")
 	userDB.Exec("DELETE FROM organizations")
 	userDB.Exec("DELETE FROM users")
-	deviceDB.Exec("DELETE FROM scene_linkage_detail")
-	deviceDB.Exec("DELETE FROM scene_linkage")
 	deviceDB.Exec("DELETE FROM device_group_members")
 	deviceDB.Exec("DELETE FROM device_groups")
 	deviceDB.Exec("DELETE FROM device_push_records")
@@ -69,7 +67,7 @@ func main() {
 	deviceDB.Exec("DELETE FROM ota_upgrade_batches")
 	deviceDB.Exec("DELETE FROM ota_packages")
 	userDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('users','organizations','organization_users')")
-	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_service_invocations','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','categories','product_protocols','product_message_parsers','product_tsl','device_endpoints','device_push_records','device_groups','device_group_members','scene_linkage','scene_linkage_detail','ota_packages','ota_upgrade_batches','ota_device_upgrade_status')")
+	deviceDB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('device_events','device_service_invocations','device_tags','device_shadow_histories','device_shadows','device_states','devices','products','categories','product_protocols','product_message_parsers','product_tsl','device_endpoints','device_push_records','device_groups','device_group_members','ota_packages','ota_upgrade_batches','ota_device_upgrade_status')")
 
 	// --- categories ---
 	fmt.Println("Seeding categories...")
@@ -538,68 +536,6 @@ func main() {
 					time.Now(),
 				)
 			}
-		}
-	}
-
-	// --- scene_linkage & detail ---
-	fmt.Println("Seeding scene_linkage & details...")
-	scenes := []struct {
-		name    string
-		desc    string
-		orgID   int64
-		enable  int
-		trigger string
-		action  string
-	}{
-		{
-			name:    "高温自动联动排风",
-			desc:    "当车间温度超过35℃时，自动开启排风机并发送预警通知",
-			orgID:   1,
-			enable:  1,
-			trigger: `{"type":"property","property":"temperature","operator":">=","value":35}`,
-			action:  `{"type":"device_command","command":"open_fan","notify":"webhook"}`,
-		},
-		{
-			name:    "夜间安防布防告警",
-			desc:    "夜间时段红外或门锁异常开启时，立即联动声光报警",
-			orgID:   1,
-			enable:  1,
-			trigger: `{"type":"event","event":"door_opened","time_range":"22:00-06:00"}`,
-			action:  `{"type":"alarm","level":"critical","push":true}`,
-		},
-		{
-			name:    "电量超载保护联动",
-			desc:    "检测到瞬时功率大于设定阈值时执行分闸保护",
-			orgID:   2,
-			enable:  0,
-			trigger: `{"type":"property","property":"power","operator":">","value":5000}`,
-			action:  `{"type":"device_command","command":"power_off"}`,
-		},
-	}
-	for sIdx, sc := range scenes {
-		sID := int64(sIdx + 1)
-		_, err := deviceDB.Exec(`INSERT OR IGNORE INTO scene_linkage (id, organization_id, name, description, enable, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-			sID,
-			sc.orgID,
-			sc.name,
-			sc.desc,
-			sc.enable,
-			time.Now().Add(-10*24*time.Hour),
-			time.Now(),
-		)
-		if err != nil {
-			log.Printf("scene_linkage insert error: %v", err)
-		}
-		_, err = deviceDB.Exec(`INSERT OR IGNORE INTO scene_linkage_detail (id, scene_id, trigger_config, action_config, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
-			sID,
-			sID,
-			sc.trigger,
-			sc.action,
-			time.Now().Add(-10*24*time.Hour),
-			time.Now(),
-		)
-		if err != nil {
-			log.Printf("scene_linkage_detail insert error: %v", err)
 		}
 	}
 

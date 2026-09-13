@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"0things/pkg/event"
+	"data-engine/internal/handler"
 	"data-engine/internal/repository"
 	"data-engine/internal/service"
 
@@ -27,9 +28,9 @@ func TestManager_Start(t *testing.T) {
 	defer pubSub.Close()
 
 	eventConsumer := event.NewConsumer(pubSub, logger)
-	telemetryConsumer := NewTelemetryConsumer(telemetryService, logger)
-	eventConsumerHandler := NewEventConsumer(eventService, logger)
-	otaProgressConsumer := NewOTAProgressConsumer(otaService, logger)
+	telemetryConsumer := NewTelemetryConsumer(handler.NewTelemetryHandler(telemetryService, logger))
+	eventConsumerHandler := NewEventConsumer(handler.NewEventHandler(eventService, logger))
+	otaProgressConsumer := NewOTAProgressConsumer(handler.NewOTAProgressHandler(otaService, logger))
 
 	manager := NewManager(eventConsumer, telemetryConsumer, eventConsumerHandler, otaProgressConsumer, logger)
 

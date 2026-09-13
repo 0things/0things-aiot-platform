@@ -34,8 +34,6 @@ var repositorySet = wire.NewSet(
 	repository.NewDeviceTagRepository,
 	repository.NewDeviceShadowRepository,
 	repository.NewPushRecordRepository,
-	repository.NewSceneLinkageRepository,
-	repository.NewSceneLinkageDetailRepository,
 	repository.NewOTARepository,
 	repository.NewDeviceEventRepository,
 	repository.NewDeviceServiceInvocationRepository,
@@ -46,6 +44,7 @@ var repositorySet = wire.NewSet(
 	repository.NewOrganizationRepository,
 	repository.NewOrganizationUserRepository,
 	repository.NewRuleNodeDefinitionRepository,
+	repository.NewRuleChainRepository,
 )
 
 var serviceSet = wire.NewSet(
@@ -58,8 +57,6 @@ var serviceSet = wire.NewSet(
 	service.NewDeviceService,
 	service.NewDeviceGroupService,
 	service.NewMQTTService,
-	service.NewSceneLinkageService,
-	service.NewSceneLinkageDetailService,
 	service.NewTelemetryService,
 	service.NewOTAService,
 	service.NewFileService,
@@ -68,6 +65,7 @@ var serviceSet = wire.NewSet(
 	provideProtocolService,
 	provideEventProducer,
 	service.NewRuleNodeDefinitionService,
+	service.NewRuleChainService,
 	wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)),
 	wire.Bind(new(service.CategoryServiceInterface), new(*service.CategoryService)),
 	wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)),
@@ -75,8 +73,6 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)),
 	wire.Bind(new(service.DeviceGroupServiceInterface), new(*service.DeviceGroupService)),
 	wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)),
-	wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)),
-	wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)),
 	wire.Bind(new(service.TelemetryServiceInterface), new(*service.TelemetryService)),
 	wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)),
 	wire.Bind(new(service.FileServiceInterface), new(*service.FileService)),
@@ -84,6 +80,7 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.ThingModelDataServiceInterface), new(*service.ThingModelDataService)),
 	wire.Bind(new(service.ProtocolServiceInterface), new(*service.ProtocolService)),
 	wire.Bind(new(service.RuleNodeDefinitionServiceInterface), new(*service.RuleNodeDefinitionService)),
+	wire.Bind(new(service.RuleChainServiceInterface), new(*service.RuleChainService)),
 )
 
 var handlerSet = wire.NewSet(
@@ -95,8 +92,6 @@ var handlerSet = wire.NewSet(
 	handler.NewProductMessageParserHandler,
 	handler.NewDeviceHandler,
 	handler.NewDeviceGroupHandler,
-	handler.NewSceneLinkageHandler,
-	handler.NewSceneLinkageDetailHandler,
 	handler.NewOTAHandler,
 	handler.NewFileHandler,
 	handler.NewDeviceEventHandler,
@@ -104,6 +99,7 @@ var handlerSet = wire.NewSet(
 	handler.NewProtocolHandler,
 	handler.NewTelemetryHandler,
 	handler.NewRuleNodeDefinitionHandler,
+	handler.NewRuleChainHandler,
 )
 
 func provideProtocolService(repo *repository.ProtocolRepository, config *viper.Viper) *service.ProtocolService {

@@ -13,6 +13,7 @@ import (
 	"transport-mqtt/internal/consumer"
 	"transport-mqtt/internal/handler"
 	"transport-mqtt/internal/server"
+	"transport-mqtt/internal/service"
 	"transport-mqtt/pkg/app"
 	"transport-mqtt/pkg/log"
 )
@@ -25,7 +26,10 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		return nil, nil, err
 	}
 	producer := provideEventProducer(wireEventBusHolder)
-	ingressHandler := handler.NewIngressHandler(producer, logger)
+	telemetryService := service.NewTelemetryService(producer, logger)
+	deviceEventService := service.NewDeviceEventService(producer, logger)
+	otaProgressService := service.NewOTAProgressService(producer, logger)
+	ingressHandler := handler.NewIngressHandler(telemetryService, deviceEventService, otaProgressService)
 	client, err := server.NewMQTTClient(viperViper, logger, ingressHandler)
 	if err != nil {
 		cleanup()
@@ -70,7 +74,7 @@ func provideEventConsumer(holder *eventBusHolder) event.Consumer {
 	return holder.consumer
 }
 
-var serverSet = wire.NewSet(handler.NewIngressHandler, consumer.NewOTACommandConsumer, consumer.NewManager, server.NewMQTTClient, server.NewMQTTServer)
+var serverSet = wire.NewSet(service.NewTelemetryService, service.NewDeviceEventService, service.NewOTAProgressService, handler.NewIngressHandler, consumer.NewOTACommandConsumer, consumer.NewManager, server.NewMQTTClient, server.NewMQTTServer)
 
 func newApp(
 	mqttServer *server.MQTTServer,

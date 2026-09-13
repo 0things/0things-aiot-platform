@@ -1,0 +1,12 @@
+sample:
+  name: Zephyr IoT scaffold
+  description: Independent collectors with bounded offline telemetry
+common:
+  tags: [iot, mqtt]
+  harness: console
+  harness_config:
+    type: one_line
+    regex: ["IoT scaffold ready"]
+tests:
+  scaffold.boot:
+    integration_platforms: [qemu_riscv32]

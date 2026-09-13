@@ -1,11 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { Alert, GetAlertsParams } from '@/api/generated/model'
 import { orvalAxios } from '@/api/orval-mutator'
+
+export interface Alert {
+  id?: string | number
+  severity?: string
+  status?: string
+  summary?: string
+  count?: number
+  deviceKey?: string
+  raisedAt?: string
+  lastRaisedAt?: string
+}
+
+export interface GetAlertsParams {
+  page?: number
+  pageSize?: number
+  severity?: string
+  status?: string
+  device_key?: string
+}
 
 export type AlertSeverity = 'info' | 'warning' | 'critical'
 export type AlertStatus = 'open' | 'acknowledged' | 'resolved' | 'snoozed'
-
-export type { Alert, GetAlertsParams }
 
 export const alertKeys = {
   all: ['alerts'] as const,

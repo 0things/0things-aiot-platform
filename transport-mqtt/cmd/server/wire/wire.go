@@ -7,6 +7,7 @@ import (
 	"transport-mqtt/internal/consumer"
 	"transport-mqtt/internal/handler"
 	"transport-mqtt/internal/server"
+	"transport-mqtt/internal/service"
 	"transport-mqtt/pkg/app"
 	"transport-mqtt/pkg/log"
 
@@ -44,6 +45,9 @@ func provideEventConsumer(holder *eventBusHolder) event.Consumer {
 }
 
 var serverSet = wire.NewSet(
+	service.NewTelemetryService,
+	service.NewDeviceEventService,
+	service.NewOTAProgressService,
 	handler.NewIngressHandler,
 	consumer.NewOTACommandConsumer,
 	consumer.NewManager,

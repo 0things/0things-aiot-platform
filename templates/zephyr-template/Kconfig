@@ -1,0 +1,133 @@
+mainmenu "IoT scaffold"
+source "Kconfig.zephyr"
+menu "IoT application"
+config APP_LOG_LEVEL
+ int "Application log level"
+ range 0 4
+ default 3
+config APP_MAX_COLLECTORS
+ int "Maximum registered collectors"
+ range 3 16
+ default 8
+config APP_CACHE_SIZE
+ int "Maximum records per collector"
+ range 6 256
+ default 64
+config APP_BATCH_SIZE
+ int "Records per MQTT batch"
+ range 1 8
+ default 4
+config APP_PAYLOAD_SIZE
+ int "Maximum JSON payload bytes"
+ range 1024 8192
+ default 2048
+config APP_MOCK_SENSOR
+ bool "Use deterministic mock sensors"
+ default y
+config APP_DEVICE_ID
+ string "Fallback device identifier (letters, digits, underscore, hyphen)"
+ default "device-001"
+config APP_TEMPERATURE
+ bool "Temperature collector"
+ default y
+config APP_IMU
+ bool "IMU collector"
+ default y
+config APP_BATTERY
+ bool "Battery collector"
+ default y
+config APP_TEMP_COLLECTION_INTERVAL
+ int "Temperature collection seconds"
+ range 1 86400
+ default 300
+config APP_TEMP_UPLOAD_INTERVAL
+ int "Temperature upload seconds"
+ range 1 604800
+ default 1800
+config APP_IMU_COLLECTION_INTERVAL
+ int "IMU collection seconds"
+ range 1 86400
+ default 10
+config APP_IMU_UPLOAD_INTERVAL
+ int "IMU upload seconds"
+ range 1 604800
+ default 600
+config APP_BATTERY_COLLECTION_INTERVAL
+ int "Battery collection seconds"
+ range 1 86400
+ default 60
+config APP_BATTERY_UPLOAD_INTERVAL
+ int "Battery upload seconds"
+ range 1 604800
+ default 300
+config APP_HEALTH_INTERVAL
+ int "Health reporting seconds"
+ range 10 86400
+ default 60
+config APP_UPLOAD_GAP_MS
+ int "Minimum time between publishes"
+ range 100 60000
+ default 1000
+config APP_RTC
+ bool "Read wall clock from app-rtc devicetree alias"
+ depends on RTC
+config APP_HEAP_METRICS
+ bool "Report registered Zephyr heap free bytes (single-core)"
+ depends on !SMP
+ select SYS_HEAP_RUNTIME_STATS
+ default y
+config APP_STACK_METRICS
+ bool "Report minimum unused thread stack space"
+ select THREAD_MONITOR
+ select INIT_STACKS
+ select THREAD_STACK_INFO
+ default y
+config APP_SETTINGS
+ bool "Persist runtime configuration using Settings"
+ select SETTINGS
+config APP_WIFI
+ bool "Wi-Fi backend"
+ depends on WIFI
+ select NET_MGMT_EVENT
+ select NET_MGMT_EVENT_INFO
+config APP_WIFI_SSID
+ string "Wi-Fi SSID"
+ default ""
+config APP_WIFI_PASSWORD
+ string "Wi-Fi passphrase"
+ default ""
+config APP_MQTT
+ bool "MQTT transport"
+ depends on NETWORKING
+ select MQTT_LIB
+ select NET_SOCKETS
+ select NET_TCP
+ select DNS_RESOLVER
+ select SNTP
+config APP_BROKER
+ string "Broker hostname (without URI scheme)"
+ default "localhost"
+config APP_BROKER_PORT
+ int "Broker port"
+ range 1 65535
+ default 1883
+config APP_MQTT_USERNAME
+ string "MQTT username"
+ default ""
+config APP_MQTT_PASSWORD
+ string "MQTT password"
+ default ""
+config APP_TLS
+ bool "MQTTS with mandatory CA and hostname verification"
+ depends on APP_MQTT
+ select MQTT_LIB_TLS
+ select NET_SOCKETS_SOCKOPT_TLS
+ select MBEDTLS_HAVE_TIME_DATE
+config APP_TELEMETRY_QOS
+ int "Telemetry QoS (0 accepts socket send; 1 waits for PUBACK)"
+ range 0 1
+ default 1
+config APP_SNTP_SERVER
+ string "SNTP server"
+ default "pool.ntp.org"
+endmenu

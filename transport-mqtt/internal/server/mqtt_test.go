@@ -9,6 +9,7 @@ import (
 	"transport-mqtt/internal/consumer"
 	"transport-mqtt/internal/enum"
 	"transport-mqtt/internal/handler"
+	"transport-mqtt/internal/service"
 	"transport-mqtt/pkg/log"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -58,10 +59,10 @@ type mockToken struct {
 	err error
 }
 
-func (t *mockToken) Wait() bool                        { return true }
+func (t *mockToken) Wait() bool                       { return true }
 func (t *mockToken) WaitTimeout(_ time.Duration) bool { return true }
-func (t *mockToken) Done() <-chan struct{}             { ch := make(chan struct{}); close(ch); return ch }
-func (t *mockToken) Error() error                      { return t.err }
+func (t *mockToken) Done() <-chan struct{}            { ch := make(chan struct{}); close(ch); return ch }
+func (t *mockToken) Error() error                     { return t.err }
 
 type mockClientForServer struct {
 	mqtt.Client
@@ -96,7 +97,11 @@ func TestRegisterSubscriptions(t *testing.T) {
 	logger := log.NewLog(v)
 
 	mockClient := &mockClientForServer{}
-	ingressHandler := handler.NewIngressHandler(nil, logger)
+	ingressHandler := handler.NewIngressHandler(
+		service.NewTelemetryService(nil, logger),
+		service.NewDeviceEventService(nil, logger),
+		service.NewOTAProgressService(nil, logger),
+	)
 
 	// 1. Nil handler does nothing
 	RegisterSubscriptions(mockClient, nil, logger)

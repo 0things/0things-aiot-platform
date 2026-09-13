@@ -2727,6 +2727,200 @@ const docTemplate = `{
                 }
             }
         },
+        "/rule-chains": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rule chains"
+                ],
+                "summary": "List rule chains",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number (1-based, default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page size (1-100, default 10)",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-ListRuleChainsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rule chains"
+                ],
+                "summary": "Create rule chain",
+                "parameters": [
+                    {
+                        "description": "Rule chain",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RuleChainRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-CreateRuleChainResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rule-chains/{uuid}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rule chains"
+                ],
+                "summary": "Get rule chain",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Rule chain UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-GetRuleChainResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rule chains"
+                ],
+                "summary": "Update rule chain",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Rule chain UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Rule chain",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RuleChainRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-UpdateRuleChainResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rule chains"
+                ],
+                "summary": "Delete rule chain",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Rule chain UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-RuleChainSuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/rule-node-definitions": {
             "get": {
                 "security": [
@@ -2747,339 +2941,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_ListRuleNodeDefinitionsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/scene-linkages": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Lists scene linkages.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Scene linkages"
-                ],
-                "summary": "List scene linkages",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "name": "enable",
-                        "in": "query"
-                    },
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Page number (1-based, default 1)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Page size (1-100, default 10)",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "search",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-ListSceneLinkagesResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Creates scene linkage.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Scene linkages"
-                ],
-                "summary": "Create scene linkage",
-                "parameters": [
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/SceneLinkageRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-CreateSceneLinkageResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/scene-linkages/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Returns scene linkage.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Scene linkages"
-                ],
-                "summary": "Get scene linkage",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Scene linkage ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-GetSceneLinkageResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Updates scene linkage.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Scene linkages"
-                ],
-                "summary": "Update scene linkage",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Scene linkage ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/SceneLinkageRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-UpdateSceneLinkageResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Deletes scene linkage.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Scene linkages"
-                ],
-                "summary": "Delete scene linkage",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Scene linkage ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-SceneLinkageSuccessResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/scene-linkages/{id}/detail": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Returns scene linkage configuration.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Scene linkages"
-                ],
-                "summary": "Get scene linkage configuration",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Scene linkage ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-GetSceneLinkageDetailResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Updates scene linkage configuration.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Scene linkages"
-                ],
-                "summary": "Update scene linkage configuration",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Scene linkage ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/SceneLinkageDetailRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-UpdateSceneLinkageDetailResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Creates scene linkage configuration.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Scene linkages"
-                ],
-                "summary": "Create scene linkage configuration",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Scene linkage ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/SceneLinkageDetailRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-CreateSceneLinkageDetailResponse"
                         }
                     }
                 }
@@ -3266,28 +3127,14 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-CreateSceneLinkageDetailResponse": {
+        "ApiResponse-CreateRuleChainResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/CreateSceneLinkageDetailResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-CreateSceneLinkageResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/CreateSceneLinkageResponse"
+                    "$ref": "#/definitions/CreateRuleChainResponse"
                 },
                 "message": {
                     "type": "string"
@@ -3588,42 +3435,28 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-GetSceneLinkageDetailResponse": {
+        "ApiResponse-GetRuleChainResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/GetSceneLinkageDetailResponse"
+                    "$ref": "#/definitions/GetRuleChainResponse"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "ApiResponse-GetSceneLinkageResponse": {
+        "ApiResponse-ListRuleChainsResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/GetSceneLinkageResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-ListSceneLinkagesResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/ListSceneLinkagesResponse"
+                    "$ref": "#/definitions/ListRuleChainsResponse"
                 },
                 "message": {
                     "type": "string"
@@ -3854,42 +3687,28 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-SceneLinkageSuccessResponse": {
+        "ApiResponse-RuleChainSuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/SceneLinkageSuccessResponse"
+                    "$ref": "#/definitions/RuleChainSuccessResponse"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "ApiResponse-UpdateSceneLinkageDetailResponse": {
+        "ApiResponse-UpdateRuleChainResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/UpdateSceneLinkageDetailResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-UpdateSceneLinkageResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/UpdateSceneLinkageResponse"
+                    "$ref": "#/definitions/UpdateRuleChainResponse"
                 },
                 "message": {
                     "type": "string"
@@ -4111,19 +3930,11 @@ const docTemplate = `{
                 }
             }
         },
-        "CreateSceneLinkageDetailResponse": {
+        "CreateRuleChainResponse": {
             "type": "object",
             "properties": {
-                "detail": {
-                    "$ref": "#/definitions/SceneLinkageDetail"
-                }
-            }
-        },
-        "CreateSceneLinkageResponse": {
-            "type": "object",
-            "properties": {
-                "sceneLinkage": {
-                    "$ref": "#/definitions/SceneLinkage"
+                "ruleChain": {
+                    "$ref": "#/definitions/RuleChain"
                 }
             }
         },
@@ -4734,29 +4545,21 @@ const docTemplate = `{
                 }
             }
         },
-        "GetSceneLinkageDetailResponse": {
+        "GetRuleChainResponse": {
             "type": "object",
             "properties": {
-                "detail": {
-                    "$ref": "#/definitions/SceneLinkageDetail"
+                "ruleChain": {
+                    "$ref": "#/definitions/RuleChain"
                 }
             }
         },
-        "GetSceneLinkageResponse": {
-            "type": "object",
-            "properties": {
-                "sceneLinkage": {
-                    "$ref": "#/definitions/SceneLinkage"
-                }
-            }
-        },
-        "ListSceneLinkagesResponse": {
+        "ListRuleChainsResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/SceneLinkage"
+                        "$ref": "#/definitions/RuleChain"
                     }
                 },
                 "page": {
@@ -5456,7 +5259,7 @@ const docTemplate = `{
                 }
             }
         },
-        "SceneLinkage": {
+        "RuleChain": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -5465,11 +5268,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "enable": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
+                "graph": {
+                    "type": "object",
+                    "additionalProperties": {}
                 },
                 "name": {
                     "type": "string"
@@ -5477,66 +5278,41 @@ const docTemplate = `{
                 "organizationId": {
                     "type": "integer"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "updatedAt": {
                     "type": "string"
-                }
-            }
-        },
-        "SceneLinkageDetail": {
-            "type": "object",
-            "properties": {
-                "actionConfig": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 },
-                "sceneId": {
+                "uuid": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "integer"
-                },
-                "triggerConfig": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 }
             }
         },
-        "SceneLinkageDetailRequest": {
-            "type": "object",
-            "properties": {
-                "actionConfig": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "triggerConfig": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "SceneLinkageRequest": {
+        "RuleChainRequest": {
             "type": "object",
             "required": [
+                "graph",
                 "name"
             ],
             "properties": {
                 "description": {
                     "type": "string"
                 },
-                "enable": {
-                    "type": "integer"
+                "graph": {
+                    "type": "object",
+                    "additionalProperties": {}
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 128
                 }
             }
         },
-        "SceneLinkageSuccessResponse": {
+        "RuleChainSuccessResponse": {
             "type": "object",
             "properties": {
                 "success": {
@@ -5582,19 +5358,11 @@ const docTemplate = `{
                 }
             }
         },
-        "UpdateSceneLinkageDetailResponse": {
+        "UpdateRuleChainResponse": {
             "type": "object",
             "properties": {
-                "detail": {
-                    "$ref": "#/definitions/SceneLinkageDetail"
-                }
-            }
-        },
-        "UpdateSceneLinkageResponse": {
-            "type": "object",
-            "properties": {
-                "sceneLinkage": {
-                    "$ref": "#/definitions/SceneLinkage"
+                "ruleChain": {
+                    "$ref": "#/definitions/RuleChain"
                 }
             }
         },

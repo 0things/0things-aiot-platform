@@ -1,6 +1,6 @@
 import { Pencil } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { AiotBackendApiDeviceGroupV1DeviceGroup as DeviceGroupV1Group } from '@/api/generated/model'
+import type { AiotBackendApiV1DeviceGroup as DeviceGroupV1Group } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CopyButton } from '@/components/copy-button'

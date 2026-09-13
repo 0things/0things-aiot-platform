@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"0things/pkg/event"
+	"data-engine/internal/handler"
 	"data-engine/internal/service"
 
 	"go.uber.org/zap"
@@ -24,7 +25,7 @@ func TestOTAProgressConsumer_HandleProgressReport(t *testing.T) {
 	logger := zap.NewNop()
 	store := &reportStoreStub{}
 	otaService := service.NewOTAService(store, logger)
-	consumer := NewOTAProgressConsumer(otaService, logger)
+	consumer := NewOTAProgressConsumer(handler.NewOTAProgressHandler(otaService, logger))
 
 	progress := int32(50)
 	report := &event.OTAUpgradeReport{

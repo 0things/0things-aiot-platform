@@ -44,19 +44,19 @@ import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
-import { Route as AuthenticatedRuleEngineSceneLinkageIndexRouteImport } from './routes/_authenticated/rule-engine/scene-linkage/index'
+import { Route as AuthenticatedRuleEngineRuleChainsIndexRouteImport } from './routes/_authenticated/rule-engine/rule-chains/index'
 import { Route as AuthenticatedOperationsMonitoringEventsIndexRouteImport } from './routes/_authenticated/operations-monitoring/events/index'
 import { Route as AuthenticatedDeviceManagementProductsIndexRouteImport } from './routes/_authenticated/device-management/products/index'
 import { Route as AuthenticatedDeviceManagementGroupsIndexRouteImport } from './routes/_authenticated/device-management/groups/index'
 import { Route as AuthenticatedDeviceManagementDevicesIndexRouteImport } from './routes/_authenticated/device-management/devices/index'
-import { Route as AuthenticatedRuleEngineSceneLinkageNewIndexRouteImport } from './routes/_authenticated/rule-engine/scene-linkage/new/index'
-import { Route as AuthenticatedRuleEngineSceneLinkageSceneIdIndexRouteImport } from './routes/_authenticated/rule-engine/scene-linkage/$sceneId/index'
 import { Route as AuthenticatedRuleEngineRuleChainsNewIndexRouteImport } from './routes/_authenticated/rule-engine/rule-chains/new/index'
+import { Route as AuthenticatedRuleEngineRuleChainsUuidIndexRouteImport } from './routes/_authenticated/rule-engine/rule-chains/$uuid/index'
 import { Route as AuthenticatedOperationsMonitoringOtaPackagesIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/packages/index'
 import { Route as AuthenticatedOperationsMonitoringOtaAnalyticsIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/analytics/index'
 import { Route as AuthenticatedDeviceManagementProductsProductKeyIndexRouteImport } from './routes/_authenticated/device-management/products/$productKey/index'
 import { Route as AuthenticatedDeviceManagementGroupsUuidIndexRouteImport } from './routes/_authenticated/device-management/groups/$uuid/index'
 import { Route as AuthenticatedDeviceManagementDevicesDeviceKeyIndexRouteImport } from './routes/_authenticated/device-management/devices/$deviceKey/index'
+import { Route as AuthenticatedRuleEngineRuleChainsUuidEditIndexRouteImport } from './routes/_authenticated/rule-engine/rule-chains/$uuid/edit/index'
 import { Route as AuthenticatedOperationsMonitoringOtaPackagesIdIndexRouteImport } from './routes/_authenticated/operations-monitoring/ota/packages/$id/index'
 
 const ClerkRouteRoute = ClerkRouteRouteImport.update({
@@ -245,10 +245,10 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedRuleEngineSceneLinkageIndexRoute =
-  AuthenticatedRuleEngineSceneLinkageIndexRouteImport.update({
-    id: '/scene-linkage/',
-    path: '/scene-linkage/',
+const AuthenticatedRuleEngineRuleChainsIndexRoute =
+  AuthenticatedRuleEngineRuleChainsIndexRouteImport.update({
+    id: '/rule-chains/',
+    path: '/rule-chains/',
     getParentRoute: () => AuthenticatedRuleEngineRouteRoute,
   } as any)
 const AuthenticatedOperationsMonitoringEventsIndexRoute =
@@ -275,22 +275,16 @@ const AuthenticatedDeviceManagementDevicesIndexRoute =
     path: '/devices/',
     getParentRoute: () => AuthenticatedDeviceManagementRouteRoute,
   } as any)
-const AuthenticatedRuleEngineSceneLinkageNewIndexRoute =
-  AuthenticatedRuleEngineSceneLinkageNewIndexRouteImport.update({
-    id: '/scene-linkage/new/',
-    path: '/scene-linkage/new/',
-    getParentRoute: () => AuthenticatedRuleEngineRouteRoute,
-  } as any)
-const AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute =
-  AuthenticatedRuleEngineSceneLinkageSceneIdIndexRouteImport.update({
-    id: '/scene-linkage/$sceneId/',
-    path: '/scene-linkage/$sceneId/',
-    getParentRoute: () => AuthenticatedRuleEngineRouteRoute,
-  } as any)
 const AuthenticatedRuleEngineRuleChainsNewIndexRoute =
   AuthenticatedRuleEngineRuleChainsNewIndexRouteImport.update({
     id: '/rule-chains/new/',
     path: '/rule-chains/new/',
+    getParentRoute: () => AuthenticatedRuleEngineRouteRoute,
+  } as any)
+const AuthenticatedRuleEngineRuleChainsUuidIndexRoute =
+  AuthenticatedRuleEngineRuleChainsUuidIndexRouteImport.update({
+    id: '/rule-chains/$uuid/',
+    path: '/rule-chains/$uuid/',
     getParentRoute: () => AuthenticatedRuleEngineRouteRoute,
   } as any)
 const AuthenticatedOperationsMonitoringOtaPackagesIndexRoute =
@@ -322,6 +316,12 @@ const AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute =
     id: '/devices/$deviceKey/',
     path: '/devices/$deviceKey/',
     getParentRoute: () => AuthenticatedDeviceManagementRouteRoute,
+  } as any)
+const AuthenticatedRuleEngineRuleChainsUuidEditIndexRoute =
+  AuthenticatedRuleEngineRuleChainsUuidEditIndexRouteImport.update({
+    id: '/rule-chains/$uuid/edit/',
+    path: '/rule-chains/$uuid/edit/',
+    getParentRoute: () => AuthenticatedRuleEngineRouteRoute,
   } as any)
 const AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute =
   AuthenticatedOperationsMonitoringOtaPackagesIdIndexRouteImport.update({
@@ -367,16 +367,16 @@ export interface FileRoutesByFullPath {
   '/device-management/groups': typeof AuthenticatedDeviceManagementGroupsIndexRoute
   '/device-management/products': typeof AuthenticatedDeviceManagementProductsIndexRoute
   '/operations-monitoring/events': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
-  '/rule-engine/scene-linkage': typeof AuthenticatedRuleEngineSceneLinkageIndexRoute
+  '/rule-engine/rule-chains': typeof AuthenticatedRuleEngineRuleChainsIndexRoute
   '/device-management/devices/$deviceKey': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
   '/device-management/groups/$uuid': typeof AuthenticatedDeviceManagementGroupsUuidIndexRoute
   '/device-management/products/$productKey': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/operations-monitoring/ota/analytics': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/operations-monitoring/ota/packages': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
+  '/rule-engine/rule-chains/$uuid': typeof AuthenticatedRuleEngineRuleChainsUuidIndexRoute
   '/rule-engine/rule-chains/new': typeof AuthenticatedRuleEngineRuleChainsNewIndexRoute
-  '/rule-engine/scene-linkage/$sceneId': typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute
-  '/rule-engine/scene-linkage/new': typeof AuthenticatedRuleEngineSceneLinkageNewIndexRoute
   '/operations-monitoring/ota/packages/$id': typeof AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute
+  '/rule-engine/rule-chains/$uuid/edit': typeof AuthenticatedRuleEngineRuleChainsUuidEditIndexRoute
 }
 export interface FileRoutesByTo {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -413,16 +413,16 @@ export interface FileRoutesByTo {
   '/device-management/groups': typeof AuthenticatedDeviceManagementGroupsIndexRoute
   '/device-management/products': typeof AuthenticatedDeviceManagementProductsIndexRoute
   '/operations-monitoring/events': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
-  '/rule-engine/scene-linkage': typeof AuthenticatedRuleEngineSceneLinkageIndexRoute
+  '/rule-engine/rule-chains': typeof AuthenticatedRuleEngineRuleChainsIndexRoute
   '/device-management/devices/$deviceKey': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
   '/device-management/groups/$uuid': typeof AuthenticatedDeviceManagementGroupsUuidIndexRoute
   '/device-management/products/$productKey': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/operations-monitoring/ota/analytics': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/operations-monitoring/ota/packages': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
+  '/rule-engine/rule-chains/$uuid': typeof AuthenticatedRuleEngineRuleChainsUuidIndexRoute
   '/rule-engine/rule-chains/new': typeof AuthenticatedRuleEngineRuleChainsNewIndexRoute
-  '/rule-engine/scene-linkage/$sceneId': typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute
-  '/rule-engine/scene-linkage/new': typeof AuthenticatedRuleEngineSceneLinkageNewIndexRoute
   '/operations-monitoring/ota/packages/$id': typeof AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute
+  '/rule-engine/rule-chains/$uuid/edit': typeof AuthenticatedRuleEngineRuleChainsUuidEditIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -465,16 +465,16 @@ export interface FileRoutesById {
   '/_authenticated/device-management/groups/': typeof AuthenticatedDeviceManagementGroupsIndexRoute
   '/_authenticated/device-management/products/': typeof AuthenticatedDeviceManagementProductsIndexRoute
   '/_authenticated/operations-monitoring/events/': typeof AuthenticatedOperationsMonitoringEventsIndexRoute
-  '/_authenticated/rule-engine/scene-linkage/': typeof AuthenticatedRuleEngineSceneLinkageIndexRoute
+  '/_authenticated/rule-engine/rule-chains/': typeof AuthenticatedRuleEngineRuleChainsIndexRoute
   '/_authenticated/device-management/devices/$deviceKey/': typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRoute
   '/_authenticated/device-management/groups/$uuid/': typeof AuthenticatedDeviceManagementGroupsUuidIndexRoute
   '/_authenticated/device-management/products/$productKey/': typeof AuthenticatedDeviceManagementProductsProductKeyIndexRoute
   '/_authenticated/operations-monitoring/ota/analytics/': typeof AuthenticatedOperationsMonitoringOtaAnalyticsIndexRoute
   '/_authenticated/operations-monitoring/ota/packages/': typeof AuthenticatedOperationsMonitoringOtaPackagesIndexRoute
+  '/_authenticated/rule-engine/rule-chains/$uuid/': typeof AuthenticatedRuleEngineRuleChainsUuidIndexRoute
   '/_authenticated/rule-engine/rule-chains/new/': typeof AuthenticatedRuleEngineRuleChainsNewIndexRoute
-  '/_authenticated/rule-engine/scene-linkage/$sceneId/': typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute
-  '/_authenticated/rule-engine/scene-linkage/new/': typeof AuthenticatedRuleEngineSceneLinkageNewIndexRoute
   '/_authenticated/operations-monitoring/ota/packages/$id/': typeof AuthenticatedOperationsMonitoringOtaPackagesIdIndexRoute
+  '/_authenticated/rule-engine/rule-chains/$uuid/edit/': typeof AuthenticatedRuleEngineRuleChainsUuidEditIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -515,16 +515,16 @@ export interface FileRouteTypes {
     | '/device-management/groups'
     | '/device-management/products'
     | '/operations-monitoring/events'
-    | '/rule-engine/scene-linkage'
+    | '/rule-engine/rule-chains'
     | '/device-management/devices/$deviceKey'
     | '/device-management/groups/$uuid'
     | '/device-management/products/$productKey'
     | '/operations-monitoring/ota/analytics'
     | '/operations-monitoring/ota/packages'
+    | '/rule-engine/rule-chains/$uuid'
     | '/rule-engine/rule-chains/new'
-    | '/rule-engine/scene-linkage/$sceneId'
-    | '/rule-engine/scene-linkage/new'
     | '/operations-monitoring/ota/packages/$id'
+    | '/rule-engine/rule-chains/$uuid/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/clerk'
@@ -561,16 +561,16 @@ export interface FileRouteTypes {
     | '/device-management/groups'
     | '/device-management/products'
     | '/operations-monitoring/events'
-    | '/rule-engine/scene-linkage'
+    | '/rule-engine/rule-chains'
     | '/device-management/devices/$deviceKey'
     | '/device-management/groups/$uuid'
     | '/device-management/products/$productKey'
     | '/operations-monitoring/ota/analytics'
     | '/operations-monitoring/ota/packages'
+    | '/rule-engine/rule-chains/$uuid'
     | '/rule-engine/rule-chains/new'
-    | '/rule-engine/scene-linkage/$sceneId'
-    | '/rule-engine/scene-linkage/new'
     | '/operations-monitoring/ota/packages/$id'
+    | '/rule-engine/rule-chains/$uuid/edit'
   id:
     | '__root__'
     | '/_authenticated'
@@ -612,16 +612,16 @@ export interface FileRouteTypes {
     | '/_authenticated/device-management/groups/'
     | '/_authenticated/device-management/products/'
     | '/_authenticated/operations-monitoring/events/'
-    | '/_authenticated/rule-engine/scene-linkage/'
+    | '/_authenticated/rule-engine/rule-chains/'
     | '/_authenticated/device-management/devices/$deviceKey/'
     | '/_authenticated/device-management/groups/$uuid/'
     | '/_authenticated/device-management/products/$productKey/'
     | '/_authenticated/operations-monitoring/ota/analytics/'
     | '/_authenticated/operations-monitoring/ota/packages/'
+    | '/_authenticated/rule-engine/rule-chains/$uuid/'
     | '/_authenticated/rule-engine/rule-chains/new/'
-    | '/_authenticated/rule-engine/scene-linkage/$sceneId/'
-    | '/_authenticated/rule-engine/scene-linkage/new/'
     | '/_authenticated/operations-monitoring/ota/packages/$id/'
+    | '/_authenticated/rule-engine/rule-chains/$uuid/edit/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -886,11 +886,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/rule-engine/scene-linkage/': {
-      id: '/_authenticated/rule-engine/scene-linkage/'
-      path: '/scene-linkage'
-      fullPath: '/rule-engine/scene-linkage'
-      preLoaderRoute: typeof AuthenticatedRuleEngineSceneLinkageIndexRouteImport
+    '/_authenticated/rule-engine/rule-chains/': {
+      id: '/_authenticated/rule-engine/rule-chains/'
+      path: '/rule-chains'
+      fullPath: '/rule-engine/rule-chains'
+      preLoaderRoute: typeof AuthenticatedRuleEngineRuleChainsIndexRouteImport
       parentRoute: typeof AuthenticatedRuleEngineRouteRoute
     }
     '/_authenticated/operations-monitoring/events/': {
@@ -921,25 +921,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDeviceManagementDevicesIndexRouteImport
       parentRoute: typeof AuthenticatedDeviceManagementRouteRoute
     }
-    '/_authenticated/rule-engine/scene-linkage/new/': {
-      id: '/_authenticated/rule-engine/scene-linkage/new/'
-      path: '/scene-linkage/new'
-      fullPath: '/rule-engine/scene-linkage/new'
-      preLoaderRoute: typeof AuthenticatedRuleEngineSceneLinkageNewIndexRouteImport
-      parentRoute: typeof AuthenticatedRuleEngineRouteRoute
-    }
-    '/_authenticated/rule-engine/scene-linkage/$sceneId/': {
-      id: '/_authenticated/rule-engine/scene-linkage/$sceneId/'
-      path: '/scene-linkage/$sceneId'
-      fullPath: '/rule-engine/scene-linkage/$sceneId'
-      preLoaderRoute: typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRouteImport
-      parentRoute: typeof AuthenticatedRuleEngineRouteRoute
-    }
     '/_authenticated/rule-engine/rule-chains/new/': {
       id: '/_authenticated/rule-engine/rule-chains/new/'
       path: '/rule-chains/new'
       fullPath: '/rule-engine/rule-chains/new'
       preLoaderRoute: typeof AuthenticatedRuleEngineRuleChainsNewIndexRouteImport
+      parentRoute: typeof AuthenticatedRuleEngineRouteRoute
+    }
+    '/_authenticated/rule-engine/rule-chains/$uuid/': {
+      id: '/_authenticated/rule-engine/rule-chains/$uuid/'
+      path: '/rule-chains/$uuid'
+      fullPath: '/rule-engine/rule-chains/$uuid'
+      preLoaderRoute: typeof AuthenticatedRuleEngineRuleChainsUuidIndexRouteImport
       parentRoute: typeof AuthenticatedRuleEngineRouteRoute
     }
     '/_authenticated/operations-monitoring/ota/packages/': {
@@ -976,6 +969,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/device-management/devices/$deviceKey'
       preLoaderRoute: typeof AuthenticatedDeviceManagementDevicesDeviceKeyIndexRouteImport
       parentRoute: typeof AuthenticatedDeviceManagementRouteRoute
+    }
+    '/_authenticated/rule-engine/rule-chains/$uuid/edit/': {
+      id: '/_authenticated/rule-engine/rule-chains/$uuid/edit/'
+      path: '/rule-chains/$uuid/edit'
+      fullPath: '/rule-engine/rule-chains/$uuid/edit'
+      preLoaderRoute: typeof AuthenticatedRuleEngineRuleChainsUuidEditIndexRouteImport
+      parentRoute: typeof AuthenticatedRuleEngineRouteRoute
     }
     '/_authenticated/operations-monitoring/ota/packages/$id/': {
       id: '/_authenticated/operations-monitoring/ota/packages/$id/'
@@ -1043,23 +1043,23 @@ const AuthenticatedOperationsMonitoringRouteRouteWithChildren =
 
 interface AuthenticatedRuleEngineRouteRouteChildren {
   AuthenticatedRuleEngineIndexRoute: typeof AuthenticatedRuleEngineIndexRoute
-  AuthenticatedRuleEngineSceneLinkageIndexRoute: typeof AuthenticatedRuleEngineSceneLinkageIndexRoute
+  AuthenticatedRuleEngineRuleChainsIndexRoute: typeof AuthenticatedRuleEngineRuleChainsIndexRoute
+  AuthenticatedRuleEngineRuleChainsUuidIndexRoute: typeof AuthenticatedRuleEngineRuleChainsUuidIndexRoute
   AuthenticatedRuleEngineRuleChainsNewIndexRoute: typeof AuthenticatedRuleEngineRuleChainsNewIndexRoute
-  AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute: typeof AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute
-  AuthenticatedRuleEngineSceneLinkageNewIndexRoute: typeof AuthenticatedRuleEngineSceneLinkageNewIndexRoute
+  AuthenticatedRuleEngineRuleChainsUuidEditIndexRoute: typeof AuthenticatedRuleEngineRuleChainsUuidEditIndexRoute
 }
 
 const AuthenticatedRuleEngineRouteRouteChildren: AuthenticatedRuleEngineRouteRouteChildren =
   {
     AuthenticatedRuleEngineIndexRoute: AuthenticatedRuleEngineIndexRoute,
-    AuthenticatedRuleEngineSceneLinkageIndexRoute:
-      AuthenticatedRuleEngineSceneLinkageIndexRoute,
+    AuthenticatedRuleEngineRuleChainsIndexRoute:
+      AuthenticatedRuleEngineRuleChainsIndexRoute,
+    AuthenticatedRuleEngineRuleChainsUuidIndexRoute:
+      AuthenticatedRuleEngineRuleChainsUuidIndexRoute,
     AuthenticatedRuleEngineRuleChainsNewIndexRoute:
       AuthenticatedRuleEngineRuleChainsNewIndexRoute,
-    AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute:
-      AuthenticatedRuleEngineSceneLinkageSceneIdIndexRoute,
-    AuthenticatedRuleEngineSceneLinkageNewIndexRoute:
-      AuthenticatedRuleEngineSceneLinkageNewIndexRoute,
+    AuthenticatedRuleEngineRuleChainsUuidEditIndexRoute:
+      AuthenticatedRuleEngineRuleChainsUuidEditIndexRoute,
   }
 
 const AuthenticatedRuleEngineRouteRouteWithChildren =

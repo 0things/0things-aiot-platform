@@ -4,6 +4,7 @@ import (
 	"aiot-backend/internal/handler"
 	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
+
 	"github.com/spf13/viper"
 )
 
@@ -17,8 +18,6 @@ type RouterDeps struct {
 	ProductTSLHandler           *handler.ProductTSLHandler
 	ProductMessageParserHandler *handler.ProductMessageParserHandler
 	DeviceHandler               *handler.DeviceHandler
-	SceneLinkageHandler         *handler.SceneLinkageHandler
-	SceneLinkageDetailHandler   *handler.SceneLinkageDetailHandler
 	OTAHandler                  *handler.OTAHandler
 	FileHandler                 *handler.FileHandler
 	DeviceEventHandler          *handler.DeviceEventHandler
@@ -27,4 +26,5 @@ type RouterDeps struct {
 	DeviceGroupHandler          *handler.DeviceGroupHandler
 	TelemetryHandler            *handler.TelemetryHandler
 	RuleNodeDefinitionHandler   *handler.RuleNodeDefinitionHandler
+	RuleChainHandler            *handler.RuleChainHandler
 }

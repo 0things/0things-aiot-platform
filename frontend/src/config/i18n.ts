@@ -38,7 +38,6 @@ i18n
       'operationsMonitoring',
       'ota',
       'iotDashboard',
-      'sceneLinkage',
       'ruleChain',
       'aiCopilot',
     ],

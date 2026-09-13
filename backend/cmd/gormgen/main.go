@@ -4,9 +4,10 @@ package main
 
 import (
 	"aiot-backend/internal/model"
-	"gorm.io/gen"
 	"path/filepath"
 	"runtime"
+
+	"gorm.io/gen"
 )
 
 func main() {
@@ -32,8 +33,6 @@ func main() {
 		model.DevicePushRecord{},
 		model.DeviceGroup{},
 		model.DeviceGroupMember{},
-		model.SceneLinkage{},
-		model.SceneLinkageDetail{},
 	)
 
 	g.Execute()

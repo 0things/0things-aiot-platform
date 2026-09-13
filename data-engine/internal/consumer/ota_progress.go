@@ -4,40 +4,21 @@ import (
 	"context"
 
 	"0things/pkg/event"
-	"data-engine/internal/service"
-
-	"go.uber.org/zap"
+	"data-engine/internal/handler"
 )
 
 // OTAProgressConsumer handles device OTA progress reporting and state aggregation.
 type OTAProgressConsumer struct {
-	otaService service.OTAService
-	logger     *zap.Logger
+	otaHandler handler.OTAProgressHandlerInterface
 }
 
-func NewOTAProgressConsumer(otaService service.OTAService, logger *zap.Logger) *OTAProgressConsumer {
+func NewOTAProgressConsumer(otaHandler handler.OTAProgressHandlerInterface) *OTAProgressConsumer {
 	return &OTAProgressConsumer{
-		otaService: otaService,
-		logger:     logger,
+		otaHandler: otaHandler,
 	}
 }
 
 // HandleProgressReport handles device OTA progress report and advances state machine.
 func (c *OTAProgressConsumer) HandleProgressReport(ctx context.Context, report *event.OTAUpgradeReport, meta map[string]string) error {
-	if report == nil {
-		return nil
-	}
-
-	c.logger.Info("handling OTA progress report event",
-		zap.String("device_key", report.DeviceKey),
-		zap.String("batch_id", report.BatchID),
-		zap.String("status", report.Status),
-	)
-
-	rep := *report
-	if rep.EventType == "" {
-		rep.EventType = "progress"
-	}
-
-	return c.otaService.HandleOTAReport(ctx, rep)
+	return c.otaHandler.HandleProgressReport(ctx, report, meta)
 }

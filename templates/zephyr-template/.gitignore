@@ -1,0 +1,4 @@
+build*/
+.west/
+*.pem
+!certs/README.md

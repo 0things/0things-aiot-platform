@@ -7,6 +7,7 @@ import (
 	"0things/pkg/event"
 	"0things/pkg/tsdb"
 	"data-engine/internal/consumer"
+	"data-engine/internal/handler"
 	"data-engine/internal/repository"
 	"data-engine/internal/server"
 	"data-engine/internal/service"
@@ -75,6 +76,15 @@ var consumerSet = wire.NewSet(
 	consumer.NewManager,
 )
 
+var handlerSet = wire.NewSet(
+	handler.NewTelemetryHandler,
+	handler.NewEventHandler,
+	handler.NewOTAProgressHandler,
+	wire.Bind(new(handler.TelemetryHandlerInterface), new(*handler.TelemetryHandler)),
+	wire.Bind(new(handler.EventHandlerInterface), new(*handler.EventHandler)),
+	wire.Bind(new(handler.OTAProgressHandlerInterface), new(*handler.OTAProgressHandler)),
+)
+
 var serverSet = wire.NewSet(
 	server.NewDataEngineServer,
 )
@@ -96,6 +106,7 @@ func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
 		provideEventConsumer,
 		repositorySet,
 		serviceSet,
+		handlerSet,
 		consumerSet,
 		serverSet,
 		newApp,

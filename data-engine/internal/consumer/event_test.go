@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"0things/pkg/event"
+	"data-engine/internal/handler"
 	"data-engine/internal/service"
 
 	"github.com/spf13/viper"
@@ -17,7 +18,7 @@ func TestEventConsumer_HandleEvent(t *testing.T) {
 	v := viper.New()
 	logger := zap.NewNop()
 	eventService := service.NewEventService(v, logger)
-	consumer := NewEventConsumer(eventService, logger)
+	consumer := NewEventConsumer(handler.NewEventHandler(eventService, logger))
 
 	rawPayload := []byte(`{"alarm": "overvoltage", "val": 380}`)
 	msg := &event.DeviceMessage{

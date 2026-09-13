@@ -59,9 +59,8 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 		&model.OTAPackage{},
 		&model.UpgradeBatch{},
 		&model.DeviceUpgradeStatus{},
-		&model.SceneLinkage{},
-		&model.SceneLinkageDetail{},
 		&model.RuleNodeDefinition{},
+		&model.RuleChain{},
 	); err != nil {
 		m.log.Error("AutoMigrate failed", zap.Error(err))
 		return err

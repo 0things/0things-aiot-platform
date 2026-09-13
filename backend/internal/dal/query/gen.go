@@ -33,8 +33,6 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Product:                 newProduct(db, opts...),
 		ProductMessageParser:    newProductMessageParser(db, opts...),
 		ProductTSL:              newProductTSL(db, opts...),
-		SceneLinkage:            newSceneLinkage(db, opts...),
-		SceneLinkageDetail:      newSceneLinkageDetail(db, opts...),
 		UpgradeBatch:            newUpgradeBatch(db, opts...),
 	}
 }
@@ -57,8 +55,6 @@ type Query struct {
 	Product                 product
 	ProductMessageParser    productMessageParser
 	ProductTSL              productTSL
-	SceneLinkage            sceneLinkage
-	SceneLinkageDetail      sceneLinkageDetail
 	UpgradeBatch            upgradeBatch
 }
 
@@ -84,8 +80,6 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Product:                 q.Product.clone(db),
 		ProductMessageParser:    q.ProductMessageParser.clone(db),
 		ProductTSL:              q.ProductTSL.clone(db),
-		SceneLinkage:            q.SceneLinkage.clone(db),
-		SceneLinkageDetail:      q.SceneLinkageDetail.clone(db),
 		UpgradeBatch:            q.UpgradeBatch.clone(db),
 	}
 }
@@ -116,8 +110,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Product:                 q.Product.replaceDB(db),
 		ProductMessageParser:    q.ProductMessageParser.replaceDB(db),
 		ProductTSL:              q.ProductTSL.replaceDB(db),
-		SceneLinkage:            q.SceneLinkage.replaceDB(db),
-		SceneLinkageDetail:      q.SceneLinkageDetail.replaceDB(db),
 		UpgradeBatch:            q.UpgradeBatch.replaceDB(db),
 	}
 }
@@ -138,8 +130,6 @@ type queryCtx struct {
 	Product                 *productDo
 	ProductMessageParser    *productMessageParserDo
 	ProductTSL              *productTSLDo
-	SceneLinkage            *sceneLinkageDo
-	SceneLinkageDetail      *sceneLinkageDetailDo
 	UpgradeBatch            *upgradeBatchDo
 }
 
@@ -160,8 +150,6 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Product:                 q.Product.WithContext(ctx),
 		ProductMessageParser:    q.ProductMessageParser.WithContext(ctx),
 		ProductTSL:              q.ProductTSL.WithContext(ctx),
-		SceneLinkage:            q.SceneLinkage.WithContext(ctx),
-		SceneLinkageDetail:      q.SceneLinkageDetail.WithContext(ctx),
 		UpgradeBatch:            q.UpgradeBatch.WithContext(ctx),
 	}
 }

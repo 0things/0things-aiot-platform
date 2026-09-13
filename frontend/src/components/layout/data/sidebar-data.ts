@@ -134,13 +134,8 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
           icon: Zap,
           items: [
             {
-              title: t('navigation:sidebar.sceneLinkage'),
-              url: '/rule-engine/scene-linkage',
-              icon: Workflow,
-            },
-            {
               title: t('navigation:sidebar.ruleChains'),
-              url: '/rule-engine/rule-chains/new',
+              url: '/rule-engine/rule-chains',
               icon: Workflow,
             },
           ],

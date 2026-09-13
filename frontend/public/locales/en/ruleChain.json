@@ -2,21 +2,60 @@
   "title": "New rule chain",
   "draft": "Unsaved draft",
   "description": "Drag nodes in and connect an output to the next node.",
-  "saveComingSoon": "Save (coming soon)",
+  "save": "Save rule chain",
+  "saving": "Saving…",
+  "saved": "Saved",
+  "saveSuccess": "Rule chain saved",
+  "saveError": "Save failed. Try again.",
+  "nameLabel": "Rule chain name",
+  "descriptionLabel": "Rule chain description",
+  "descriptionPlaceholder": "Describe what this chain is for (optional)",
   "palette": {
     "title": "Node library",
     "hint": "Click or drag into the canvas",
-    "searchPlaceholder": "Search nodes"
+    "searchPlaceholder": "Search nodes",
+    "empty": "No rule nodes are available."
   },
   "inspector": {
     "title": "Node configuration",
     "configFields": "Configuration fields",
     "noConfig": "This node has no configuration.",
-    "selectHint": "Select a node on the canvas to view its configuration."
+    "selectHint": "Select a node on the canvas to view its configuration.",
+    "deleteNode": "Delete node",
+    "tip": "Connect nodes to preserve the output port name as the rule branch."
   },
   "actions": {
     "collapsePalette": "Collapse node library",
     "expandPalette": "Expand node library"
   },
-  "testComingSoon": "Test run (coming soon)"
+  "validation": { "nameRequired": "Enter a rule chain name" },
+  "backToList": "Back to rule chains",
+  "backToDetail": "Back to rule chain details",
+  "back": "Back",
+  "list": {
+    "title": "Rule chains",
+    "description": "Manage rule chains for your organization.",
+    "create": "Create rule chain",
+    "search": "Search rule chains...",
+    "empty": "No rule chains found.",
+    "loadError": "Failed to load rule chains.",
+    "deleteSuccess": "Rule chain deleted",
+    "deleteError": "Failed to delete rule chain.",
+    "deleteConfirm": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "columns": {
+      "name": "Name",
+      "description": "Description",
+      "status": "Status",
+      "version": "Version"
+    }
+  },
+  "status": {
+    "draft": "Draft",
+    "published": "Published"
+  },
+  "detail": {
+    "loading": "Loading rule chain...",
+    "notFound": "Rule chain not found.",
+    "backToList": "Back to rule chains"
+  }
 }

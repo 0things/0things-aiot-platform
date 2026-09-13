@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { AiotBackendApiDeviceGroupV1DeviceGroup as DeviceGroupV1Group } from '@/api/generated/model'
+import type { AiotBackendApiV1DeviceGroup as DeviceGroupV1Group } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import { CopyButton } from '@/components/copy-button'
 

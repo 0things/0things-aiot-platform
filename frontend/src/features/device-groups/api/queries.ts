@@ -13,9 +13,9 @@ import {
   useGetDeviceGroupsGroupUuidDevices,
 } from '@/api/generated'
 import type {
-  AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest,
-  AiotBackendApiDeviceGroupV1DeviceKeysRequest,
-  AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest,
+  AiotBackendApiV1CreateDeviceGroupRequest,
+  AiotBackendApiV1DeviceKeysRequest,
+  AiotBackendApiV1UpdateDeviceGroupRequest,
   GetDeviceGroupsGroupUuidDevicesParams,
   GetDeviceGroupsParams,
 } from '@/api/generated/model'
@@ -66,7 +66,7 @@ export function useDeviceGroupDevices(
 export function useCreateDeviceGroup() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: AiotBackendApiDeviceGroupV1CreateDeviceGroupRequest) =>
+    mutationFn: (data: AiotBackendApiV1CreateDeviceGroupRequest) =>
       postDeviceGroups(data as never),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: deviceGroupKeys.lists() })
@@ -82,7 +82,7 @@ export function useUpdateDeviceGroup() {
       data,
     }: {
       groupUuid: string
-      data: AiotBackendApiDeviceGroupV1UpdateDeviceGroupRequest
+      data: AiotBackendApiV1UpdateDeviceGroupRequest
     }) => putDeviceGroupsGroupUuid(groupUuid, data as never),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -111,7 +111,7 @@ export function useAddDevicesToGroup() {
       data,
     }: {
       groupUuid: string
-      data: AiotBackendApiDeviceGroupV1DeviceKeysRequest
+      data: AiotBackendApiV1DeviceKeysRequest
     }) => postDeviceGroupsGroupUuidDevices(groupUuid, data as never),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -134,7 +134,7 @@ export function useRemoveDevicesFromGroup() {
       data,
     }: {
       groupUuid: string
-      data: AiotBackendApiDeviceGroupV1DeviceKeysRequest
+      data: AiotBackendApiV1DeviceKeysRequest
     }) => deleteDeviceGroupsGroupUuidDevices(groupUuid, data as never),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

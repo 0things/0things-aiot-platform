@@ -2,9 +2,9 @@ import {
   getGetCategoriesTreeQueryKey,
   useGetCategoriesTree,
 } from '@/api/generated'
-import type { AiotBackendApiCategoryV1Category } from '@/api/generated/model'
+import type { AiotBackendApiV1Category } from '@/api/generated/model'
 
-export type CategoryNode = AiotBackendApiCategoryV1Category
+export type CategoryNode = AiotBackendApiV1Category
 
 export const categoryKeys = {
   all: ['product-categories'] as const,

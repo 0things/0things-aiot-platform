@@ -42,8 +42,7 @@ import type {
   ApiResponseArrayApiOrganizationItem,
   ApiResponseArrayProductOption,
   ApiResponseArrayTelemetryPoint,
-  ApiResponseCreateSceneLinkageDetailResponse,
-  ApiResponseCreateSceneLinkageResponse,
+  ApiResponseCreateRuleChainResponse,
   ApiResponseDeviceActivateDeviceResponse,
   ApiResponseDeviceBatchUploadDevicesResponse,
   ApiResponseDeviceClearPushRecordsResponse,
@@ -65,9 +64,8 @@ import type {
   ApiResponseDeviceUpdateDeviceResponse,
   ApiResponseFileUploadOTAFileResponse,
   ApiResponseGetDeviceThingModelPropertiesResponse,
-  ApiResponseGetSceneLinkageDetailResponse,
-  ApiResponseGetSceneLinkageResponse,
-  ApiResponseListSceneLinkagesResponse,
+  ApiResponseGetRuleChainResponse,
+  ApiResponseListRuleChainsResponse,
   ApiResponseMapStringBool,
   ApiResponseMessageParserExecuteProductMessageParserResponse,
   ApiResponseMessageParserProductMessageParser,
@@ -85,9 +83,8 @@ import type {
   ApiResponseProductTslGetProductTSLResponse,
   ApiResponseProductTslSuccessResponse,
   ApiResponseProductUpdateProductResponse,
-  ApiResponseSceneLinkageSuccessResponse,
-  ApiResponseUpdateSceneLinkageDetailResponse,
-  ApiResponseUpdateSceneLinkageResponse,
+  ApiResponseRuleChainSuccessResponse,
+  ApiResponseUpdateRuleChainResponse,
   ApiSuccessResponse,
   ApiSwitchOrgRequest,
   ApiUpdateProfileRequest,
@@ -111,7 +108,7 @@ import type {
   GetOtaPackagesUuidDeviceDeploymentsParams,
   GetOtaPackagesUuidUpgradeStatisticsParams,
   GetProductsParams,
-  GetSceneLinkagesParams,
+  GetRuleChainsParams,
   MessageParserExecuteProductMessageParserRequest,
   MessageParserUpsertProductMessageParserRequest,
   OtaBatchUpgradeRequest,
@@ -123,8 +120,7 @@ import type {
   ProductCreateProductRequest,
   ProductTslUpsertProductTSLRequest,
   ProductUpdateProductRequest,
-  SceneLinkageDetailRequest,
-  SceneLinkageRequest,
+  RuleChainRequest,
 } from './model'
 
 const withQueryKey = <T extends object, K>(
@@ -8315,6 +8311,550 @@ export const usePostRegister = <
 }
 
 /**
+ * @summary List rule chains
+ */
+export const getRuleChains = (
+  params?: GetRuleChainsParams,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseListRuleChainsResponse>({
+    url: `/rule-chains`,
+    method: 'GET',
+    params,
+    signal,
+  })
+}
+
+export const getGetRuleChainsQueryKey = (params?: GetRuleChainsParams) => {
+  return [`/rule-chains`, ...(params ? [params] : [])] as const
+}
+
+export const getGetRuleChainsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getRuleChains>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetRuleChainsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getRuleChains>>, TError, TData>
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetRuleChainsQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getRuleChains>>> = ({
+    signal,
+  }) => getRuleChains(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getRuleChains>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRuleChainsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getRuleChains>>
+>
+export type GetRuleChainsQueryError = ErrorType<unknown>
+
+export function useGetRuleChains<
+  TData = Awaited<ReturnType<typeof getRuleChains>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetRuleChainsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getRuleChains>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRuleChains>>,
+          TError,
+          Awaited<ReturnType<typeof getRuleChains>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetRuleChains<
+  TData = Awaited<ReturnType<typeof getRuleChains>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetRuleChainsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getRuleChains>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRuleChains>>,
+          TError,
+          Awaited<ReturnType<typeof getRuleChains>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetRuleChains<
+  TData = Awaited<ReturnType<typeof getRuleChains>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetRuleChainsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getRuleChains>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List rule chains
+ */
+
+export function useGetRuleChains<
+  TData = Awaited<ReturnType<typeof getRuleChains>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetRuleChainsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getRuleChains>>, TError, TData>
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetRuleChainsQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * @summary Create rule chain
+ */
+export const postRuleChains = (
+  ruleChainRequest: BodyType<RuleChainRequest>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseCreateRuleChainResponse>({
+    url: `/rule-chains`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: ruleChainRequest,
+    signal,
+  })
+}
+
+export const getPostRuleChainsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postRuleChains>>,
+    TError,
+    { data: BodyType<RuleChainRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postRuleChains>>,
+  TError,
+  { data: BodyType<RuleChainRequest> },
+  TContext
+> => {
+  const mutationKey = ['postRuleChains']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postRuleChains>>,
+    { data: BodyType<RuleChainRequest> }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postRuleChains(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostRuleChainsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postRuleChains>>
+>
+export type PostRuleChainsMutationBody = BodyType<RuleChainRequest>
+export type PostRuleChainsMutationError = ErrorType<unknown>
+
+/**
+ * @summary Create rule chain
+ */
+export const usePostRuleChains = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postRuleChains>>,
+      TError,
+      { data: BodyType<RuleChainRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postRuleChains>>,
+  TError,
+  { data: BodyType<RuleChainRequest> },
+  TContext
+> => {
+  return useMutation(getPostRuleChainsMutationOptions(options), queryClient)
+}
+
+/**
+ * @summary Get rule chain
+ */
+export const getRuleChainsUuid = (uuid: string, signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseGetRuleChainResponse>({
+    url: `/rule-chains/${uuid}`,
+    method: 'GET',
+    signal,
+  })
+}
+
+export const getGetRuleChainsUuidQueryKey = (uuid: string) => {
+  return [`/rule-chains/${uuid}`] as const
+}
+
+export const getGetRuleChainsUuidQueryOptions = <
+  TData = Awaited<ReturnType<typeof getRuleChainsUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleChainsUuid>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetRuleChainsUuidQueryKey(uuid)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getRuleChainsUuid>>
+  > = ({ signal }) => getRuleChainsUuid(uuid, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: uuid !== null && uuid !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getRuleChainsUuid>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRuleChainsUuidQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getRuleChainsUuid>>
+>
+export type GetRuleChainsUuidQueryError = ErrorType<unknown>
+
+export function useGetRuleChainsUuid<
+  TData = Awaited<ReturnType<typeof getRuleChainsUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleChainsUuid>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRuleChainsUuid>>,
+          TError,
+          Awaited<ReturnType<typeof getRuleChainsUuid>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetRuleChainsUuid<
+  TData = Awaited<ReturnType<typeof getRuleChainsUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleChainsUuid>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRuleChainsUuid>>,
+          TError,
+          Awaited<ReturnType<typeof getRuleChainsUuid>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetRuleChainsUuid<
+  TData = Awaited<ReturnType<typeof getRuleChainsUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleChainsUuid>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary Get rule chain
+ */
+
+export function useGetRuleChainsUuid<
+  TData = Awaited<ReturnType<typeof getRuleChainsUuid>>,
+  TError = ErrorType<unknown>,
+>(
+  uuid: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getRuleChainsUuid>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetRuleChainsUuidQueryOptions(uuid, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * @summary Update rule chain
+ */
+export const putRuleChainsUuid = (
+  uuid: string,
+  ruleChainRequest: BodyType<RuleChainRequest>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseUpdateRuleChainResponse>({
+    url: `/rule-chains/${uuid}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: ruleChainRequest,
+    signal,
+  })
+}
+
+export const getPutRuleChainsUuidMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putRuleChainsUuid>>,
+    TError,
+    { uuid: string; data: BodyType<RuleChainRequest> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putRuleChainsUuid>>,
+  TError,
+  { uuid: string; data: BodyType<RuleChainRequest> },
+  TContext
+> => {
+  const mutationKey = ['putRuleChainsUuid']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putRuleChainsUuid>>,
+    { uuid: string; data: BodyType<RuleChainRequest> }
+  > = (props) => {
+    const { uuid, data } = props ?? {}
+
+    return putRuleChainsUuid(uuid, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutRuleChainsUuidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putRuleChainsUuid>>
+>
+export type PutRuleChainsUuidMutationBody = BodyType<RuleChainRequest>
+export type PutRuleChainsUuidMutationError = ErrorType<unknown>
+
+/**
+ * @summary Update rule chain
+ */
+export const usePutRuleChainsUuid = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putRuleChainsUuid>>,
+      TError,
+      { uuid: string; data: BodyType<RuleChainRequest> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof putRuleChainsUuid>>,
+  TError,
+  { uuid: string; data: BodyType<RuleChainRequest> },
+  TContext
+> => {
+  return useMutation(getPutRuleChainsUuidMutationOptions(options), queryClient)
+}
+
+/**
+ * @summary Delete rule chain
+ */
+export const deleteRuleChainsUuid = (uuid: string, signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseRuleChainSuccessResponse>({
+    url: `/rule-chains/${uuid}`,
+    method: 'DELETE',
+    signal,
+  })
+}
+
+export const getDeleteRuleChainsUuidMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteRuleChainsUuid>>,
+    TError,
+    { uuid: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteRuleChainsUuid>>,
+  TError,
+  { uuid: string },
+  TContext
+> => {
+  const mutationKey = ['deleteRuleChainsUuid']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteRuleChainsUuid>>,
+    { uuid: string }
+  > = (props) => {
+    const { uuid } = props ?? {}
+
+    return deleteRuleChainsUuid(uuid)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteRuleChainsUuidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteRuleChainsUuid>>
+>
+
+export type DeleteRuleChainsUuidMutationError = ErrorType<unknown>
+
+/**
+ * @summary Delete rule chain
+ */
+export const useDeleteRuleChainsUuid = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteRuleChainsUuid>>,
+      TError,
+      { uuid: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteRuleChainsUuid>>,
+  TError,
+  { uuid: string },
+  TContext
+> => {
+  return useMutation(
+    getDeleteRuleChainsUuidMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
  * Lists all enabled system rule node definitions.
  * @summary List rule node definitions
  */
@@ -8456,916 +8996,6 @@ export function useGetRuleNodeDefinitions<
   > & { queryKey: DataTag<QueryKey, TData, TError> }
 
   return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * Lists scene linkages.
- * @summary List scene linkages
- */
-export const getSceneLinkages = (
-  params?: GetSceneLinkagesParams,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseListSceneLinkagesResponse>({
-    url: `/scene-linkages`,
-    method: 'GET',
-    params,
-    signal,
-  })
-}
-
-export const getGetSceneLinkagesQueryKey = (
-  params?: GetSceneLinkagesParams
-) => {
-  return [`/scene-linkages`, ...(params ? [params] : [])] as const
-}
-
-export const getGetSceneLinkagesQueryOptions = <
-  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
-  TError = ErrorType<unknown>,
->(
-  params?: GetSceneLinkagesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkages>>,
-        TError,
-        TData
-      >
-    >
-  }
-) => {
-  const { query: queryOptions } = options ?? {}
-
-  const queryKey = queryOptions?.queryKey ?? getGetSceneLinkagesQueryKey(params)
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getSceneLinkages>>
-  > = ({ signal }) => getSceneLinkages(params, signal)
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getSceneLinkages>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetSceneLinkagesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getSceneLinkages>>
->
-export type GetSceneLinkagesQueryError = ErrorType<unknown>
-
-export function useGetSceneLinkages<
-  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
-  TError = ErrorType<unknown>,
->(
-  params: undefined | GetSceneLinkagesParams,
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkages>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getSceneLinkages>>,
-          TError,
-          Awaited<ReturnType<typeof getSceneLinkages>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetSceneLinkages<
-  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
-  TError = ErrorType<unknown>,
->(
-  params?: GetSceneLinkagesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkages>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getSceneLinkages>>,
-          TError,
-          Awaited<ReturnType<typeof getSceneLinkages>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetSceneLinkages<
-  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
-  TError = ErrorType<unknown>,
->(
-  params?: GetSceneLinkagesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkages>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-/**
- * @summary List scene linkages
- */
-
-export function useGetSceneLinkages<
-  TData = Awaited<ReturnType<typeof getSceneLinkages>>,
-  TError = ErrorType<unknown>,
->(
-  params?: GetSceneLinkagesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkages>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-} {
-  const queryOptions = getGetSceneLinkagesQueryOptions(params, options)
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-
-  return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * Creates scene linkage.
- * @summary Create scene linkage
- */
-export const postSceneLinkages = (
-  sceneLinkageRequest: BodyType<SceneLinkageRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseCreateSceneLinkageResponse>({
-    url: `/scene-linkages`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: sceneLinkageRequest,
-    signal,
-  })
-}
-
-export const getPostSceneLinkagesMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postSceneLinkages>>,
-    TError,
-    { data: BodyType<SceneLinkageRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postSceneLinkages>>,
-  TError,
-  { data: BodyType<SceneLinkageRequest> },
-  TContext
-> => {
-  const mutationKey = ['postSceneLinkages']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postSceneLinkages>>,
-    { data: BodyType<SceneLinkageRequest> }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return postSceneLinkages(data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PostSceneLinkagesMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postSceneLinkages>>
->
-export type PostSceneLinkagesMutationBody = BodyType<SceneLinkageRequest>
-export type PostSceneLinkagesMutationError = ErrorType<unknown>
-
-/**
- * @summary Create scene linkage
- */
-export const usePostSceneLinkages = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postSceneLinkages>>,
-      TError,
-      { data: BodyType<SceneLinkageRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postSceneLinkages>>,
-  TError,
-  { data: BodyType<SceneLinkageRequest> },
-  TContext
-> => {
-  return useMutation(getPostSceneLinkagesMutationOptions(options), queryClient)
-}
-
-/**
- * Returns scene linkage.
- * @summary Get scene linkage
- */
-export const getSceneLinkagesId = (id: number, signal?: AbortSignal) => {
-  return orvalAxios<ApiResponseGetSceneLinkageResponse>({
-    url: `/scene-linkages/${id}`,
-    method: 'GET',
-    signal,
-  })
-}
-
-export const getGetSceneLinkagesIdQueryKey = (id: number) => {
-  return [`/scene-linkages/${id}`] as const
-}
-
-export const getGetSceneLinkagesIdQueryOptions = <
-  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesId>>,
-        TError,
-        TData
-      >
-    >
-  }
-) => {
-  const { query: queryOptions } = options ?? {}
-
-  const queryKey = queryOptions?.queryKey ?? getGetSceneLinkagesIdQueryKey(id)
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getSceneLinkagesId>>
-  > = ({ signal }) => getSceneLinkagesId(id, signal)
-
-  return {
-    queryKey,
-    queryFn,
-    enabled: id !== null && id !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getSceneLinkagesId>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetSceneLinkagesIdQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getSceneLinkagesId>>
->
-export type GetSceneLinkagesIdQueryError = ErrorType<unknown>
-
-export function useGetSceneLinkagesId<
-  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesId>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getSceneLinkagesId>>,
-          TError,
-          Awaited<ReturnType<typeof getSceneLinkagesId>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetSceneLinkagesId<
-  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesId>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getSceneLinkagesId>>,
-          TError,
-          Awaited<ReturnType<typeof getSceneLinkagesId>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetSceneLinkagesId<
-  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesId>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-/**
- * @summary Get scene linkage
- */
-
-export function useGetSceneLinkagesId<
-  TData = Awaited<ReturnType<typeof getSceneLinkagesId>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesId>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-} {
-  const queryOptions = getGetSceneLinkagesIdQueryOptions(id, options)
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-
-  return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * Updates scene linkage.
- * @summary Update scene linkage
- */
-export const putSceneLinkagesId = (
-  id: number,
-  sceneLinkageRequest: BodyType<SceneLinkageRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseUpdateSceneLinkageResponse>({
-    url: `/scene-linkages/${id}`,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    data: sceneLinkageRequest,
-    signal,
-  })
-}
-
-export const getPutSceneLinkagesIdMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof putSceneLinkagesId>>,
-    TError,
-    { id: number; data: BodyType<SceneLinkageRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof putSceneLinkagesId>>,
-  TError,
-  { id: number; data: BodyType<SceneLinkageRequest> },
-  TContext
-> => {
-  const mutationKey = ['putSceneLinkagesId']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof putSceneLinkagesId>>,
-    { id: number; data: BodyType<SceneLinkageRequest> }
-  > = (props) => {
-    const { id, data } = props ?? {}
-
-    return putSceneLinkagesId(id, data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PutSceneLinkagesIdMutationResult = NonNullable<
-  Awaited<ReturnType<typeof putSceneLinkagesId>>
->
-export type PutSceneLinkagesIdMutationBody = BodyType<SceneLinkageRequest>
-export type PutSceneLinkagesIdMutationError = ErrorType<unknown>
-
-/**
- * @summary Update scene linkage
- */
-export const usePutSceneLinkagesId = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof putSceneLinkagesId>>,
-      TError,
-      { id: number; data: BodyType<SceneLinkageRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof putSceneLinkagesId>>,
-  TError,
-  { id: number; data: BodyType<SceneLinkageRequest> },
-  TContext
-> => {
-  return useMutation(getPutSceneLinkagesIdMutationOptions(options), queryClient)
-}
-
-/**
- * Deletes scene linkage.
- * @summary Delete scene linkage
- */
-export const deleteSceneLinkagesId = (id: number, signal?: AbortSignal) => {
-  return orvalAxios<ApiResponseSceneLinkageSuccessResponse>({
-    url: `/scene-linkages/${id}`,
-    method: 'DELETE',
-    signal,
-  })
-}
-
-export const getDeleteSceneLinkagesIdMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
-    TError,
-    { id: number },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
-  TError,
-  { id: number },
-  TContext
-> => {
-  const mutationKey = ['deleteSceneLinkagesId']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
-    { id: number }
-  > = (props) => {
-    const { id } = props ?? {}
-
-    return deleteSceneLinkagesId(id)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type DeleteSceneLinkagesIdMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteSceneLinkagesId>>
->
-
-export type DeleteSceneLinkagesIdMutationError = ErrorType<unknown>
-
-/**
- * @summary Delete scene linkage
- */
-export const useDeleteSceneLinkagesId = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
-      TError,
-      { id: number },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof deleteSceneLinkagesId>>,
-  TError,
-  { id: number },
-  TContext
-> => {
-  return useMutation(
-    getDeleteSceneLinkagesIdMutationOptions(options),
-    queryClient
-  )
-}
-
-/**
- * Returns scene linkage configuration.
- * @summary Get scene linkage configuration
- */
-export const getSceneLinkagesIdDetail = (id: number, signal?: AbortSignal) => {
-  return orvalAxios<ApiResponseGetSceneLinkageDetailResponse>({
-    url: `/scene-linkages/${id}/detail`,
-    method: 'GET',
-    signal,
-  })
-}
-
-export const getGetSceneLinkagesIdDetailQueryKey = (id: number) => {
-  return [`/scene-linkages/${id}/detail`] as const
-}
-
-export const getGetSceneLinkagesIdDetailQueryOptions = <
-  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-        TError,
-        TData
-      >
-    >
-  }
-) => {
-  const { query: queryOptions } = options ?? {}
-
-  const queryKey =
-    queryOptions?.queryKey ?? getGetSceneLinkagesIdDetailQueryKey(id)
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
-  > = ({ signal }) => getSceneLinkagesIdDetail(id, signal)
-
-  return {
-    queryKey,
-    queryFn,
-    enabled: id !== null && id !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetSceneLinkagesIdDetailQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
->
-export type GetSceneLinkagesIdDetailQueryError = ErrorType<unknown>
-
-export function useGetSceneLinkagesIdDetail<
-  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-          TError,
-          Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetSceneLinkagesIdDetail<
-  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-          TError,
-          Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetSceneLinkagesIdDetail<
-  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-/**
- * @summary Get scene linkage configuration
- */
-
-export function useGetSceneLinkagesIdDetail<
-  TData = Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-  TError = ErrorType<unknown>,
->(
-  id: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getSceneLinkagesIdDetail>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-} {
-  const queryOptions = getGetSceneLinkagesIdDetailQueryOptions(id, options)
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-
-  return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * Updates scene linkage configuration.
- * @summary Update scene linkage configuration
- */
-export const putSceneLinkagesIdDetail = (
-  id: number,
-  sceneLinkageDetailRequest: BodyType<SceneLinkageDetailRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseUpdateSceneLinkageDetailResponse>({
-    url: `/scene-linkages/${id}/detail`,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    data: sceneLinkageDetailRequest,
-    signal,
-  })
-}
-
-export const getPutSceneLinkagesIdDetailMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
-    TError,
-    { id: number; data: BodyType<SceneLinkageDetailRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
-  TError,
-  { id: number; data: BodyType<SceneLinkageDetailRequest> },
-  TContext
-> => {
-  const mutationKey = ['putSceneLinkagesIdDetail']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
-    { id: number; data: BodyType<SceneLinkageDetailRequest> }
-  > = (props) => {
-    const { id, data } = props ?? {}
-
-    return putSceneLinkagesIdDetail(id, data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PutSceneLinkagesIdDetailMutationResult = NonNullable<
-  Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>
->
-export type PutSceneLinkagesIdDetailMutationBody =
-  BodyType<SceneLinkageDetailRequest>
-export type PutSceneLinkagesIdDetailMutationError = ErrorType<unknown>
-
-/**
- * @summary Update scene linkage configuration
- */
-export const usePutSceneLinkagesIdDetail = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
-      TError,
-      { id: number; data: BodyType<SceneLinkageDetailRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof putSceneLinkagesIdDetail>>,
-  TError,
-  { id: number; data: BodyType<SceneLinkageDetailRequest> },
-  TContext
-> => {
-  return useMutation(
-    getPutSceneLinkagesIdDetailMutationOptions(options),
-    queryClient
-  )
-}
-
-/**
- * Creates scene linkage configuration.
- * @summary Create scene linkage configuration
- */
-export const postSceneLinkagesIdDetail = (
-  id: number,
-  sceneLinkageDetailRequest: BodyType<SceneLinkageDetailRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseCreateSceneLinkageDetailResponse>({
-    url: `/scene-linkages/${id}/detail`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: sceneLinkageDetailRequest,
-    signal,
-  })
-}
-
-export const getPostSceneLinkagesIdDetailMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
-    TError,
-    { id: number; data: BodyType<SceneLinkageDetailRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
-  TError,
-  { id: number; data: BodyType<SceneLinkageDetailRequest> },
-  TContext
-> => {
-  const mutationKey = ['postSceneLinkagesIdDetail']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
-    { id: number; data: BodyType<SceneLinkageDetailRequest> }
-  > = (props) => {
-    const { id, data } = props ?? {}
-
-    return postSceneLinkagesIdDetail(id, data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PostSceneLinkagesIdDetailMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>
->
-export type PostSceneLinkagesIdDetailMutationBody =
-  BodyType<SceneLinkageDetailRequest>
-export type PostSceneLinkagesIdDetailMutationError = ErrorType<unknown>
-
-/**
- * @summary Create scene linkage configuration
- */
-export const usePostSceneLinkagesIdDetail = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
-      TError,
-      { id: number; data: BodyType<SceneLinkageDetailRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postSceneLinkagesIdDetail>>,
-  TError,
-  { id: number; data: BodyType<SceneLinkageDetailRequest> },
-  TContext
-> => {
-  return useMutation(
-    getPostSceneLinkagesIdDetailMutationOptions(options),
-    queryClient
-  )
 }
 
 /**

@@ -10,6 +10,7 @@ import (
 	"0things/pkg/event"
 	"0things/pkg/tsdb"
 	"data-engine/internal/consumer"
+	"data-engine/internal/handler"
 	"data-engine/internal/repository"
 	"data-engine/internal/server"
 	"data-engine/internal/service"
@@ -37,9 +38,11 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	}
 	shadowRepository := repository.NewShadowRepository(viperViper, zapLogger)
 	telemetryService := service.NewTelemetryService(viperViper, zapLogger, client, shadowRepository)
-	telemetryConsumer := consumer.NewTelemetryConsumer(telemetryService, zapLogger)
+	telemetryHandler := handler.NewTelemetryHandler(telemetryService, zapLogger)
+	telemetryConsumer := consumer.NewTelemetryConsumer(telemetryHandler)
 	eventService := service.NewEventService(viperViper, zapLogger)
-	consumerEventConsumer := consumer.NewEventConsumer(eventService, zapLogger)
+	eventHandler := handler.NewEventHandler(eventService, zapLogger)
+	consumerEventConsumer := consumer.NewEventConsumer(eventHandler)
 	db, err := provideDB(viperViper, logger)
 	if err != nil {
 		cleanup2()
@@ -49,7 +52,8 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	repositoryRepository := repository.NewRepository(zapLogger, db)
 	otaRepository := repository.NewOTARepository(repositoryRepository)
 	otaService := service.NewOTAService(otaRepository, zapLogger)
-	otaProgressConsumer := consumer.NewOTAProgressConsumer(otaService, zapLogger)
+	otaProgressHandler := handler.NewOTAProgressHandler(otaService, zapLogger)
+	otaProgressConsumer := consumer.NewOTAProgressConsumer(otaProgressHandler)
 	manager := consumer.NewManager(eventConsumer, telemetryConsumer, consumerEventConsumer, otaProgressConsumer, zapLogger)
 	dataEngineServer := server.NewDataEngineServer(manager, logger)
 	appApp := newApp(dataEngineServer)
@@ -104,6 +108,8 @@ var repositorySet = wire.NewSet(
 var serviceSet = wire.NewSet(service.NewTelemetryService, service.NewOTAService, service.NewEventService)
 
 var consumerSet = wire.NewSet(consumer.NewTelemetryConsumer, consumer.NewEventConsumer, consumer.NewOTAProgressConsumer, consumer.NewManager)
+
+var handlerSet = wire.NewSet(handler.NewTelemetryHandler, handler.NewEventHandler, handler.NewOTAProgressHandler, wire.Bind(new(handler.TelemetryHandlerInterface), new(*handler.TelemetryHandler)), wire.Bind(new(handler.EventHandlerInterface), new(*handler.EventHandler)), wire.Bind(new(handler.OTAProgressHandlerInterface), new(*handler.OTAProgressHandler)))
 
 var serverSet = wire.NewSet(server.NewDataEngineServer)
 

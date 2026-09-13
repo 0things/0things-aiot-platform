@@ -26,7 +26,7 @@ import {
 } from '@/api/generated'
 import type {
   Device as DeviceV1Device,
-  AiotBackendApiDeviceGroupV1DeviceGroup as DeviceGroupV1Group,
+  AiotBackendApiV1DeviceGroup as DeviceGroupV1Group,
 } from '@/api/generated/model'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'

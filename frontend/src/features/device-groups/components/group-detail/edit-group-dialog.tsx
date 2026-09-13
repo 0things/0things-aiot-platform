@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { putDeviceGroupsGroupUuid } from '@/api/generated'
-import type { AiotBackendApiDeviceGroupV1DeviceGroup as DeviceGroupV1Group } from '@/api/generated/model'
+import type { AiotBackendApiV1DeviceGroup as DeviceGroupV1Group } from '@/api/generated/model'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,

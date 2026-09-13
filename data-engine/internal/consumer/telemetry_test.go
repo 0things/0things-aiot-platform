@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"0things/pkg/event"
+	"data-engine/internal/handler"
 	"data-engine/internal/repository"
 	"data-engine/internal/service"
 
@@ -20,7 +21,7 @@ func TestTelemetryConsumer_HandleTelemetry(t *testing.T) {
 	shadow := repository.NewShadowRepository(v, logger)
 	telemetryService := service.NewTelemetryService(v, logger, nil, shadow)
 
-	consumer := NewTelemetryConsumer(telemetryService, logger)
+	consumer := NewTelemetryConsumer(handler.NewTelemetryHandler(telemetryService, logger))
 
 	rawPayload := []byte(`{"temperature": 26.5, "humidity": 65}`)
 	msg := &event.DeviceMessage{
@@ -53,7 +54,7 @@ func TestTelemetryConsumer_HandleAttribute(t *testing.T) {
 	shadow := repository.NewShadowRepository(v, logger)
 	telemetryService := service.NewTelemetryService(v, logger, nil, shadow)
 
-	consumer := NewTelemetryConsumer(telemetryService, logger)
+	consumer := NewTelemetryConsumer(handler.NewTelemetryHandler(telemetryService, logger))
 
 	rawPayload := []byte(`{"ip": "192.168.1.100", "battery": 90}`)
 	msg := &event.DeviceMessage{

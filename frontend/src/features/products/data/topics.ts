@@ -45,95 +45,95 @@ export const basicTopics: BasicTopic[] = [
   // OTA 升级
   {
     category: 'otaUpgrade',
-    topic: '/ota/device/inform/ht0yxt4KxDo/${deviceName}',
+    topic: '/ota/device/inform/ht0yxt4KxDo/${deviceKey}',
     permission: 'publish',
     description: 'otaInform',
   },
   {
     category: 'otaUpgrade',
-    topic: '/ota/device/upgrade/ht0yxt4KxDo/${deviceName}',
+    topic: '/ota/device/upgrade/ht0yxt4KxDo/${deviceKey}',
     permission: 'subscribe',
     description: 'otaUpgrade',
   },
   {
     category: 'otaUpgrade',
-    topic: '/ota/device/progress/ht0yxt4KxDo/${deviceName}',
+    topic: '/ota/device/progress/ht0yxt4KxDo/${deviceKey}',
     permission: 'publish',
     description: 'otaProgress',
   },
   // 设备标签
   {
     category: 'deviceTag',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/ota/firmware/get',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/ota/firmware/get',
     permission: 'publish',
     description: 'firmwareGet',
   },
   {
     category: 'deviceTag',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/deviceinfo/update',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/deviceinfo/update',
     permission: 'publish',
     description: 'deviceInfoUpdate',
   },
   {
     category: 'deviceTag',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/deviceinfo/update_reply',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/deviceinfo/update_reply',
     permission: 'subscribe',
     description: 'deviceInfoUpdateReply',
   },
   {
     category: 'deviceTag',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/deviceinfo/delete',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/deviceinfo/delete',
     permission: 'subscribe',
     description: 'deviceInfoDelete',
   },
   {
     category: 'deviceTag',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/deviceinfo/delete_reply',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/deviceinfo/delete_reply',
     permission: 'publish',
     description: 'deviceInfoDeleteReply',
   },
   // 时转同步
   {
     category: 'timeSync',
-    topic: '/ext/ntp/ht0yxt4KxDo/${deviceName}/request',
+    topic: '/ext/ntp/ht0yxt4KxDo/${deviceKey}/request',
     permission: 'publish',
     description: 'ntpRequest',
   },
   {
     category: 'timeSync',
-    topic: '/ext/ntp/ht0yxt4KxDo/${deviceName}/response',
+    topic: '/ext/ntp/ht0yxt4KxDo/${deviceKey}/response',
     permission: 'subscribe',
     description: 'ntpResponse',
   },
   // 设备影子
   {
     category: 'deviceShadow',
-    topic: '/shadow/update/ht0yxt4KxDo/${deviceName}',
+    topic: '/shadow/update/ht0yxt4KxDo/${deviceKey}',
     permission: 'publish',
     description: 'shadowUpdate',
   },
   {
     category: 'deviceShadow',
-    topic: '/shadow/get/ht0yxt4KxDo/${deviceName}',
+    topic: '/shadow/get/ht0yxt4KxDo/${deviceKey}',
     permission: 'subscribe',
     description: 'shadowGet',
   },
   // 配置更新
   {
     category: 'configUpdate',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/config/push',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/config/push',
     permission: 'subscribe',
     description: 'configPush',
   },
   {
     category: 'configUpdate',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/config/get',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/config/get',
     permission: 'publish',
     description: 'configGet',
   },
   {
     category: 'configUpdate',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/config/get_reply',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/config/get_reply',
     permission: 'subscribe',
     description: 'configGetReply',
   },
@@ -151,20 +151,20 @@ export const thingModelTopics: ThingModelTopic[] = [
   // 属性上报
   {
     category: 'propertyPost',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/event/property/post',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/event/property/post',
     permission: 'publish',
     description: 'propertyPost',
   },
   {
     category: 'propertyPost',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/event/property/post_reply',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/event/property/post_reply',
     permission: 'subscribe',
     description: 'propertyPostReply',
   },
   // 属性设置
   {
     category: 'propertySet',
-    topic: '/sys/ht0yxt4KxDo/${deviceName}/thing/service/property/set',
+    topic: '/sys/ht0yxt4KxDo/${deviceKey}/thing/service/property/set',
     permission: 'subscribe',
     description: 'propertySet',
   },
@@ -172,14 +172,14 @@ export const thingModelTopics: ThingModelTopic[] = [
   {
     category: 'eventPost',
     topic:
-      '/sys/ht0yxt4KxDo/${deviceName}/thing/event/${tsl.event.identifier}/post',
+      '/sys/ht0yxt4KxDo/${deviceKey}/thing/event/${tsl.event.identifier}/post',
     permission: 'publish',
     description: 'eventPost',
   },
   {
     category: 'eventPost',
     topic:
-      '/sys/ht0yxt4KxDo/${deviceName}/thing/event/${tsl.event.identifier}/post_reply',
+      '/sys/ht0yxt4KxDo/${deviceKey}/thing/event/${tsl.event.identifier}/post_reply',
     permission: 'subscribe',
     description: 'eventPostReply',
   },
@@ -187,14 +187,14 @@ export const thingModelTopics: ThingModelTopic[] = [
   {
     category: 'serviceCall',
     topic:
-      '/sys/ht0yxt4KxDo/${deviceName}/thing/service/${tsl.service.identifier}',
+      '/sys/ht0yxt4KxDo/${deviceKey}/thing/service/${tsl.service.identifier}',
     permission: 'subscribe',
     description: 'serviceCall',
   },
   {
     category: 'serviceCall',
     topic:
-      '/sys/ht0yxt4KxDo/${deviceName}/thing/service/${tsl.service.identifier}_reply',
+      '/sys/ht0yxt4KxDo/${deviceKey}/thing/service/${tsl.service.identifier}_reply',
     permission: 'publish',
     description: 'serviceCallReply',
   },

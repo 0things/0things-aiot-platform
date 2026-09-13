@@ -56,12 +56,6 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	pushRecordRepository := repository.NewPushRecordRepository(db)
 	deviceService := service.NewDeviceService(deviceRepository, productRepository, deviceTagRepository, deviceShadowRepository, pushRecordRepository)
 	deviceHandler := handler.NewDeviceHandler(handlerHandler, deviceService, viperViper)
-	sceneLinkageRepository := repository.NewSceneLinkageRepository(db)
-	sceneLinkageService := service.NewSceneLinkageService(sceneLinkageRepository)
-	sceneLinkageHandler := handler.NewSceneLinkageHandler(handlerHandler, sceneLinkageService)
-	sceneLinkageDetailRepository := repository.NewSceneLinkageDetailRepository(db)
-	sceneLinkageDetailService := service.NewSceneLinkageDetailService(sceneLinkageDetailRepository)
-	sceneLinkageDetailHandler := handler.NewSceneLinkageDetailHandler(handlerHandler, sceneLinkageDetailService)
 	otaRepository := repository.NewOTARepository(db)
 	producer, cleanup, err := provideEventProducer(viperViper, logger)
 	if err != nil {
@@ -89,6 +83,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	ruleNodeDefinitionRepository := repository.NewRuleNodeDefinitionRepository(db)
 	ruleNodeDefinitionService := service.NewRuleNodeDefinitionService(ruleNodeDefinitionRepository)
 	ruleNodeDefinitionHandler := handler.NewRuleNodeDefinitionHandler(handlerHandler, ruleNodeDefinitionService)
+	ruleChainRepository := repository.NewRuleChainRepository(db)
+	ruleChainService := service.NewRuleChainService(ruleChainRepository)
+	ruleChainHandler := handler.NewRuleChainHandler(handlerHandler, ruleChainService)
 	routerDeps := router.RouterDeps{
 		Logger:                      logger,
 		Config:                      viperViper,
@@ -99,8 +96,6 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		ProductTSLHandler:           productTSLHandler,
 		ProductMessageParserHandler: productMessageParserHandler,
 		DeviceHandler:               deviceHandler,
-		SceneLinkageHandler:         sceneLinkageHandler,
-		SceneLinkageDetailHandler:   sceneLinkageDetailHandler,
 		OTAHandler:                  otaHandler,
 		FileHandler:                 fileHandler,
 		DeviceEventHandler:          deviceEventHandler,
@@ -109,6 +104,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		DeviceGroupHandler:          deviceGroupHandler,
 		TelemetryHandler:            telemetryHandler,
 		RuleNodeDefinitionHandler:   ruleNodeDefinitionHandler,
+		RuleChainHandler:            ruleChainHandler,
 	}
 	httpServer := server.NewHTTPServer(routerDeps)
 	jobServer := server.NewJobServer(logger)
@@ -120,13 +116,13 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewRedis, repository.NewProductRepository, repository.NewCategoryRepository, repository.NewProductTSLRepository, repository.NewProductMessageParserRepository, repository.NewDeviceRepository, repository.NewDeviceGroupRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewSceneLinkageRepository, repository.NewSceneLinkageDetailRepository, repository.NewOTARepository, repository.NewDeviceEventRepository, repository.NewDeviceServiceInvocationRepository, repository.NewProtocolRepository, repository.NewTelemetryRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewOrganizationRepository, repository.NewOrganizationUserRepository, repository.NewRuleNodeDefinitionRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewRedis, repository.NewProductRepository, repository.NewCategoryRepository, repository.NewProductTSLRepository, repository.NewProductMessageParserRepository, repository.NewDeviceRepository, repository.NewDeviceGroupRepository, repository.NewDeviceTagRepository, repository.NewDeviceShadowRepository, repository.NewPushRecordRepository, repository.NewOTARepository, repository.NewDeviceEventRepository, repository.NewDeviceServiceInvocationRepository, repository.NewProtocolRepository, repository.NewTelemetryRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewOrganizationRepository, repository.NewOrganizationUserRepository, repository.NewRuleNodeDefinitionRepository, repository.NewRuleChainRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewCategoryService, service.NewProductTSLService, service.NewProductMessageParserService, service.NewDeviceService, service.NewDeviceGroupService, service.NewMQTTService, service.NewSceneLinkageService, service.NewSceneLinkageDetailService, service.NewTelemetryService, service.NewOTAService, service.NewFileService, service.NewDeviceEventService, service.NewThingModelDataService, provideProtocolService,
-	provideEventProducer, service.NewRuleNodeDefinitionService, wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)), wire.Bind(new(service.CategoryServiceInterface), new(*service.CategoryService)), wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)), wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)), wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)), wire.Bind(new(service.DeviceGroupServiceInterface), new(*service.DeviceGroupService)), wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)), wire.Bind(new(service.SceneLinkageServiceInterface), new(*service.SceneLinkageService)), wire.Bind(new(service.SceneLinkageDetailServiceInterface), new(*service.SceneLinkageDetailService)), wire.Bind(new(service.TelemetryServiceInterface), new(*service.TelemetryService)), wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)), wire.Bind(new(service.FileServiceInterface), new(*service.FileService)), wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)), wire.Bind(new(service.ThingModelDataServiceInterface), new(*service.ThingModelDataService)), wire.Bind(new(service.ProtocolServiceInterface), new(*service.ProtocolService)), wire.Bind(new(service.RuleNodeDefinitionServiceInterface), new(*service.RuleNodeDefinitionService)),
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewProductService, service.NewCategoryService, service.NewProductTSLService, service.NewProductMessageParserService, service.NewDeviceService, service.NewDeviceGroupService, service.NewMQTTService, service.NewTelemetryService, service.NewOTAService, service.NewFileService, service.NewDeviceEventService, service.NewThingModelDataService, provideProtocolService,
+	provideEventProducer, service.NewRuleNodeDefinitionService, service.NewRuleChainService, wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)), wire.Bind(new(service.CategoryServiceInterface), new(*service.CategoryService)), wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)), wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)), wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)), wire.Bind(new(service.DeviceGroupServiceInterface), new(*service.DeviceGroupService)), wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)), wire.Bind(new(service.TelemetryServiceInterface), new(*service.TelemetryService)), wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)), wire.Bind(new(service.FileServiceInterface), new(*service.FileService)), wire.Bind(new(service.DeviceEventServiceInterface), new(*service.DeviceEventService)), wire.Bind(new(service.ThingModelDataServiceInterface), new(*service.ThingModelDataService)), wire.Bind(new(service.ProtocolServiceInterface), new(*service.ProtocolService)), wire.Bind(new(service.RuleNodeDefinitionServiceInterface), new(*service.RuleNodeDefinitionService)), wire.Bind(new(service.RuleChainServiceInterface), new(*service.RuleChainService)),
 )
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewCategoryHandler, handler.NewProductTSLHandler, handler.NewProductMessageParserHandler, handler.NewDeviceHandler, handler.NewDeviceGroupHandler, handler.NewSceneLinkageHandler, handler.NewSceneLinkageDetailHandler, handler.NewOTAHandler, handler.NewFileHandler, handler.NewDeviceEventHandler, handler.NewThingModelDataHandler, handler.NewProtocolHandler, handler.NewTelemetryHandler, handler.NewRuleNodeDefinitionHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewProductHandler, handler.NewCategoryHandler, handler.NewProductTSLHandler, handler.NewProductMessageParserHandler, handler.NewDeviceHandler, handler.NewDeviceGroupHandler, handler.NewOTAHandler, handler.NewFileHandler, handler.NewDeviceEventHandler, handler.NewThingModelDataHandler, handler.NewProtocolHandler, handler.NewTelemetryHandler, handler.NewRuleNodeDefinitionHandler, handler.NewRuleChainHandler)
 
 func provideProtocolService(repo *repository.ProtocolRepository, config *viper.Viper) *service.ProtocolService {
 	return service.NewProtocolService(repo, config)

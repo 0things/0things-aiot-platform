@@ -4,34 +4,21 @@ import (
 	"context"
 
 	"0things/pkg/event"
-	"data-engine/internal/service"
-
-	"go.uber.org/zap"
+	"data-engine/internal/handler"
 )
 
 // EventConsumer handles device lifecycle and business alarm events.
 type EventConsumer struct {
-	eventService service.EventService
-	logger       *zap.Logger
+	eventHandler handler.EventHandlerInterface
 }
 
-func NewEventConsumer(eventService service.EventService, logger *zap.Logger) *EventConsumer {
+func NewEventConsumer(eventHandler handler.EventHandlerInterface) *EventConsumer {
 	return &EventConsumer{
-		eventService: eventService,
-		logger:       logger,
+		eventHandler: eventHandler,
 	}
 }
 
 // HandleEvent processes device event reports.
 func (c *EventConsumer) HandleEvent(ctx context.Context, msg *event.DeviceMessage, meta map[string]string) error {
-	if msg == nil {
-		return nil
-	}
-	c.logger.Debug("handling device event report",
-		zap.String("device_key", msg.DeviceKey),
-		zap.String("transport", msg.Transport),
-		zap.String("type", msg.MessageType),
-	)
-
-	return c.eventService.HandleEvent(ctx, *msg)
+	return c.eventHandler.HandleEvent(ctx, msg, meta)
 }

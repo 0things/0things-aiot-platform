@@ -75,21 +75,12 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-CreateSceneLinkageDetailResponse:
+  ApiResponse-CreateRuleChainResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/CreateSceneLinkageDetailResponse'
-      message:
-        type: string
-    type: object
-  ApiResponse-CreateSceneLinkageResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/CreateSceneLinkageResponse'
+        $ref: '#/definitions/CreateRuleChainResponse'
       message:
         type: string
     type: object
@@ -282,30 +273,21 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-GetSceneLinkageDetailResponse:
+  ApiResponse-GetRuleChainResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/GetSceneLinkageDetailResponse'
+        $ref: '#/definitions/GetRuleChainResponse'
       message:
         type: string
     type: object
-  ApiResponse-GetSceneLinkageResponse:
+  ApiResponse-ListRuleChainsResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/GetSceneLinkageResponse'
-      message:
-        type: string
-    type: object
-  ApiResponse-ListSceneLinkagesResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/ListSceneLinkagesResponse'
+        $ref: '#/definitions/ListRuleChainsResponse'
       message:
         type: string
     type: object
@@ -453,30 +435,21 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-SceneLinkageSuccessResponse:
+  ApiResponse-RuleChainSuccessResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/SceneLinkageSuccessResponse'
+        $ref: '#/definitions/RuleChainSuccessResponse'
       message:
         type: string
     type: object
-  ApiResponse-UpdateSceneLinkageDetailResponse:
+  ApiResponse-UpdateRuleChainResponse:
     properties:
       code:
         type: integer
       data:
-        $ref: '#/definitions/UpdateSceneLinkageDetailResponse'
-      message:
-        type: string
-    type: object
-  ApiResponse-UpdateSceneLinkageResponse:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/UpdateSceneLinkageResponse'
+        $ref: '#/definitions/UpdateRuleChainResponse'
       message:
         type: string
     type: object
@@ -619,15 +592,10 @@ definitions:
     required:
     - email
     type: object
-  CreateSceneLinkageDetailResponse:
+  CreateRuleChainResponse:
     properties:
-      detail:
-        $ref: '#/definitions/SceneLinkageDetail'
-    type: object
-  CreateSceneLinkageResponse:
-    properties:
-      sceneLinkage:
-        $ref: '#/definitions/SceneLinkage'
+      ruleChain:
+        $ref: '#/definitions/RuleChain'
     type: object
   Device:
     properties:
@@ -1029,21 +997,16 @@ definitions:
           $ref: '#/definitions/ThingModelProperty'
         type: array
     type: object
-  GetSceneLinkageDetailResponse:
+  GetRuleChainResponse:
     properties:
-      detail:
-        $ref: '#/definitions/SceneLinkageDetail'
+      ruleChain:
+        $ref: '#/definitions/RuleChain'
     type: object
-  GetSceneLinkageResponse:
-    properties:
-      sceneLinkage:
-        $ref: '#/definitions/SceneLinkage'
-    type: object
-  ListSceneLinkagesResponse:
+  ListRuleChainsResponse:
     properties:
       items:
         items:
-          $ref: '#/definitions/SceneLinkage'
+          $ref: '#/definitions/RuleChain'
         type: array
       page:
         type: integer
@@ -1501,59 +1464,43 @@ definitions:
       product:
         $ref: '#/definitions/Product'
     type: object
-  SceneLinkage:
+  RuleChain:
     properties:
       createdAt:
         type: string
       description:
         type: string
-      enable:
-        type: integer
-      id:
-        type: integer
+      graph:
+        additionalProperties: {}
+        type: object
       name:
         type: string
       organizationId:
         type: integer
+      status:
+        type: string
       updatedAt:
         type: string
-    type: object
-  SceneLinkageDetail:
-    properties:
-      actionConfig:
-        items:
-          type: integer
-        type: array
-      sceneId:
+      uuid:
+        type: string
+      version:
         type: integer
-      triggerConfig:
-        items:
-          type: integer
-        type: array
     type: object
-  SceneLinkageDetailRequest:
-    properties:
-      actionConfig:
-        items:
-          type: integer
-        type: array
-      triggerConfig:
-        items:
-          type: integer
-        type: array
-    type: object
-  SceneLinkageRequest:
+  RuleChainRequest:
     properties:
       description:
         type: string
-      enable:
-        type: integer
+      graph:
+        additionalProperties: {}
+        type: object
       name:
+        maxLength: 128
         type: string
     required:
+    - graph
     - name
     type: object
-  SceneLinkageSuccessResponse:
+  RuleChainSuccessResponse:
     properties:
       success:
         type: boolean
@@ -1583,15 +1530,10 @@ definitions:
       value:
         type: object
     type: object
-  UpdateSceneLinkageDetailResponse:
+  UpdateRuleChainResponse:
     properties:
-      detail:
-        $ref: '#/definitions/SceneLinkageDetail'
-    type: object
-  UpdateSceneLinkageResponse:
-    properties:
-      sceneLinkage:
-        $ref: '#/definitions/SceneLinkage'
+      ruleChain:
+        $ref: '#/definitions/RuleChain'
     type: object
   aiot-backend_api_v1.Category:
     properties:
@@ -3531,6 +3473,126 @@ paths:
       summary: Register user
       tags:
       - Users
+  /rule-chains:
+    get:
+      parameters:
+      - description: Page number (1-based, default 1)
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: Page size (1-100, default 10)
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      - in: query
+        name: search
+        type: string
+      - in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-ListRuleChainsResponse'
+      security:
+      - Bearer: []
+      summary: List rule chains
+      tags:
+      - Rule chains
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Rule chain
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/RuleChainRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-CreateRuleChainResponse'
+      security:
+      - Bearer: []
+      summary: Create rule chain
+      tags:
+      - Rule chains
+  /rule-chains/{uuid}:
+    delete:
+      parameters:
+      - description: Rule chain UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-RuleChainSuccessResponse'
+      security:
+      - Bearer: []
+      summary: Delete rule chain
+      tags:
+      - Rule chains
+    get:
+      parameters:
+      - description: Rule chain UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-GetRuleChainResponse'
+      security:
+      - Bearer: []
+      summary: Get rule chain
+      tags:
+      - Rule chains
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Rule chain UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Rule chain
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/RuleChainRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-UpdateRuleChainResponse'
+      security:
+      - Bearer: []
+      summary: Update rule chain
+      tags:
+      - Rule chains
   /rule-node-definitions:
     get:
       description: Lists all enabled system rule node definitions.
@@ -3546,216 +3608,6 @@ paths:
       summary: List rule node definitions
       tags:
       - Rule node definitions
-  /scene-linkages:
-    get:
-      consumes:
-      - application/json
-      description: Lists scene linkages.
-      parameters:
-      - in: query
-        name: enable
-        type: integer
-      - description: Page number (1-based, default 1)
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - description: Page size (1-100, default 10)
-        in: query
-        maximum: 100
-        minimum: 1
-        name: pageSize
-        type: integer
-      - in: query
-        name: search
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-ListSceneLinkagesResponse'
-      security:
-      - Bearer: []
-      summary: List scene linkages
-      tags:
-      - Scene linkages
-    post:
-      consumes:
-      - application/json
-      description: Creates scene linkage.
-      parameters:
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/SceneLinkageRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-CreateSceneLinkageResponse'
-      security:
-      - Bearer: []
-      summary: Create scene linkage
-      tags:
-      - Scene linkages
-  /scene-linkages/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Deletes scene linkage.
-      parameters:
-      - description: Scene linkage ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-SceneLinkageSuccessResponse'
-      security:
-      - Bearer: []
-      summary: Delete scene linkage
-      tags:
-      - Scene linkages
-    get:
-      consumes:
-      - application/json
-      description: Returns scene linkage.
-      parameters:
-      - description: Scene linkage ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-GetSceneLinkageResponse'
-      security:
-      - Bearer: []
-      summary: Get scene linkage
-      tags:
-      - Scene linkages
-    put:
-      consumes:
-      - application/json
-      description: Updates scene linkage.
-      parameters:
-      - description: Scene linkage ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/SceneLinkageRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-UpdateSceneLinkageResponse'
-      security:
-      - Bearer: []
-      summary: Update scene linkage
-      tags:
-      - Scene linkages
-  /scene-linkages/{id}/detail:
-    get:
-      consumes:
-      - application/json
-      description: Returns scene linkage configuration.
-      parameters:
-      - description: Scene linkage ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-GetSceneLinkageDetailResponse'
-      security:
-      - Bearer: []
-      summary: Get scene linkage configuration
-      tags:
-      - Scene linkages
-    post:
-      consumes:
-      - application/json
-      description: Creates scene linkage configuration.
-      parameters:
-      - description: Scene linkage ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/SceneLinkageDetailRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-CreateSceneLinkageDetailResponse'
-      security:
-      - Bearer: []
-      summary: Create scene linkage configuration
-      tags:
-      - Scene linkages
-    put:
-      consumes:
-      - application/json
-      description: Updates scene linkage configuration.
-      parameters:
-      - description: Scene linkage ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/SceneLinkageDetailRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-UpdateSceneLinkageDetailResponse'
-      security:
-      - Bearer: []
-      summary: Update scene linkage configuration
-      tags:
-      - Scene linkages
   /user:
     get:
       consumes:
