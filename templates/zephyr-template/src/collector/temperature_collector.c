@@ -5,6 +5,10 @@
 #define SENSOR_NODE DT_ALIAS(temperature_sensor)
 static const struct device *const sensor = DEVICE_DT_GET(SENSOR_NODE);
 #endif
+
+/**
+ * @brief Initialize temperature sensor device.
+ */
 static int init(void)
 {
 #if defined(CONFIG_APP_MOCK_SENSOR)
@@ -13,6 +17,12 @@ static int init(void)
 	return device_is_ready(sensor) ? 0 : -ENODEV;
 #endif
 }
+
+/**
+ * @brief Sample ambient temperature in degrees Celsius (scaled to 3 decimal places).
+ *
+ * @param r Output telemetry record populated with temperature_c (value * 10^-3).
+ */
 static int collect(struct telemetry_record *r)
 {
 	int64_t value = 23500;
@@ -31,6 +41,7 @@ static int collect(struct telemetry_record *r)
 	r->fields[0] = (struct telemetry_field){"temperature_c", value, 3};
 	return 0;
 }
+
 static const struct collector_ops ops = {.init = init, .collect = collect};
 COLLECTOR_DEFINE(temperature, &ops, CONFIG_APP_TEMP_COLLECTION_INTERVAL,
 		 CONFIG_APP_TEMP_UPLOAD_INTERVAL);

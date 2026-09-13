@@ -1,6 +1,7 @@
 #include <app/services.h>
 #include <zephyr/sys/clock.h>
 #include <time.h>
+
 #if defined(CONFIG_APP_RTC)
 #include <zephyr/drivers/rtc.h>
 #include <zephyr/sys/timeutil.h>
@@ -10,20 +11,28 @@
 #include <zephyr/net/sntp.h>
 #include <zephyr/net/net_if.h>
 #endif
+
 LOG_MODULE_REGISTER(time_manager, CONFIG_APP_LOG_LEVEL);
+
 K_MUTEX_DEFINE(time_lock);
-static int64_t offset_ms;
-static bool synced;
+
+static int64_t offset_ms;               /**< Offset between UTC epoch (ms) and system uptime (ms). */
+static bool synced;                     /**< Flag indicating wall-clock synchronization status. */
 static struct k_work_delayable sync_work;
 static struct k_work_q time_queue;
 K_THREAD_STACK_DEFINE(time_stack, 3072);
+
+/**
+ * @brief Periodic SNTP time synchronization worker handler.
+ */
 static void sync_handler(struct k_work *work)
 {
 	ARG_UNUSED(work);
 #if defined(CONFIG_APP_MQTT)
 	struct sntp_time t;
+	/* Query network SNTP time server with 5s timeout */
 	int rc = sntp_simple(CONFIG_APP_SNTP_SERVER, 5000, &t);
-	if (!rc && t.seconds > 1577836800) {
+	if (!rc && t.seconds > 1577836800) { /* Sanity check: after 2020-01-01 */
 		k_mutex_lock(&time_lock, K_FOREVER);
 		struct timespec wall = {.tv_sec = t.seconds,
 					.tv_nsec = ((uint64_t)t.fraction * 1000000000) >> 32};
@@ -34,9 +43,14 @@ static void sync_handler(struct k_work *work)
 		k_mutex_unlock(&time_lock);
 		app_event_emit(APP_EVENT_TIME_SYNCED);
 	}
+	/* Retry after 60s on failure, or refresh every 6 hours on success */
 	k_work_reschedule_for_queue(&time_queue, &sync_work, K_SECONDS(rc ? 60 : 21600));
 #endif
 }
+
+/**
+ * @brief Zbus network event observer to trigger immediate SNTP sync upon network link up.
+ */
 static void network_event(const struct zbus_channel *channel)
 {
 	const struct app_event *e = zbus_chan_const_msg(channel);
@@ -44,11 +58,16 @@ static void network_event(const struct zbus_channel *channel)
 		k_work_reschedule_for_queue(&time_queue, &sync_work, K_NO_WAIT);
 	}
 }
+
 ZBUS_LISTENER_DEFINE(time_listener, network_event);
 ZBUS_CHAN_ADD_OBS(app_events, time_listener, 1);
+
+/**
+ * @brief Initialize time manager, check RTC hardware, and start SNTP sync worker.
+ */
 void time_manager_init(void)
 {
-	/* A product RTC backend may initialize CLOCK_REALTIME before application startup. */
+	/* A product RTC backend may initialize CLOCK_REALTIME before application startup */
 	struct timespec ts;
 #if defined(CONFIG_APP_RTC)
 	const struct device *rtc = DEVICE_DT_GET(DT_ALIAS(app_rtc));
@@ -77,6 +96,12 @@ void time_manager_init(void)
 	k_work_reschedule_for_queue(&time_queue, &sync_work, K_SECONDS(1));
 #endif
 }
+
+/**
+ * @brief Query wall-clock synchronization status.
+ *
+ * @return true if synced with SNTP/RTC, false otherwise.
+ */
 bool time_manager_is_synced(void)
 {
 	k_mutex_lock(&time_lock, K_FOREVER);
@@ -84,6 +109,12 @@ bool time_manager_is_synced(void)
 	k_mutex_unlock(&time_lock);
 	return valid;
 }
+
+/**
+ * @brief Get current timestamp in ms (UTC if synced, uptime if unsynced).
+ *
+ * @return Timestamp in milliseconds.
+ */
 int64_t time_manager_now_ms(void)
 {
 	k_mutex_lock(&time_lock, K_FOREVER);
@@ -91,6 +122,12 @@ int64_t time_manager_now_ms(void)
 	k_mutex_unlock(&time_lock);
 	return result;
 }
+
+/**
+ * @brief Populate timestamp metadata into a telemetry record.
+ *
+ * @param[out] r Telemetry record pointer to update.
+ */
 void time_manager_stamp(struct telemetry_record *r)
 {
 	k_mutex_lock(&time_lock, K_FOREVER);
@@ -99,3 +136,4 @@ void time_manager_stamp(struct telemetry_record *r)
 	r->timestamp_ms = r->uptime_ms + (synced ? offset_ms : 0);
 	k_mutex_unlock(&time_lock);
 }
+

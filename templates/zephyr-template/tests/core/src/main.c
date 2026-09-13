@@ -4,26 +4,44 @@
 #include <zephyr/sys/atomic.h>
 #include <string.h>
 #include <stdio.h>
+
 static struct telemetry_store store;
 static struct telemetry_record records[CONFIG_APP_CACHE_SIZE];
 static atomic_t upload_requests[CONFIG_APP_MAX_COLLECTORS];
 static int storage_error;
+
+/**
+ * @brief Collector operation mock that simulates hardware collection failure.
+ */
 static int fail_collect(struct telemetry_record *record)
 {
 	ARG_UNUSED(record);
 	return -EIO;
 }
+
 static const struct collector_ops failing_ops = {.collect = fail_collect};
 COLLECTOR_DEFINE(broken, &failing_ops, 1, 6);
+
+/**
+ * @brief Test mock capturing telemetry uploader upload trigger invocations.
+ */
 void telemetry_uploader_request(size_t i)
 {
 	atomic_inc(&upload_requests[i]);
 }
+
+/**
+ * @brief Test mock allowing controlled failure simulation during config saving.
+ */
 int config_storage_save(const struct app_config *config)
 {
 	ARG_UNUSED(config);
 	return storage_error;
 }
+
+/**
+ * @brief Global test suite fixture initialization.
+ */
 static void *setup(void)
 {
 	zassert_ok(collector_manager_init());
@@ -31,12 +49,20 @@ static void *setup(void)
 	time_manager_init();
 	return NULL;
 }
+
+/**
+ * @brief Per-test setup resetting test state and initializing store.
+ */
 static void before(void *fixture)
 {
 	ARG_UNUSED(fixture);
 	storage_error = 0;
 	telemetry_store_init(&store, 6);
 }
+
+/**
+ * @test Verify ring buffer overflow eviction behavior and sequence acknowledgement pop semantics.
+ */
 ZTEST(core, ring_overflow_ack_does_not_delete_new_records)
 {
 	struct telemetry_record r = {0};
@@ -56,6 +82,10 @@ ZTEST(core, ring_overflow_ack_does_not_delete_new_records)
 	telemetry_store_pop(&store, records[1].sequence);
 	zassert_equal(telemetry_store_count(&store), 4);
 }
+
+/**
+ * @test Verify ring buffer dynamic resizing, wrap-around index calculation, and clear.
+ */
 ZTEST(core, ring_resize_and_wrap)
 {
 	struct telemetry_record r = {0};
@@ -71,6 +101,10 @@ ZTEST(core, ring_resize_and_wrap)
 	telemetry_store_clear(&store);
 	zassert_equal(telemetry_store_count(&store), 0);
 }
+
+/**
+ * @test Verify fixed-point decimal scaling, negative values, and JSON formatting boundaries.
+ */
 ZTEST(core, serialization_fixed_point_and_bounds)
 {
 	struct telemetry_record r = {
@@ -89,6 +123,10 @@ ZTEST(core, serialization_fixed_point_and_bounds)
 	zassert_equal(telemetry_serialize("device-001", "temperature", &r, 1, json, sizeof(json)),
 		      -EINVAL);
 }
+
+/**
+ * @test Verify MQTT topic validation and rejection of invalid chars/wildcards.
+ */
 ZTEST(core, topics_reject_injection)
 {
 	char topic[80];
@@ -97,6 +135,10 @@ ZTEST(core, topics_reject_injection)
 	zassert_equal(telemetry_topic("bad/+", "config", topic, sizeof(topic)), -EINVAL);
 	zassert_equal(telemetry_topic("device-001", "config", topic, 3), -ENOSPC);
 }
+
+/**
+ * @test Verify deadline computation logic for periodic collections and uploads.
+ */
 ZTEST(core, schedule_five_minutes_thirty_minutes)
 {
 	int64_t collect = 300000, upload = 1800000;
@@ -115,6 +157,10 @@ ZTEST(core, schedule_five_minutes_thirty_minutes)
 	zassert_equal(uploaded, 1);
 	zassert_equal(collector_next_deadline(1000, 10000, 1), 11000);
 }
+
+/**
+ * @test Verify config structure parameter validation rules.
+ */
 ZTEST(core, validation_and_upload_faster_than_collection)
 {
 	struct app_config c;
@@ -127,6 +173,10 @@ ZTEST(core, validation_and_upload_faster_than_collection)
 	c.collectors[0].cache_size = CONFIG_APP_CACHE_SIZE + 1;
 	zassert_equal(config_validate(&c), -EINVAL);
 }
+
+/**
+ * @test Verify atomic version checking and rollback on persistence failure.
+ */
 ZTEST(core, version_and_persistence_failure_are_atomic)
 {
 	struct app_config c, original, after;
@@ -144,12 +194,20 @@ ZTEST(core, version_and_persistence_failure_are_atomic)
 	config_manager_snapshot(&after);
 	zassert_equal(after.version, c.version);
 }
+
+/**
+ * @brief Helper executing remote configuration apply over JSON string.
+ */
 static int apply(const char *body)
 {
 	char json[CONFIG_APP_PAYLOAD_SIZE];
 	strcpy(json, body);
 	return remote_config_apply(json, strlen(json));
 }
+
+/**
+ * @test Verify remote config parsing, partial updates, and malformed payload rejections.
+ */
 ZTEST(core, remote_partial_update_and_invalid_transactions)
 {
 	struct app_config c;
@@ -191,6 +249,10 @@ ZTEST(core, remote_partial_update_and_invalid_transactions)
 	config_manager_snapshot(&after);
 	zassert_mem_equal(&c, &after, sizeof(c));
 }
+
+/**
+ * @test Verify mock collector sampling types and schema invariants.
+ */
 ZTEST(core, mock_collectors_are_typed)
 {
 	for (size_t i = 0; i < collector_count(); i++) {
@@ -207,6 +269,10 @@ ZTEST(core, mock_collectors_are_typed)
 		zassert_true(telemetry_serialize("test", c->name, &r, 1, json, sizeof(json)) > 0);
 	}
 }
+
+/**
+ * @test Verify workqueue offline sampling execution, error recovery, and dynamic reconfiguration.
+ */
 ZTEST(core, real_workqueue_offline_collection_and_reschedule)
 {
 	int i = collector_find("temperature");
@@ -244,4 +310,5 @@ ZTEST(core, real_workqueue_offline_collection_and_reschedule)
 	cfg.enabled = false;
 	collector_configure(i, &cfg);
 }
+
 ZTEST_SUITE(core, NULL, setup, before, NULL, NULL);

@@ -4,6 +4,10 @@
 #if !defined(CONFIG_APP_MOCK_SENSOR)
 static const struct device *const sensor = DEVICE_DT_GET(DT_ALIAS(imu_sensor));
 #endif
+
+/**
+ * @brief Initialize 6-axis IMU (accelerometer & gyroscope) device.
+ */
 static int init(void)
 {
 #if defined(CONFIG_APP_MOCK_SENSOR)
@@ -12,6 +16,12 @@ static int init(void)
 	return device_is_ready(sensor) ? 0 : -ENODEV;
 #endif
 }
+
+/**
+ * @brief Sample 3-axis acceleration and 3-axis angular velocity.
+ *
+ * @param r Output telemetry record populated with accel (mg) and gyro (mdps).
+ */
 static int collect(struct telemetry_record *r)
 {
 	int64_t values[6] = {10, 20, 1001, 100, 200, 300};
@@ -41,6 +51,7 @@ static int collect(struct telemetry_record *r)
 	}
 	return 0;
 }
+
 static const struct collector_ops ops = {.init = init, .collect = collect};
 COLLECTOR_DEFINE(imu, &ops, CONFIG_APP_IMU_COLLECTION_INTERVAL, CONFIG_APP_IMU_UPLOAD_INTERVAL);
 #endif

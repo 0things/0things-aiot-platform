@@ -3,10 +3,21 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+/**
+ * @brief Helper to check whether a JSON key matches a literal string.
+ */
 static bool key_is(const struct json_obj_key_value *kv, const char *name)
 {
 	return strlen(name) == kv->key_len && !memcmp(kv->key, name, kv->key_len);
 }
+
+/**
+ * @brief Parse a JSON number token into a signed 64-bit integer.
+ *
+ * @param t JSON token.
+ * @param out Output parsed integer value.
+ * @return 0 on success, or -EINVAL on invalid format/overflow.
+ */
 static int integer(const struct json_token *t, int64_t *out)
 {
 	char text[24];
@@ -21,6 +32,14 @@ static int integer(const struct json_token *t, int64_t *out)
 	*out = strtoll(text, &end, 10);
 	return errno || *end ? -EINVAL : 0;
 }
+
+/**
+ * @brief Parse key-value properties of an individual collector from JSON.
+ *
+ * @param c Output collector configuration struct to update.
+ * @param token JSON object token containing collector properties.
+ * @return 0 on success, or negative error code on failure.
+ */
 static int parse_collector(struct collector_config *c, struct json_token *token)
 {
 	struct json_obj obj;
@@ -78,6 +97,7 @@ static int parse_collector(struct collector_config *c, struct json_token *token)
 	}
 	return rc;
 }
+
 int remote_config_apply(char *json, size_t length)
 {
 	if (!json || !length || length >= CONFIG_APP_PAYLOAD_SIZE) {

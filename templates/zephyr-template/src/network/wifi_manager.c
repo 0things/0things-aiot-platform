@@ -9,6 +9,7 @@
 #include <zephyr/logging/log.h>
 #include <string.h>
 LOG_MODULE_REGISTER(wifi_manager, CONFIG_APP_LOG_LEVEL);
+
 static struct net_mgmt_event_callback callback;
 static struct k_work_delayable connect_work;
 static struct net_if *interface;
@@ -19,11 +20,19 @@ static atomic_t backoff = ATOMIC_INIT(1);
 static struct k_work_q wifi_queue;
 K_THREAD_STACK_DEFINE(wifi_stack, 3072);
 K_EVENT_DEFINE(network_ready);
+
+/**
+ * @brief Check whether the Wi-Fi interface is up with an active preferred IPv4 address.
+ */
 static bool has_address(void)
 {
 	return interface && net_if_is_up(interface) &&
 	       net_if_ipv4_get_global_addr(interface, NET_ADDR_PREFERRED);
 }
+
+/**
+ * @brief Handle network disconnection and schedule next reconnect with exponential backoff & jitter.
+ */
 static void retry(void)
 {
 	atomic_set(&state, NETWORK_RECONNECTING);
@@ -36,6 +45,10 @@ static void retry(void)
 		atomic_set(&backoff, MIN(atomic_get(&backoff) * 2, 60));
 	}
 }
+
+/**
+ * @brief Work queue handler executing connection attempts against configured SSID.
+ */
 static void connect_handler(struct k_work *work)
 {
 	ARG_UNUSED(work);
@@ -69,6 +82,10 @@ static void connect_handler(struct k_work *work)
 		k_work_reschedule_for_queue(&wifi_queue, &connect_work, K_SECONDS(30));
 	}
 }
+
+/**
+ * @brief Net management callback reacting to Wi-Fi connection and IPv4 events.
+ */
 static void event_handler(struct net_mgmt_event_callback *cb, uint64_t event, struct net_if *iface)
 {
 	if (iface != interface) {
@@ -95,6 +112,7 @@ static void event_handler(struct net_mgmt_event_callback *cb, uint64_t event, st
 		retry();
 	}
 }
+
 int wifi_manager_init(void)
 {
 	interface = net_if_get_first_wifi();
@@ -117,6 +135,7 @@ int wifi_manager_init(void)
 	initialized = true;
 	return 0;
 }
+
 int wifi_manager_connect(void)
 {
 	if (!initialized) {
@@ -128,6 +147,7 @@ int wifi_manager_connect(void)
 	k_mutex_unlock(&control_lock);
 	return 0;
 }
+
 int wifi_manager_disconnect(void)
 {
 	if (!initialized) {
@@ -144,18 +164,22 @@ int wifi_manager_disconnect(void)
 	k_mutex_unlock(&control_lock);
 	return rc;
 }
+
 bool wifi_manager_is_connected(void)
 {
 	return atomic_get(&state) == NETWORK_CONNECTED && has_address();
 }
+
 int wifi_manager_wait_connected(k_timeout_t timeout)
 {
 	return k_event_wait(&network_ready, 1, false, timeout) ? 0 : -ETIMEDOUT;
 }
+
 enum network_state wifi_manager_state(void)
 {
 	return atomic_get(&state);
 }
+
 uint32_t wifi_manager_reconnects(void)
 {
 	return MAX(atomic_get(&retries) - 1, 0);

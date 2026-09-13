@@ -4,6 +4,10 @@
 #if !defined(CONFIG_APP_MOCK_SENSOR)
 static const struct device *const sensor = DEVICE_DT_GET(DT_ALIAS(battery_sensor));
 #endif
+
+/**
+ * @brief Initialize battery fuel gauge sensor device.
+ */
 static int init(void)
 {
 #if defined(CONFIG_APP_MOCK_SENSOR)
@@ -12,6 +16,12 @@ static int init(void)
 	return device_is_ready(sensor) ? 0 : -ENODEV;
 #endif
 }
+
+/**
+ * @brief Sample battery voltage and state of charge (SoC).
+ *
+ * @param r Output telemetry record populated with voltage (mV) and battery percent.
+ */
 static int collect(struct telemetry_record *r)
 {
 	int64_t voltage = 3850, percent = 72;
@@ -35,6 +45,7 @@ static int collect(struct telemetry_record *r)
 	r->fields[1] = (struct telemetry_field){"battery_percent", percent, 0};
 	return 0;
 }
+
 static const struct collector_ops ops = {.init = init, .collect = collect};
 COLLECTOR_DEFINE(battery, &ops, CONFIG_APP_BATTERY_COLLECTION_INTERVAL,
 		 CONFIG_APP_BATTERY_UPLOAD_INTERVAL);

@@ -1,6 +1,7 @@
 #include <app/telemetry.h>
 #include <errno.h>
 #include <string.h>
+
 void telemetry_store_init(struct telemetry_store *s, size_t capacity)
 {
 	memset(s, 0, sizeof(*s));
@@ -8,6 +9,7 @@ void telemetry_store_init(struct telemetry_store *s, size_t capacity)
 	s->capacity = CLAMP(capacity, 1, CONFIG_APP_CACHE_SIZE);
 	s->next_sequence = 1;
 }
+
 int telemetry_store_append(struct telemetry_store *s, const struct telemetry_record *r)
 {
 	if (!r || r->field_count > TELEMETRY_FIELDS) {
@@ -30,6 +32,7 @@ int telemetry_store_append(struct telemetry_store *s, const struct telemetry_rec
 	k_mutex_unlock(&s->lock);
 	return 0;
 }
+
 size_t telemetry_store_peek(struct telemetry_store *s, struct telemetry_record *out, size_t max)
 {
 	k_mutex_lock(&s->lock, K_FOREVER);
@@ -40,6 +43,7 @@ size_t telemetry_store_peek(struct telemetry_store *s, struct telemetry_record *
 	k_mutex_unlock(&s->lock);
 	return n;
 }
+
 void telemetry_store_pop(struct telemetry_store *s, uint64_t ack)
 {
 	k_mutex_lock(&s->lock, K_FOREVER);
@@ -49,6 +53,7 @@ void telemetry_store_pop(struct telemetry_store *s, uint64_t ack)
 	}
 	k_mutex_unlock(&s->lock);
 }
+
 size_t telemetry_store_count(struct telemetry_store *s)
 {
 	k_mutex_lock(&s->lock, K_FOREVER);
@@ -56,6 +61,7 @@ size_t telemetry_store_count(struct telemetry_store *s)
 	k_mutex_unlock(&s->lock);
 	return n;
 }
+
 uint64_t telemetry_store_dropped(struct telemetry_store *s)
 {
 	k_mutex_lock(&s->lock, K_FOREVER);
@@ -63,6 +69,7 @@ uint64_t telemetry_store_dropped(struct telemetry_store *s)
 	k_mutex_unlock(&s->lock);
 	return n;
 }
+
 void telemetry_store_clear(struct telemetry_store *s)
 {
 	k_mutex_lock(&s->lock, K_FOREVER);
@@ -70,6 +77,7 @@ void telemetry_store_clear(struct telemetry_store *s)
 	s->head = 0;
 	k_mutex_unlock(&s->lock);
 }
+
 int telemetry_store_resize(struct telemetry_store *s, size_t capacity)
 {
 	if (!capacity || capacity > CONFIG_APP_CACHE_SIZE) {

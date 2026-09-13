@@ -60,6 +60,10 @@ static const unsigned char ca_certificate[] = {
 	0};
 static const sec_tag_t tags[] = {42};
 #endif
+
+/**
+ * @brief Get the active socket file descriptor depending on TLS configuration.
+ */
 static int socket_fd(void)
 {
 #if defined(CONFIG_APP_TLS)
@@ -68,12 +72,20 @@ static int socket_fd(void)
 	return client.transport.tcp.sock;
 #endif
 }
+
+/**
+ * @brief Check if default network interface is operational with an assigned IPv4 address.
+ */
 static bool network_ready(void)
 {
 	struct net_if *iface = net_if_get_default();
 	return iface && net_if_is_up(iface) &&
 	       net_if_ipv4_get_global_addr(iface, NET_ADDR_PREFERRED);
 }
+
+/**
+ * @brief Allocate the next non-zero MQTT packet identifier.
+ */
 static uint16_t next_id(void)
 {
 	if (!++message_id) {
@@ -81,6 +93,14 @@ static uint16_t next_id(void)
 	}
 	return message_id;
 }
+
+/**
+ * @brief Read full payload stream for an incoming MQTT PUBLISH packet.
+ *
+ * @param buffer Output buffer to store received bytes.
+ * @param length Total payload length expected.
+ * @return 0 on success, or negative error code on timeout/disconnection.
+ */
 static int read_payload(uint8_t *buffer, size_t length)
 {
 	int64_t deadline = k_uptime_get() + 5000;
@@ -105,6 +125,10 @@ static int read_payload(uint8_t *buffer, size_t length)
 	}
 	return 0;
 }
+
+/**
+ * @brief Zephyr MQTT client asynchronous event callback.
+ */
 static void mqtt_callback(struct mqtt_client *c, const struct mqtt_evt *event)
 {
 	switch (event->type) {
@@ -171,6 +195,9 @@ static void mqtt_callback(struct mqtt_client *c, const struct mqtt_evt *event)
 		break;
 	}
 }
+/**
+ * @brief Poll MQTT socket for incoming data and process MQTT live keep-alives.
+ */
 static int pump(int timeout)
 {
 	struct zsock_pollfd fd = {.fd = socket_fd(), .events = ZSOCK_POLLIN};
@@ -193,6 +220,10 @@ static int pump(int timeout)
 	rc = mqtt_live(&client);
 	return rc == -EAGAIN ? 0 : rc;
 }
+
+/**
+ * @brief Block waiting for PUBACK / SUBACK acknowledgement from broker.
+ */
 static int wait_ack(void)
 {
 	int64_t deadline = k_uptime_get() + 10000;
@@ -207,6 +238,10 @@ static int wait_ack(void)
 	}
 	return acknowledged ? ack_result : -ECANCELED;
 }
+
+/**
+ * @brief Publish a payload to a specific MQTT topic.
+ */
 static int publish(const char *topic, const char *payload, size_t length, int qos, bool retain)
 {
 	struct mqtt_publish_param p = {0};
@@ -222,6 +257,10 @@ static int publish(const char *topic, const char *payload, size_t length, int qo
 	int rc = mqtt_publish(&client, &p);
 	return rc || !qos ? rc : wait_ack();
 }
+
+/**
+ * @brief Subscribe to an MQTT topic with QoS 1.
+ */
 static int subscribe(const char *topic)
 {
 	struct mqtt_topic t = {.topic = {.utf8 = (uint8_t *)topic, .size = strlen(topic)},
@@ -233,6 +272,10 @@ static int subscribe(const char *topic)
 	int rc = mqtt_subscribe(&client, &list);
 	return rc ? rc : wait_ack();
 }
+
+/**
+ * @brief Initialize client socket connection, TLS credentials, and connect to MQTT broker.
+ */
 static int connect_broker(void)
 {
 	socket_open = false;
@@ -301,12 +344,20 @@ static int connect_broker(void)
 	}
 	return rc;
 }
+
+/**
+ * @brief Signal completion of a submitted publish/subscribe request.
+ */
 static void complete_request(int result)
 {
 	request_result = result;
 	atomic_clear(&request_pending);
 	k_sem_give(&completed);
 }
+
+/**
+ * @brief Background thread managing MQTT connection lifecycle and request processing.
+ */
 static void mqtt_entry(void *a, void *b, void *c)
 {
 	ARG_UNUSED(a);
@@ -362,10 +413,15 @@ static void mqtt_entry(void *a, void *b, void *c)
 		backoff = MIN(backoff * 2, 60U);
 	}
 }
+
 struct command_data {
 	char *command;
 	char *url;
 };
+
+/**
+ * @brief Background control thread handling remote config and incoming device commands.
+ */
 static void control_entry(void *a, void *b, void *c)
 {
 	ARG_UNUSED(a);
@@ -409,6 +465,10 @@ static void control_entry(void *a, void *b, void *c)
 		mqtt_manager_publish("event", response, n, 1, false);
 	}
 }
+
+/**
+ * @brief Zbus event callback to wake MQTT worker thread on network state changes.
+ */
 static void network_event(const struct zbus_channel *channel)
 {
 	const struct app_event *e = zbus_chan_const_msg(channel);
@@ -416,8 +476,10 @@ static void network_event(const struct zbus_channel *channel)
 		k_sem_give(&wakeup);
 	}
 }
+
 ZBUS_LISTENER_DEFINE(mqtt_listener, network_event);
 ZBUS_CHAN_ADD_OBS(app_events, mqtt_listener, 3);
+
 int mqtt_manager_init(void)
 {
 	telemetry_topic(device_identity_get(), "presence", presence_topic, sizeof(presence_topic));
@@ -445,25 +507,33 @@ int mqtt_manager_init(void)
 	k_thread_name_set(&control_thread, "remote_config");
 	return 0;
 }
+
 int mqtt_manager_start(void)
 {
 	atomic_set(&running, 1);
 	k_sem_give(&wakeup);
 	return 0;
 }
+
 void mqtt_manager_stop(void)
 {
 	atomic_clear(&running);
 	k_sem_give(&wakeup);
 }
+
 bool mqtt_manager_is_connected(void)
 {
 	return atomic_get(&state) == MQTT_CONNECTED;
 }
+
 uint32_t mqtt_manager_reconnects(void)
 {
 	return MAX(atomic_get(&reconnects) - 1, 0);
 }
+
+/**
+ * @brief Thread-safe API submission interface for MQTT publish/subscribe operations.
+ */
 static int submit(const char *suffix, const char *payload, size_t length, int qos, bool retain,
 		  bool sub)
 {
@@ -497,11 +567,13 @@ out:
 	k_mutex_unlock(&api_lock);
 	return rc;
 }
+
 int mqtt_manager_publish(const char *suffix, const char *payload, size_t length, int qos,
 			 bool retain)
 {
 	return submit(suffix, payload, length, qos, retain, false);
 }
+
 int mqtt_manager_subscribe(const char *suffix)
 {
 	return submit(suffix, NULL, 0, 1, false, true);

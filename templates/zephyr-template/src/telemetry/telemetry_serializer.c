@@ -17,6 +17,15 @@ bool app_name_valid(const char *s)
 	}
 	return true;
 }
+
+/**
+ * @brief Append formatted text to buffer with bounds checking.
+ *
+ * @param p Pointer to current buffer position (advanced on success).
+ * @param left Pointer to remaining buffer capacity (decremented on success).
+ * @param fmt Printf format string.
+ * @return 0 on success, or -ENOSPC on buffer overflow.
+ */
 static int add(char **p, size_t *left, const char *fmt, ...)
 {
 	va_list args;
@@ -30,6 +39,7 @@ static int add(char **p, size_t *left, const char *fmt, ...)
 	*left -= n;
 	return 0;
 }
+
 int telemetry_topic(const char *id, const char *suffix, char *out, size_t size)
 {
 	if (!app_name_valid(id) || !app_name_valid(suffix)) {
@@ -38,6 +48,7 @@ int telemetry_topic(const char *id, const char *suffix, char *out, size_t size)
 	int n = snprintf(out, size, "devices/%s/%s", id, suffix);
 	return n < 0 || (size_t)n >= size ? -ENOSPC : n;
 }
+
 int telemetry_serialize(const char *id, const char *name, const struct telemetry_record *records,
 			size_t count, char *out, size_t size)
 {

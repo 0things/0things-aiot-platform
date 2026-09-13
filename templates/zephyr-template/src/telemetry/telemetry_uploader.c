@@ -2,6 +2,7 @@
 #include <app/network.h>
 #include <zephyr/sys/atomic.h>
 #include <stdio.h>
+
 static atomic_t pending[CONFIG_APP_MAX_COLLECTORS];
 static struct k_work_delayable upload_work;
 static struct k_work_q upload_queue;
@@ -10,6 +11,12 @@ static size_t cursor;
 static struct k_spinlock schedule_lock;
 static int64_t wake_at = INT64_MAX;
 static int64_t allowed_at;
+
+/**
+ * @brief Schedule or advance the next telemetry upload work execution.
+ *
+ * @param delay_ms Minimum milliseconds from now before running the upload.
+ */
 static void schedule_upload(int32_t delay_ms)
 {
 	k_spinlock_key_t key = k_spin_lock(&schedule_lock);
@@ -21,6 +28,10 @@ static void schedule_upload(int32_t delay_ms)
 	}
 	k_spin_unlock(&schedule_lock, key);
 }
+
+/**
+ * @brief Check if any collector has queued records pending transmission.
+ */
 static bool has_pending(void)
 {
 	for (size_t i = 0; i < collector_count(); i++) {
@@ -30,8 +41,13 @@ static bool has_pending(void)
 	}
 	return false;
 }
+
 static bool was_connected;
 static uint16_t age[CONFIG_APP_MAX_COLLECTORS];
+
+/**
+ * @brief Work queue handler performing prioritized, round-robin batch telemetry uploads.
+ */
 static void upload_handler(struct k_work *work)
 {
 	ARG_UNUSED(work);
@@ -105,6 +121,7 @@ again:
 	schedule_upload(mqtt_manager_is_connected() && has_pending() ? CONFIG_APP_UPLOAD_GAP_MS
 								     : 30000);
 }
+
 void telemetry_uploader_request(size_t index)
 {
 	if (index < collector_count()) {
@@ -112,12 +129,17 @@ void telemetry_uploader_request(size_t index)
 		schedule_upload(0);
 	}
 }
+
 void telemetry_uploader_flush(void)
 {
 	for (size_t i = 0; i < collector_count(); i++) {
 		telemetry_uploader_request(i);
 	}
 }
+
+/**
+ * @brief Zbus event handler triggering immediate upload flush on MQTT connection up.
+ */
 static void mqtt_event(const struct zbus_channel *channel)
 {
 	const struct app_event *e = zbus_chan_const_msg(channel);
@@ -125,8 +147,10 @@ static void mqtt_event(const struct zbus_channel *channel)
 		telemetry_uploader_flush();
 	}
 }
+
 ZBUS_LISTENER_DEFINE(upload_listener, mqtt_event);
 ZBUS_CHAN_ADD_OBS(app_events, upload_listener, 2);
+
 void telemetry_uploader_init(void)
 {
 	k_work_init_delayable(&upload_work, upload_handler);

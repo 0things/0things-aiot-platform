@@ -3,10 +3,20 @@
 #include <zephyr/logging/log.h>
 #include <string.h>
 LOG_MODULE_REGISTER(collector_manager, CONFIG_APP_LOG_LEVEL);
+
 static struct collector_runtime runtimes[CONFIG_APP_MAX_COLLECTORS];
 static size_t registered;
 static struct k_work_q collect_queue;
 K_THREAD_STACK_DEFINE(collect_stack, 4096);
+
+/**
+ * @brief Calculate next execution deadline to prevent drift and phase alignment.
+ *
+ * @param previous Previous scheduled timestamp (ms).
+ * @param now Current uptime timestamp (ms).
+ * @param interval Recurrence interval in seconds.
+ * @return Next execution deadline in milliseconds.
+ */
 int64_t collector_next_deadline(int64_t previous, int64_t now, int32_t interval)
 {
 	int64_t step = (int64_t)interval * 1000;
@@ -15,6 +25,10 @@ int64_t collector_next_deadline(int64_t previous, int64_t now, int32_t interval)
 	}
 	return previous > now ? previous : previous + ((now - previous) / step + 1) * step;
 }
+
+/**
+ * @brief Work queue handler executing periodic data collection for a sensor.
+ */
 static void collect_handler(struct k_work *work)
 {
 	struct collector_runtime *r = CONTAINER_OF(k_work_delayable_from_work(work),
@@ -55,8 +69,10 @@ static void collect_handler(struct k_work *work)
 		r->state = COLLECTOR_ERROR;
 		LOG_WRN("%s collect failed: %d", r->definition->name, rc);
 		if (r->failures++ < r->config.retry) {
+			/* Fast retry on transient collection failure */
 			r->next_collect = k_uptime_get() + 1000;
 		} else {
+			/* Exceeded retries, fall back to normal period */
 			r->failures = 0;
 			r->next_collect =
 				k_uptime_get() + (int64_t)r->config.collection_interval_sec * 1000;
@@ -70,6 +86,10 @@ static void collect_handler(struct k_work *work)
 	k_mutex_unlock(&r->lock);
 	watchdog_manager_heartbeat(0);
 }
+
+/**
+ * @brief Work queue handler triggering batch upload requests for a collector.
+ */
 static void upload_handler(struct k_work *work)
 {
 	struct collector_runtime *r = CONTAINER_OF(k_work_delayable_from_work(work),
@@ -89,6 +109,7 @@ static void upload_handler(struct k_work *work)
 	}
 	k_mutex_unlock(&r->lock);
 }
+
 int collector_manager_init(void)
 {
 	STRUCT_SECTION_FOREACH(collector, c) {
@@ -119,20 +140,24 @@ int collector_manager_init(void)
 	k_thread_name_set(k_work_queue_thread_get(&collect_queue), "collectors");
 	return registered ? 0 : -ENODEV;
 }
+
 void collector_manager_start(void)
 {
 	for (size_t i = 0; i < registered; i++) {
 		collector_configure(i, &runtimes[i].config);
 	}
 }
+
 size_t collector_count(void)
 {
 	return registered;
 }
+
 struct collector_runtime *collector_at(size_t index)
 {
 	return index < registered ? &runtimes[index] : NULL;
 }
+
 int collector_find(const char *name)
 {
 	for (size_t i = 0; i < registered; i++) {
@@ -142,6 +167,7 @@ int collector_find(const char *name)
 	}
 	return -ENOENT;
 }
+
 void collector_snapshot(size_t index, struct collector_config *cfg, enum collector_state *state,
 			uint64_t *errors)
 {
@@ -158,6 +184,7 @@ void collector_snapshot(size_t index, struct collector_config *cfg, enum collect
 	}
 	k_mutex_unlock(&r->lock);
 }
+
 void collector_configure(size_t index, const struct collector_config *cfg)
 {
 	struct collector_runtime *r = collector_at(index);

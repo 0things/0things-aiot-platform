@@ -6,8 +6,16 @@
 #include <zephyr/settings/settings.h>
 #endif
 LOG_MODULE_REGISTER(config_manager, CONFIG_APP_LOG_LEVEL);
+
 K_MUTEX_DEFINE(config_lock);
 static struct app_config active;
+
+/**
+ * @brief Validate application configuration struct boundaries and consistency.
+ *
+ * @param c Pointer to the configuration struct to validate.
+ * @return 0 on success, or -EINVAL on invalid format/ranges.
+ */
 int config_validate(const struct app_config *c)
 {
 	if (c->schema != 1 || c->count != collector_count()) {
@@ -31,7 +39,11 @@ int config_validate(const struct app_config *c)
 	}
 	return 0;
 }
+
 #if defined(CONFIG_APP_SETTINGS)
+/**
+ * @brief Direct read callback for Zephyr Settings tree loader.
+ */
 static int load_config(const char *name, size_t length, settings_read_cb read, void *arg,
 		       void *param)
 {
@@ -51,6 +63,10 @@ static int load_config(const char *name, size_t length, settings_read_cb read, v
 	return rc;
 }
 #endif
+
+/**
+ * @brief Save configuration structure into non-volatile storage.
+ */
 __weak int config_storage_save(const struct app_config *config)
 {
 #if defined(CONFIG_APP_SETTINGS)
@@ -60,6 +76,7 @@ __weak int config_storage_save(const struct app_config *config)
 	return 0;
 #endif
 }
+
 int config_manager_init(void)
 {
 	active.schema = 1;
@@ -79,12 +96,14 @@ int config_manager_init(void)
 #endif
 	return config_validate(&active);
 }
+
 void config_manager_snapshot(struct app_config *out)
 {
 	k_mutex_lock(&config_lock, K_FOREVER);
 	*out = active;
 	k_mutex_unlock(&config_lock);
 }
+
 int config_manager_apply(const struct app_config *c)
 {
 	int rc = config_validate(c);

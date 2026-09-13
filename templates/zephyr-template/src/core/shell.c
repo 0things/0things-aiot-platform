@@ -3,6 +3,10 @@
 #include <app/network.h>
 #include <zephyr/shell/shell.h>
 #include <inttypes.h>
+
+/**
+ * @brief Print runtime statistics and configuration for a specific collector.
+ */
 static void show_collector(const struct shell *sh, size_t i)
 {
 	struct collector_config cfg;
@@ -14,6 +18,10 @@ static void show_collector(const struct shell *sh, size_t i)
 		    cfg.upload_interval_sec,
 		    (unsigned)telemetry_store_count(&collector_at(i)->store), errors);
 }
+
+/**
+ * @brief Shell command handler for general device status.
+ */
 static int status(const struct shell *sh, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
@@ -26,6 +34,10 @@ static int status(const struct shell *sh, size_t argc, char **argv)
 #endif
 	return 0;
 }
+
+/**
+ * @brief Shell command handler to list all active collectors.
+ */
 static int collectors(const struct shell *sh, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
@@ -35,6 +47,10 @@ static int collectors(const struct shell *sh, size_t argc, char **argv)
 	}
 	return 0;
 }
+
+/**
+ * @brief Shell command handler to inspect a single collector by name.
+ */
 static int one(const struct shell *sh, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
@@ -46,6 +62,10 @@ static int one(const struct shell *sh, size_t argc, char **argv)
 	show_collector(sh, i);
 	return 0;
 }
+
+/**
+ * @brief Shell command handler to display the active configuration metadata.
+ */
 static int config(const struct shell *sh, size_t argc, char **argv)
 {
 	struct app_config cfg;
@@ -54,22 +74,30 @@ static int config(const struct shell *sh, size_t argc, char **argv)
 		    IS_ENABLED(CONFIG_APP_SETTINGS) ? "settings" : "RAM");
 	return collectors(sh, argc, argv);
 }
+
+/* Application shell subcommand tree */
 SHELL_STATIC_SUBCMD_SET_CREATE(app_commands, SHELL_CMD(status, NULL, "Device status", status),
 			       SHELL_CMD(collectors, NULL, "List collectors", collectors),
 			       SHELL_CMD_ARG(collector, NULL, "Show collector", one, 2, 0),
 			       SHELL_CMD(config, NULL, "Show active config (no secrets)", config),
 			       SHELL_SUBCMD_SET_END);
 SHELL_CMD_REGISTER(app, &app_commands, "IoT scaffold", NULL);
+
+/* Telemetry cache inspection command */
 SHELL_STATIC_SUBCMD_SET_CREATE(telemetry_commands,
 			       SHELL_CMD(status, NULL, "Cache status", collectors),
 			       SHELL_SUBCMD_SET_END);
 SHELL_CMD_REGISTER(telemetry, &telemetry_commands, "Telemetry", NULL);
+
+/* MQTT status inspection command */
 SHELL_STATIC_SUBCMD_SET_CREATE(mqtt_commands, SHELL_CMD(status, NULL, "MQTT status", status),
 			       SHELL_SUBCMD_SET_END);
 SHELL_CMD_REGISTER(mqtt, &mqtt_commands, "MQTT", NULL);
 
 #if !defined(CONFIG_NET_L2_WIFI_SHELL)
+/* Standalone Wi-Fi command if L2 shell is disabled */
 SHELL_STATIC_SUBCMD_SET_CREATE(wifi_commands, SHELL_CMD(status, NULL, "Network status", status),
 			       SHELL_SUBCMD_SET_END);
 SHELL_CMD_REGISTER(wifi, &wifi_commands, "Wi-Fi", NULL);
 #endif
+
