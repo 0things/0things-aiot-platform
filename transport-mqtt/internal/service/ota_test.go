@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"0things/pkg/event"
+	"transport-mqtt/internal/adaptor"
 	"transport-mqtt/pkg/log"
 
 	"github.com/spf13/viper"
@@ -49,7 +50,7 @@ func TestOTAService_HandleProgress(t *testing.T) {
 
 	// 1. Valid progress payload
 	msg := &mockMessage{
-		topic:   "/ota/device/progress/PK123/DEV001",
+		topic:   "/sys/ota/device/progress/PK123/DEV001",
 		payload: []byte(`{"batch_id":"b_1","step":60,"desc":"downloading"}`),
 	}
 	err := svc.HandleProgress(context.Background(), msg)
@@ -76,7 +77,7 @@ func TestOTAService_HandleInform(t *testing.T) {
 	svc := NewOTAService(producer, logger)
 
 	msg := &mockMessage{
-		topic:   "/ota/device/inform/PK123/DEV001",
+		topic:   "/sys/ota/device/inform/PK123/DEV001",
 		payload: []byte(`{"id":"uuid_1","version":"v2.0.0"}`),
 	}
 	err := svc.HandleInform(context.Background(), msg)
@@ -90,5 +91,66 @@ func TestOTAService_HandleInform(t *testing.T) {
 	assert.Equal(t, event.TransportMQTT, deviceMsg.Transport)
 	assert.Equal(t, event.MessageTypeOTAInform, deviceMsg.MessageType)
 	assert.JSONEq(t, `{"id":"uuid_1","version":"v2.0.0"}`, string(deviceMsg.Payload))
+	assert.Greater(t, deviceMsg.Timestamp, int64(0))
+}
+
+func TestTelemetryService_Handle(t *testing.T) {
+	v := viper.New()
+	v.Set("log.mode", "console")
+	v.Set("log.log_level", "error")
+	logger := log.NewLog(v)
+
+	producer := &mockProducer{}
+	svc := NewTelemetryService(adaptor.NewJsonMqttAdaptor(), producer, logger)
+
+	msg := &mockMessage{
+		topic: "/sys/thing/property/post/PK123/DEV001",
+		payload: []byte(`{
+			"id": "123",
+			"version": "1.0",
+			"params": {
+				"temp": {"value": 25.5, "time": 1700000000000}
+			},
+			"method": "thing.event.property.post"
+		}`),
+	}
+	err := svc.Handle(context.Background(), msg)
+
+	require.NoError(t, err)
+	assert.Equal(t, event.TopicDeviceTelemetryReport, producer.publishedTopic)
+
+	deviceMsg, ok := producer.publishedMsg.(*event.DeviceMessage)
+	require.True(t, ok)
+	assert.Equal(t, "DEV001", deviceMsg.DeviceKey)
+	assert.Equal(t, "PK123", deviceMsg.ProductKey)
+	assert.Equal(t, event.TransportMQTT, deviceMsg.Transport)
+	assert.JSONEq(t, `[{"ts":1700000000000,"values":{"temp":25.5}}]`, string(deviceMsg.Payload))
+	assert.Greater(t, deviceMsg.Timestamp, int64(0))
+}
+
+func TestDeviceEventService_Handle(t *testing.T) {
+	v := viper.New()
+	v.Set("log.mode", "console")
+	v.Set("log.log_level", "error")
+	logger := log.NewLog(v)
+
+	producer := &mockProducer{}
+	svc := NewDeviceEventService(producer, logger)
+
+	msg := &mockMessage{
+		topic:   "/sys/thing/event/post/PK123/DEV001",
+		payload: []byte(`{"identifier":"overheat","type":"alert","timestamp":1700000000000}`),
+	}
+	err := svc.Handle(context.Background(), msg)
+	require.NoError(t, err)
+	assert.Equal(t, event.TopicDeviceEventReport, producer.publishedTopic)
+
+	deviceMsg, ok := producer.publishedMsg.(*event.DeviceMessage)
+	require.True(t, ok)
+	assert.Equal(t, "DEV001", deviceMsg.DeviceKey)
+	assert.Equal(t, "PK123", deviceMsg.ProductKey)
+	assert.Equal(t, event.TransportMQTT, deviceMsg.Transport)
+	assert.Equal(t, event.MessageTypeEvent, deviceMsg.MessageType)
+	assert.JSONEq(t, `{"identifier":"overheat","type":"alert","timestamp":1700000000000}`, string(deviceMsg.Payload))
 	assert.Greater(t, deviceMsg.Timestamp, int64(0))
 }

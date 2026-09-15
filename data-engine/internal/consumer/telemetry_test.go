@@ -7,23 +7,26 @@ import (
 	"time"
 
 	"0things/pkg/event"
+	"0things/pkg/tsdb"
 	"data-engine/internal/handler"
-	"data-engine/internal/repository"
 	"data-engine/internal/service"
 
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func TestTelemetryConsumer_HandleTelemetry(t *testing.T) {
-	v := viper.New()
+func TestTelemetryConsumer_HandlePropertyPost(t *testing.T) {
 	logger := zap.NewNop()
-	shadow := repository.NewShadowRepository(v, logger)
-	telemetryService := service.NewTelemetryService(v, logger, nil, shadow)
+	mockTSDB := tsdb.NewMockClient(logger)
+	telemetryService := service.NewTelemetryService(logger, mockTSDB)
 
 	consumer := NewTelemetryConsumer(handler.NewTelemetryHandler(telemetryService, logger))
 
-	rawPayload := []byte(`{"temperature": 26.5, "humidity": 65}`)
+	rawPayload, _ := json.Marshal([]event.DevicePropertyPostPayload{
+		{
+			Timestamp: time.Now().UnixMilli(),
+			Values:    map[string]interface{}{"temperature": 26.5, "humidity": 65},
+		},
+	})
 	msg := &event.DeviceMessage{
 		DeviceKey:   "dev_telemetry_01",
 		ProductKey:  "prod_01",
@@ -33,49 +36,8 @@ func TestTelemetryConsumer_HandleTelemetry(t *testing.T) {
 		Timestamp:   time.Now().UnixMilli(),
 	}
 
-	err := consumer.HandleTelemetry(context.Background(), msg, nil)
+	err := consumer.HandlePropertyPost(context.Background(), msg, nil)
 	if err != nil {
-		t.Fatalf("unexpected error in HandleTelemetry: %v", err)
-	}
-
-	// Verify shadow was updated
-	sh, err := shadow.GetShadow(context.Background(), "dev_telemetry_01")
-	if err != nil {
-		t.Fatalf("failed to get shadow: %v", err)
-	}
-	if sh.Attributes["humidity"] != float64(65) {
-		t.Errorf("expected humidity 65, got %v", sh.Attributes["humidity"])
-	}
-}
-
-func TestTelemetryConsumer_HandleAttribute(t *testing.T) {
-	v := viper.New()
-	logger := zap.NewNop()
-	shadow := repository.NewShadowRepository(v, logger)
-	telemetryService := service.NewTelemetryService(v, logger, nil, shadow)
-
-	consumer := NewTelemetryConsumer(handler.NewTelemetryHandler(telemetryService, logger))
-
-	rawPayload := []byte(`{"ip": "192.168.1.100", "battery": 90}`)
-	msg := &event.DeviceMessage{
-		DeviceKey:   "dev_attr_01",
-		ProductKey:  "prod_01",
-		Transport:   event.TransportHTTP,
-		MessageType: event.MessageTypeAttributes,
-		Payload:     json.RawMessage(rawPayload),
-		Timestamp:   time.Now().UnixMilli(),
-	}
-
-	err := consumer.HandleAttribute(context.Background(), msg, nil)
-	if err != nil {
-		t.Fatalf("unexpected error in HandleAttribute: %v", err)
-	}
-
-	sh, err := shadow.GetShadow(context.Background(), "dev_attr_01")
-	if err != nil {
-		t.Fatalf("failed to get shadow: %v", err)
-	}
-	if sh.Attributes["ip"] != "192.168.1.100" {
-		t.Errorf("expected ip 192.168.1.100, got %v", sh.Attributes["ip"])
+		t.Fatalf("unexpected error in HandlePropertyPost: %v", err)
 	}
 }

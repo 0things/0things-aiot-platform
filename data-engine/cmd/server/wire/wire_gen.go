@@ -36,8 +36,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		cleanup()
 		return nil, nil, err
 	}
-	shadowRepository := repository.NewShadowRepository(viperViper, zapLogger)
-	telemetryService := service.NewTelemetryService(viperViper, zapLogger, client, shadowRepository)
+	telemetryService := service.NewTelemetryService(zapLogger, client)
 	telemetryHandler := handler.NewTelemetryHandler(telemetryService, zapLogger)
 	telemetryConsumer := consumer.NewTelemetryConsumer(telemetryHandler)
 	db, err := provideDB(viperViper, logger)
@@ -111,7 +110,7 @@ func provideEventProducer(holder *eventBusHolder) event.Producer {
 }
 
 var repositorySet = wire.NewSet(
-	provideDB, repository.NewRepository, repository.NewDeviceUpgradeStatusRepository, repository.NewDeviceEventRepository, repository.NewShadowRepository,
+	provideDB, repository.NewRepository, repository.NewDeviceUpgradeStatusRepository, repository.NewDeviceEventRepository,
 )
 
 var serviceSet = wire.NewSet(service.NewTelemetryService, service.NewOTAService, service.NewEventService)

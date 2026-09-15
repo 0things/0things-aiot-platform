@@ -16,6 +16,7 @@
 **/*.local.json
 **/config/local.yml
 **/config/prod.yml
+**/config/docker.yml
 **/configs/config.yaml
 **/*.cert
 **/*.key

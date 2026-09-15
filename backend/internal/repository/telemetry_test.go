@@ -17,9 +17,9 @@ func TestTelemetryRepository_QueryLatest(t *testing.T) {
 	client := tsdb.NewMockClient(testLogger.Logger)
 	now := time.Now()
 	if err := client.WriteBatch(context.Background(), []tsdb.Record{
-		{DeviceKey: "device-1", Metric: "temperature", Value: 21.5, Timestamp: now.Add(-2 * time.Minute)},
-		{DeviceKey: "device-1", Metric: "temperature", Value: 24.8, Timestamp: now.Add(-time.Minute)},
-		{DeviceKey: "device-1", Metric: "humidity", Value: 55, Timestamp: now.Add(-30 * time.Second)},
+		{DeviceKey: "device-1", Metric: "temperature", Value: 21.5, Timestamp: now.Add(-2 * time.Minute).UnixMilli()},
+		{DeviceKey: "device-1", Metric: "temperature", Value: 24.8, Timestamp: now.Add(-time.Minute).UnixMilli()},
+		{DeviceKey: "device-1", Metric: "humidity", Value: 55, Timestamp: now.Add(-30 * time.Second).UnixMilli()},
 	}); err != nil {
 		t.Fatal(err)
 	}

@@ -38,17 +38,12 @@ func NewManager(
 
 // Start registers all topic subscriptions with the event bus.
 func (m *Manager) Start(ctx context.Context) error {
-	// 1. Subscribe to device telemetry reports
-	if err := event.Subscribe(ctx, m.consumer, event.TopicDeviceTelemetryReport, m.telemetryConsumer.HandleTelemetry); err != nil {
+	// 1. Subscribe to device telemetry/property reports
+	if err := event.Subscribe(ctx, m.consumer, event.TopicDeviceTelemetryReport, m.telemetryConsumer.HandlePropertyPost); err != nil {
 		return err
 	}
 
-	// 2. Subscribe to device attribute reports
-	if err := event.Subscribe(ctx, m.consumer, event.TopicDeviceAttributeReport, m.telemetryConsumer.HandleAttribute); err != nil {
-		return err
-	}
-
-	// 3. Subscribe to device business events and alarms
+	// 2. Subscribe to device business events and alarms
 	if err := event.Subscribe(ctx, m.consumer, event.TopicDeviceEventReport, m.eventConsumer.HandleEvent); err != nil {
 		return err
 	}

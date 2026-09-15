@@ -8,7 +8,7 @@ import (
 
 type Device struct {
 	ID             int64          `gorm:"column:id;primaryKey" json:"id"`
-	DeviceKey      string         `gorm:"column:device_key" json:"deviceKey"`
+	DeviceKey      string         `gorm:"column:device_key;uniqueIndex" json:"deviceKey"`
 	Name           string         `json:"name"`
 	ProductID      int64          `gorm:"column:product_id" json:"productId"`
 	OrganizationID int64          `gorm:"column:organization_id;not null;default:1" json:"organizationId"`

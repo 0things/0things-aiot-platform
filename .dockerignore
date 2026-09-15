@@ -1,0 +1,10 @@
+.git
+.gitignore
+.service-pids
+tmp/
+storage/
+node_modules
+dist
+.env
+.env.local
+*.log

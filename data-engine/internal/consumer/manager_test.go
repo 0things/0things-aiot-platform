@@ -5,21 +5,19 @@ import (
 	"testing"
 
 	"0things/pkg/event"
+	"0things/pkg/tsdb"
 	"data-engine/internal/handler"
-	"data-engine/internal/repository"
 	"data-engine/internal/service"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 func TestManager_Start(t *testing.T) {
-	v := viper.New()
 	logger := zap.NewNop()
-	shadow := repository.NewShadowRepository(v, logger)
-	telemetryService := service.NewTelemetryService(v, logger, nil, shadow)
+	mockTSDB := tsdb.NewMockClient(logger)
+	telemetryService := service.NewTelemetryService(logger, mockTSDB)
 	eventService := service.NewEventService(logger, &mockDeviceEventRepository{})
 	otaStore := &mockDeviceUpgradeStatusRepository{}
 	otaService := service.NewOTAService(otaStore, logger)

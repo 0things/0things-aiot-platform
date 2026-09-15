@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"0things/pkg/event"
-	"transport-mqtt/internal/topic"
+	"transport-mqtt/internal/adaptor"
 	"transport-mqtt/pkg/log"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -14,32 +14,58 @@ import (
 )
 
 type TelemetryService struct {
+	adaptor       *adaptor.JsonMqttAdaptor
 	eventProducer event.Producer
 	logger        *log.Logger
 }
 
-func NewTelemetryService(eventProducer event.Producer, logger *log.Logger) *TelemetryService {
-	return &TelemetryService{eventProducer: eventProducer, logger: logger}
+func NewTelemetryService(adaptor *adaptor.JsonMqttAdaptor, eventProducer event.Producer, logger *log.Logger) *TelemetryService {
+	return &TelemetryService{
+		adaptor:       adaptor,
+		eventProducer: eventProducer,
+		logger:        logger,
+	}
 }
 
 func (s *TelemetryService) Handle(ctx context.Context, msg mqtt.Message) error {
-	deviceKey := topic.ExtractDeviceKey(msg.Topic())
-	if deviceKey == "" {
-		s.logger.Warn("could not extract deviceKey from telemetry topic", zap.String("topic", msg.Topic()))
+	dk := extractDeviceKeyFromTopic(msg.Topic())
+	if dk == "" {
+		s.logger.Warn("could not extract deviceKey from topic", zap.String("topic", msg.Topic()))
 		return nil
 	}
+	pk := extractProductKeyFromTopic(msg.Topic())
+
+	payloads, err := s.adaptor.ConvertToTelemetryPayload(msg.Payload())
+	if err != nil || len(payloads) == 0 {
+		s.logger.Warn("could not parse telemetry payload via JsonMqttAdaptor",
+			zap.String("device_key", dk),
+			zap.String("topic", msg.Topic()),
+			zap.Error(err),
+		)
+		return nil
+	}
+
+	payloadBytes, err := json.Marshal(payloads)
+	if err != nil {
+		s.logger.Error("failed to marshal normalized telemetry", zap.Error(err))
+		return err
+	}
+
 	deviceMsg := event.DeviceMessage{
-		DeviceKey:   deviceKey,
-		ProductKey:  topic.ExtractProductKey(msg.Topic()),
+		DeviceKey:   dk,
+		ProductKey:  pk,
 		Transport:   event.TransportMQTT,
 		MessageType: event.MessageTypeTelemetry,
-		Payload:     json.RawMessage(msg.Payload()),
+		Payload:     json.RawMessage(payloadBytes),
 		Timestamp:   time.Now().UnixMilli(),
 		Headers:     map[string]string{"topic": msg.Topic()},
 	}
-	s.logger.Info("received MQTT telemetry message", zap.String("topic", msg.Topic()), zap.String("device_key", deviceKey), zap.Int("payload_bytes", len(msg.Payload())))
-	if s.eventProducer == nil {
-		return nil
-	}
+
+	s.logger.Info("received and normalized MQTT telemetry message via JsonMqttAdaptor",
+		zap.String("topic", msg.Topic()),
+		zap.String("device_key", dk),
+		zap.Int("records", len(payloads)),
+	)
+
 	return s.eventProducer.Publish(ctx, event.TopicDeviceTelemetryReport, &deviceMsg)
 }

@@ -254,7 +254,7 @@ func (c *SQLiteClient) flushBatch(batch []Record) {
 			}
 			boolInt = &val
 		}
-		ts := rec.Timestamp.UnixMilli()
+		ts := rec.Timestamp
 		if _, err := stmt.Exec(ts, rec.DeviceKey, rec.Metric, numVal, strVal, boolInt, jsonVal); err != nil {
 			c.logger.Warn("failed to insert point into SQLite", zap.Error(err))
 		}

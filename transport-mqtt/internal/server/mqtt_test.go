@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"transport-mqtt/internal/adaptor"
 	"transport-mqtt/internal/consumer"
 	"transport-mqtt/internal/enum"
 	"transport-mqtt/internal/handler"
@@ -21,18 +22,13 @@ func TestDownlinkTopicFormatting(t *testing.T) {
 	deviceKey := "test_dev_01"
 
 	propertyTopic := fmt.Sprintf(enum.MQTTTplPropertySet, productKey, deviceKey)
-	if propertyTopic != "/sys/prod_xyz/test_dev_01/thing/service/property/set" {
+	if propertyTopic != "/sys/thing/property/set/prod_xyz/test_dev_01" {
 		t.Errorf("unexpected property downlink topic: %s", propertyTopic)
 	}
 
 	otaTopic := fmt.Sprintf(enum.MQTTTplOTAUpgrade, productKey, deviceKey)
-	if otaTopic != "/sys/prod_xyz/test_dev_01/ota/device/upgrade" {
+	if otaTopic != "/sys/ota/device/upgrade/prod_xyz/test_dev_01" {
 		t.Errorf("unexpected ota downlink topic: %s", otaTopic)
-	}
-
-	otaTopicV1 := fmt.Sprintf(enum.MQTTTplOTAUpgradeV1, productKey, deviceKey)
-	if otaTopicV1 != "/ota/device/upgrade/prod_xyz/test_dev_01" {
-		t.Errorf("unexpected ota v1 downlink topic: %s", otaTopicV1)
 	}
 }
 
@@ -98,10 +94,11 @@ func TestRegisterSubscriptions(t *testing.T) {
 
 	mockClient := &mockClientForServer{}
 	ingressHandler := handler.NewIngressHandler(
-		service.NewTelemetryService(nil, logger),
+		service.NewTelemetryService(adaptor.NewJsonMqttAdaptor(), nil, logger),
 		service.NewDeviceEventService(nil, logger),
 		service.NewOTAService(nil, logger),
 	)
+
 
 	// 1. Nil handler does nothing
 	RegisterSubscriptions(mockClient, nil, logger)
@@ -111,8 +108,8 @@ func TestRegisterSubscriptions(t *testing.T) {
 
 	// 2. Valid handler registers all expected topics
 	RegisterSubscriptions(mockClient, ingressHandler, logger)
-	if len(mockClient.subscribedTopics) != 5 {
-		t.Errorf("expected 5 subscriptions, got %d", len(mockClient.subscribedTopics))
+	if len(mockClient.subscribedTopics) != 4 {
+		t.Errorf("expected 4 subscriptions, got %d", len(mockClient.subscribedTopics))
 	}
 }
 

@@ -63,7 +63,7 @@ func (m *MockClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]Poi
 
 	points := make([]Point, 0)
 	for _, rec := range records {
-		ts := rec.Timestamp.UnixMilli()
+		ts := rec.Timestamp
 		if ts >= startTime && ts <= endTime {
 			points = append(points, Point{
 				Timestamp: ts,

@@ -92,7 +92,7 @@ func (c *InfluxDBClient) WriteBatch(ctx context.Context, records []Record) error
 			map[string]interface{}{
 				"value": rec.Value,
 			},
-			rec.Timestamp,
+			time.UnixMilli(rec.Timestamp).UTC(),
 		)
 		c.writeAPI.WritePoint(p)
 	}

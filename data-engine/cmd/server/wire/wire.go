@@ -68,7 +68,6 @@ var repositorySet = wire.NewSet(
 	repository.NewRepository,
 	repository.NewDeviceUpgradeStatusRepository,
 	repository.NewDeviceEventRepository,
-	repository.NewShadowRepository,
 )
 
 var serviceSet = wire.NewSet(

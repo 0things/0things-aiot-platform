@@ -19,12 +19,7 @@ func NewTelemetryConsumer(telemetryHandler *handler.TelemetryHandler) *Telemetry
 	}
 }
 
-// HandleTelemetry processes device telemetry uplink events and forwards them to the handler.
-func (c *TelemetryConsumer) HandleTelemetry(ctx context.Context, msg *event.DeviceMessage, meta map[string]string) error {
-	return c.telemetryHandler.HandleTelemetry(ctx, msg, meta)
-}
-
-// HandleAttribute processes device attribute update events and forwards them to the handler.
-func (c *TelemetryConsumer) HandleAttribute(ctx context.Context, msg *event.DeviceMessage, meta map[string]string) error {
-	return c.telemetryHandler.HandleAttribute(ctx, msg, meta)
+// HandlePropertyPost processes device property/telemetry uplink events and forwards them to the handler.
+func (c *TelemetryConsumer) HandlePropertyPost(ctx context.Context, msg *event.DeviceMessage, meta map[string]string) error {
+	return c.telemetryHandler.HandlePropertyPost(ctx, msg, meta)
 }

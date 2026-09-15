@@ -8,19 +8,30 @@ func TestTopicOTAUpgradeCommandByTransport(t *testing.T) {
 	tests := []struct {
 		transport string
 		expected  Topic
+		expectErr bool
 	}{
-		{"mqtt", TopicOTAUpgradeCommandMQTT},
-		{"MQTT", TopicOTAUpgradeCommandMQTT},
-		{"http", TopicOTAUpgradeCommandHTTP},
-		{"HTTP", TopicOTAUpgradeCommandHTTP},
-		{"", TopicOTAUpgradeCommandMQTT},
-		{"ws", Topic("ota.upgrade.command.ws.v1")},
+		{"mqtt", TopicOTAUpgradeCommandMQTT, false},
+		{"MQTT", TopicOTAUpgradeCommandMQTT, false},
+		{"http", TopicOTAUpgradeCommandHTTP, false},
+		{"HTTP", TopicOTAUpgradeCommandHTTP, false},
+		{"", "", true},
+		{"ws", "", true},
+		{"coap", "", true},
 	}
 
 	for _, tt := range tests {
-		actual := TopicOTAUpgradeCommandByTransport(tt.transport)
-		if actual != tt.expected {
-			t.Errorf("TopicOTAUpgradeCommandByTransport(%q) = %q, expected %q", tt.transport, actual, tt.expected)
+		actual, err := TopicOTAUpgradeCommandByTransport(tt.transport)
+		if tt.expectErr {
+			if err == nil {
+				t.Errorf("TopicOTAUpgradeCommandByTransport(%q) expected error, got nil", tt.transport)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("TopicOTAUpgradeCommandByTransport(%q) unexpected error: %v", tt.transport, err)
+			}
+			if actual != tt.expected {
+				t.Errorf("TopicOTAUpgradeCommandByTransport(%q) = %q, expected %q", tt.transport, actual, tt.expected)
+			}
 		}
 	}
 }

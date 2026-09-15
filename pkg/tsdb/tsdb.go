@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 )
 
 // Record 描述写入 TSDB 的单条时序属性数据。
@@ -13,7 +12,7 @@ type Record struct {
 	DeviceKey string      `json:"device_key"`
 	Metric    string      `json:"metric"`
 	Value     interface{} `json:"value"`
-	Timestamp time.Time   `json:"timestamp"`
+	Timestamp int64       `json:"timestamp"` // 毫秒时间戳
 }
 
 // Point 描述从 TSDB 查询返回的单条历史时序点。

@@ -282,7 +282,7 @@ func (c *TDengineClient) flushBatch(batch []Record) {
 
 	for _, rec := range batch {
 		tableName := SanitizeTableName(rec.DeviceKey)
-		ts := rec.Timestamp.UnixMilli()
+		ts := rec.Timestamp
 		numVal, strVal, boolVal, jsonVal := ToTypedValue(rec.Value)
 
 		numStr := "NULL"

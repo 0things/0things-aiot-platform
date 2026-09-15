@@ -107,11 +107,12 @@ func TestTSDB_EnumAndAllDrivers(t *testing.T) {
 		}
 	}
 
+	now := time.Now().UnixMilli()
 	records := []Record{
-		{DeviceKey: "dev_all_01", Metric: "temperature", Value: 26.5, Timestamp: time.Now()},
-		{DeviceKey: "dev_all_01", Metric: "door_state", Value: "CLOSED", Timestamp: time.Now()},
-		{DeviceKey: "dev_all_01", Metric: "power_switch", Value: true, Timestamp: time.Now()},
-		{DeviceKey: "dev_all_01", Metric: "location", Value: map[string]interface{}{"lng": 121.47, "lat": 31.23}, Timestamp: time.Now()},
+		{DeviceKey: "dev_all_01", Metric: "temperature", Value: 26.5, Timestamp: now},
+		{DeviceKey: "dev_all_01", Metric: "door_state", Value: "CLOSED", Timestamp: now},
+		{DeviceKey: "dev_all_01", Metric: "power_switch", Value: true, Timestamp: now},
+		{DeviceKey: "dev_all_01", Metric: "location", Value: map[string]interface{}{"lng": 121.47, "lat": 31.23}, Timestamp: now},
 	}
 
 	filter := QueryFilter{

@@ -94,7 +94,7 @@ export async function handleChatRequest(
     });
 
     return result.toUIMessageStreamResponse({
-      getErrorMessage: (error: unknown) => {
+      onError: (error: unknown) => {
         return sanitizeStreamError(error);
       },
     });

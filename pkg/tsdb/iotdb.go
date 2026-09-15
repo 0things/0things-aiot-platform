@@ -44,7 +44,7 @@ func (c *IoTDBClient) WriteBatch(ctx context.Context, records []Record) error {
 		c.logger.Debug("IoTDB record formatted",
 			zap.String("device", devicePath),
 			zap.String("measurement", rec.Metric),
-			zap.Int64("ts", rec.Timestamp.UnixMilli()),
+			zap.Int64("ts", rec.Timestamp),
 		)
 	}
 	return nil

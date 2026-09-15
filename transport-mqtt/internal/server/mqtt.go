@@ -156,9 +156,8 @@ func RegisterSubscriptions(c mqtt.Client, h *handler.IngressHandler, logger *log
 	if h == nil {
 		return
 	}
-	subscribeTopicWithClient(c, enum.MQTTSubTelemetry, h.HandleTelemetry, logger)
+	subscribeTopicWithClient(c, enum.MQTTSubPropertyPost, h.HandleTelemetry, logger)
 	subscribeTopicWithClient(c, enum.MQTTSubOTAProgress, h.HandleOTAProgress, logger)
-	subscribeTopicWithClient(c, enum.MQTTSubOTAProgressV1, h.HandleOTAProgress, logger)
 	subscribeTopicWithClient(c, enum.MQTTSubOTAInform, h.HandleOTAInform, logger)
 	subscribeTopicWithClient(c, enum.MQTTSubEvent, h.HandleDeviceEvent, logger)
 }

@@ -8,66 +8,66 @@ import (
 
 	"0things/pkg/event"
 	"0things/pkg/tsdb"
-	"data-engine/internal/repository"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func TestTelemetryService_ProcessMessage(t *testing.T) {
+func TestTelemetryService_ProcessPropertyPost(t *testing.T) {
 	logger := zap.NewNop()
 	v := viper.New()
 	tsdbClient := tsdb.NewClient(v, logger)
 	defer tsdbClient.Close()
-	shadow := repository.NewShadowRepository(v, logger)
 
-	svc := NewTelemetryService(v, logger, tsdbClient, shadow)
+	svc := NewTelemetryService(logger, tsdbClient)
 
-	// 1. 测试常规温度解析 (低于阈值)
-	normalMsg := event.DeviceMessage{
+	// 1. 标准归一化遥测数组载荷
+	payloadData, err := json.Marshal([]event.DevicePropertyPostPayload{
+		{
+			Timestamp: 1524448722000,
+			Values: map[string]interface{}{
+				"Power": "on",
+				"WF":    23.6,
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("failed to marshal payload: %v", err)
+	}
+
+	msg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_01",
 		Transport:   event.TransportMQTT,
 		MessageType: event.MessageTypeTelemetry,
-		Payload:     json.RawMessage(`{"temperature": 25.0, "humidity": 50}`),
+		Payload:     payloadData,
 		Timestamp:   time.Now().UnixMilli(),
 	}
 
-	if err := svc.ProcessMessage(context.Background(), normalMsg); err != nil {
-		t.Errorf("ProcessMessage failed on normal telemetry: %v", err)
+	if err := svc.ProcessPropertyPost(context.Background(), msg); err != nil {
+		t.Errorf("ProcessPropertyPost failed on normalized telemetry: %v", err)
 	}
 
-	// 验证设备影子是否已更新
-	sh, err := shadow.GetShadow(context.Background(), "sensor_test_01")
-	if err != nil || sh == nil {
-		t.Fatalf("expected shadow to be created, got nil or err: %v", err)
-	}
-	if sh.Attributes["temperature"] != 25.0 {
-		t.Errorf("expected temperature 25.0 in shadow, got %v", sh.Attributes["temperature"])
-	}
-
-	// 2. 测试高温告警触发分支 (高于 70.0°C)
-	alarmMsg := event.DeviceMessage{
+	// 2. 空 Payload 跳过测试
+	emptyMsg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_02",
 		Transport:   event.TransportMQTT,
 		MessageType: event.MessageTypeTelemetry,
-		Payload:     json.RawMessage(`{"temperature": 85.5}`),
+		Payload:     nil,
 		Timestamp:   time.Now().UnixMilli(),
 	}
-
-	if err := svc.ProcessMessage(context.Background(), alarmMsg); err != nil {
-		t.Errorf("ProcessMessage failed on high temperature: %v", err)
+	if err := svc.ProcessPropertyPost(context.Background(), emptyMsg); err != nil {
+		t.Errorf("ProcessPropertyPost failed on empty payload: %v", err)
 	}
 
-	// 3. 测试 params 嵌套格式
-	nestedMsg := event.DeviceMessage{
+	// 3. 非法 Payload 告警并安全忽略
+	invalidMsg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_03",
-		Transport:   event.TransportHTTP,
+		Transport:   event.TransportMQTT,
 		MessageType: event.MessageTypeTelemetry,
-		Payload:     json.RawMessage(`{"params": {"temperature": 30.2}}`),
+		Payload:     json.RawMessage(`{not-valid-json`),
 		Timestamp:   time.Now().UnixMilli(),
 	}
-
-	if err := svc.ProcessMessage(context.Background(), nestedMsg); err != nil {
-		t.Errorf("ProcessMessage failed on nested params: %v", err)
+	if err := svc.ProcessPropertyPost(context.Background(), invalidMsg); err != nil {
+		t.Errorf("ProcessPropertyPost failed on invalid payload: %v", err)
 	}
 }

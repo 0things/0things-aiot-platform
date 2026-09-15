@@ -200,7 +200,10 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 				SHA256:        pkg.Checksum,
 				ExpiresAt:     time.Now().Add(24 * time.Hour),
 			}
-			topic := event.TopicOTAUpgradeCommandByTransport(protocol)
+			topic, err := event.TopicOTAUpgradeCommandByTransport(protocol)
+			if err != nil {
+				continue
+			}
 			_ = s.eventProducer.Publish(ctx, topic, cmd, event.WithTransport(protocol), event.WithDeviceKey(d.DeviceKey))
 		}
 	}
