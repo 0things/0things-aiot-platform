@@ -12,7 +12,6 @@ import (
 	watermillSQL "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
-	_ "github.com/glebarez/go-sqlite"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/viper"
@@ -85,21 +84,6 @@ func NewBus(conf *viper.Viper, logger *zap.Logger) (message.Publisher, message.S
 			}
 		}
 		return NewPostgresBus(dsn, consumerGroup, logger)
-
-	case "sqlite":
-		dsn := "storage/event_bus.db"
-		consumerGroup := "0things-consumer"
-		if conf != nil {
-			if path := conf.GetString("event.sqlite.path"); path != "" {
-				dsn = path
-			} else if d := conf.GetString("event.sqlite.dsn"); d != "" {
-				dsn = d
-			}
-			if cg := conf.GetString("event.sqlite.consumer_group"); cg != "" {
-				consumerGroup = cg
-			}
-		}
-		return NewSQLiteBus(dsn, consumerGroup, logger)
 
 	default:
 		return nil, nil, fmt.Errorf("unsupported event driver: %s", driver)
@@ -192,15 +176,6 @@ func NewPostgresBus(dsn string, consumerGroup string, logger *zap.Logger) (messa
 	return NewSQLBusWithDB(db, "postgres", consumerGroup, logger)
 }
 
-// NewSQLiteBus creates a SQLite backed Pub/Sub.
-func NewSQLiteBus(dsn string, consumerGroup string, logger *zap.Logger) (message.Publisher, message.Subscriber, error) {
-	db, err := sql.Open("sqlite", dsn)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to open SQLite connection: %w", err)
-	}
-	return NewSQLBusWithDB(db, "sqlite", consumerGroup, logger)
-}
-
 // NewSQLBusWithDB initializes a Watermill SQL Publisher and Subscriber on an existing database connection.
 func NewSQLBusWithDB(db *sql.DB, dbType string, consumerGroup string, logger *zap.Logger) (message.Publisher, message.Subscriber, error) {
 	watermillLogger := watermill.NopLogger{}
@@ -212,9 +187,6 @@ func NewSQLBusWithDB(db *sql.DB, dbType string, consumerGroup string, logger *za
 	case "postgres":
 		schemaAdapter = watermillSQL.DefaultPostgreSQLSchema{}
 		offsetsAdapter = watermillSQL.DefaultPostgreSQLOffsetsAdapter{}
-	case "sqlite":
-		schemaAdapter = SQLiteSchema{}
-		offsetsAdapter = SQLiteOffsetsAdapter{}
 	case "mysql":
 		schemaAdapter = watermillSQL.DefaultMySQLSchema{}
 		offsetsAdapter = watermillSQL.DefaultMySQLOffsetsAdapter{}

@@ -10,7 +10,6 @@ import (
 	"0things/pkg/event"
 	"0things/pkg/protocol"
 	"0things/pkg/tsdb"
-	"data-engine/internal/model"
 	"data-engine/internal/repository"
 
 	"github.com/spf13/viper"
@@ -67,9 +66,11 @@ func (s *telemetryService) ProcessMessage(ctx context.Context, msg event.DeviceM
 
 	// 2. Extract standard metric records
 	records := make([]tsdb.Record, 0, len(data))
-	ts := msg.Timestamp
-	if ts.IsZero() {
-		ts = time.Now().UTC()
+	var recordTime time.Time
+	if msg.Timestamp > 0 {
+		recordTime = time.UnixMilli(msg.Timestamp).UTC()
+	} else {
+		recordTime = time.Now().UTC()
 	}
 
 	for k, v := range data {
@@ -80,7 +81,7 @@ func (s *telemetryService) ProcessMessage(ctx context.Context, msg event.DeviceM
 						DeviceKey: msg.DeviceKey,
 						Metric:    subK,
 						Value:     subV,
-						Timestamp: ts,
+						Timestamp: recordTime,
 					})
 					s.evaluateRule(msg.DeviceKey, subK, subV)
 				}
@@ -92,7 +93,7 @@ func (s *telemetryService) ProcessMessage(ctx context.Context, msg event.DeviceM
 			DeviceKey: msg.DeviceKey,
 			Metric:    k,
 			Value:     v,
-			Timestamp: ts,
+			Timestamp: recordTime,
 		})
 		s.evaluateRule(msg.DeviceKey, k, v)
 	}
@@ -106,7 +107,7 @@ func (s *telemetryService) ProcessMessage(ctx context.Context, msg event.DeviceM
 
 	// 4. Update device shadow snapshot
 	if s.shadowRepo != nil && len(data) > 0 {
-		_ = s.shadowRepo.UpdateShadow(ctx, msg.DeviceKey, data, msg.Timestamp)
+		_ = s.shadowRepo.UpdateShadow(ctx, msg.DeviceKey, data, recordTime)
 	}
 
 	s.logger.Debug("extracted & stored telemetry metrics via tsdb.Client", zap.String("device_key", msg.DeviceKey), zap.Int("count", len(records)))
@@ -122,18 +123,11 @@ func (s *telemetryService) evaluateRule(deviceKey, metric string, val interface{
 		}
 
 		if floatVal > 70.0 {
-			alarm := model.AlarmEvent{
-				DeviceKey:   deviceKey,
-				RuleName:    "High Temperature Alarm",
-				Level:       "CRITICAL",
-				Description: fmt.Sprintf("device temperature reached %.1f°C exceeds threshold 70.0°C", floatVal),
-				Timestamp:   time.Now().UTC(),
-			}
 			s.logger.Warn("🚨 RULE TRIGGERED: Alarm generated!",
-				zap.String("device_key", alarm.DeviceKey),
-				zap.String("rule", alarm.RuleName),
-				zap.String("level", alarm.Level),
-				zap.String("desc", alarm.Description),
+				zap.String("device_key", deviceKey),
+				zap.String("rule", "High Temperature Alarm"),
+				zap.String("level", "CRITICAL"),
+				zap.String("desc", fmt.Sprintf("device temperature reached %.1f°C exceeds threshold 70.0°C", floatVal)),
 			)
 		}
 	}

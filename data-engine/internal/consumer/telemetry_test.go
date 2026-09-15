@@ -27,10 +27,10 @@ func TestTelemetryConsumer_HandleTelemetry(t *testing.T) {
 	msg := &event.DeviceMessage{
 		DeviceKey:   "dev_telemetry_01",
 		ProductKey:  "prod_01",
-		Transport:   "mqtt",
-		MessageType: "telemetry",
+		Transport:   event.TransportMQTT,
+		MessageType: event.MessageTypeTelemetry,
 		Payload:     json.RawMessage(rawPayload),
-		Timestamp:   time.Now().UTC(),
+		Timestamp:   time.Now().UnixMilli(),
 	}
 
 	err := consumer.HandleTelemetry(context.Background(), msg, nil)
@@ -60,10 +60,10 @@ func TestTelemetryConsumer_HandleAttribute(t *testing.T) {
 	msg := &event.DeviceMessage{
 		DeviceKey:   "dev_attr_01",
 		ProductKey:  "prod_01",
-		Transport:   "http",
-		MessageType: "attributes",
+		Transport:   event.TransportHTTP,
+		MessageType: event.MessageTypeAttributes,
 		Payload:     json.RawMessage(rawPayload),
-		Timestamp:   time.Now().UTC(),
+		Timestamp:   time.Now().UnixMilli(),
 	}
 
 	err := consumer.HandleAttribute(context.Background(), msg, nil)

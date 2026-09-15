@@ -83,12 +83,8 @@ const buildFilters = (
     deviceKey,
     keyword: draft.keyword || undefined,
     eventType: draft.eventType || undefined,
-    startAt: range?.from
-      ? format(startOfDay(range.from), 'yyyy-MM-dd HH:mm:ss')
-      : undefined,
-    endAt: range?.to
-      ? format(endOfDay(range.to), 'yyyy-MM-dd HH:mm:ss')
-      : undefined,
+    startAt: range?.from ? startOfDay(range.from).getTime() : undefined,
+    endAt: range?.to ? endOfDay(range.to).getTime() : undefined,
   }
 }
 

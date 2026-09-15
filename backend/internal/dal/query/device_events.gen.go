@@ -29,10 +29,11 @@ func newDeviceEvent(db *gorm.DB, opts ...gen.DOOption) deviceEvent {
 	_deviceEvent.ALL = field.NewAsterisk(tableName)
 	_deviceEvent.ID = field.NewInt64(tableName, "id")
 	_deviceEvent.UUID = field.NewString(tableName, "uuid")
-	_deviceEvent.DeviceID = field.NewInt64(tableName, "device_id")
+	_deviceEvent.DeviceKey = field.NewString(tableName, "device_key")
+	_deviceEvent.ProductKey = field.NewString(tableName, "product_key")
 	_deviceEvent.EventIdentifier = field.NewString(tableName, "event_identifier")
 	_deviceEvent.EventType = field.NewString(tableName, "event_type")
-	_deviceEvent.EventAt = field.NewTime(tableName, "event_at")
+	_deviceEvent.EventAt = field.NewInt64(tableName, "event_at")
 	_deviceEvent.Data = field.NewString(tableName, "data")
 	_deviceEvent.CreatedAt = field.NewTime(tableName, "created_at")
 
@@ -47,10 +48,11 @@ type deviceEvent struct {
 	ALL             field.Asterisk
 	ID              field.Int64
 	UUID            field.String
-	DeviceID        field.Int64
+	DeviceKey       field.String
+	ProductKey      field.String
 	EventIdentifier field.String
 	EventType       field.String
-	EventAt         field.Time
+	EventAt         field.Int64
 	Data            field.String
 	CreatedAt       field.Time
 
@@ -71,10 +73,11 @@ func (d *deviceEvent) updateTableName(table string) *deviceEvent {
 	d.ALL = field.NewAsterisk(table)
 	d.ID = field.NewInt64(table, "id")
 	d.UUID = field.NewString(table, "uuid")
-	d.DeviceID = field.NewInt64(table, "device_id")
+	d.DeviceKey = field.NewString(table, "device_key")
+	d.ProductKey = field.NewString(table, "product_key")
 	d.EventIdentifier = field.NewString(table, "event_identifier")
 	d.EventType = field.NewString(table, "event_type")
-	d.EventAt = field.NewTime(table, "event_at")
+	d.EventAt = field.NewInt64(table, "event_at")
 	d.Data = field.NewString(table, "data")
 	d.CreatedAt = field.NewTime(table, "created_at")
 
@@ -103,10 +106,11 @@ func (d *deviceEvent) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (d *deviceEvent) fillFieldMap() {
-	d.fieldMap = make(map[string]field.Expr, 8)
+	d.fieldMap = make(map[string]field.Expr, 9)
 	d.fieldMap["id"] = d.ID
 	d.fieldMap["uuid"] = d.UUID
-	d.fieldMap["device_id"] = d.DeviceID
+	d.fieldMap["device_key"] = d.DeviceKey
+	d.fieldMap["product_key"] = d.ProductKey
 	d.fieldMap["event_identifier"] = d.EventIdentifier
 	d.fieldMap["event_type"] = d.EventType
 	d.fieldMap["event_at"] = d.EventAt

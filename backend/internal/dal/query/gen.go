@@ -28,12 +28,12 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		DeviceShadowHistory:     newDeviceShadowHistory(db, opts...),
 		DeviceState:             newDeviceState(db, opts...),
 		DeviceTag:               newDeviceTag(db, opts...),
-		DeviceUpgradeStatus:     newDeviceUpgradeStatus(db, opts...),
+		OTADeviceUpgradeStatus:  newOTADeviceUpgradeStatus(db, opts...),
 		OTAPackage:              newOTAPackage(db, opts...),
+		OTAUpgradeBatch:         newOTAUpgradeBatch(db, opts...),
 		Product:                 newProduct(db, opts...),
 		ProductMessageParser:    newProductMessageParser(db, opts...),
 		ProductTSL:              newProductTSL(db, opts...),
-		UpgradeBatch:            newUpgradeBatch(db, opts...),
 	}
 }
 
@@ -50,12 +50,12 @@ type Query struct {
 	DeviceShadowHistory     deviceShadowHistory
 	DeviceState             deviceState
 	DeviceTag               deviceTag
-	DeviceUpgradeStatus     deviceUpgradeStatus
+	OTADeviceUpgradeStatus  oTADeviceUpgradeStatus
 	OTAPackage              oTAPackage
+	OTAUpgradeBatch         oTAUpgradeBatch
 	Product                 product
 	ProductMessageParser    productMessageParser
 	ProductTSL              productTSL
-	UpgradeBatch            upgradeBatch
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -75,12 +75,12 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		DeviceShadowHistory:     q.DeviceShadowHistory.clone(db),
 		DeviceState:             q.DeviceState.clone(db),
 		DeviceTag:               q.DeviceTag.clone(db),
-		DeviceUpgradeStatus:     q.DeviceUpgradeStatus.clone(db),
+		OTADeviceUpgradeStatus:  q.OTADeviceUpgradeStatus.clone(db),
 		OTAPackage:              q.OTAPackage.clone(db),
+		OTAUpgradeBatch:         q.OTAUpgradeBatch.clone(db),
 		Product:                 q.Product.clone(db),
 		ProductMessageParser:    q.ProductMessageParser.clone(db),
 		ProductTSL:              q.ProductTSL.clone(db),
-		UpgradeBatch:            q.UpgradeBatch.clone(db),
 	}
 }
 
@@ -105,12 +105,12 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		DeviceShadowHistory:     q.DeviceShadowHistory.replaceDB(db),
 		DeviceState:             q.DeviceState.replaceDB(db),
 		DeviceTag:               q.DeviceTag.replaceDB(db),
-		DeviceUpgradeStatus:     q.DeviceUpgradeStatus.replaceDB(db),
+		OTADeviceUpgradeStatus:  q.OTADeviceUpgradeStatus.replaceDB(db),
 		OTAPackage:              q.OTAPackage.replaceDB(db),
+		OTAUpgradeBatch:         q.OTAUpgradeBatch.replaceDB(db),
 		Product:                 q.Product.replaceDB(db),
 		ProductMessageParser:    q.ProductMessageParser.replaceDB(db),
 		ProductTSL:              q.ProductTSL.replaceDB(db),
-		UpgradeBatch:            q.UpgradeBatch.replaceDB(db),
 	}
 }
 
@@ -125,12 +125,12 @@ type queryCtx struct {
 	DeviceShadowHistory     *deviceShadowHistoryDo
 	DeviceState             *deviceStateDo
 	DeviceTag               *deviceTagDo
-	DeviceUpgradeStatus     *deviceUpgradeStatusDo
+	OTADeviceUpgradeStatus  *oTADeviceUpgradeStatusDo
 	OTAPackage              *oTAPackageDo
+	OTAUpgradeBatch         *oTAUpgradeBatchDo
 	Product                 *productDo
 	ProductMessageParser    *productMessageParserDo
 	ProductTSL              *productTSLDo
-	UpgradeBatch            *upgradeBatchDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -145,12 +145,12 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		DeviceShadowHistory:     q.DeviceShadowHistory.WithContext(ctx),
 		DeviceState:             q.DeviceState.WithContext(ctx),
 		DeviceTag:               q.DeviceTag.WithContext(ctx),
-		DeviceUpgradeStatus:     q.DeviceUpgradeStatus.WithContext(ctx),
+		OTADeviceUpgradeStatus:  q.OTADeviceUpgradeStatus.WithContext(ctx),
 		OTAPackage:              q.OTAPackage.WithContext(ctx),
+		OTAUpgradeBatch:         q.OTAUpgradeBatch.WithContext(ctx),
 		Product:                 q.Product.WithContext(ctx),
 		ProductMessageParser:    q.ProductMessageParser.WithContext(ctx),
 		ProductTSL:              q.ProductTSL.WithContext(ctx),
-		UpgradeBatch:            q.UpgradeBatch.WithContext(ctx),
 	}
 }
 

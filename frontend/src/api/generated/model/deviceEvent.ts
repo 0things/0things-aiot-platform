@@ -13,14 +13,16 @@ export interface DeviceEvent {
   deviceKey?: string
   /** Human-readable device name */
   deviceName?: string
-  /** Event timestamp */
-  eventAt?: string
+  /** Event timestamp (milliseconds) */
+  eventAt?: number
   /** Thing model event identifier */
   eventIdentifier?: string
-  /** Event type (INFO, WARN, ERROR) */
+  /** Event type (info, alert, error) */
   eventType?: string
   /** Event primary ID */
   id?: number
+  /** Product key */
+  productKey?: string
   /** Globally unique event UUID */
   uuid?: string
 }

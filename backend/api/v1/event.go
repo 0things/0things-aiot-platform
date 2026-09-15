@@ -1,27 +1,26 @@
 package v1
 
-import "time"
-
 // ListDeviceEventsRequest contains query filters for listing device events.
 type ListDeviceEventsRequest struct {
 	PageRequest
-	Keyword   string     `form:"keyword"`                                   // Search keyword across deviceKey, deviceName, or eventIdentifier
-	DeviceKey string     `form:"deviceKey"`                                 // Device key filter
-	EventType string     `form:"eventType"`                                 // Event type filter (e.g. INFO, WARN, ERROR)
-	StartAt   *time.Time `form:"startAt" time_format:"2006-01-02 15:04:05"` // Start time filter (yyyy-MM-dd HH:mm:ss)
-	EndAt     *time.Time `form:"endAt" time_format:"2006-01-02 15:04:05"`   // End time filter (yyyy-MM-dd HH:mm:ss)
+	Keyword   string `form:"keyword"`   // Search keyword across deviceKey, deviceName, or eventIdentifier
+	DeviceKey string `form:"deviceKey"` // Device key filter
+	EventType string `form:"eventType"` // Event type filter (e.g. info, alert, error)
+	StartAt   *int64 `form:"startAt"`   // Start time filter (milliseconds Unix timestamp)
+	EndAt     *int64 `form:"endAt"`     // End time filter (milliseconds Unix timestamp)
 } //@name ListDeviceEventsRequest
 
 // DeviceEvent represents a thing model device event entity.
 type DeviceEvent struct {
-	ID              int64     `json:"id"`              // Event primary ID
-	UUID            string    `json:"uuid"`            // Globally unique event UUID
-	DeviceKey       string    `json:"deviceKey"`       // Unique device key
-	DeviceName      string    `json:"deviceName"`      // Human-readable device name
-	EventIdentifier string    `json:"eventIdentifier"` // Thing model event identifier
-	EventType       string    `json:"eventType"`       // Event type (INFO, WARN, ERROR)
-	EventAt         time.Time `json:"eventAt"`         // Event timestamp
-	Data            string    `json:"data"`            // JSON string payload of event parameters
+	ID              int64  `json:"id"`              // Event primary ID
+	UUID            string `json:"uuid"`            // Globally unique event UUID
+	DeviceKey       string `json:"deviceKey"`       // Unique device key
+	DeviceName      string `json:"deviceName"`      // Human-readable device name
+	ProductKey      string `json:"productKey"`      // Product key
+	EventIdentifier string `json:"eventIdentifier"` // Thing model event identifier
+	EventType       string `json:"eventType"`       // Event type (info, alert, error)
+	EventAt         int64  `json:"eventAt"`         // Event timestamp (milliseconds)
+	Data            string `json:"data"`            // JSON string payload of event parameters
 } //@name DeviceEvent
 
 // ListDeviceEventsResponse represents the paginated response of device events.

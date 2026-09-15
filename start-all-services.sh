@@ -157,7 +157,6 @@ start_go_service "backend"
 start_go_service "data-engine"
 start_go_service "transport-mqtt"
 start_go_service "transport-http"
-start_go_service "transport-coap"
 
 # 2. 启动 MCP 服务与 AI Copilot
 start_mcp_service
@@ -181,7 +180,6 @@ echo -e "  📡 ${BOLD}后端管理 API (REST Server)${NC}:    ${CYAN}http://loc
 echo -e "  📖 ${BOLD}Swagger API 交互文档${NC}:       ${CYAN}http://localhost:8000/swagger/index.html${NC}"
 echo -e "  ⚡ ${BOLD}HTTP 设备协议网关${NC}:          ${CYAN}http://localhost:8081${NC}"
 echo -e "  🔌 ${BOLD}MQTT 设备协议网关${NC}:          ${CYAN}tcp://localhost:1883${NC}"
-echo -e "  📶 ${BOLD}CoAP 低功耗网关 (UDP)${NC}:       ${CYAN}coap://localhost:5683${NC}"
 echo -e "  🧠 ${BOLD}数据计算与任务中心${NC}:          ${CYAN}data-engine (后台运行)${NC}"
 echo -e "------------------------------------------------------------------------------"
 echo -e "  📂 实时运行日志目录:  ${YELLOW}${LOG_DIR}/${NC}"

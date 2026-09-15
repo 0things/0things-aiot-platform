@@ -81,8 +81,7 @@ func NewTestOTATotalService(db *gorm.DB) *service.OTAService {
 
 func NewTestDeviceEventService(db *gorm.DB) *service.DeviceEventService {
 	eventRepo := repository.NewDeviceEventRepository(db)
-	deviceRepo := repository.NewDeviceRepository(db, nil)
-	return service.NewDeviceEventService(eventRepo, deviceRepo)
+	return service.NewDeviceEventService(eventRepo)
 }
 
 func NewTestThingModelDataService(db *gorm.DB) *service.ThingModelDataService {

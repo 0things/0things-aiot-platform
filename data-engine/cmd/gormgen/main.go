@@ -19,8 +19,9 @@ func main() {
 
 	g.ApplyBasic(
 		model.Device{},
-		model.UpgradeBatch{},
-		model.DeviceUpgradeStatus{},
+		model.OTAUpgradeBatch{},
+		model.OTADeviceUpgradeStatus{},
+		model.DeviceEvent{},
 	)
 
 	g.Execute()

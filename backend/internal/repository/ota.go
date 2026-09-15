@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/enum"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/tenant"
@@ -271,7 +272,7 @@ func (r *OTARepository) CreateBatchDeployments(ctx context.Context, packageID in
 	return len(rows), nil
 }
 
-func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, size int, status string, batchID ...string) ([]model.DeviceDeployment, int64, error) {
+func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, size int, status string, batchID ...string) ([]dto.DeviceDeployment, int64, error) {
 	query := r.DB(ctx).Table("ota_device_upgrade_status dus").
 		Select("dus.device_id, d.device_key, d.name as device_name, d.product_id, p.product_key, dus.current_version, dus.target_version, dus.progress, dus.upgrade_batch_id, dus.status, dus.last_status_change_ts, dus.created_at").
 		Joins("JOIN devices d ON d.id = dus.device_id").
@@ -287,7 +288,7 @@ func (r *OTARepository) Deployments(ctx context.Context, packageID int64, page, 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	var deployments []model.DeviceDeployment
+	var deployments []dto.DeviceDeployment
 	if err := query.Order("dus.created_at DESC, dus.id DESC").
 		Offset((page - 1) * size).Limit(size).Find(&deployments).Error; err != nil {
 		return nil, 0, err

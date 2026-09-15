@@ -18,10 +18,10 @@ type mockToken struct {
 	err error
 }
 
-func (t *mockToken) Wait() bool                        { return true }
+func (t *mockToken) Wait() bool                       { return true }
 func (t *mockToken) WaitTimeout(_ time.Duration) bool { return true }
-func (t *mockToken) Done() <-chan struct{}             { ch := make(chan struct{}); close(ch); return ch }
-func (t *mockToken) Error() error                      { return t.err }
+func (t *mockToken) Done() <-chan struct{}            { ch := make(chan struct{}); close(ch); return ch }
+func (t *mockToken) Error() error                     { return t.err }
 
 type mockMQTTClient struct {
 	mqtt.Client

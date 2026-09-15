@@ -100,7 +100,7 @@ func TestRegisterSubscriptions(t *testing.T) {
 	ingressHandler := handler.NewIngressHandler(
 		service.NewTelemetryService(nil, logger),
 		service.NewDeviceEventService(nil, logger),
-		service.NewOTAProgressService(nil, logger),
+		service.NewOTAService(nil, logger),
 	)
 
 	// 1. Nil handler does nothing

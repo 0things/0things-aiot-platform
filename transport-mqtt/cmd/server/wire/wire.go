@@ -47,7 +47,7 @@ func provideEventConsumer(holder *eventBusHolder) event.Consumer {
 var serverSet = wire.NewSet(
 	service.NewTelemetryService,
 	service.NewDeviceEventService,
-	service.NewOTAProgressService,
+	service.NewOTAService,
 	handler.NewIngressHandler,
 	consumer.NewOTACommandConsumer,
 	consumer.NewManager,

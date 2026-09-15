@@ -707,17 +707,20 @@ definitions:
         description: Human-readable device name
         type: string
       eventAt:
-        description: Event timestamp
-        type: string
+        description: Event timestamp (milliseconds)
+        type: integer
       eventIdentifier:
         description: Thing model event identifier
         type: string
       eventType:
-        description: Event type (INFO, WARN, ERROR)
+        description: Event type (info, alert, error)
         type: string
       id:
         description: Event primary ID
         type: integer
+      productKey:
+        description: Product key
+        type: string
       uuid:
         description: Globally unique event UUID
         type: string
@@ -1802,11 +1805,11 @@ paths:
         in: query
         name: deviceKey
         type: string
-      - description: End time filter (yyyy-MM-dd HH:mm:ss)
+      - description: End time filter (milliseconds Unix timestamp)
         in: query
         name: endAt
-        type: string
-      - description: Event type filter (e.g. INFO, WARN, ERROR)
+        type: integer
+      - description: Event type filter (e.g. info, alert, error)
         in: query
         name: eventType
         type: string
@@ -1825,10 +1828,10 @@ paths:
         minimum: 1
         name: pageSize
         type: integer
-      - description: Start time filter (yyyy-MM-dd HH:mm:ss)
+      - description: Start time filter (milliseconds Unix timestamp)
         in: query
         name: startAt
-        type: string
+        type: integer
       produces:
       - application/json
       responses:

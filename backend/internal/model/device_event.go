@@ -6,12 +6,13 @@ import (
 
 // DeviceEvent records one event emitted by a device.
 type DeviceEvent struct {
-	ID              int64     `gorm:"primaryKey"`
+	ID              int64     `gorm:"primaryKey;column:id"`
 	UUID            string    `gorm:"column:uuid;type:varchar(36);uniqueIndex"`
-	DeviceID        int64     `gorm:"column:device_id;not null;index:idx_device_events_device_time"`
-	EventIdentifier string    `gorm:"column:event_identifier;index:idx_device_events_identifier_time"`
-	EventType       string    `gorm:"column:event_type;not null;index:idx_device_events_type_time"`
-	EventAt         time.Time `gorm:"column:event_at;not null;index:idx_device_events_device_time;index:idx_device_events_type_time"`
+	DeviceKey       string    `gorm:"column:device_key;type:varchar(64);not null;index:idx_device_events_key_time,priority:1"`
+	ProductKey      string    `gorm:"column:product_key;type:varchar(64);index"`
+	EventIdentifier string    `gorm:"column:event_identifier;type:varchar(128);index"`
+	EventType       string    `gorm:"column:event_type;type:varchar(32);not null;index"`
+	EventAt         int64     `gorm:"column:event_at;not null;index:idx_device_events_key_time,priority:2"`
 	Data            string    `gorm:"column:data;type:text"`
 	CreatedAt       time.Time `gorm:"column:created_at"`
 }

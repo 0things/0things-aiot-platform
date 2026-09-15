@@ -12,11 +12,11 @@ export type GetDeviceEventsParams = {
    */
   deviceKey?: string
   /**
-   * End time filter (yyyy-MM-dd HH:mm:ss)
+   * End time filter (milliseconds Unix timestamp)
    */
-  endAt?: string
+  endAt?: number
   /**
-   * Event type filter (e.g. INFO, WARN, ERROR)
+   * Event type filter (e.g. info, alert, error)
    */
   eventType?: string
   /**
@@ -35,7 +35,7 @@ export type GetDeviceEventsParams = {
    */
   pageSize?: number
   /**
-   * Start time filter (yyyy-MM-dd HH:mm:ss)
+   * Start time filter (milliseconds Unix timestamp)
    */
-  startAt?: string
+  startAt?: number
 }

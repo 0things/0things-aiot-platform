@@ -2,8 +2,8 @@ package model
 
 import "time"
 
-// UpgradeBatch represents an OTA batch record in database.
-type UpgradeBatch struct {
+// OTAUpgradeBatch represents an OTA batch record in database (table: ota_upgrade_batches).
+type OTAUpgradeBatch struct {
 	ID                int64     `gorm:"primaryKey"`
 	BatchID           string    `gorm:"column:batch_id;uniqueIndex"`
 	OTAPackageID      string    `gorm:"column:ota_package_id"`
@@ -15,4 +15,4 @@ type UpgradeBatch struct {
 	UpdatedAt         time.Time `gorm:"column:updated_at"`
 }
 
-func (UpgradeBatch) TableName() string { return "ota_upgrade_batches" }
+func (OTAUpgradeBatch) TableName() string { return "ota_upgrade_batches" }

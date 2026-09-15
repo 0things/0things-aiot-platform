@@ -98,46 +98,38 @@ func (h *DeviceHandler) handleIngress(c *gin.Context, msgType string, extraHeade
 
 	// 投递至事件总线
 	if h.eventProducer != nil {
-		if msgType == "ota_report" {
-			var report event.OTAUpgradeReport
-			if err := json.Unmarshal(body, &report); err == nil {
-				if report.DeviceKey == "" {
-					report.DeviceKey = deviceKey
-				}
-				if report.ProductKey == "" {
-					report.ProductKey = c.GetHeader("X-Product-Key")
-				}
-				if report.ReportedAt.IsZero() {
-					report.ReportedAt = time.Now().UTC()
-				}
-				if err := h.eventProducer.Publish(ctx, event.TopicOTAProgressReport, &report); err != nil {
-					h.logger.Error("failed to publish OTA progress report event", zap.Error(err))
-				}
-			}
-		} else {
-			msg := event.DeviceMessage{
-				DeviceKey:   deviceKey,
-				ProductKey:  c.GetHeader("X-Product-Key"),
-				Transport:   "http",
-				MessageType: msgType,
-				Payload:     json.RawMessage(body),
-				Timestamp:   time.Now().UTC(),
-				Headers:     headers,
-			}
+		var topic event.Topic
+		var messageType event.MessageType
+		switch msgType {
+		case "ota_report", "ota_progress":
+			messageType = event.MessageTypeOTAProgress
+			topic = event.TopicOTAProgressReport
+		case "ota_inform":
+			messageType = event.MessageTypeOTAInform
+			topic = event.TopicOTADeviceInfo
+		case "attributes":
+			messageType = event.MessageTypeAttributes
+			topic = event.TopicDeviceAttributeReport
+		case "event":
+			messageType = event.MessageTypeEvent
+			topic = event.TopicDeviceEventReport
+		default:
+			messageType = event.MessageTypeTelemetry
+			topic = event.TopicDeviceTelemetryReport
+		}
 
-			var topic event.Topic
-			switch msgType {
-			case "attributes":
-				topic = event.TopicDeviceAttributeReport
-			case "event":
-				topic = event.TopicDeviceEventReport
-			default:
-				topic = event.TopicDeviceTelemetryReport
-			}
+		msg := event.DeviceMessage{
+			DeviceKey:   deviceKey,
+			ProductKey:  c.GetHeader("X-Product-Key"),
+			Transport:   event.TransportHTTP,
+			MessageType: messageType,
+			Payload:     json.RawMessage(body),
+			Timestamp:   time.Now().UnixMilli(),
+			Headers:     headers,
+		}
 
-			if err := h.eventProducer.Publish(ctx, topic, &msg); err != nil {
-				h.logger.Error("failed to publish device message event", zap.String("topic", topic.String()), zap.Error(err))
-			}
+		if err := h.eventProducer.Publish(ctx, topic, &msg); err != nil {
+			h.logger.Error("failed to publish device message event", zap.String("topic", topic.String()), zap.Error(err))
 		}
 	}
 

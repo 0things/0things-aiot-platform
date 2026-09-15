@@ -19,40 +19,40 @@ import (
 	"data-engine/internal/model"
 )
 
-func newDeviceUpgradeStatus(db *gorm.DB, opts ...gen.DOOption) deviceUpgradeStatus {
-	_deviceUpgradeStatus := deviceUpgradeStatus{}
+func newOTADeviceUpgradeStatus(db *gorm.DB, opts ...gen.DOOption) oTADeviceUpgradeStatus {
+	_oTADeviceUpgradeStatus := oTADeviceUpgradeStatus{}
 
-	_deviceUpgradeStatus.deviceUpgradeStatusDo.UseDB(db, opts...)
-	_deviceUpgradeStatus.deviceUpgradeStatusDo.UseModel(&model.DeviceUpgradeStatus{})
+	_oTADeviceUpgradeStatus.oTADeviceUpgradeStatusDo.UseDB(db, opts...)
+	_oTADeviceUpgradeStatus.oTADeviceUpgradeStatusDo.UseModel(&model.OTADeviceUpgradeStatus{})
 
-	tableName := _deviceUpgradeStatus.deviceUpgradeStatusDo.TableName()
-	_deviceUpgradeStatus.ALL = field.NewAsterisk(tableName)
-	_deviceUpgradeStatus.ID = field.NewInt64(tableName, "id")
-	_deviceUpgradeStatus.DeviceID = field.NewInt64(tableName, "device_id")
-	_deviceUpgradeStatus.OTAPackageID = field.NewString(tableName, "ota_package_id")
-	_deviceUpgradeStatus.UpgradeBatchID = field.NewString(tableName, "upgrade_batch_id")
-	_deviceUpgradeStatus.Status = field.NewString(tableName, "status")
-	_deviceUpgradeStatus.Module = field.NewString(tableName, "module")
-	_deviceUpgradeStatus.TargetVersion = field.NewString(tableName, "target_version")
-	_deviceUpgradeStatus.Progress = field.NewInt32(tableName, "progress")
-	_deviceUpgradeStatus.DispatchAttempts = field.NewInt32(tableName, "dispatch_attempts")
-	_deviceUpgradeStatus.LastDispatchError = field.NewString(tableName, "last_dispatch_error")
-	_deviceUpgradeStatus.FirstProgressAt = field.NewInt64(tableName, "first_progress_at")
-	_deviceUpgradeStatus.LastReportAt = field.NewInt64(tableName, "last_report_at")
-	_deviceUpgradeStatus.TimeoutSeconds = field.NewInt32(tableName, "timeout_seconds")
-	_deviceUpgradeStatus.MaxRetries = field.NewInt32(tableName, "max_retries")
-	_deviceUpgradeStatus.CurrentVersion = field.NewString(tableName, "current_version")
-	_deviceUpgradeStatus.LastStatusChangeTime = field.NewInt64(tableName, "last_status_change_ts")
-	_deviceUpgradeStatus.CreatedAt = field.NewTime(tableName, "created_at")
-	_deviceUpgradeStatus.UpdatedAt = field.NewTime(tableName, "updated_at")
+	tableName := _oTADeviceUpgradeStatus.oTADeviceUpgradeStatusDo.TableName()
+	_oTADeviceUpgradeStatus.ALL = field.NewAsterisk(tableName)
+	_oTADeviceUpgradeStatus.ID = field.NewInt64(tableName, "id")
+	_oTADeviceUpgradeStatus.DeviceID = field.NewInt64(tableName, "device_id")
+	_oTADeviceUpgradeStatus.OTAPackageID = field.NewString(tableName, "ota_package_id")
+	_oTADeviceUpgradeStatus.UpgradeBatchID = field.NewString(tableName, "upgrade_batch_id")
+	_oTADeviceUpgradeStatus.Status = field.NewString(tableName, "status")
+	_oTADeviceUpgradeStatus.Module = field.NewString(tableName, "module")
+	_oTADeviceUpgradeStatus.TargetVersion = field.NewString(tableName, "target_version")
+	_oTADeviceUpgradeStatus.Progress = field.NewInt32(tableName, "progress")
+	_oTADeviceUpgradeStatus.DispatchAttempts = field.NewInt32(tableName, "dispatch_attempts")
+	_oTADeviceUpgradeStatus.LastDispatchError = field.NewString(tableName, "last_dispatch_error")
+	_oTADeviceUpgradeStatus.FirstProgressAt = field.NewInt64(tableName, "first_progress_at")
+	_oTADeviceUpgradeStatus.LastReportAt = field.NewInt64(tableName, "last_report_at")
+	_oTADeviceUpgradeStatus.TimeoutSeconds = field.NewInt32(tableName, "timeout_seconds")
+	_oTADeviceUpgradeStatus.MaxRetries = field.NewInt32(tableName, "max_retries")
+	_oTADeviceUpgradeStatus.CurrentVersion = field.NewString(tableName, "current_version")
+	_oTADeviceUpgradeStatus.LastStatusChangeTime = field.NewInt64(tableName, "last_status_change_ts")
+	_oTADeviceUpgradeStatus.CreatedAt = field.NewTime(tableName, "created_at")
+	_oTADeviceUpgradeStatus.UpdatedAt = field.NewTime(tableName, "updated_at")
 
-	_deviceUpgradeStatus.fillFieldMap()
+	_oTADeviceUpgradeStatus.fillFieldMap()
 
-	return _deviceUpgradeStatus
+	return _oTADeviceUpgradeStatus
 }
 
-type deviceUpgradeStatus struct {
-	deviceUpgradeStatusDo deviceUpgradeStatusDo
+type oTADeviceUpgradeStatus struct {
+	oTADeviceUpgradeStatusDo oTADeviceUpgradeStatusDo
 
 	ALL                  field.Asterisk
 	ID                   field.Int64
@@ -77,56 +77,56 @@ type deviceUpgradeStatus struct {
 	fieldMap map[string]field.Expr
 }
 
-func (d deviceUpgradeStatus) Table(newTableName string) *deviceUpgradeStatus {
-	d.deviceUpgradeStatusDo.UseTable(newTableName)
-	return d.updateTableName(newTableName)
+func (o oTADeviceUpgradeStatus) Table(newTableName string) *oTADeviceUpgradeStatus {
+	o.oTADeviceUpgradeStatusDo.UseTable(newTableName)
+	return o.updateTableName(newTableName)
 }
 
-func (d deviceUpgradeStatus) As(alias string) *deviceUpgradeStatus {
-	d.deviceUpgradeStatusDo.DO = *(d.deviceUpgradeStatusDo.As(alias).(*gen.DO))
-	return d.updateTableName(alias)
+func (o oTADeviceUpgradeStatus) As(alias string) *oTADeviceUpgradeStatus {
+	o.oTADeviceUpgradeStatusDo.DO = *(o.oTADeviceUpgradeStatusDo.As(alias).(*gen.DO))
+	return o.updateTableName(alias)
 }
 
-func (d *deviceUpgradeStatus) updateTableName(table string) *deviceUpgradeStatus {
-	d.ALL = field.NewAsterisk(table)
-	d.ID = field.NewInt64(table, "id")
-	d.DeviceID = field.NewInt64(table, "device_id")
-	d.OTAPackageID = field.NewString(table, "ota_package_id")
-	d.UpgradeBatchID = field.NewString(table, "upgrade_batch_id")
-	d.Status = field.NewString(table, "status")
-	d.Module = field.NewString(table, "module")
-	d.TargetVersion = field.NewString(table, "target_version")
-	d.Progress = field.NewInt32(table, "progress")
-	d.DispatchAttempts = field.NewInt32(table, "dispatch_attempts")
-	d.LastDispatchError = field.NewString(table, "last_dispatch_error")
-	d.FirstProgressAt = field.NewInt64(table, "first_progress_at")
-	d.LastReportAt = field.NewInt64(table, "last_report_at")
-	d.TimeoutSeconds = field.NewInt32(table, "timeout_seconds")
-	d.MaxRetries = field.NewInt32(table, "max_retries")
-	d.CurrentVersion = field.NewString(table, "current_version")
-	d.LastStatusChangeTime = field.NewInt64(table, "last_status_change_ts")
-	d.CreatedAt = field.NewTime(table, "created_at")
-	d.UpdatedAt = field.NewTime(table, "updated_at")
+func (o *oTADeviceUpgradeStatus) updateTableName(table string) *oTADeviceUpgradeStatus {
+	o.ALL = field.NewAsterisk(table)
+	o.ID = field.NewInt64(table, "id")
+	o.DeviceID = field.NewInt64(table, "device_id")
+	o.OTAPackageID = field.NewString(table, "ota_package_id")
+	o.UpgradeBatchID = field.NewString(table, "upgrade_batch_id")
+	o.Status = field.NewString(table, "status")
+	o.Module = field.NewString(table, "module")
+	o.TargetVersion = field.NewString(table, "target_version")
+	o.Progress = field.NewInt32(table, "progress")
+	o.DispatchAttempts = field.NewInt32(table, "dispatch_attempts")
+	o.LastDispatchError = field.NewString(table, "last_dispatch_error")
+	o.FirstProgressAt = field.NewInt64(table, "first_progress_at")
+	o.LastReportAt = field.NewInt64(table, "last_report_at")
+	o.TimeoutSeconds = field.NewInt32(table, "timeout_seconds")
+	o.MaxRetries = field.NewInt32(table, "max_retries")
+	o.CurrentVersion = field.NewString(table, "current_version")
+	o.LastStatusChangeTime = field.NewInt64(table, "last_status_change_ts")
+	o.CreatedAt = field.NewTime(table, "created_at")
+	o.UpdatedAt = field.NewTime(table, "updated_at")
 
-	d.fillFieldMap()
+	o.fillFieldMap()
 
-	return d
+	return o
 }
 
-func (d *deviceUpgradeStatus) WithContext(ctx context.Context) *deviceUpgradeStatusDo {
-	return d.deviceUpgradeStatusDo.WithContext(ctx)
+func (o *oTADeviceUpgradeStatus) WithContext(ctx context.Context) *oTADeviceUpgradeStatusDo {
+	return o.oTADeviceUpgradeStatusDo.WithContext(ctx)
 }
 
-func (d deviceUpgradeStatus) TableName() string { return d.deviceUpgradeStatusDo.TableName() }
+func (o oTADeviceUpgradeStatus) TableName() string { return o.oTADeviceUpgradeStatusDo.TableName() }
 
-func (d deviceUpgradeStatus) Alias() string { return d.deviceUpgradeStatusDo.Alias() }
+func (o oTADeviceUpgradeStatus) Alias() string { return o.oTADeviceUpgradeStatusDo.Alias() }
 
-func (d deviceUpgradeStatus) Columns(cols ...field.Expr) gen.Columns {
-	return d.deviceUpgradeStatusDo.Columns(cols...)
+func (o oTADeviceUpgradeStatus) Columns(cols ...field.Expr) gen.Columns {
+	return o.oTADeviceUpgradeStatusDo.Columns(cols...)
 }
 
-func (d *deviceUpgradeStatus) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
-	_f, ok := d.fieldMap[fieldName]
+func (o *oTADeviceUpgradeStatus) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+	_f, ok := o.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
 	}
@@ -134,234 +134,234 @@ func (d *deviceUpgradeStatus) GetFieldByName(fieldName string) (field.OrderExpr,
 	return _oe, ok
 }
 
-func (d *deviceUpgradeStatus) fillFieldMap() {
-	d.fieldMap = make(map[string]field.Expr, 18)
-	d.fieldMap["id"] = d.ID
-	d.fieldMap["device_id"] = d.DeviceID
-	d.fieldMap["ota_package_id"] = d.OTAPackageID
-	d.fieldMap["upgrade_batch_id"] = d.UpgradeBatchID
-	d.fieldMap["status"] = d.Status
-	d.fieldMap["module"] = d.Module
-	d.fieldMap["target_version"] = d.TargetVersion
-	d.fieldMap["progress"] = d.Progress
-	d.fieldMap["dispatch_attempts"] = d.DispatchAttempts
-	d.fieldMap["last_dispatch_error"] = d.LastDispatchError
-	d.fieldMap["first_progress_at"] = d.FirstProgressAt
-	d.fieldMap["last_report_at"] = d.LastReportAt
-	d.fieldMap["timeout_seconds"] = d.TimeoutSeconds
-	d.fieldMap["max_retries"] = d.MaxRetries
-	d.fieldMap["current_version"] = d.CurrentVersion
-	d.fieldMap["last_status_change_ts"] = d.LastStatusChangeTime
-	d.fieldMap["created_at"] = d.CreatedAt
-	d.fieldMap["updated_at"] = d.UpdatedAt
+func (o *oTADeviceUpgradeStatus) fillFieldMap() {
+	o.fieldMap = make(map[string]field.Expr, 18)
+	o.fieldMap["id"] = o.ID
+	o.fieldMap["device_id"] = o.DeviceID
+	o.fieldMap["ota_package_id"] = o.OTAPackageID
+	o.fieldMap["upgrade_batch_id"] = o.UpgradeBatchID
+	o.fieldMap["status"] = o.Status
+	o.fieldMap["module"] = o.Module
+	o.fieldMap["target_version"] = o.TargetVersion
+	o.fieldMap["progress"] = o.Progress
+	o.fieldMap["dispatch_attempts"] = o.DispatchAttempts
+	o.fieldMap["last_dispatch_error"] = o.LastDispatchError
+	o.fieldMap["first_progress_at"] = o.FirstProgressAt
+	o.fieldMap["last_report_at"] = o.LastReportAt
+	o.fieldMap["timeout_seconds"] = o.TimeoutSeconds
+	o.fieldMap["max_retries"] = o.MaxRetries
+	o.fieldMap["current_version"] = o.CurrentVersion
+	o.fieldMap["last_status_change_ts"] = o.LastStatusChangeTime
+	o.fieldMap["created_at"] = o.CreatedAt
+	o.fieldMap["updated_at"] = o.UpdatedAt
 }
 
-func (d deviceUpgradeStatus) clone(db *gorm.DB) deviceUpgradeStatus {
-	d.deviceUpgradeStatusDo.ReplaceConnPool(db.Statement.ConnPool)
-	return d
+func (o oTADeviceUpgradeStatus) clone(db *gorm.DB) oTADeviceUpgradeStatus {
+	o.oTADeviceUpgradeStatusDo.ReplaceConnPool(db.Statement.ConnPool)
+	return o
 }
 
-func (d deviceUpgradeStatus) replaceDB(db *gorm.DB) deviceUpgradeStatus {
-	d.deviceUpgradeStatusDo.ReplaceDB(db)
-	return d
+func (o oTADeviceUpgradeStatus) replaceDB(db *gorm.DB) oTADeviceUpgradeStatus {
+	o.oTADeviceUpgradeStatusDo.ReplaceDB(db)
+	return o
 }
 
-type deviceUpgradeStatusDo struct{ gen.DO }
+type oTADeviceUpgradeStatusDo struct{ gen.DO }
 
-func (d deviceUpgradeStatusDo) Debug() *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Debug())
+func (o oTADeviceUpgradeStatusDo) Debug() *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Debug())
 }
 
-func (d deviceUpgradeStatusDo) WithContext(ctx context.Context) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.WithContext(ctx))
+func (o oTADeviceUpgradeStatusDo) WithContext(ctx context.Context) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.WithContext(ctx))
 }
 
-func (d deviceUpgradeStatusDo) ReadDB() *deviceUpgradeStatusDo {
-	return d.Clauses(dbresolver.Read)
+func (o oTADeviceUpgradeStatusDo) ReadDB() *oTADeviceUpgradeStatusDo {
+	return o.Clauses(dbresolver.Read)
 }
 
-func (d deviceUpgradeStatusDo) WriteDB() *deviceUpgradeStatusDo {
-	return d.Clauses(dbresolver.Write)
+func (o oTADeviceUpgradeStatusDo) WriteDB() *oTADeviceUpgradeStatusDo {
+	return o.Clauses(dbresolver.Write)
 }
 
-func (d deviceUpgradeStatusDo) Session(config *gorm.Session) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Session(config))
+func (o oTADeviceUpgradeStatusDo) Session(config *gorm.Session) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Session(config))
 }
 
-func (d deviceUpgradeStatusDo) Clauses(conds ...clause.Expression) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Clauses(conds...))
+func (o oTADeviceUpgradeStatusDo) Clauses(conds ...clause.Expression) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Clauses(conds...))
 }
 
-func (d deviceUpgradeStatusDo) Returning(value interface{}, columns ...string) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Returning(value, columns...))
+func (o oTADeviceUpgradeStatusDo) Returning(value interface{}, columns ...string) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Returning(value, columns...))
 }
 
-func (d deviceUpgradeStatusDo) Not(conds ...gen.Condition) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Not(conds...))
+func (o oTADeviceUpgradeStatusDo) Not(conds ...gen.Condition) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Not(conds...))
 }
 
-func (d deviceUpgradeStatusDo) Or(conds ...gen.Condition) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Or(conds...))
+func (o oTADeviceUpgradeStatusDo) Or(conds ...gen.Condition) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Or(conds...))
 }
 
-func (d deviceUpgradeStatusDo) Select(conds ...field.Expr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Select(conds...))
+func (o oTADeviceUpgradeStatusDo) Select(conds ...field.Expr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Select(conds...))
 }
 
-func (d deviceUpgradeStatusDo) Where(conds ...gen.Condition) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Where(conds...))
+func (o oTADeviceUpgradeStatusDo) Where(conds ...gen.Condition) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Where(conds...))
 }
 
-func (d deviceUpgradeStatusDo) Order(conds ...field.Expr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Order(conds...))
+func (o oTADeviceUpgradeStatusDo) Order(conds ...field.Expr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Order(conds...))
 }
 
-func (d deviceUpgradeStatusDo) Distinct(cols ...field.Expr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Distinct(cols...))
+func (o oTADeviceUpgradeStatusDo) Distinct(cols ...field.Expr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Distinct(cols...))
 }
 
-func (d deviceUpgradeStatusDo) Omit(cols ...field.Expr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Omit(cols...))
+func (o oTADeviceUpgradeStatusDo) Omit(cols ...field.Expr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Omit(cols...))
 }
 
-func (d deviceUpgradeStatusDo) Join(table schema.Tabler, on ...field.Expr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Join(table, on...))
+func (o oTADeviceUpgradeStatusDo) Join(table schema.Tabler, on ...field.Expr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Join(table, on...))
 }
 
-func (d deviceUpgradeStatusDo) LeftJoin(table schema.Tabler, on ...field.Expr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.LeftJoin(table, on...))
+func (o oTADeviceUpgradeStatusDo) LeftJoin(table schema.Tabler, on ...field.Expr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.LeftJoin(table, on...))
 }
 
-func (d deviceUpgradeStatusDo) RightJoin(table schema.Tabler, on ...field.Expr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.RightJoin(table, on...))
+func (o oTADeviceUpgradeStatusDo) RightJoin(table schema.Tabler, on ...field.Expr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.RightJoin(table, on...))
 }
 
-func (d deviceUpgradeStatusDo) Group(cols ...field.Expr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Group(cols...))
+func (o oTADeviceUpgradeStatusDo) Group(cols ...field.Expr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Group(cols...))
 }
 
-func (d deviceUpgradeStatusDo) Having(conds ...gen.Condition) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Having(conds...))
+func (o oTADeviceUpgradeStatusDo) Having(conds ...gen.Condition) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Having(conds...))
 }
 
-func (d deviceUpgradeStatusDo) Limit(limit int) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Limit(limit))
+func (o oTADeviceUpgradeStatusDo) Limit(limit int) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Limit(limit))
 }
 
-func (d deviceUpgradeStatusDo) Offset(offset int) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Offset(offset))
+func (o oTADeviceUpgradeStatusDo) Offset(offset int) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Offset(offset))
 }
 
-func (d deviceUpgradeStatusDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Scopes(funcs...))
+func (o oTADeviceUpgradeStatusDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Scopes(funcs...))
 }
 
-func (d deviceUpgradeStatusDo) Unscoped() *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Unscoped())
+func (o oTADeviceUpgradeStatusDo) Unscoped() *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Unscoped())
 }
 
-func (d deviceUpgradeStatusDo) Create(values ...*model.DeviceUpgradeStatus) error {
+func (o oTADeviceUpgradeStatusDo) Create(values ...*model.OTADeviceUpgradeStatus) error {
 	if len(values) == 0 {
 		return nil
 	}
-	return d.DO.Create(values)
+	return o.DO.Create(values)
 }
 
-func (d deviceUpgradeStatusDo) CreateInBatches(values []*model.DeviceUpgradeStatus, batchSize int) error {
-	return d.DO.CreateInBatches(values, batchSize)
+func (o oTADeviceUpgradeStatusDo) CreateInBatches(values []*model.OTADeviceUpgradeStatus, batchSize int) error {
+	return o.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (d deviceUpgradeStatusDo) Save(values ...*model.DeviceUpgradeStatus) error {
+func (o oTADeviceUpgradeStatusDo) Save(values ...*model.OTADeviceUpgradeStatus) error {
 	if len(values) == 0 {
 		return nil
 	}
-	return d.DO.Save(values)
+	return o.DO.Save(values)
 }
 
-func (d deviceUpgradeStatusDo) First() (*model.DeviceUpgradeStatus, error) {
-	if result, err := d.DO.First(); err != nil {
+func (o oTADeviceUpgradeStatusDo) First() (*model.OTADeviceUpgradeStatus, error) {
+	if result, err := o.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.DeviceUpgradeStatus), nil
+		return result.(*model.OTADeviceUpgradeStatus), nil
 	}
 }
 
-func (d deviceUpgradeStatusDo) Take() (*model.DeviceUpgradeStatus, error) {
-	if result, err := d.DO.Take(); err != nil {
+func (o oTADeviceUpgradeStatusDo) Take() (*model.OTADeviceUpgradeStatus, error) {
+	if result, err := o.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.DeviceUpgradeStatus), nil
+		return result.(*model.OTADeviceUpgradeStatus), nil
 	}
 }
 
-func (d deviceUpgradeStatusDo) Last() (*model.DeviceUpgradeStatus, error) {
-	if result, err := d.DO.Last(); err != nil {
+func (o oTADeviceUpgradeStatusDo) Last() (*model.OTADeviceUpgradeStatus, error) {
+	if result, err := o.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.DeviceUpgradeStatus), nil
+		return result.(*model.OTADeviceUpgradeStatus), nil
 	}
 }
 
-func (d deviceUpgradeStatusDo) Find() ([]*model.DeviceUpgradeStatus, error) {
-	result, err := d.DO.Find()
-	return result.([]*model.DeviceUpgradeStatus), err
+func (o oTADeviceUpgradeStatusDo) Find() ([]*model.OTADeviceUpgradeStatus, error) {
+	result, err := o.DO.Find()
+	return result.([]*model.OTADeviceUpgradeStatus), err
 }
 
-func (d deviceUpgradeStatusDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.DeviceUpgradeStatus, err error) {
-	buf := make([]*model.DeviceUpgradeStatus, 0, batchSize)
-	err = d.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
+func (o oTADeviceUpgradeStatusDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.OTADeviceUpgradeStatus, err error) {
+	buf := make([]*model.OTADeviceUpgradeStatus, 0, batchSize)
+	err = o.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
 	})
 	return results, err
 }
 
-func (d deviceUpgradeStatusDo) FindInBatches(result *[]*model.DeviceUpgradeStatus, batchSize int, fc func(tx gen.Dao, batch int) error) error {
-	return d.DO.FindInBatches(result, batchSize, fc)
+func (o oTADeviceUpgradeStatusDo) FindInBatches(result *[]*model.OTADeviceUpgradeStatus, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+	return o.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (d deviceUpgradeStatusDo) Attrs(attrs ...field.AssignExpr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Attrs(attrs...))
+func (o oTADeviceUpgradeStatusDo) Attrs(attrs ...field.AssignExpr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Attrs(attrs...))
 }
 
-func (d deviceUpgradeStatusDo) Assign(attrs ...field.AssignExpr) *deviceUpgradeStatusDo {
-	return d.withDO(d.DO.Assign(attrs...))
+func (o oTADeviceUpgradeStatusDo) Assign(attrs ...field.AssignExpr) *oTADeviceUpgradeStatusDo {
+	return o.withDO(o.DO.Assign(attrs...))
 }
 
-func (d deviceUpgradeStatusDo) Joins(fields ...field.RelationField) *deviceUpgradeStatusDo {
+func (o oTADeviceUpgradeStatusDo) Joins(fields ...field.RelationField) *oTADeviceUpgradeStatusDo {
 	for _, _f := range fields {
-		d = *d.withDO(d.DO.Joins(_f))
+		o = *o.withDO(o.DO.Joins(_f))
 	}
-	return &d
+	return &o
 }
 
-func (d deviceUpgradeStatusDo) Preload(fields ...field.RelationField) *deviceUpgradeStatusDo {
+func (o oTADeviceUpgradeStatusDo) Preload(fields ...field.RelationField) *oTADeviceUpgradeStatusDo {
 	for _, _f := range fields {
-		d = *d.withDO(d.DO.Preload(_f))
+		o = *o.withDO(o.DO.Preload(_f))
 	}
-	return &d
+	return &o
 }
 
-func (d deviceUpgradeStatusDo) FirstOrInit() (*model.DeviceUpgradeStatus, error) {
-	if result, err := d.DO.FirstOrInit(); err != nil {
+func (o oTADeviceUpgradeStatusDo) FirstOrInit() (*model.OTADeviceUpgradeStatus, error) {
+	if result, err := o.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.DeviceUpgradeStatus), nil
+		return result.(*model.OTADeviceUpgradeStatus), nil
 	}
 }
 
-func (d deviceUpgradeStatusDo) FirstOrCreate() (*model.DeviceUpgradeStatus, error) {
-	if result, err := d.DO.FirstOrCreate(); err != nil {
+func (o oTADeviceUpgradeStatusDo) FirstOrCreate() (*model.OTADeviceUpgradeStatus, error) {
+	if result, err := o.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.DeviceUpgradeStatus), nil
+		return result.(*model.OTADeviceUpgradeStatus), nil
 	}
 }
 
-func (d deviceUpgradeStatusDo) FindByPage(offset int, limit int) (result []*model.DeviceUpgradeStatus, count int64, err error) {
-	result, err = d.Offset(offset).Limit(limit).Find()
+func (o oTADeviceUpgradeStatusDo) FindByPage(offset int, limit int) (result []*model.OTADeviceUpgradeStatus, count int64, err error) {
+	result, err = o.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
 	}
@@ -371,29 +371,29 @@ func (d deviceUpgradeStatusDo) FindByPage(offset int, limit int) (result []*mode
 		return
 	}
 
-	count, err = d.Offset(-1).Limit(-1).Count()
+	count, err = o.Offset(-1).Limit(-1).Count()
 	return
 }
 
-func (d deviceUpgradeStatusDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
-	count, err = d.Count()
+func (o oTADeviceUpgradeStatusDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+	count, err = o.Count()
 	if err != nil {
 		return
 	}
 
-	err = d.Offset(offset).Limit(limit).Scan(result)
+	err = o.Offset(offset).Limit(limit).Scan(result)
 	return
 }
 
-func (d deviceUpgradeStatusDo) Scan(result interface{}) (err error) {
-	return d.DO.Scan(result)
+func (o oTADeviceUpgradeStatusDo) Scan(result interface{}) (err error) {
+	return o.DO.Scan(result)
 }
 
-func (d deviceUpgradeStatusDo) Delete(models ...*model.DeviceUpgradeStatus) (result gen.ResultInfo, err error) {
-	return d.DO.Delete(models)
+func (o oTADeviceUpgradeStatusDo) Delete(models ...*model.OTADeviceUpgradeStatus) (result gen.ResultInfo, err error) {
+	return o.DO.Delete(models)
 }
 
-func (d *deviceUpgradeStatusDo) withDO(do gen.Dao) *deviceUpgradeStatusDo {
-	d.DO = *do.(*gen.DO)
-	return d
+func (o *oTADeviceUpgradeStatusDo) withDO(do gen.Dao) *oTADeviceUpgradeStatusDo {
+	o.DO = *do.(*gen.DO)
+	return o
 }

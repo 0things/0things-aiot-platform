@@ -19,7 +19,6 @@ test:
 	@(cd pkg/event && go test ./...)
 	@(cd transport-mqtt && go test ./...)
 	@(cd transport-http && go test ./...)
-	@(cd transport-coap && go test ./...)
 	@(cd data-engine && go test ./...)
 	@(cd backend && go test ./...)
 	@echo "✅ All tests passed successfully!"
@@ -29,7 +28,6 @@ build:
 	@echo "🔨 Building all microservice binaries..."
 	@(cd transport-mqtt && go build -buildvcs=false -o /dev/null ./cmd/server)
 	@(cd transport-http && go build -buildvcs=false -o /dev/null ./cmd/server)
-	@(cd transport-coap && go build -buildvcs=false -o /dev/null ./cmd/server)
 	@(cd data-engine && go build -buildvcs=false -o /dev/null ./cmd/server)
 	@(cd backend && go build -buildvcs=false -o /dev/null ./cmd/server)
 	@echo "✅ All binaries built cleanly!"

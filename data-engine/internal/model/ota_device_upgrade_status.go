@@ -2,8 +2,8 @@ package model
 
 import "time"
 
-// DeviceUpgradeStatus represents the per-device OTA upgrade progress status record.
-type DeviceUpgradeStatus struct {
+// OTADeviceUpgradeStatus represents the per-device OTA upgrade progress status record (table: ota_device_upgrade_status).
+type OTADeviceUpgradeStatus struct {
 	ID                   int64     `gorm:"primaryKey"`
 	DeviceID             int64     `gorm:"column:device_id;uniqueIndex:ux_ota_batch_device"`
 	OTAPackageID         string    `gorm:"column:ota_package_id"`
@@ -24,4 +24,4 @@ type DeviceUpgradeStatus struct {
 	UpdatedAt            time.Time `gorm:"column:updated_at"`
 }
 
-func (DeviceUpgradeStatus) TableName() string { return "ota_device_upgrade_status" }
+func (OTADeviceUpgradeStatus) TableName() string { return "ota_device_upgrade_status" }

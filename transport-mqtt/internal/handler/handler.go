@@ -7,14 +7,14 @@ import "transport-mqtt/internal/service"
 type IngressHandler struct {
 	telemetryService   *service.TelemetryService
 	deviceEventService *service.DeviceEventService
-	otaProgressService *service.OTAProgressService
+	otaService         *service.OTAService
 }
 
 // NewIngressHandler creates an MQTT ingress handler.
-func NewIngressHandler(telemetryService *service.TelemetryService, deviceEventService *service.DeviceEventService, otaProgressService *service.OTAProgressService) *IngressHandler {
+func NewIngressHandler(telemetryService *service.TelemetryService, deviceEventService *service.DeviceEventService, otaService *service.OTAService) *IngressHandler {
 	return &IngressHandler{
 		telemetryService:   telemetryService,
 		deviceEventService: deviceEventService,
-		otaProgressService: otaProgressService,
+		otaService:         otaService,
 	}
 }

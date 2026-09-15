@@ -40,9 +40,6 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	telemetryService := service.NewTelemetryService(viperViper, zapLogger, client, shadowRepository)
 	telemetryHandler := handler.NewTelemetryHandler(telemetryService, zapLogger)
 	telemetryConsumer := consumer.NewTelemetryConsumer(telemetryHandler)
-	eventService := service.NewEventService(viperViper, zapLogger)
-	eventHandler := handler.NewEventHandler(eventService, zapLogger)
-	consumerEventConsumer := consumer.NewEventConsumer(eventHandler)
 	db, err := provideDB(viperViper, logger)
 	if err != nil {
 		cleanup2()
@@ -50,11 +47,16 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 		return nil, nil, err
 	}
 	repositoryRepository := repository.NewRepository(zapLogger, db)
-	otaRepository := repository.NewOTARepository(repositoryRepository)
-	otaService := service.NewOTAService(otaRepository, zapLogger)
-	otaProgressHandler := handler.NewOTAProgressHandler(otaService, zapLogger)
-	otaProgressConsumer := consumer.NewOTAProgressConsumer(otaProgressHandler)
-	manager := consumer.NewManager(eventConsumer, telemetryConsumer, consumerEventConsumer, otaProgressConsumer, zapLogger)
+	deviceEventRepository := repository.NewDeviceEventRepository(repositoryRepository)
+	eventService := service.NewEventService(zapLogger, deviceEventRepository)
+	eventHandler := handler.NewEventHandler(eventService, zapLogger)
+	consumerEventConsumer := consumer.NewEventConsumer(eventHandler)
+	deviceUpgradeStatusRepository := repository.NewDeviceUpgradeStatusRepository(repositoryRepository)
+	otaService := service.NewOTAService(deviceUpgradeStatusRepository, zapLogger)
+	otaHandler := handler.NewOTAHandler(otaService, zapLogger)
+	otaProgressConsumer := consumer.NewOTAProgressConsumer(otaHandler)
+	otaDeviceInfoConsumer := consumer.NewOTADeviceInfoConsumer(otaHandler)
+	manager := consumer.NewManager(eventConsumer, telemetryConsumer, consumerEventConsumer, otaProgressConsumer, otaDeviceInfoConsumer, zapLogger)
 	dataEngineServer := server.NewDataEngineServer(manager, logger)
 	appApp := newApp(dataEngineServer)
 	return appApp, func() {
@@ -82,34 +84,41 @@ func provideDB(conf *viper.Viper, logger *log.Logger) (*gorm.DB, error) {
 }
 
 type eventBusHolder struct {
+	producer event.Producer
 	consumer event.Consumer
 }
 
 func provideEventBus(conf *viper.Viper, logger *log.Logger) (*eventBusHolder, func(), error) {
-	_, sub, err := event.NewBus(conf, logger.Logger)
+	pub, sub, err := event.NewBus(conf, logger.Logger)
 	if err != nil {
 		return nil, nil, err
 	}
+	p := event.NewProducer(pub)
 	c := event.NewConsumer(sub, logger.Logger)
 	cleanup := func() {
+		_ = p.Close()
 		_ = c.Close()
 	}
-	return &eventBusHolder{consumer: c}, cleanup, nil
+	return &eventBusHolder{producer: p, consumer: c}, cleanup, nil
 }
 
 func provideEventConsumer(holder *eventBusHolder) event.Consumer {
 	return holder.consumer
 }
 
+func provideEventProducer(holder *eventBusHolder) event.Producer {
+	return holder.producer
+}
+
 var repositorySet = wire.NewSet(
-	provideDB, repository.NewRepository, repository.NewOTARepository, repository.NewShadowRepository,
+	provideDB, repository.NewRepository, repository.NewDeviceUpgradeStatusRepository, repository.NewDeviceEventRepository, repository.NewShadowRepository,
 )
 
 var serviceSet = wire.NewSet(service.NewTelemetryService, service.NewOTAService, service.NewEventService)
 
-var consumerSet = wire.NewSet(consumer.NewTelemetryConsumer, consumer.NewEventConsumer, consumer.NewOTAProgressConsumer, consumer.NewManager)
+var consumerSet = wire.NewSet(consumer.NewTelemetryConsumer, consumer.NewEventConsumer, consumer.NewOTAProgressConsumer, consumer.NewOTADeviceInfoConsumer, consumer.NewManager)
 
-var handlerSet = wire.NewSet(handler.NewTelemetryHandler, handler.NewEventHandler, handler.NewOTAProgressHandler, wire.Bind(new(handler.TelemetryHandlerInterface), new(*handler.TelemetryHandler)), wire.Bind(new(handler.EventHandlerInterface), new(*handler.EventHandler)), wire.Bind(new(handler.OTAProgressHandlerInterface), new(*handler.OTAProgressHandler)))
+var handlerSet = wire.NewSet(handler.NewTelemetryHandler, handler.NewEventHandler, handler.NewOTAHandler)
 
 var serverSet = wire.NewSet(server.NewDataEngineServer)
 

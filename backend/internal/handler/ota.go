@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	v1 "aiot-backend/api/v1"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
@@ -63,7 +64,7 @@ func otaBatchJSON(batch model.UpgradeBatch) v1.UpgradeBatch {
 	}
 }
 
-func otaDeploymentJSON(deployment model.DeviceDeployment) v1.DeviceDeployment {
+func otaDeploymentJSON(deployment dto.DeviceDeployment) v1.DeviceDeployment {
 	lastStatusChangeTime := ""
 	if deployment.LastStatusChangeTime != 0 {
 		lastStatusChangeTime = carbon.CreateFromTimestamp(
@@ -413,7 +414,7 @@ func (h *OTAHandler) OTADeployments(c *gin.Context) {
 		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	}
-	var deployments []model.DeviceDeployment
+	var deployments []dto.DeviceDeployment
 	var total int64
 	var err error
 	// Preserve legacy behavior by querying the entire OTA package without a batch ID.

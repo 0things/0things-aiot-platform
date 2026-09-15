@@ -37,29 +37,37 @@ func provideDB(conf *viper.Viper, logger *log.Logger) (*gorm.DB, error) {
 }
 
 type eventBusHolder struct {
+	producer event.Producer
 	consumer event.Consumer
 }
 
 func provideEventBus(conf *viper.Viper, logger *log.Logger) (*eventBusHolder, func(), error) {
-	_, sub, err := event.NewBus(conf, logger.Logger)
+	pub, sub, err := event.NewBus(conf, logger.Logger)
 	if err != nil {
 		return nil, nil, err
 	}
+	p := event.NewProducer(pub)
 	c := event.NewConsumer(sub, logger.Logger)
 	cleanup := func() {
+		_ = p.Close()
 		_ = c.Close()
 	}
-	return &eventBusHolder{consumer: c}, cleanup, nil
+	return &eventBusHolder{producer: p, consumer: c}, cleanup, nil
 }
 
 func provideEventConsumer(holder *eventBusHolder) event.Consumer {
 	return holder.consumer
 }
 
+func provideEventProducer(holder *eventBusHolder) event.Producer {
+	return holder.producer
+}
+
 var repositorySet = wire.NewSet(
 	provideDB,
 	repository.NewRepository,
-	repository.NewOTARepository,
+	repository.NewDeviceUpgradeStatusRepository,
+	repository.NewDeviceEventRepository,
 	repository.NewShadowRepository,
 )
 
@@ -73,16 +81,14 @@ var consumerSet = wire.NewSet(
 	consumer.NewTelemetryConsumer,
 	consumer.NewEventConsumer,
 	consumer.NewOTAProgressConsumer,
+	consumer.NewOTADeviceInfoConsumer,
 	consumer.NewManager,
 )
 
 var handlerSet = wire.NewSet(
 	handler.NewTelemetryHandler,
 	handler.NewEventHandler,
-	handler.NewOTAProgressHandler,
-	wire.Bind(new(handler.TelemetryHandlerInterface), new(*handler.TelemetryHandler)),
-	wire.Bind(new(handler.EventHandlerInterface), new(*handler.EventHandler)),
-	wire.Bind(new(handler.OTAProgressHandlerInterface), new(*handler.OTAProgressHandler)),
+	handler.NewOTAHandler,
 )
 
 var serverSet = wire.NewSet(

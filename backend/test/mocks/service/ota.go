@@ -5,6 +5,7 @@
 package mock_service
 
 import (
+	dto "aiot-backend/internal/dto"
 	model "aiot-backend/internal/model"
 	service "aiot-backend/internal/service"
 	context "context"
@@ -109,14 +110,14 @@ func (mr *MockOTAServiceInterfaceMockRecorder) Delete(ctx, uuid interface{}) *go
 }
 
 // Deployments mocks base method.
-func (m *MockOTAServiceInterface) Deployments(ctx context.Context, uuid string, page, size int, status string, batchID ...string) ([]model.DeviceDeployment, int64, error) {
+func (m *MockOTAServiceInterface) Deployments(ctx context.Context, uuid string, page, size int, status string, batchID ...string) ([]dto.DeviceDeployment, int64, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, uuid, page, size, status}
 	for _, a := range batchID {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Deployments", varargs...)
-	ret0, _ := ret[0].([]model.DeviceDeployment)
+	ret0, _ := ret[0].([]dto.DeviceDeployment)
 	ret1, _ := ret[1].(int64)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

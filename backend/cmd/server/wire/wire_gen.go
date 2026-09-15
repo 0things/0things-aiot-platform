@@ -66,7 +66,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	fileService := service.NewFileService(viperViper)
 	fileHandler := handler.NewFileHandler(handlerHandler, fileService)
 	deviceEventRepository := repository.NewDeviceEventRepository(db)
-	deviceEventService := service.NewDeviceEventService(deviceEventRepository, deviceRepository)
+	deviceEventService := service.NewDeviceEventService(deviceEventRepository)
 	deviceEventHandler := handler.NewDeviceEventHandler(handlerHandler, deviceEventService)
 	deviceServiceInvocationRepository := repository.NewDeviceServiceInvocationRepository(db)
 	telemetryRepository := repository.NewTelemetryRepository(viperViper, logger)

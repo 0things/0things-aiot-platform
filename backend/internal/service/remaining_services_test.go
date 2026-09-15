@@ -22,7 +22,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestDeviceEventService_RecordAndList(t *testing.T) {
+func TestDeviceEventService_List(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.Device{}, &model.DeviceState{}, &model.DeviceEvent{}))
@@ -30,18 +30,19 @@ func TestDeviceEventService_RecordAndList(t *testing.T) {
 	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "D001", Name: "d", ProductID: 1, OrganizationID: 1}).Error)
 	require.NoError(t, db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"}).Error)
 
-	svc := NewDeviceEventService(
-		repository.NewDeviceEventRepository(db),
-		repository.NewDeviceRepository(db, nil),
-	)
+	eventRepo := repository.NewDeviceEventRepository(db)
+	svc := NewDeviceEventService(eventRepo)
 	ctx := context.Background()
 
-	require.NoError(t, svc.Record(ctx, "P001", "D001", "online", 0, map[string]any{"a": 1}))
-
-	// mismatched product key
-	require.Error(t, svc.Record(ctx, "P999", "D001", "online", 0, nil))
-	// missing fields
-	require.Error(t, svc.Record(ctx, "", "D001", "online", 0, nil))
+	require.NoError(t, eventRepo.Create(ctx, &model.DeviceEvent{
+		UUID:            "evt-01",
+		DeviceKey:       "D001",
+		ProductKey:      "P001",
+		EventIdentifier: "online",
+		EventType:       "info",
+		EventAt:         1726315200000,
+		Data:            `{"a":1}`,
+	}))
 
 	list, n, err := svc.List(ctx, dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, DeviceKey: "D001"})
 	require.NoError(t, err)
@@ -228,4 +229,3 @@ func TestProductService_Create_GeneratesUUID(t *testing.T) {
 	_, parseErr := uuid.Parse(product.ProductKey)
 	require.NoError(t, parseErr)
 }
-

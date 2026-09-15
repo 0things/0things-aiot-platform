@@ -384,7 +384,7 @@ func TestDeviceEventRepository_Create(t *testing.T) {
 	mock.ExpectExec("INSERT INTO `device_events`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
-	event := &model.DeviceEvent{DeviceID: 1, EventType: "temperature", EventAt: time.Now()}
+	event := &model.DeviceEvent{DeviceKey: "D001", EventType: "temperature", EventAt: time.Now().UnixMilli()}
 	err := eventRepo.Create(ctx, event)
 	assert.NoError(t, err)
 }
@@ -1270,7 +1270,7 @@ func TestDeviceEventRepository_CreateAndList(t *testing.T) {
 	_, db := setupSQLiteEventRepo(t)
 
 	// Create events via raw GORM (since List uses gen queries with JOINs)
-	db.Create(&model.DeviceEvent{DeviceID: 1, EventType: "temperature", EventAt: time.Now()})
+	db.Create(&model.DeviceEvent{DeviceKey: "D001", EventType: "temperature", EventAt: time.Now().UnixMilli()})
 
 	// Note: List uses gen queries which need full GORM Gen setup, so we test Create directly
 	// The integration tests in service layer already cover List

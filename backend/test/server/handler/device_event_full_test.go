@@ -52,7 +52,7 @@ func TestDeviceEventHandler_ListWithTime(t *testing.T) {
 	events := []dto.DeviceEventListItem{{ID: 1, EventType: "temperature"}}
 	mockService.EXPECT().List(gomock.Any(), gomock.Any()).Return(events, int64(1), nil)
 
-	req, _ := http.NewRequest("GET", "/device-events?startAt=2026-08-15%2004:00:00&endAt=2026-08-15%2005:00:00", nil)
+	req, _ := http.NewRequest("GET", "/device-events?startAt=1726315200000&endAt=1726315260000", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

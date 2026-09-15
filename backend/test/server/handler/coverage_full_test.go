@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"testing"
 	"time"
@@ -457,7 +456,7 @@ func TestCoverage_OTA_Stats_Error(t *testing.T) {
 
 func TestCoverage_OTA_Deployments_WithStatus(t *testing.T) {
 	cr := newCoverageRouters(t)
-	cr.ota.EXPECT().Deployments(gomock.Any(), "1", 1, 10, "success").Return([]model.DeviceDeployment{}, int64(0), nil)
+	cr.ota.EXPECT().Deployments(gomock.Any(), "1", 1, 10, "success").Return([]dto.DeviceDeployment{}, int64(0), nil)
 	w := cr.do("GET", "/ota/packages/1/deployments?status=success", nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -492,10 +491,10 @@ func TestCoverage_DeviceEvent_List_InvalidEndAt(t *testing.T) {
 
 func TestCoverage_DeviceEvent_List_WithTimeRange(t *testing.T) {
 	cr := newCoverageRouters(t)
-	start := url.QueryEscape(time.Now().Add(-time.Hour).Format("2006-01-02 15:04:05"))
-	end := url.QueryEscape(time.Now().Format("2006-01-02 15:04:05"))
+	start := time.Now().Add(-time.Hour).UnixMilli()
+	end := time.Now().UnixMilli()
 	cr.deviceEvent.EXPECT().List(gomock.Any(), gomock.Any()).Return([]dto.DeviceEventListItem{}, int64(0), nil)
-	w := cr.do("GET", fmt.Sprintf("/device-events?startAt=%s&endAt=%s", start, end), nil)
+	w := cr.do("GET", fmt.Sprintf("/device-events?startAt=%d&endAt=%d", start, end), nil)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 

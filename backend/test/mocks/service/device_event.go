@@ -50,17 +50,3 @@ func (mr *MockDeviceEventServiceInterfaceMockRecorder) List(ctx, query interface
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDeviceEventServiceInterface)(nil).List), ctx, query)
 }
-
-// Record mocks base method.
-func (m *MockDeviceEventServiceInterface) Record(ctx context.Context, productKey, deviceKey, eventType string, timestamp int64, data map[string]any) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Record", ctx, productKey, deviceKey, eventType, timestamp, data)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Record indicates an expected call of Record.
-func (mr *MockDeviceEventServiceInterfaceMockRecorder) Record(ctx, productKey, deviceKey, eventType, timestamp, data interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Record", reflect.TypeOf((*MockDeviceEventServiceInterface)(nil).Record), ctx, productKey, deviceKey, eventType, timestamp, data)
-}

@@ -110,14 +110,14 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "description": "End time filter (yyyy-MM-dd HH:mm:ss)",
+                        "type": "integer",
+                        "description": "End time filter (milliseconds Unix timestamp)",
                         "name": "endAt",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Event type filter (e.g. INFO, WARN, ERROR)",
+                        "description": "Event type filter (e.g. info, alert, error)",
                         "name": "eventType",
                         "in": "query"
                     },
@@ -143,8 +143,8 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "description": "Start time filter (yyyy-MM-dd HH:mm:ss)",
+                        "type": "integer",
+                        "description": "Start time filter (milliseconds Unix timestamp)",
                         "name": "startAt",
                         "in": "query"
                     }
@@ -4105,20 +4105,24 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "eventAt": {
-                    "description": "Event timestamp",
-                    "type": "string"
+                    "description": "Event timestamp (milliseconds)",
+                    "type": "integer"
                 },
                 "eventIdentifier": {
                     "description": "Thing model event identifier",
                     "type": "string"
                 },
                 "eventType": {
-                    "description": "Event type (INFO, WARN, ERROR)",
+                    "description": "Event type (info, alert, error)",
                     "type": "string"
                 },
                 "id": {
                     "description": "Event primary ID",
                     "type": "integer"
+                },
+                "productKey": {
+                    "description": "Product key",
+                    "type": "string"
                 },
                 "uuid": {
                     "description": "Globally unique event UUID",

@@ -413,56 +413,24 @@ func TestIntegrationDeviceEventService_List_WithEventType(t *testing.T) {
 func TestIntegrationDeviceEventService_Record_Valid(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
+	eventRepo := repository.NewDeviceEventRepository(db)
 	svc := testutil.NewTestDeviceEventService(db)
 
-	err := svc.Record(ctx2(), "P001", "D001", "temperature", 0, map[string]any{"temp": 25})
+	err := eventRepo.Create(ctx2(), &model.DeviceEvent{
+		UUID:            "evt-01",
+		DeviceKey:       "D001",
+		ProductKey:      "P001",
+		EventIdentifier: "temperature_alarm",
+		EventType:       "alert",
+		EventAt:         1726315200000,
+		Data:            `{"temp":25}`,
+	})
 	require.NoError(t, err)
 
-	events, total, err := svc.List(ctx2(), dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, DeviceKey: "D001", EventType: "temperature"})
+	events, total, err := svc.List(ctx2(), dto.ListDeviceEventsQuery{Page: 1, PageSize: 10, DeviceKey: "D001", EventType: "alert"})
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), total)
 	assert.Len(t, events, 1)
-}
-
-func TestIntegrationDeviceEventService_Record_WithTimestamp(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceEventService(db)
-
-	err := svc.Record(ctx2(), "P001", "D001", "humidity", time.Now().UnixMilli(), map[string]any{"hum": 60})
-	require.NoError(t, err)
-}
-
-func TestIntegrationDeviceEventService_Record_MissingFields(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	svc := testutil.NewTestDeviceEventService(db)
-
-	err := svc.Record(ctx2(), "", "D001", "temp", 0, nil)
-	assert.Error(t, err)
-
-	err = svc.Record(ctx2(), "P001", "", "temp", 0, nil)
-	assert.Error(t, err)
-
-	err = svc.Record(ctx2(), "P001", "D001", "", 0, nil)
-	assert.Error(t, err)
-}
-
-func TestIntegrationDeviceEventService_Record_WrongProductKey(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceEventService(db)
-
-	err := svc.Record(ctx2(), "WRONG", "D001", "temp", 0, nil)
-	assert.Error(t, err)
-}
-
-func TestIntegrationDeviceEventService_Record_DeviceNotFound(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceEventService(db)
-
-	err := svc.Record(ctx2(), "P001", "NONEXIST", "temp", 0, nil)
-	assert.Error(t, err)
 }
 
 func TestIntegrationDeviceService_Activate_AlreadyActivated(t *testing.T) {

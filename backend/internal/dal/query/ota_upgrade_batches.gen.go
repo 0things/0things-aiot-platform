@@ -19,31 +19,31 @@ import (
 	"aiot-backend/internal/model"
 )
 
-func newUpgradeBatch(db *gorm.DB, opts ...gen.DOOption) upgradeBatch {
-	_upgradeBatch := upgradeBatch{}
+func newOTAUpgradeBatch(db *gorm.DB, opts ...gen.DOOption) oTAUpgradeBatch {
+	_oTAUpgradeBatch := oTAUpgradeBatch{}
 
-	_upgradeBatch.upgradeBatchDo.UseDB(db, opts...)
-	_upgradeBatch.upgradeBatchDo.UseModel(&model.UpgradeBatch{})
+	_oTAUpgradeBatch.oTAUpgradeBatchDo.UseDB(db, opts...)
+	_oTAUpgradeBatch.oTAUpgradeBatchDo.UseModel(&model.OTAUpgradeBatch{})
 
-	tableName := _upgradeBatch.upgradeBatchDo.TableName()
-	_upgradeBatch.ALL = field.NewAsterisk(tableName)
-	_upgradeBatch.ID = field.NewInt64(tableName, "id")
-	_upgradeBatch.BatchID = field.NewString(tableName, "batch_id")
-	_upgradeBatch.OTAPackageID = field.NewString(tableName, "ota_package_id")
-	_upgradeBatch.BatchName = field.NewString(tableName, "batch_name")
-	_upgradeBatch.UpgradeStrategy = field.NewString(tableName, "upgrade_strategy")
-	_upgradeBatch.Status = field.NewString(tableName, "status")
-	_upgradeBatch.TargetDeviceCount = field.NewInt32(tableName, "target_device_count")
-	_upgradeBatch.CreatedAt = field.NewTime(tableName, "created_at")
-	_upgradeBatch.UpdatedAt = field.NewTime(tableName, "updated_at")
+	tableName := _oTAUpgradeBatch.oTAUpgradeBatchDo.TableName()
+	_oTAUpgradeBatch.ALL = field.NewAsterisk(tableName)
+	_oTAUpgradeBatch.ID = field.NewInt64(tableName, "id")
+	_oTAUpgradeBatch.BatchID = field.NewString(tableName, "batch_id")
+	_oTAUpgradeBatch.OTAPackageID = field.NewString(tableName, "ota_package_id")
+	_oTAUpgradeBatch.BatchName = field.NewString(tableName, "batch_name")
+	_oTAUpgradeBatch.UpgradeStrategy = field.NewString(tableName, "upgrade_strategy")
+	_oTAUpgradeBatch.Status = field.NewString(tableName, "status")
+	_oTAUpgradeBatch.TargetDeviceCount = field.NewInt32(tableName, "target_device_count")
+	_oTAUpgradeBatch.CreatedAt = field.NewTime(tableName, "created_at")
+	_oTAUpgradeBatch.UpdatedAt = field.NewTime(tableName, "updated_at")
 
-	_upgradeBatch.fillFieldMap()
+	_oTAUpgradeBatch.fillFieldMap()
 
-	return _upgradeBatch
+	return _oTAUpgradeBatch
 }
 
-type upgradeBatch struct {
-	upgradeBatchDo upgradeBatchDo
+type oTAUpgradeBatch struct {
+	oTAUpgradeBatchDo oTAUpgradeBatchDo
 
 	ALL               field.Asterisk
 	ID                field.Int64
@@ -59,47 +59,47 @@ type upgradeBatch struct {
 	fieldMap map[string]field.Expr
 }
 
-func (u upgradeBatch) Table(newTableName string) *upgradeBatch {
-	u.upgradeBatchDo.UseTable(newTableName)
-	return u.updateTableName(newTableName)
+func (o oTAUpgradeBatch) Table(newTableName string) *oTAUpgradeBatch {
+	o.oTAUpgradeBatchDo.UseTable(newTableName)
+	return o.updateTableName(newTableName)
 }
 
-func (u upgradeBatch) As(alias string) *upgradeBatch {
-	u.upgradeBatchDo.DO = *(u.upgradeBatchDo.As(alias).(*gen.DO))
-	return u.updateTableName(alias)
+func (o oTAUpgradeBatch) As(alias string) *oTAUpgradeBatch {
+	o.oTAUpgradeBatchDo.DO = *(o.oTAUpgradeBatchDo.As(alias).(*gen.DO))
+	return o.updateTableName(alias)
 }
 
-func (u *upgradeBatch) updateTableName(table string) *upgradeBatch {
-	u.ALL = field.NewAsterisk(table)
-	u.ID = field.NewInt64(table, "id")
-	u.BatchID = field.NewString(table, "batch_id")
-	u.OTAPackageID = field.NewString(table, "ota_package_id")
-	u.BatchName = field.NewString(table, "batch_name")
-	u.UpgradeStrategy = field.NewString(table, "upgrade_strategy")
-	u.Status = field.NewString(table, "status")
-	u.TargetDeviceCount = field.NewInt32(table, "target_device_count")
-	u.CreatedAt = field.NewTime(table, "created_at")
-	u.UpdatedAt = field.NewTime(table, "updated_at")
+func (o *oTAUpgradeBatch) updateTableName(table string) *oTAUpgradeBatch {
+	o.ALL = field.NewAsterisk(table)
+	o.ID = field.NewInt64(table, "id")
+	o.BatchID = field.NewString(table, "batch_id")
+	o.OTAPackageID = field.NewString(table, "ota_package_id")
+	o.BatchName = field.NewString(table, "batch_name")
+	o.UpgradeStrategy = field.NewString(table, "upgrade_strategy")
+	o.Status = field.NewString(table, "status")
+	o.TargetDeviceCount = field.NewInt32(table, "target_device_count")
+	o.CreatedAt = field.NewTime(table, "created_at")
+	o.UpdatedAt = field.NewTime(table, "updated_at")
 
-	u.fillFieldMap()
+	o.fillFieldMap()
 
-	return u
+	return o
 }
 
-func (u *upgradeBatch) WithContext(ctx context.Context) *upgradeBatchDo {
-	return u.upgradeBatchDo.WithContext(ctx)
+func (o *oTAUpgradeBatch) WithContext(ctx context.Context) *oTAUpgradeBatchDo {
+	return o.oTAUpgradeBatchDo.WithContext(ctx)
 }
 
-func (u upgradeBatch) TableName() string { return u.upgradeBatchDo.TableName() }
+func (o oTAUpgradeBatch) TableName() string { return o.oTAUpgradeBatchDo.TableName() }
 
-func (u upgradeBatch) Alias() string { return u.upgradeBatchDo.Alias() }
+func (o oTAUpgradeBatch) Alias() string { return o.oTAUpgradeBatchDo.Alias() }
 
-func (u upgradeBatch) Columns(cols ...field.Expr) gen.Columns {
-	return u.upgradeBatchDo.Columns(cols...)
+func (o oTAUpgradeBatch) Columns(cols ...field.Expr) gen.Columns {
+	return o.oTAUpgradeBatchDo.Columns(cols...)
 }
 
-func (u *upgradeBatch) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
-	_f, ok := u.fieldMap[fieldName]
+func (o *oTAUpgradeBatch) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+	_f, ok := o.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
 	}
@@ -107,225 +107,225 @@ func (u *upgradeBatch) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 	return _oe, ok
 }
 
-func (u *upgradeBatch) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 9)
-	u.fieldMap["id"] = u.ID
-	u.fieldMap["batch_id"] = u.BatchID
-	u.fieldMap["ota_package_id"] = u.OTAPackageID
-	u.fieldMap["batch_name"] = u.BatchName
-	u.fieldMap["upgrade_strategy"] = u.UpgradeStrategy
-	u.fieldMap["status"] = u.Status
-	u.fieldMap["target_device_count"] = u.TargetDeviceCount
-	u.fieldMap["created_at"] = u.CreatedAt
-	u.fieldMap["updated_at"] = u.UpdatedAt
+func (o *oTAUpgradeBatch) fillFieldMap() {
+	o.fieldMap = make(map[string]field.Expr, 9)
+	o.fieldMap["id"] = o.ID
+	o.fieldMap["batch_id"] = o.BatchID
+	o.fieldMap["ota_package_id"] = o.OTAPackageID
+	o.fieldMap["batch_name"] = o.BatchName
+	o.fieldMap["upgrade_strategy"] = o.UpgradeStrategy
+	o.fieldMap["status"] = o.Status
+	o.fieldMap["target_device_count"] = o.TargetDeviceCount
+	o.fieldMap["created_at"] = o.CreatedAt
+	o.fieldMap["updated_at"] = o.UpdatedAt
 }
 
-func (u upgradeBatch) clone(db *gorm.DB) upgradeBatch {
-	u.upgradeBatchDo.ReplaceConnPool(db.Statement.ConnPool)
-	return u
+func (o oTAUpgradeBatch) clone(db *gorm.DB) oTAUpgradeBatch {
+	o.oTAUpgradeBatchDo.ReplaceConnPool(db.Statement.ConnPool)
+	return o
 }
 
-func (u upgradeBatch) replaceDB(db *gorm.DB) upgradeBatch {
-	u.upgradeBatchDo.ReplaceDB(db)
-	return u
+func (o oTAUpgradeBatch) replaceDB(db *gorm.DB) oTAUpgradeBatch {
+	o.oTAUpgradeBatchDo.ReplaceDB(db)
+	return o
 }
 
-type upgradeBatchDo struct{ gen.DO }
+type oTAUpgradeBatchDo struct{ gen.DO }
 
-func (u upgradeBatchDo) Debug() *upgradeBatchDo {
-	return u.withDO(u.DO.Debug())
+func (o oTAUpgradeBatchDo) Debug() *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Debug())
 }
 
-func (u upgradeBatchDo) WithContext(ctx context.Context) *upgradeBatchDo {
-	return u.withDO(u.DO.WithContext(ctx))
+func (o oTAUpgradeBatchDo) WithContext(ctx context.Context) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.WithContext(ctx))
 }
 
-func (u upgradeBatchDo) ReadDB() *upgradeBatchDo {
-	return u.Clauses(dbresolver.Read)
+func (o oTAUpgradeBatchDo) ReadDB() *oTAUpgradeBatchDo {
+	return o.Clauses(dbresolver.Read)
 }
 
-func (u upgradeBatchDo) WriteDB() *upgradeBatchDo {
-	return u.Clauses(dbresolver.Write)
+func (o oTAUpgradeBatchDo) WriteDB() *oTAUpgradeBatchDo {
+	return o.Clauses(dbresolver.Write)
 }
 
-func (u upgradeBatchDo) Session(config *gorm.Session) *upgradeBatchDo {
-	return u.withDO(u.DO.Session(config))
+func (o oTAUpgradeBatchDo) Session(config *gorm.Session) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Session(config))
 }
 
-func (u upgradeBatchDo) Clauses(conds ...clause.Expression) *upgradeBatchDo {
-	return u.withDO(u.DO.Clauses(conds...))
+func (o oTAUpgradeBatchDo) Clauses(conds ...clause.Expression) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Clauses(conds...))
 }
 
-func (u upgradeBatchDo) Returning(value interface{}, columns ...string) *upgradeBatchDo {
-	return u.withDO(u.DO.Returning(value, columns...))
+func (o oTAUpgradeBatchDo) Returning(value interface{}, columns ...string) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Returning(value, columns...))
 }
 
-func (u upgradeBatchDo) Not(conds ...gen.Condition) *upgradeBatchDo {
-	return u.withDO(u.DO.Not(conds...))
+func (o oTAUpgradeBatchDo) Not(conds ...gen.Condition) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Not(conds...))
 }
 
-func (u upgradeBatchDo) Or(conds ...gen.Condition) *upgradeBatchDo {
-	return u.withDO(u.DO.Or(conds...))
+func (o oTAUpgradeBatchDo) Or(conds ...gen.Condition) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Or(conds...))
 }
 
-func (u upgradeBatchDo) Select(conds ...field.Expr) *upgradeBatchDo {
-	return u.withDO(u.DO.Select(conds...))
+func (o oTAUpgradeBatchDo) Select(conds ...field.Expr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Select(conds...))
 }
 
-func (u upgradeBatchDo) Where(conds ...gen.Condition) *upgradeBatchDo {
-	return u.withDO(u.DO.Where(conds...))
+func (o oTAUpgradeBatchDo) Where(conds ...gen.Condition) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Where(conds...))
 }
 
-func (u upgradeBatchDo) Order(conds ...field.Expr) *upgradeBatchDo {
-	return u.withDO(u.DO.Order(conds...))
+func (o oTAUpgradeBatchDo) Order(conds ...field.Expr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Order(conds...))
 }
 
-func (u upgradeBatchDo) Distinct(cols ...field.Expr) *upgradeBatchDo {
-	return u.withDO(u.DO.Distinct(cols...))
+func (o oTAUpgradeBatchDo) Distinct(cols ...field.Expr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Distinct(cols...))
 }
 
-func (u upgradeBatchDo) Omit(cols ...field.Expr) *upgradeBatchDo {
-	return u.withDO(u.DO.Omit(cols...))
+func (o oTAUpgradeBatchDo) Omit(cols ...field.Expr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Omit(cols...))
 }
 
-func (u upgradeBatchDo) Join(table schema.Tabler, on ...field.Expr) *upgradeBatchDo {
-	return u.withDO(u.DO.Join(table, on...))
+func (o oTAUpgradeBatchDo) Join(table schema.Tabler, on ...field.Expr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Join(table, on...))
 }
 
-func (u upgradeBatchDo) LeftJoin(table schema.Tabler, on ...field.Expr) *upgradeBatchDo {
-	return u.withDO(u.DO.LeftJoin(table, on...))
+func (o oTAUpgradeBatchDo) LeftJoin(table schema.Tabler, on ...field.Expr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.LeftJoin(table, on...))
 }
 
-func (u upgradeBatchDo) RightJoin(table schema.Tabler, on ...field.Expr) *upgradeBatchDo {
-	return u.withDO(u.DO.RightJoin(table, on...))
+func (o oTAUpgradeBatchDo) RightJoin(table schema.Tabler, on ...field.Expr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.RightJoin(table, on...))
 }
 
-func (u upgradeBatchDo) Group(cols ...field.Expr) *upgradeBatchDo {
-	return u.withDO(u.DO.Group(cols...))
+func (o oTAUpgradeBatchDo) Group(cols ...field.Expr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Group(cols...))
 }
 
-func (u upgradeBatchDo) Having(conds ...gen.Condition) *upgradeBatchDo {
-	return u.withDO(u.DO.Having(conds...))
+func (o oTAUpgradeBatchDo) Having(conds ...gen.Condition) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Having(conds...))
 }
 
-func (u upgradeBatchDo) Limit(limit int) *upgradeBatchDo {
-	return u.withDO(u.DO.Limit(limit))
+func (o oTAUpgradeBatchDo) Limit(limit int) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Limit(limit))
 }
 
-func (u upgradeBatchDo) Offset(offset int) *upgradeBatchDo {
-	return u.withDO(u.DO.Offset(offset))
+func (o oTAUpgradeBatchDo) Offset(offset int) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Offset(offset))
 }
 
-func (u upgradeBatchDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *upgradeBatchDo {
-	return u.withDO(u.DO.Scopes(funcs...))
+func (o oTAUpgradeBatchDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Scopes(funcs...))
 }
 
-func (u upgradeBatchDo) Unscoped() *upgradeBatchDo {
-	return u.withDO(u.DO.Unscoped())
+func (o oTAUpgradeBatchDo) Unscoped() *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Unscoped())
 }
 
-func (u upgradeBatchDo) Create(values ...*model.UpgradeBatch) error {
+func (o oTAUpgradeBatchDo) Create(values ...*model.OTAUpgradeBatch) error {
 	if len(values) == 0 {
 		return nil
 	}
-	return u.DO.Create(values)
+	return o.DO.Create(values)
 }
 
-func (u upgradeBatchDo) CreateInBatches(values []*model.UpgradeBatch, batchSize int) error {
-	return u.DO.CreateInBatches(values, batchSize)
+func (o oTAUpgradeBatchDo) CreateInBatches(values []*model.OTAUpgradeBatch, batchSize int) error {
+	return o.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (u upgradeBatchDo) Save(values ...*model.UpgradeBatch) error {
+func (o oTAUpgradeBatchDo) Save(values ...*model.OTAUpgradeBatch) error {
 	if len(values) == 0 {
 		return nil
 	}
-	return u.DO.Save(values)
+	return o.DO.Save(values)
 }
 
-func (u upgradeBatchDo) First() (*model.UpgradeBatch, error) {
-	if result, err := u.DO.First(); err != nil {
+func (o oTAUpgradeBatchDo) First() (*model.OTAUpgradeBatch, error) {
+	if result, err := o.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.UpgradeBatch), nil
+		return result.(*model.OTAUpgradeBatch), nil
 	}
 }
 
-func (u upgradeBatchDo) Take() (*model.UpgradeBatch, error) {
-	if result, err := u.DO.Take(); err != nil {
+func (o oTAUpgradeBatchDo) Take() (*model.OTAUpgradeBatch, error) {
+	if result, err := o.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.UpgradeBatch), nil
+		return result.(*model.OTAUpgradeBatch), nil
 	}
 }
 
-func (u upgradeBatchDo) Last() (*model.UpgradeBatch, error) {
-	if result, err := u.DO.Last(); err != nil {
+func (o oTAUpgradeBatchDo) Last() (*model.OTAUpgradeBatch, error) {
+	if result, err := o.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.UpgradeBatch), nil
+		return result.(*model.OTAUpgradeBatch), nil
 	}
 }
 
-func (u upgradeBatchDo) Find() ([]*model.UpgradeBatch, error) {
-	result, err := u.DO.Find()
-	return result.([]*model.UpgradeBatch), err
+func (o oTAUpgradeBatchDo) Find() ([]*model.OTAUpgradeBatch, error) {
+	result, err := o.DO.Find()
+	return result.([]*model.OTAUpgradeBatch), err
 }
 
-func (u upgradeBatchDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.UpgradeBatch, err error) {
-	buf := make([]*model.UpgradeBatch, 0, batchSize)
-	err = u.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
+func (o oTAUpgradeBatchDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.OTAUpgradeBatch, err error) {
+	buf := make([]*model.OTAUpgradeBatch, 0, batchSize)
+	err = o.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
 	})
 	return results, err
 }
 
-func (u upgradeBatchDo) FindInBatches(result *[]*model.UpgradeBatch, batchSize int, fc func(tx gen.Dao, batch int) error) error {
-	return u.DO.FindInBatches(result, batchSize, fc)
+func (o oTAUpgradeBatchDo) FindInBatches(result *[]*model.OTAUpgradeBatch, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+	return o.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (u upgradeBatchDo) Attrs(attrs ...field.AssignExpr) *upgradeBatchDo {
-	return u.withDO(u.DO.Attrs(attrs...))
+func (o oTAUpgradeBatchDo) Attrs(attrs ...field.AssignExpr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Attrs(attrs...))
 }
 
-func (u upgradeBatchDo) Assign(attrs ...field.AssignExpr) *upgradeBatchDo {
-	return u.withDO(u.DO.Assign(attrs...))
+func (o oTAUpgradeBatchDo) Assign(attrs ...field.AssignExpr) *oTAUpgradeBatchDo {
+	return o.withDO(o.DO.Assign(attrs...))
 }
 
-func (u upgradeBatchDo) Joins(fields ...field.RelationField) *upgradeBatchDo {
+func (o oTAUpgradeBatchDo) Joins(fields ...field.RelationField) *oTAUpgradeBatchDo {
 	for _, _f := range fields {
-		u = *u.withDO(u.DO.Joins(_f))
+		o = *o.withDO(o.DO.Joins(_f))
 	}
-	return &u
+	return &o
 }
 
-func (u upgradeBatchDo) Preload(fields ...field.RelationField) *upgradeBatchDo {
+func (o oTAUpgradeBatchDo) Preload(fields ...field.RelationField) *oTAUpgradeBatchDo {
 	for _, _f := range fields {
-		u = *u.withDO(u.DO.Preload(_f))
+		o = *o.withDO(o.DO.Preload(_f))
 	}
-	return &u
+	return &o
 }
 
-func (u upgradeBatchDo) FirstOrInit() (*model.UpgradeBatch, error) {
-	if result, err := u.DO.FirstOrInit(); err != nil {
+func (o oTAUpgradeBatchDo) FirstOrInit() (*model.OTAUpgradeBatch, error) {
+	if result, err := o.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.UpgradeBatch), nil
+		return result.(*model.OTAUpgradeBatch), nil
 	}
 }
 
-func (u upgradeBatchDo) FirstOrCreate() (*model.UpgradeBatch, error) {
-	if result, err := u.DO.FirstOrCreate(); err != nil {
+func (o oTAUpgradeBatchDo) FirstOrCreate() (*model.OTAUpgradeBatch, error) {
+	if result, err := o.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.UpgradeBatch), nil
+		return result.(*model.OTAUpgradeBatch), nil
 	}
 }
 
-func (u upgradeBatchDo) FindByPage(offset int, limit int) (result []*model.UpgradeBatch, count int64, err error) {
-	result, err = u.Offset(offset).Limit(limit).Find()
+func (o oTAUpgradeBatchDo) FindByPage(offset int, limit int) (result []*model.OTAUpgradeBatch, count int64, err error) {
+	result, err = o.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
 	}
@@ -335,29 +335,29 @@ func (u upgradeBatchDo) FindByPage(offset int, limit int) (result []*model.Upgra
 		return
 	}
 
-	count, err = u.Offset(-1).Limit(-1).Count()
+	count, err = o.Offset(-1).Limit(-1).Count()
 	return
 }
 
-func (u upgradeBatchDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
-	count, err = u.Count()
+func (o oTAUpgradeBatchDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+	count, err = o.Count()
 	if err != nil {
 		return
 	}
 
-	err = u.Offset(offset).Limit(limit).Scan(result)
+	err = o.Offset(offset).Limit(limit).Scan(result)
 	return
 }
 
-func (u upgradeBatchDo) Scan(result interface{}) (err error) {
-	return u.DO.Scan(result)
+func (o oTAUpgradeBatchDo) Scan(result interface{}) (err error) {
+	return o.DO.Scan(result)
 }
 
-func (u upgradeBatchDo) Delete(models ...*model.UpgradeBatch) (result gen.ResultInfo, err error) {
-	return u.DO.Delete(models)
+func (o oTAUpgradeBatchDo) Delete(models ...*model.OTAUpgradeBatch) (result gen.ResultInfo, err error) {
+	return o.DO.Delete(models)
 }
 
-func (u *upgradeBatchDo) withDO(do gen.Dao) *upgradeBatchDo {
-	u.DO = *do.(*gen.DO)
-	return u
+func (o *oTAUpgradeBatchDo) withDO(do gen.Dao) *oTAUpgradeBatchDo {
+	o.DO = *do.(*gen.DO)
+	return o
 }

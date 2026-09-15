@@ -10,11 +10,12 @@ import (
 
 // Manager coordinates event subscriptions across all domain consumer handlers.
 type Manager struct {
-	consumer            event.Consumer
-	telemetryConsumer   *TelemetryConsumer
-	eventConsumer       *EventConsumer
-	otaProgressConsumer *OTAProgressConsumer
-	logger              *zap.Logger
+	consumer              event.Consumer
+	telemetryConsumer     *TelemetryConsumer
+	eventConsumer         *EventConsumer
+	otaProgressConsumer   *OTAProgressConsumer
+	otaDeviceInfoConsumer *OTADeviceInfoConsumer
+	logger                *zap.Logger
 }
 
 func NewManager(
@@ -22,14 +23,16 @@ func NewManager(
 	telemetryConsumer *TelemetryConsumer,
 	eventConsumer *EventConsumer,
 	otaProgressConsumer *OTAProgressConsumer,
+	otaDeviceInfoConsumer *OTADeviceInfoConsumer,
 	logger *zap.Logger,
 ) *Manager {
 	return &Manager{
-		consumer:            consumer,
-		telemetryConsumer:   telemetryConsumer,
-		eventConsumer:       eventConsumer,
-		otaProgressConsumer: otaProgressConsumer,
-		logger:              logger,
+		consumer:              consumer,
+		telemetryConsumer:     telemetryConsumer,
+		eventConsumer:         eventConsumer,
+		otaProgressConsumer:   otaProgressConsumer,
+		otaDeviceInfoConsumer: otaDeviceInfoConsumer,
+		logger:                logger,
 	}
 }
 
@@ -52,6 +55,11 @@ func (m *Manager) Start(ctx context.Context) error {
 
 	// 4. Subscribe to device OTA progress reports
 	if err := event.Subscribe(ctx, m.consumer, event.TopicOTAProgressReport, m.otaProgressConsumer.HandleProgressReport); err != nil {
+		return err
+	}
+
+	// 5. Subscribe to device OTA inform version reports
+	if err := event.Subscribe(ctx, m.consumer, event.TopicOTADeviceInfo, m.otaDeviceInfoConsumer.HandleDeviceInfo); err != nil {
 		return err
 	}
 

@@ -28,7 +28,15 @@ func (s *TelemetryService) Handle(ctx context.Context, msg mqtt.Message) error {
 		s.logger.Warn("could not extract deviceKey from telemetry topic", zap.String("topic", msg.Topic()))
 		return nil
 	}
-	deviceMsg := event.DeviceMessage{DeviceKey: deviceKey, ProductKey: topic.ExtractProductKey(msg.Topic()), Transport: "mqtt", MessageType: "telemetry", Payload: json.RawMessage(msg.Payload()), Timestamp: time.Now().UTC(), Headers: map[string]string{"topic": msg.Topic()}}
+	deviceMsg := event.DeviceMessage{
+		DeviceKey:   deviceKey,
+		ProductKey:  topic.ExtractProductKey(msg.Topic()),
+		Transport:   event.TransportMQTT,
+		MessageType: event.MessageTypeTelemetry,
+		Payload:     json.RawMessage(msg.Payload()),
+		Timestamp:   time.Now().UnixMilli(),
+		Headers:     map[string]string{"topic": msg.Topic()},
+	}
 	s.logger.Info("received MQTT telemetry message", zap.String("topic", msg.Topic()), zap.String("device_key", deviceKey), zap.Int("payload_bytes", len(msg.Payload())))
 	if s.eventProducer == nil {
 		return nil

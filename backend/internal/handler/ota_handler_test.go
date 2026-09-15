@@ -8,10 +8,12 @@ import (
 	"testing"
 	"time"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
 	mock_service "aiot-backend/test/mocks/service"
 	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -192,7 +194,7 @@ func TestOTAHandler_OTADeployments(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mock := mock_service.NewMockOTAServiceInterface(ctrl)
-	mock.EXPECT().Deployments(gomock.Any(), "1", gomock.Any(), gomock.Any(), gomock.Any()).Return([]model.DeviceDeployment{{DeviceID: 1}}, int64(1), nil)
+	mock.EXPECT().Deployments(gomock.Any(), "1", gomock.Any(), gomock.Any(), gomock.Any()).Return([]dto.DeviceDeployment{{DeviceID: 1}}, int64(1), nil)
 
 	r := newOTATestRouter(NewOTAHandler(&Handler{}, mock))
 	req := httptest.NewRequest(http.MethodGet, "/ota-packages/1/device-deployments", nil)

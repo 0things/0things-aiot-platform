@@ -121,7 +121,7 @@ func TestOTAHandler_OTADeployments_Empty(t *testing.T) {
 	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
 	router := setupOTAFullErrRouter(mockService)
 
-	mockService.EXPECT().Deployments(gomock.Any(), "1", 1, 10, "").Return([]model.DeviceDeployment{}, int64(0), nil)
+	mockService.EXPECT().Deployments(gomock.Any(), "1", 1, 10, "").Return([]dto.DeviceDeployment{}, int64(0), nil)
 	req, _ := http.NewRequest("GET", "/ota/packages/1/deployments", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/handler"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/service"
@@ -104,7 +105,7 @@ func TestOTAHandler_Deployments(t *testing.T) {
 	mockService := mock_service.NewMockOTAServiceInterface(ctrl)
 	router := setupOTARouterFull(mockService)
 
-	deployments := []model.DeviceDeployment{{DeviceKey: "D001"}}
+	deployments := []dto.DeviceDeployment{{DeviceKey: "D001"}}
 	mockService.EXPECT().Deployments(gomock.Any(), "1", 1, 10, "").Return(deployments, int64(1), nil)
 
 	req, _ := http.NewRequest("GET", "/ota/packages/1/deployments", nil)

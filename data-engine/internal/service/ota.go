@@ -2,46 +2,111 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 
 	"0things/pkg/event"
 	"data-engine/internal/repository"
 
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 )
 
-// OTAService coordinates OTA upgrade reports, state transitions, and database persistence in data-engine.
+// OTAService coordinates device OTA upgrade progress updates and inform reports.
 type OTAService interface {
-	HandleOTAReport(ctx context.Context, report event.OTAUpgradeReport) error
+	HandleProgressReport(ctx context.Context, msg event.DeviceMessage) error
+	HandleDeviceInfo(ctx context.Context, msg event.DeviceMessage) error
 }
 
 type otaService struct {
-	otaRepo repository.OTARepository
-	logger  *zap.Logger
+	deviceUpgradeStatusRepo repository.DeviceUpgradeStatusRepository
+	validate                *validator.Validate
+	logger                  *zap.Logger
 }
 
-// NewOTAService creates an instance of OTAService.
-func NewOTAService(otaRepo repository.OTARepository, logger *zap.Logger) OTAService {
+// NewOTAService creates an instance of OTAService with required dependencies.
+func NewOTAService(deviceUpgradeStatusRepo repository.DeviceUpgradeStatusRepository, logger *zap.Logger) OTAService {
 	return &otaService{
-		otaRepo: otaRepo,
-		logger:  logger,
+		deviceUpgradeStatusRepo: deviceUpgradeStatusRepo,
+		validate:                validator.New(),
+		logger:                  logger,
 	}
 }
 
-// HandleOTAReport processes device OTA progress, inform, and failure events to advance task and batch states.
-func (s *otaService) HandleOTAReport(ctx context.Context, report event.OTAUpgradeReport) error {
-	eventType := report.EventType
-	if eventType == "" {
-		eventType = event.OTAEventTypeProgress
-		report.EventType = event.OTAEventTypeProgress
+// HandleProgressReport resolves progress report status and updates device upgrade progress.
+func (s *otaService) HandleProgressReport(ctx context.Context, msg event.DeviceMessage) error {
+	if err := s.validate.Struct(&msg); err != nil {
+		s.logger.Warn("invalid OTA progress device message envelope",
+			zap.String("device_key", msg.DeviceKey),
+			zap.Error(err),
+		)
+		return nil
 	}
-	if eventType != event.OTAEventTypeProgress && eventType != event.OTAEventTypeInform {
-		return fmt.Errorf("unsupported OTA event_type %q", eventType)
+
+	var payload event.OTAProgressPayload
+	if err := json.Unmarshal(msg.Payload, &payload); err != nil {
+		s.logger.Warn("failed to unmarshal OTA progress payload",
+			zap.String("device_key", msg.DeviceKey),
+			zap.Error(err),
+		)
+		return nil
 	}
-	s.logger.Info("processing OTA device report",
-		zap.String("device_key", report.DeviceKey),
-		zap.String("batch_id", report.BatchID),
-		zap.String("event_type", string(eventType)),
-	)
-	return s.otaRepo.RecordReport(ctx, report)
+
+	if err := s.validate.Struct(&payload); err != nil {
+		s.logger.Warn("invalid OTA progress report payload",
+			zap.String("device_key", msg.DeviceKey),
+			zap.String("batch_id", payload.BatchID),
+			zap.Error(err),
+		)
+		return nil
+	}
+
+	if err := s.deviceUpgradeStatusRepo.UpdateProgress(ctx, payload.BatchID, msg.DeviceKey, payload.ErrorMessage, payload.Progress); err != nil {
+		s.logger.Error("failed to update device upgrade progress",
+			zap.String("device_key", msg.DeviceKey),
+			zap.String("batch_id", payload.BatchID),
+			zap.Error(err),
+		)
+		return err
+	}
+
+	return nil
+}
+
+// HandleDeviceInfo processes device inform firmware version report and determines upgrade success.
+func (s *otaService) HandleDeviceInfo(ctx context.Context, msg event.DeviceMessage) error {
+	if err := s.validate.Struct(&msg); err != nil {
+		s.logger.Warn("invalid OTA device info message envelope",
+			zap.String("device_key", msg.DeviceKey),
+			zap.Error(err),
+		)
+		return nil
+	}
+
+	var payload event.OTAInformPayload
+	if err := json.Unmarshal(msg.Payload, &payload); err != nil {
+		s.logger.Warn("failed to unmarshal OTA device info payload",
+			zap.String("device_key", msg.DeviceKey),
+			zap.Error(err),
+		)
+		return nil
+	}
+
+	if err := s.validate.Struct(&payload); err != nil {
+		s.logger.Warn("invalid OTA device info payload",
+			zap.String("device_key", msg.DeviceKey),
+			zap.Error(err),
+		)
+		return nil
+	}
+
+	if err := s.deviceUpgradeStatusRepo.UpdateDeviceInfo(ctx, msg.DeviceKey, payload.Version); err != nil {
+		s.logger.Error("failed to update device info version",
+			zap.String("device_key", msg.DeviceKey),
+			zap.String("version", payload.Version),
+			zap.Error(err),
+		)
+		return err
+	}
+
+	return nil
 }

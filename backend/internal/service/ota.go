@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"0things/pkg/event"
+	"aiot-backend/internal/dto"
 	"aiot-backend/internal/enum"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
@@ -21,12 +22,12 @@ type OTAServiceInterface interface {
 	Create(ctx context.Context, pkg *model.OTAPackage, productKey string) error
 	Update(ctx context.Context, pkg *model.OTAPackage) error
 	Delete(ctx context.Context, uuid string) error
-	BatchUpgrade(ctx context.Context, uuid string, deviceKeys []string) (*model.UpgradeBatch, error)
+	BatchUpgrade(ctx context.Context, uuid string, deviceKeys []string) (*model.OTAUpgradeBatch, error)
 	ReportStatus(ctx context.Context, uuid string, deviceKey string, status string) error
 	ReportBatchDevice(ctx context.Context, batchID, deviceKey, status, version string, progress int32, desc ...string) error
 	Statistics(ctx context.Context, uuid string, batchID ...string) (UpgradeStatistics, error)
-	Batches(ctx context.Context, uuid string) ([]model.UpgradeBatch, error)
-	Deployments(ctx context.Context, uuid string, page, size int, status string, batchID ...string) ([]model.DeviceDeployment, int64, error)
+	Batches(ctx context.Context, uuid string) ([]model.OTAUpgradeBatch, error)
+	Deployments(ctx context.Context, uuid string, page, size int, status string, batchID ...string) ([]dto.DeviceDeployment, int64, error)
 	CancelBatch(ctx context.Context, uuid, batchID string) error
 	RetryBatch(ctx context.Context, uuid, batchID string) error
 }
@@ -348,7 +349,7 @@ func (s *OTAService) Batches(ctx context.Context, uuid string) ([]model.UpgradeB
 	return s.repo.Batches(ctx, pkg.ID)
 }
 
-func (s *OTAService) Deployments(ctx context.Context, uuid string, page, size int, status string, batchID ...string) ([]model.DeviceDeployment, int64, error) {
+func (s *OTAService) Deployments(ctx context.Context, uuid string, page, size int, status string, batchID ...string) ([]dto.DeviceDeployment, int64, error) {
 	pkg, err := s.repo.FindByUUID(ctx, uuid)
 	if err != nil {
 		return nil, 0, err

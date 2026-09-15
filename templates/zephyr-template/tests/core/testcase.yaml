@@ -1,6 +1,0 @@
-tests:
-  iot.core:
-    tags: [iot, collectors, telemetry, config]
-    platform_allow: [native_sim/native/64, qemu_riscv32]
-    integration_platforms: [qemu_riscv32]
-    timeout: 60

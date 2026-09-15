@@ -10,11 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// DeviceEventHandler handles HTTP endpoints for device event queries.
 type DeviceEventHandler struct {
 	*Handler
 	svc service.DeviceEventServiceInterface
 }
 
+// NewDeviceEventHandler creates a new DeviceEventHandler instance.
 func NewDeviceEventHandler(h *Handler, svc service.DeviceEventServiceInterface) *DeviceEventHandler {
 	return &DeviceEventHandler{Handler: h, svc: svc}
 }
@@ -25,6 +27,7 @@ func deviceEventResponse(event dto.DeviceEventListItem) v1.DeviceEvent {
 		UUID:            event.UUID,
 		DeviceKey:       event.DeviceKey,
 		DeviceName:      event.DeviceName,
+		ProductKey:      event.ProductKey,
 		EventIdentifier: event.EventIdentifier,
 		EventType:       event.EventType,
 		EventAt:         event.EventAt,

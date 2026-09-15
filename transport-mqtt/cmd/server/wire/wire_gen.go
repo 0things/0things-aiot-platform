@@ -28,8 +28,8 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	producer := provideEventProducer(wireEventBusHolder)
 	telemetryService := service.NewTelemetryService(producer, logger)
 	deviceEventService := service.NewDeviceEventService(producer, logger)
-	otaProgressService := service.NewOTAProgressService(producer, logger)
-	ingressHandler := handler.NewIngressHandler(telemetryService, deviceEventService, otaProgressService)
+	otaService := service.NewOTAService(producer, logger)
+	ingressHandler := handler.NewIngressHandler(telemetryService, deviceEventService, otaService)
 	client, err := server.NewMQTTClient(viperViper, logger, ingressHandler)
 	if err != nil {
 		cleanup()
@@ -74,7 +74,7 @@ func provideEventConsumer(holder *eventBusHolder) event.Consumer {
 	return holder.consumer
 }
 
-var serverSet = wire.NewSet(service.NewTelemetryService, service.NewDeviceEventService, service.NewOTAProgressService, handler.NewIngressHandler, consumer.NewOTACommandConsumer, consumer.NewManager, server.NewMQTTClient, server.NewMQTTServer)
+var serverSet = wire.NewSet(service.NewTelemetryService, service.NewDeviceEventService, service.NewOTAService, handler.NewIngressHandler, consumer.NewOTACommandConsumer, consumer.NewManager, server.NewMQTTClient, server.NewMQTTServer)
 
 func newApp(
 	mqttServer *server.MQTTServer,

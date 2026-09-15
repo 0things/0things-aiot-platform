@@ -2,64 +2,24 @@ package service
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"time"
 
 	"aiot-backend/internal/dto"
-	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
-
-	"github.com/google/uuid"
 )
 
-var ErrInvalidDeviceEvent = errors.New("invalid device event")
-
+// DeviceEventServiceInterface defines service operations for managing device events.
 type DeviceEventServiceInterface interface {
-	Record(ctx context.Context, productKey, deviceKey, eventType string, timestamp int64, data map[string]any) error
+	// List queries paginated device events matching the query criteria.
 	List(ctx context.Context, query dto.ListDeviceEventsQuery) ([]dto.DeviceEventListItem, int64, error)
 }
 
 type DeviceEventService struct {
-	repo    *repository.DeviceEventRepository
-	devices *repository.DeviceRepository
+	repo *repository.DeviceEventRepository
 }
 
-func NewDeviceEventService(repo *repository.DeviceEventRepository, devices *repository.DeviceRepository) *DeviceEventService {
-	return &DeviceEventService{repo: repo, devices: devices}
-}
-
-// Record persists a device event after validating device ownership and payload formatting.
-func (s *DeviceEventService) Record(ctx context.Context, productKey, deviceKey, eventType string, timestamp int64, data map[string]any) error {
-	if productKey == "" || deviceKey == "" || eventType == "" {
-		return fmt.Errorf("%w: product_key, device_key and type are required", ErrInvalidDeviceEvent)
-	}
-	device, err := s.devices.FindByKeyForEvent(ctx, deviceKey)
-	if err != nil {
-		return err
-	}
-	if device.Product.ProductKey != productKey {
-		return fmt.Errorf("%w: product_key does not match device", ErrInvalidDeviceEvent)
-	}
-	payload, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-	eventAt := time.Now()
-	if timestamp > 0 {
-		eventAt = time.UnixMilli(timestamp)
-	}
-	// Each event needs an independent reference, even when the same device emits
-	// the same event type repeatedly.
-	return s.repo.Create(ctx, &model.DeviceEvent{
-		UUID:            uuid.NewString(),
-		DeviceID:        device.ID,
-		EventIdentifier: eventType,
-		EventType:       eventType,
-		EventAt:         eventAt,
-		Data:            string(payload),
-	})
+// NewDeviceEventService creates a new DeviceEventService instance.
+func NewDeviceEventService(repo *repository.DeviceEventRepository) *DeviceEventService {
+	return &DeviceEventService{repo: repo}
 }
 
 // List queries device events by internal query DTO.

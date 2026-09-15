@@ -26,10 +26,10 @@ func TestTelemetryService_ProcessMessage(t *testing.T) {
 	// 1. 测试常规温度解析 (低于阈值)
 	normalMsg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_01",
-		Transport:   "mqtt",
-		MessageType: "telemetry",
+		Transport:   event.TransportMQTT,
+		MessageType: event.MessageTypeTelemetry,
 		Payload:     json.RawMessage(`{"temperature": 25.0, "humidity": 50}`),
-		Timestamp:   time.Now(),
+		Timestamp:   time.Now().UnixMilli(),
 	}
 
 	if err := svc.ProcessMessage(context.Background(), normalMsg); err != nil {
@@ -48,10 +48,10 @@ func TestTelemetryService_ProcessMessage(t *testing.T) {
 	// 2. 测试高温告警触发分支 (高于 70.0°C)
 	alarmMsg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_02",
-		Transport:   "mqtt",
-		MessageType: "telemetry",
+		Transport:   event.TransportMQTT,
+		MessageType: event.MessageTypeTelemetry,
 		Payload:     json.RawMessage(`{"temperature": 85.5}`),
-		Timestamp:   time.Now(),
+		Timestamp:   time.Now().UnixMilli(),
 	}
 
 	if err := svc.ProcessMessage(context.Background(), alarmMsg); err != nil {
@@ -61,10 +61,10 @@ func TestTelemetryService_ProcessMessage(t *testing.T) {
 	// 3. 测试 params 嵌套格式
 	nestedMsg := event.DeviceMessage{
 		DeviceKey:   "sensor_test_03",
-		Transport:   "http",
-		MessageType: "telemetry",
+		Transport:   event.TransportHTTP,
+		MessageType: event.MessageTypeTelemetry,
 		Payload:     json.RawMessage(`{"params": {"temperature": 30.2}}`),
-		Timestamp:   time.Now(),
+		Timestamp:   time.Now().UnixMilli(),
 	}
 
 	if err := svc.ProcessMessage(context.Background(), nestedMsg); err != nil {

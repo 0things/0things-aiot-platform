@@ -17,19 +17,21 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                  db,
-		Device:              newDevice(db, opts...),
-		DeviceUpgradeStatus: newDeviceUpgradeStatus(db, opts...),
-		UpgradeBatch:        newUpgradeBatch(db, opts...),
+		db:                     db,
+		Device:                 newDevice(db, opts...),
+		DeviceEvent:            newDeviceEvent(db, opts...),
+		OTADeviceUpgradeStatus: newOTADeviceUpgradeStatus(db, opts...),
+		OTAUpgradeBatch:        newOTAUpgradeBatch(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Device              device
-	DeviceUpgradeStatus deviceUpgradeStatus
-	UpgradeBatch        upgradeBatch
+	Device                 device
+	DeviceEvent            deviceEvent
+	OTADeviceUpgradeStatus oTADeviceUpgradeStatus
+	OTAUpgradeBatch        oTAUpgradeBatch
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -38,10 +40,11 @@ func (q *Query) UnderlyingDB() *gorm.DB { return q.db }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                  db,
-		Device:              q.Device.clone(db),
-		DeviceUpgradeStatus: q.DeviceUpgradeStatus.clone(db),
-		UpgradeBatch:        q.UpgradeBatch.clone(db),
+		db:                     db,
+		Device:                 q.Device.clone(db),
+		DeviceEvent:            q.DeviceEvent.clone(db),
+		OTADeviceUpgradeStatus: q.OTADeviceUpgradeStatus.clone(db),
+		OTAUpgradeBatch:        q.OTAUpgradeBatch.clone(db),
 	}
 }
 
@@ -55,24 +58,27 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                  db,
-		Device:              q.Device.replaceDB(db),
-		DeviceUpgradeStatus: q.DeviceUpgradeStatus.replaceDB(db),
-		UpgradeBatch:        q.UpgradeBatch.replaceDB(db),
+		db:                     db,
+		Device:                 q.Device.replaceDB(db),
+		DeviceEvent:            q.DeviceEvent.replaceDB(db),
+		OTADeviceUpgradeStatus: q.OTADeviceUpgradeStatus.replaceDB(db),
+		OTAUpgradeBatch:        q.OTAUpgradeBatch.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Device              *deviceDo
-	DeviceUpgradeStatus *deviceUpgradeStatusDo
-	UpgradeBatch        *upgradeBatchDo
+	Device                 *deviceDo
+	DeviceEvent            *deviceEventDo
+	OTADeviceUpgradeStatus *oTADeviceUpgradeStatusDo
+	OTAUpgradeBatch        *oTAUpgradeBatchDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Device:              q.Device.WithContext(ctx),
-		DeviceUpgradeStatus: q.DeviceUpgradeStatus.WithContext(ctx),
-		UpgradeBatch:        q.UpgradeBatch.WithContext(ctx),
+		Device:                 q.Device.WithContext(ctx),
+		DeviceEvent:            q.DeviceEvent.WithContext(ctx),
+		OTADeviceUpgradeStatus: q.OTADeviceUpgradeStatus.WithContext(ctx),
+		OTAUpgradeBatch:        q.OTAUpgradeBatch.WithContext(ctx),
 	}
 }
 

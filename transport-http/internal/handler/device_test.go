@@ -91,6 +91,13 @@ func TestPostOtaProgress(t *testing.T) {
 	if mockProd.topics[0] != event.TopicOTAProgressReport {
 		t.Errorf("expected topic %s, got %s", event.TopicOTAProgressReport, mockProd.topics[0])
 	}
+	msg, ok := mockProd.published[0].(*event.DeviceMessage)
+	if !ok {
+		t.Fatalf("expected *event.DeviceMessage, got %T", mockProd.published[0])
+	}
+	if msg.DeviceKey != "dev_http_01" || msg.MessageType != event.MessageTypeOTAProgress {
+		t.Errorf("unexpected device message: %+v", msg)
+	}
 }
 
 func TestPostEmptyBody(t *testing.T) {
