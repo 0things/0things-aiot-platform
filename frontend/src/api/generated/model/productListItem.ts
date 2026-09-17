@@ -19,7 +19,7 @@ export interface ProductListItem {
   id?: number
   name?: string
   nodeType?: string
-  organizationId?: number
+  organizationId?: string
   productKey?: string
   protocols?: AiotBackendApiV1ProductProtocolInput[]
   status?: string

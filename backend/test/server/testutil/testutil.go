@@ -7,6 +7,7 @@ import (
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
+	"aiot-backend/internal/tenant"
 
 	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/require"
@@ -19,7 +20,6 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 	require.NoError(t, err)
 
 	err = db.AutoMigrate(
-		&model.User{},
 		&model.Product{},
 		&model.Category{},
 		&model.ProductProtocol{},
@@ -43,10 +43,10 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 
 func SeedTestData(t *testing.T, db *gorm.DB) {
 	t.Helper()
-	product := &model.Product{ID: 1, ProductKey: "P001", Name: "Test Product", OrganizationID: 1}
+	product := &model.Product{ID: 1, ProductKey: "P001", Name: "Test Product", OrganizationID: "org-1"}
 	db.Create(product)
 
-	device := &model.Device{ID: 1, DeviceKey: "D001", Name: "Test Device", ProductID: 1, OrganizationID: 1, Enabled: true}
+	device := &model.Device{ID: 1, DeviceKey: "D001", Name: "Test Device", ProductID: 1, OrganizationID: "org-1", Enabled: true}
 	db.Create(device)
 
 	db.Create(&model.DeviceState{ID: 1, DeviceKey: "D001", State: "online"})
@@ -97,6 +97,6 @@ func NewTestProductTSLService(db *gorm.DB) *service.ProductTSLService {
 	return service.NewProductTSLService(productRepo, tslRepo)
 }
 
-func ContextWithTenant(ctx context.Context, organizationID int64) context.Context {
-	return context.WithValue(ctx, "organization_id", organizationID)
+func ContextWithOrganization(ctx context.Context, organizationID string) context.Context {
+	return tenant.WithOrganization(ctx, organizationID)
 }

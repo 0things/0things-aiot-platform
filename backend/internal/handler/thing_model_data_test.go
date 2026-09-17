@@ -1,17 +1,37 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
+	"aiot-backend/pkg/log"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
+
+func baseHandler(t *testing.T) *Handler {
+	t.Helper()
+	return NewHandler(&log.Logger{Logger: zap.NewNop()})
+}
+
+func hctx(method, path string, body []byte, headers map[string]string, params gin.Params) (*gin.Context, *httptest.ResponseRecorder) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(method, path, bytes.NewReader(body))
+	for key, value := range headers {
+		c.Request.Header.Set(key, value)
+	}
+	c.Params = params
+	return c, w
+}
 
 type fakeThingModelPropertyService struct {
 	properties []dto.ThingModelProperty

@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"aiot-backend/pkg/jwt"
+	"aiot-backend/internal/middleware"
 	"aiot-backend/pkg/log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,17 +11,16 @@ type Handler struct {
 	logger *log.Logger
 }
 
-func NewHandler(
-	logger *log.Logger,
-) *Handler {
-	return &Handler{
-		logger: logger,
-	}
+func NewHandler(logger *log.Logger) *Handler {
+	return &Handler{logger: logger}
 }
-func GetUserIdFromCtx(ctx *gin.Context) string {
-	v, exists := ctx.Get("claims")
+
+// userIDFromContext reads the subject populated by the Logto middleware.
+func userIDFromContext(ctx *gin.Context) string {
+	value, exists := ctx.Get(middleware.UserIDKey)
 	if !exists {
 		return ""
 	}
-	return v.(*jwt.MyCustomClaims).UserId
+	userID, _ := value.(string)
+	return userID
 }

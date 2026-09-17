@@ -12,8 +12,8 @@ import (
 	"aiot-backend/internal/server"
 	"aiot-backend/internal/service"
 	"aiot-backend/pkg/app"
-	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
+	"aiot-backend/pkg/logto"
 	"aiot-backend/pkg/server/mcp"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
@@ -22,7 +22,10 @@ import (
 // Injectors from wire.go:
 
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
-	jwtJWT := jwt.NewJwt(viperViper)
+	verifier, err := logto.NewVerifier(viperViper)
+	if err != nil {
+		return nil, nil, err
+	}
 	db := repository.NewDB(viperViper, logger)
 	client := repository.NewRedis(viperViper, logger)
 	deviceRepository := repository.NewDeviceRepository(db, client)
@@ -38,7 +41,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	telemetryService := service.NewTelemetryService(telemetryRepository, logger)
 	mcpHandler := handler.NewMCPHandler(deviceService, thingModelDataService, telemetryService)
 	mcpServer := server.NewMCPServer(viperViper, logger, mcpHandler)
-	server2 := server.NewMCPTransportServer(viperViper, logger, jwtJWT, mcpServer)
+	server2 := server.NewMCPTransportServer(viperViper, logger, verifier, mcpServer)
 	appApp := newApp(server2)
 	return appApp, func() {
 	}, nil

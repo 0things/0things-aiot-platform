@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"aiot-backend/internal/tenant"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -16,14 +17,14 @@ func TestOTAObjectKey_DatePrefixAndTenant(t *testing.T) {
 	v.Set("data.storage.r2.prefix", "ota")
 	s := NewFileService(v)
 
-	key := s.otaObjectKey(context.Background(), "Firmware.BIN")
+	key := s.otaObjectKey(tenant.WithOrganization(context.Background(), "org-1"), "Firmware.BIN")
 
 	parts := strings.Split(key, "/")
 	require.Equal(t, "ota", parts[0])
 	require.Len(t, parts[1], 4, "year")
 	require.Len(t, parts[2], 2, "month")
 	require.Len(t, parts[3], 2, "day")
-	require.Equal(t, "1", parts[4], "default tenant id")
+	require.Equal(t, "org-1", parts[4], "organization id")
 	require.True(t, strings.HasSuffix(key, ".bin"), "extension should be lowercased")
 
 	expectedDate := time.Now().UTC().Format("2006/01/02")

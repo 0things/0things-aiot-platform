@@ -57,7 +57,7 @@ const createAxiosInstance = (): AxiosInstance => {
       const token =
         useAuthStore.getState().auth.accessToken ||
         localStorage.getItem('authToken')
-      if (token) {
+      if (token && !config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${token}`
       }
 
@@ -101,9 +101,14 @@ const createAxiosInstance = (): AxiosInstance => {
         if (status === 401) {
           // eslint-disable-next-line no-console
           console.error('[API Error] Unauthorized - clearing token')
-          localStorage.removeItem('authToken')
-          // You can redirect to login page here
-          // window.location.href = '/login';
+          useAuthStore.getState().auth.reset()
+          if (!['/sign-in', '/callback'].includes(window.location.pathname)) {
+            sessionStorage.setItem(
+              'logto_redirect',
+              `${window.location.pathname}${window.location.search}${window.location.hash}`
+            )
+            window.location.assign('/sign-in')
+          }
         }
 
         // Handle 403 Forbidden

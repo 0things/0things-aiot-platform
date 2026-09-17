@@ -7,12 +7,9 @@
 package wire
 
 import (
-	"aiot-backend/internal/repository"
 	"aiot-backend/internal/server"
-	"aiot-backend/internal/task"
 	"aiot-backend/pkg/app"
 	"aiot-backend/pkg/log"
-	"aiot-backend/pkg/sid"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
@@ -20,14 +17,7 @@ import (
 // Injectors from wire.go:
 
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
-	db := repository.NewDB(viperViper, logger)
-	repositoryRepository := repository.NewRepository(logger, db)
-	transaction := repository.NewTransaction(repositoryRepository)
-	sidSid := sid.NewSid()
-	taskTask := task.NewTask(transaction, logger, sidSid)
-	userRepository := repository.NewUserRepository(repositoryRepository)
-	userTask := task.NewUserTask(taskTask, userRepository)
-	taskServer := server.NewTaskServer(logger, userTask)
+	taskServer := server.NewTaskServer(logger)
 	appApp := newApp(taskServer)
 	return appApp, func() {
 	}, nil
@@ -35,14 +25,11 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewOTARepository)
-
-var taskSet = wire.NewSet(task.NewTask, task.NewUserTask)
-
 var serverSet = wire.NewSet(server.NewTaskServer)
 
 // build App
-func newApp(task2 *server.TaskServer,
+func newApp(
+	task *server.TaskServer,
 ) *app.App {
-	return app.NewApp(app.WithServer(task2), app.WithName("demo-task"))
+	return app.NewApp(app.WithServer(task), app.WithName("demo-task"))
 }

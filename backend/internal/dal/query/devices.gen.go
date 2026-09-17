@@ -31,7 +31,7 @@ func newDevice(db *gorm.DB, opts ...gen.DOOption) device {
 	_device.DeviceKey = field.NewString(tableName, "device_key")
 	_device.Name = field.NewString(tableName, "name")
 	_device.ProductID = field.NewInt64(tableName, "product_id")
-	_device.OrganizationID = field.NewInt64(tableName, "organization_id")
+	_device.OrganizationID = field.NewString(tableName, "organization_id")
 	_device.Enabled = field.NewBool(tableName, "enabled")
 	_device.Metadata = field.NewString(tableName, "metadata")
 	_device.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -62,7 +62,7 @@ type device struct {
 	DeviceKey      field.String
 	Name           field.String
 	ProductID      field.Int64
-	OrganizationID field.Int64
+	OrganizationID field.String
 	Enabled        field.Bool
 	Metadata       field.String
 	DeletedAt      field.Field
@@ -91,7 +91,7 @@ func (d *device) updateTableName(table string) *device {
 	d.DeviceKey = field.NewString(table, "device_key")
 	d.Name = field.NewString(table, "name")
 	d.ProductID = field.NewInt64(table, "product_id")
-	d.OrganizationID = field.NewInt64(table, "organization_id")
+	d.OrganizationID = field.NewString(table, "organization_id")
 	d.Enabled = field.NewBool(table, "enabled")
 	d.Metadata = field.NewString(table, "metadata")
 	d.DeletedAt = field.NewField(table, "deleted_at")

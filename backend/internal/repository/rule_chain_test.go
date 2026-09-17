@@ -22,7 +22,7 @@ func TestRuleChainRepositoryPersistsGraphWithinTenant(t *testing.T) {
 	}
 
 	repo := NewRuleChainRepository(db)
-	ctx := tenant.WithTenant(context.Background(), 42)
+	ctx := tenant.WithOrganization(context.Background(), "org-42")
 	chain := &model.RuleChain{UUID: "chain-1", Name: "Telemetry flow", Status: "draft", Version: 1, Graph: json.RawMessage(`{"nodes":[{"id":"entry"}],"edges":[]}`)}
 	if err := repo.Create(ctx, chain); err != nil {
 		t.Fatal(err)
@@ -32,11 +32,11 @@ func TestRuleChainRepositoryPersistsGraphWithinTenant(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if loaded.OrganizationID != 42 || string(loaded.Graph) != string(chain.Graph) {
+	if loaded.OrganizationID != "org-42" || string(loaded.Graph) != string(chain.Graph) {
 		t.Fatalf("unexpected persisted chain: %+v", loaded)
 	}
 
-	otherTenant := tenant.WithTenant(context.Background(), 43)
+	otherTenant := tenant.WithOrganization(context.Background(), "org-43")
 	if _, err := repo.Find(otherTenant, "chain-1"); err != ErrNotFound {
 		t.Fatalf("cross-tenant find error = %v, want ErrNotFound", err)
 	}

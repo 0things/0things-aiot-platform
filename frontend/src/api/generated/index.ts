@@ -27,19 +27,13 @@ import type {
   AiotBackendApiV1DeviceKeysRequest,
   AiotBackendApiV1PreviewRequest,
   AiotBackendApiV1UpdateDeviceGroupRequest,
-  ApiLoginRequest,
-  ApiRegisterRequest,
   ApiResponseAiotBackendApiV1DeviceEndpoints,
   ApiResponseAiotBackendApiV1DeviceGroup,
   ApiResponseAiotBackendApiV1DeviceGroupDevicesResponse,
   ApiResponseAiotBackendApiV1ListDeviceGroupsResponse,
   ApiResponseAiotBackendApiV1ListRuleNodeDefinitionsResponse,
   ApiResponseAiotBackendApiV1PreviewResponse,
-  ApiResponseApiGetProfileResponseData,
-  ApiResponseApiLoginResponseData,
-  ApiResponseApiSwitchOrgResponseData,
   ApiResponseArrayAiotBackendApiV1Category,
-  ApiResponseArrayApiOrganizationItem,
   ApiResponseArrayProductOption,
   ApiResponseArrayTelemetryPoint,
   ApiResponseCreateRuleChainResponse,
@@ -67,6 +61,7 @@ import type {
   ApiResponseGetRuleChainResponse,
   ApiResponseListRuleChainsResponse,
   ApiResponseMapStringBool,
+  ApiResponseMapStringString,
   ApiResponseMessageParserExecuteProductMessageParserResponse,
   ApiResponseMessageParserProductMessageParser,
   ApiResponseOtaGetUpgradeStatisticsResponse,
@@ -85,9 +80,6 @@ import type {
   ApiResponseProductUpdateProductResponse,
   ApiResponseRuleChainSuccessResponse,
   ApiResponseUpdateRuleChainResponse,
-  ApiSuccessResponse,
-  ApiSwitchOrgRequest,
-  ApiUpdateProfileRequest,
   DeleteDevicesDeviceKeyPushRecordsParams,
   DeviceClearDesiredShadowRequest,
   DeviceCreateDeviceRequest,
@@ -139,91 +131,6 @@ const withQueryKey = <T extends object, K>(
     })
   }
   return result
-}
-
-/**
- * Switches the current organization and returns a new access token.
- * @summary Switch organization
- */
-export const postAuthSwitchOrg = (
-  apiSwitchOrgRequest: BodyType<ApiSwitchOrgRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseApiSwitchOrgResponseData>({
-    url: `/auth/switch-org`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: apiSwitchOrgRequest,
-    signal,
-  })
-}
-
-export const getPostAuthSwitchOrgMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postAuthSwitchOrg>>,
-    TError,
-    { data: BodyType<ApiSwitchOrgRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postAuthSwitchOrg>>,
-  TError,
-  { data: BodyType<ApiSwitchOrgRequest> },
-  TContext
-> => {
-  const mutationKey = ['postAuthSwitchOrg']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postAuthSwitchOrg>>,
-    { data: BodyType<ApiSwitchOrgRequest> }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return postAuthSwitchOrg(data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PostAuthSwitchOrgMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postAuthSwitchOrg>>
->
-export type PostAuthSwitchOrgMutationBody = BodyType<ApiSwitchOrgRequest>
-export type PostAuthSwitchOrgMutationError = ErrorType<unknown>
-
-/**
- * @summary Switch organization
- */
-export const usePostAuthSwitchOrg = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postAuthSwitchOrg>>,
-      TError,
-      { data: BodyType<ApiSwitchOrgRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postAuthSwitchOrg>>,
-  TError,
-  { data: BodyType<ApiSwitchOrgRequest> },
-  TContext
-> => {
-  return useMutation(getPostAuthSwitchOrgMutationOptions(options), queryClient)
 }
 
 /**
@@ -5231,39 +5138,33 @@ export const usePostFilesOta = <
 }
 
 /**
- * Authenticates a user and returns an access token.
- * @summary Log in
+ * @summary Ensure the current user has a Logto organization
  */
-export const postLogin = (
-  apiLoginRequest: BodyType<ApiLoginRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiResponseApiLoginResponseData>({
-    url: `/login`,
+export const postMeOrganization = (signal?: AbortSignal) => {
+  return orvalAxios<ApiResponseMapStringString>({
+    url: `/me/organization`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: apiLoginRequest,
     signal,
   })
 }
 
-export const getPostLoginMutationOptions = <
+export const getPostMeOrganizationMutationOptions = <
   TError = ErrorType<unknown>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postLogin>>,
+    Awaited<ReturnType<typeof postMeOrganization>>,
     TError,
-    { data: BodyType<ApiLoginRequest> },
+    void,
     TContext
   >
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof postLogin>>,
+  Awaited<ReturnType<typeof postMeOrganization>>,
   TError,
-  { data: BodyType<ApiLoginRequest> },
+  void,
   TContext
 > => {
-  const mutationKey = ['postLogin']
+  const mutationKey = ['postMeOrganization']
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -5273,185 +5174,44 @@ export const getPostLoginMutationOptions = <
     : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postLogin>>,
-    { data: BodyType<ApiLoginRequest> }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return postLogin(data)
+    Awaited<ReturnType<typeof postMeOrganization>>,
+    void
+  > = () => {
+    return postMeOrganization()
   }
 
   return { mutationFn, ...mutationOptions }
 }
 
-export type PostLoginMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postLogin>>
+export type PostMeOrganizationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postMeOrganization>>
 >
-export type PostLoginMutationBody = BodyType<ApiLoginRequest>
-export type PostLoginMutationError = ErrorType<unknown>
+
+export type PostMeOrganizationMutationError = ErrorType<unknown>
 
 /**
- * @summary Log in
+ * @summary Ensure the current user has a Logto organization
  */
-export const usePostLogin = <TError = ErrorType<unknown>, TContext = unknown>(
+export const usePostMeOrganization = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postLogin>>,
+      Awaited<ReturnType<typeof postMeOrganization>>,
       TError,
-      { data: BodyType<ApiLoginRequest> },
+      void,
       TContext
     >
   },
   queryClient?: QueryClient
 ): UseMutationResult<
-  Awaited<ReturnType<typeof postLogin>>,
+  Awaited<ReturnType<typeof postMeOrganization>>,
   TError,
-  { data: BodyType<ApiLoginRequest> },
+  void,
   TContext
 > => {
-  return useMutation(getPostLoginMutationOptions(options), queryClient)
-}
-
-/**
- * Lists organizations available to the authenticated user.
- * @summary List user organizations
- */
-export const getOrganizations = (signal?: AbortSignal) => {
-  return orvalAxios<ApiResponseArrayApiOrganizationItem>({
-    url: `/organizations`,
-    method: 'GET',
-    signal,
-  })
-}
-
-export const getGetOrganizationsQueryKey = () => {
-  return [`/organizations`] as const
-}
-
-export const getGetOrganizationsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getOrganizations>>,
-  TError = ErrorType<unknown>,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getOrganizations>>, TError, TData>
-  >
-}) => {
-  const { query: queryOptions } = options ?? {}
-
-  const queryKey = queryOptions?.queryKey ?? getGetOrganizationsQueryKey()
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getOrganizations>>
-  > = ({ signal }) => getOrganizations(signal)
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getOrganizations>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetOrganizationsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getOrganizations>>
->
-export type GetOrganizationsQueryError = ErrorType<unknown>
-
-export function useGetOrganizations<
-  TData = Awaited<ReturnType<typeof getOrganizations>>,
-  TError = ErrorType<unknown>,
->(
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getOrganizations>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getOrganizations>>,
-          TError,
-          Awaited<ReturnType<typeof getOrganizations>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetOrganizations<
-  TData = Awaited<ReturnType<typeof getOrganizations>>,
-  TError = ErrorType<unknown>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getOrganizations>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getOrganizations>>,
-          TError,
-          Awaited<ReturnType<typeof getOrganizations>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetOrganizations<
-  TData = Awaited<ReturnType<typeof getOrganizations>>,
-  TError = ErrorType<unknown>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getOrganizations>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-/**
- * @summary List user organizations
- */
-
-export function useGetOrganizations<
-  TData = Awaited<ReturnType<typeof getOrganizations>>,
-  TError = ErrorType<unknown>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getOrganizations>>,
-        TError,
-        TData
-      >
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-} {
-  const queryOptions = getGetOrganizationsQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-
-  return withQueryKey(query, queryOptions.queryKey)
+  return useMutation(getPostMeOrganizationMutationOptions(options), queryClient)
 }
 
 /**
@@ -8226,91 +7986,6 @@ export const useDeleteProductsProductKeyTsl = <
 }
 
 /**
- * Registers user.
- * @summary Register user
- */
-export const postRegister = (
-  apiRegisterRequest: BodyType<ApiRegisterRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiSuccessResponse>({
-    url: `/register`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: apiRegisterRequest,
-    signal,
-  })
-}
-
-export const getPostRegisterMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postRegister>>,
-    TError,
-    { data: BodyType<ApiRegisterRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postRegister>>,
-  TError,
-  { data: BodyType<ApiRegisterRequest> },
-  TContext
-> => {
-  const mutationKey = ['postRegister']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postRegister>>,
-    { data: BodyType<ApiRegisterRequest> }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return postRegister(data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PostRegisterMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postRegister>>
->
-export type PostRegisterMutationBody = BodyType<ApiRegisterRequest>
-export type PostRegisterMutationError = ErrorType<unknown>
-
-/**
- * @summary Register user
- */
-export const usePostRegister = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postRegister>>,
-      TError,
-      { data: BodyType<ApiRegisterRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postRegister>>,
-  TError,
-  { data: BodyType<ApiRegisterRequest> },
-  TContext
-> => {
-  return useMutation(getPostRegisterMutationOptions(options), queryClient)
-}
-
-/**
  * @summary List rule chains
  */
 export const getRuleChains = (
@@ -8996,212 +8671,4 @@ export function useGetRuleNodeDefinitions<
   > & { queryKey: DataTag<QueryKey, TData, TError> }
 
   return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * Returns the profile of the authenticated user.
- * @summary Get user profile
- */
-export const getUser = (signal?: AbortSignal) => {
-  return orvalAxios<ApiResponseApiGetProfileResponseData>({
-    url: `/user`,
-    method: 'GET',
-    signal,
-  })
-}
-
-export const getGetUserQueryKey = () => {
-  return [`/user`] as const
-}
-
-export const getGetUserQueryOptions = <
-  TData = Awaited<ReturnType<typeof getUser>>,
-  TError = ErrorType<unknown>,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
-  >
-}) => {
-  const { query: queryOptions } = options ?? {}
-
-  const queryKey = queryOptions?.queryKey ?? getGetUserQueryKey()
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUser>>> = ({
-    signal,
-  }) => getUser(signal)
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getUser>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetUserQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getUser>>
->
-export type GetUserQueryError = ErrorType<unknown>
-
-export function useGetUser<
-  TData = Awaited<ReturnType<typeof getUser>>,
-  TError = ErrorType<unknown>,
->(
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getUser>>,
-          TError,
-          Awaited<ReturnType<typeof getUser>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetUser<
-  TData = Awaited<ReturnType<typeof getUser>>,
-  TError = ErrorType<unknown>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getUser>>,
-          TError,
-          Awaited<ReturnType<typeof getUser>>
-        >,
-        'initialData'
-      >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useGetUser<
-  TData = Awaited<ReturnType<typeof getUser>>,
-  TError = ErrorType<unknown>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-/**
- * @summary Get user profile
- */
-
-export function useGetUser<
-  TData = Awaited<ReturnType<typeof getUser>>,
-  TError = ErrorType<unknown>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>
-    >
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-} {
-  const queryOptions = getGetUserQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-
-  return withQueryKey(query, queryOptions.queryKey)
-}
-
-/**
- * Updates the profile of the authenticated user.
- * @summary Update user profile
- */
-export const putUser = (
-  apiUpdateProfileRequest: BodyType<ApiUpdateProfileRequest>,
-  signal?: AbortSignal
-) => {
-  return orvalAxios<ApiSuccessResponse>({
-    url: `/user`,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    data: apiUpdateProfileRequest,
-    signal,
-  })
-}
-
-export const getPutUserMutationOptions = <
-  TError = ErrorType<unknown>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof putUser>>,
-    TError,
-    { data: BodyType<ApiUpdateProfileRequest> },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof putUser>>,
-  TError,
-  { data: BodyType<ApiUpdateProfileRequest> },
-  TContext
-> => {
-  const mutationKey = ['putUser']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof putUser>>,
-    { data: BodyType<ApiUpdateProfileRequest> }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return putUser(data)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PutUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof putUser>>
->
-export type PutUserMutationBody = BodyType<ApiUpdateProfileRequest>
-export type PutUserMutationError = ErrorType<unknown>
-
-/**
- * @summary Update user profile
- */
-export const usePutUser = <TError = ErrorType<unknown>, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof putUser>>,
-      TError,
-      { data: BodyType<ApiUpdateProfileRequest> },
-      TContext
-    >
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof putUser>>,
-  TError,
-  { data: BodyType<ApiUpdateProfileRequest> },
-  TContext
-> => {
-  return useMutation(getPutUserMutationOptions(options), queryClient)
 }

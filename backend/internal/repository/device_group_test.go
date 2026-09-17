@@ -6,6 +6,7 @@ import (
 
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
+	"aiot-backend/internal/tenant"
 
 	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/require"
@@ -24,24 +25,24 @@ func TestDeviceGroupRepositoryDevices_DynamicRuleWithOR(t *testing.T) {
 	))
 
 	products := []model.Product{
-		{ProductKey: "product-a", Name: "A", OrganizationID: 1},
-		{ProductKey: "product-b", Name: "B", OrganizationID: 1},
+		{ProductKey: "product-a", Name: "A", OrganizationID: "org-1"},
+		{ProductKey: "product-b", Name: "B", OrganizationID: "org-1"},
 	}
 	require.NoError(t, db.Create(&products).Error)
 	require.NoError(t, db.Create(&[]model.Device{
-		{DeviceKey: "device-a", Name: "A", ProductID: products[0].ID, OrganizationID: 1, Enabled: true},
-		{DeviceKey: "device-b", Name: "B", ProductID: products[1].ID, OrganizationID: 1, Enabled: true},
+		{DeviceKey: "device-a", Name: "A", ProductID: products[0].ID, OrganizationID: "org-1", Enabled: true},
+		{DeviceKey: "device-b", Name: "B", ProductID: products[1].ID, OrganizationID: "org-1", Enabled: true},
 	}).Error)
 
 	repo := NewDeviceGroupRepository(db)
 	group := &model.DeviceGroup{
 		ID:             1,
-		OrganizationID: 1,
+		OrganizationID: "org-1",
 		Type:           "dynamic",
 		Rule:           "product_key = 'product-a' OR product_key = 'product-b'",
 	}
 
-	devices, total, err := repo.Devices(context.Background(), dto.ListDeviceGroupDevicesQuery{
+	devices, total, err := repo.Devices(tenant.WithOrganization(context.Background(), "org-1"), dto.ListDeviceGroupDevicesQuery{
 		GroupID:   group.ID,
 		GroupType: group.Type,
 		Rule:      group.Rule,
@@ -55,16 +56,16 @@ func TestDeviceGroupRepositoryDevicesPage_Paginates(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.Product{}, &model.Device{}, &model.DeviceState{}, &model.DeviceGroup{}, &model.DeviceGroupMember{}))
-	product := model.Product{ProductKey: "product-a", Name: "A", OrganizationID: 1}
+	product := model.Product{ProductKey: "product-a", Name: "A", OrganizationID: "org-1"}
 	require.NoError(t, db.Create(&product).Error)
 	require.NoError(t, db.Create(&[]model.Device{
-		{DeviceKey: "device-a", Name: "A", ProductID: product.ID, OrganizationID: 1, Enabled: true},
-		{DeviceKey: "device-b", Name: "B", ProductID: product.ID, OrganizationID: 1, Enabled: true},
+		{DeviceKey: "device-a", Name: "A", ProductID: product.ID, OrganizationID: "org-1", Enabled: true},
+		{DeviceKey: "device-b", Name: "B", ProductID: product.ID, OrganizationID: "org-1", Enabled: true},
 	}).Error)
 
 	repo := NewDeviceGroupRepository(db)
 	group := &model.DeviceGroup{Type: "dynamic", Rule: "product_key = 'product-a'"}
-	devices, total, err := repo.Devices(context.Background(), dto.ListDeviceGroupDevicesQuery{
+	devices, total, err := repo.Devices(tenant.WithOrganization(context.Background(), "org-1"), dto.ListDeviceGroupDevicesQuery{
 		GroupType: group.Type,
 		Rule:      group.Rule,
 		Page:      2,
@@ -96,11 +97,11 @@ func TestDeviceGroupRepositoryDevices_DynamicRuleWithJSON(t *testing.T) {
 		&model.DeviceGroupMember{},
 	))
 
-	product := model.Product{ProductKey: "product-a", Name: "A", OrganizationID: 1}
+	product := model.Product{ProductKey: "product-a", Name: "A", OrganizationID: "org-1"}
 	require.NoError(t, db.Create(&product).Error)
 	devices := []model.Device{
-		{ID: 1, DeviceKey: "device-1", Name: "D1", ProductID: product.ID, OrganizationID: 1, Enabled: true},
-		{ID: 2, DeviceKey: "device-2", Name: "D2", ProductID: product.ID, OrganizationID: 1, Enabled: true},
+		{ID: 1, DeviceKey: "device-1", Name: "D1", ProductID: product.ID, OrganizationID: "org-1", Enabled: true},
+		{ID: 2, DeviceKey: "device-2", Name: "D2", ProductID: product.ID, OrganizationID: "org-1", Enabled: true},
 	}
 	require.NoError(t, db.Create(&devices).Error)
 	require.NoError(t, db.Create(&[]model.DeviceState{
@@ -117,11 +118,11 @@ func TestDeviceGroupRepositoryDevices_DynamicRuleWithJSON(t *testing.T) {
 	// 1. JSON rule with state
 	group := &model.DeviceGroup{
 		ID:             1,
-		OrganizationID: 1,
+		OrganizationID: "org-1",
 		Type:           "dynamic",
 		Rule:           `{"state":"online"}`,
 	}
-	list, total, err := repo.Devices(context.Background(), dto.ListDeviceGroupDevicesQuery{
+	list, total, err := repo.Devices(tenant.WithOrganization(context.Background(), "org-1"), dto.ListDeviceGroupDevicesQuery{
 		GroupID:   group.ID,
 		GroupType: group.Type,
 		Rule:      group.Rule,
@@ -134,11 +135,11 @@ func TestDeviceGroupRepositoryDevices_DynamicRuleWithJSON(t *testing.T) {
 	// 2. JSON rule with tag
 	groupTag := &model.DeviceGroup{
 		ID:             2,
-		OrganizationID: 1,
+		OrganizationID: "org-1",
 		Type:           "dynamic",
 		Rule:           `{"tag.location":"floor2"}`,
 	}
-	listTag, totalTag, err := repo.Devices(context.Background(), dto.ListDeviceGroupDevicesQuery{
+	listTag, totalTag, err := repo.Devices(tenant.WithOrganization(context.Background(), "org-1"), dto.ListDeviceGroupDevicesQuery{
 		GroupID:   groupTag.ID,
 		GroupType: groupTag.Type,
 		Rule:      groupTag.Rule,
@@ -151,11 +152,11 @@ func TestDeviceGroupRepositoryDevices_DynamicRuleWithJSON(t *testing.T) {
 	// 3. JSON rule with array
 	groupArray := &model.DeviceGroup{
 		ID:             3,
-		OrganizationID: 1,
+		OrganizationID: "org-1",
 		Type:           "dynamic",
 		Rule:           `{"state":["online","offline"]}`,
 	}
-	listArr, totalArr, err := repo.Devices(context.Background(), dto.ListDeviceGroupDevicesQuery{
+	listArr, totalArr, err := repo.Devices(tenant.WithOrganization(context.Background(), "org-1"), dto.ListDeviceGroupDevicesQuery{
 		GroupID:   groupArray.ID,
 		GroupType: groupArray.Type,
 		Rule:      groupArray.Rule,
@@ -177,17 +178,17 @@ func TestDeviceGroupRepositoryDevices_DynamicRuleCaseInsensitiveOperators(t *tes
 	))
 
 	products := []model.Product{
-		{ProductKey: "product-a", Name: "A", OrganizationID: 1},
-		{ProductKey: "product-b", Name: "B", OrganizationID: 1},
+		{ProductKey: "product-a", Name: "A", OrganizationID: "org-1"},
+		{ProductKey: "product-b", Name: "B", OrganizationID: "org-1"},
 	}
 	require.NoError(t, db.Create(&products).Error)
 	require.NoError(t, db.Create(&[]model.Device{
-		{DeviceKey: "device-a", Name: "A", ProductID: products[0].ID, OrganizationID: 1, Enabled: true},
-		{DeviceKey: "device-b", Name: "B", ProductID: products[1].ID, OrganizationID: 1, Enabled: true},
+		{DeviceKey: "device-a", Name: "A", ProductID: products[0].ID, OrganizationID: "org-1", Enabled: true},
+		{DeviceKey: "device-b", Name: "B", ProductID: products[1].ID, OrganizationID: "org-1", Enabled: true},
 	}).Error)
 
 	repo := NewDeviceGroupRepository(db)
-	devices, total, err := repo.Devices(context.Background(), dto.ListDeviceGroupDevicesQuery{
+	devices, total, err := repo.Devices(tenant.WithOrganization(context.Background(), "org-1"), dto.ListDeviceGroupDevicesQuery{
 		GroupType: "dynamic",
 		Rule:      "product_key = 'product-a' or product_key = 'product-b'",
 	})
@@ -195,5 +196,3 @@ func TestDeviceGroupRepositoryDevices_DynamicRuleCaseInsensitiveOperators(t *tes
 	require.Equal(t, int64(2), total)
 	require.Len(t, devices, 2)
 }
-
-

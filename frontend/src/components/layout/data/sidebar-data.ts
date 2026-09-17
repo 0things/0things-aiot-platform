@@ -19,7 +19,6 @@ import {
   Users,
   Layers3,
   MessagesSquare,
-  ShieldCheck,
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
@@ -31,14 +30,12 @@ import {
   Cpu,
   Workflow,
 } from 'lucide-react'
-import { ClerkLogo } from '@/assets/clerk-logo'
 import { type SidebarData } from '../types'
 
 export const getSidebarData = (t: TFunction): SidebarData => ({
   user: {
     name: 'satnaing',
     email: 'satnaingdev@gmail.com',
-    avatar: '/avatars/shadcn.jpg',
   },
   teams: [
     {
@@ -140,55 +137,11 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
             },
           ],
         },
-        {
-          title: 'Secured by Clerk',
-          icon: ClerkLogo,
-          items: [
-            {
-              title: 'Sign In',
-              url: '/clerk/sign-in',
-            },
-            {
-              title: 'Sign Up',
-              url: '/clerk/sign-up',
-            },
-            {
-              title: 'User Management',
-              url: '/clerk/user-management',
-            },
-          ],
-        },
       ],
     },
     {
       title: t('navigation:sidebar.pages'),
       items: [
-        {
-          title: 'Auth',
-          icon: ShieldCheck,
-          items: [
-            {
-              title: t('auth:signIn.title'),
-              url: '/sign-in',
-            },
-            {
-              title: `${t('auth:signIn.title')} (2 Col)`,
-              url: '/sign-in-2',
-            },
-            {
-              title: t('auth:signUp.title'),
-              url: '/sign-up',
-            },
-            {
-              title: t('auth:forgotPassword.title'),
-              url: '/forgot-password',
-            },
-            {
-              title: t('auth:otp.title'),
-              url: '/otp',
-            },
-          ],
-        },
         {
           title: 'Errors',
           icon: Bug,

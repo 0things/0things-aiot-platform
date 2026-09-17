@@ -6,8 +6,17 @@ security:
   api_sign:
     app_key: change-me
     app_security: change-me
-  jwt:
-    key: change-me-to-a-random-secret
+  logto:
+    # Logto issuer is normally http://localhost:3001/oidc.
+    issuer: http://localhost:3001/oidc
+    audience: http://localhost:8000
+    jwks_url: http://localhost:3001/oidc/jwks
+    organization_claim: organization_id
+    management:
+      endpoint: http://localhost:3001
+      app_id: ""
+      app_secret: ""
+      resource: https://default.logto.app/api
   # 端点凭据加密密钥；生产环境必须使用独立随机值。
   device_credentials_key: change-me-to-a-random-device-credentials-key
 data:

@@ -172,4 +172,3 @@ func (s *DeviceGroupService) Preview(ctx context.Context, rule string) ([]model.
 		Rule:      rule,
 	})
 }
-

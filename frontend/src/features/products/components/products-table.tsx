@@ -47,7 +47,7 @@ export function ProductsTable() {
   })
 
   // Extract filter values from appliedFilters (not columnFilters)
-  const category = appliedFilters.find((f) => f.id === 'category')?.value as
+  const category = appliedFilters.find((f) => f.id === 'categoryId')?.value as
     string | undefined
   const status = appliedFilters.find((f) => f.id === 'status')?.value as
     string | undefined
@@ -183,7 +183,7 @@ export function ProductsTable() {
             })),
           },
           {
-            columnId: 'category',
+            columnId: 'categoryId',
             title: 'Category',
             options: categories.map((category) => ({
               label: category.label,

@@ -11,7 +11,7 @@ import (
 type RuleChain struct {
 	ID             int64           `gorm:"column:id;primaryKey" json:"id"`
 	UUID           string          `gorm:"column:uuid;type:varchar(36);not null;uniqueIndex:uk_rule_chains_uuid" json:"uuid"`
-	OrganizationID int64           `gorm:"column:organization_id;not null;index:idx_rule_chains_org" json:"organizationId"`
+	OrganizationID string          `gorm:"column:organization_id;not null;index:idx_rule_chains_org" json:"organizationId"`
 	Name           string          `gorm:"column:name;type:varchar(128);not null" json:"name"`
 	Description    string          `gorm:"column:description;type:text" json:"description"`
 	Status         string          `gorm:"column:status;type:varchar(16);not null;default:draft;index:idx_rule_chains_org_status" json:"status"`

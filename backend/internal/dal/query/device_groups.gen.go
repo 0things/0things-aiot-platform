@@ -29,7 +29,7 @@ func newDeviceGroup(db *gorm.DB, opts ...gen.DOOption) deviceGroup {
 	_deviceGroup.ALL = field.NewAsterisk(tableName)
 	_deviceGroup.ID = field.NewInt64(tableName, "id")
 	_deviceGroup.GroupUUID = field.NewString(tableName, "group_uuid")
-	_deviceGroup.OrganizationID = field.NewInt64(tableName, "organization_id")
+	_deviceGroup.OrganizationID = field.NewString(tableName, "organization_id")
 	_deviceGroup.Name = field.NewString(tableName, "name")
 	_deviceGroup.Type = field.NewString(tableName, "type")
 	_deviceGroup.Description = field.NewString(tableName, "description")
@@ -49,7 +49,7 @@ type deviceGroup struct {
 	ALL            field.Asterisk
 	ID             field.Int64
 	GroupUUID      field.String
-	OrganizationID field.Int64
+	OrganizationID field.String
 	Name           field.String
 	Type           field.String
 	Description    field.String
@@ -75,7 +75,7 @@ func (d *deviceGroup) updateTableName(table string) *deviceGroup {
 	d.ALL = field.NewAsterisk(table)
 	d.ID = field.NewInt64(table, "id")
 	d.GroupUUID = field.NewString(table, "group_uuid")
-	d.OrganizationID = field.NewInt64(table, "organization_id")
+	d.OrganizationID = field.NewString(table, "organization_id")
 	d.Name = field.NewString(table, "name")
 	d.Type = field.NewString(table, "type")
 	d.Description = field.NewString(table, "description")

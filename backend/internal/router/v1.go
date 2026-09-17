@@ -8,8 +8,9 @@ import (
 
 // InitV1Routers registers each independently owned v1 route group.
 func InitV1Routers(deps RouterDeps, r *gin.RouterGroup) {
+	InitOrganizationRouter(deps, r)
 	protected := r.Group("/")
-	protected.Use(middleware.NoStrictAuth(deps.JWT, deps.Logger))
+	protected.Use(middleware.StrictAuth(deps.Logto, deps.Logger))
 	InitCategoryRouter(deps, protected)
 	InitProductRouter(deps, protected)
 	InitProductTSLRouter(deps, protected)

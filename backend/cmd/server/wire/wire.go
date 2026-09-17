@@ -10,10 +10,9 @@ import (
 	"aiot-backend/internal/server"
 	"aiot-backend/internal/service"
 	"aiot-backend/pkg/app"
-	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
+	"aiot-backend/pkg/logto"
 	"aiot-backend/pkg/server/http"
-	"aiot-backend/pkg/sid"
 
 	"0things/pkg/event"
 
@@ -40,16 +39,12 @@ var repositorySet = wire.NewSet(
 	repository.NewProtocolRepository,
 	repository.NewTelemetryRepository,
 	repository.NewTransaction,
-	repository.NewUserRepository,
-	repository.NewOrganizationRepository,
-	repository.NewOrganizationUserRepository,
 	repository.NewRuleNodeDefinitionRepository,
 	repository.NewRuleChainRepository,
 )
 
 var serviceSet = wire.NewSet(
 	service.NewService,
-	service.NewUserService,
 	service.NewProductService,
 	service.NewCategoryService,
 	service.NewProductTSLService,
@@ -66,6 +61,7 @@ var serviceSet = wire.NewSet(
 	provideEventProducer,
 	service.NewRuleNodeDefinitionService,
 	service.NewRuleChainService,
+	service.NewOrganizationProvisioningService,
 	wire.Bind(new(service.ProductServiceInterface), new(*service.ProductService)),
 	wire.Bind(new(service.CategoryServiceInterface), new(*service.CategoryService)),
 	wire.Bind(new(service.ProductTSLServiceInterface), new(*service.ProductTSLService)),
@@ -81,11 +77,11 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.ProtocolServiceInterface), new(*service.ProtocolService)),
 	wire.Bind(new(service.RuleNodeDefinitionServiceInterface), new(*service.RuleNodeDefinitionService)),
 	wire.Bind(new(service.RuleChainServiceInterface), new(*service.RuleChainService)),
+	wire.Bind(new(service.OrganizationProvisioningServiceInterface), new(*service.OrganizationProvisioningService)),
 )
 
 var handlerSet = wire.NewSet(
 	handler.NewHandler,
-	handler.NewUserHandler,
 	handler.NewProductHandler,
 	handler.NewCategoryHandler,
 	handler.NewProductTSLHandler,
@@ -100,10 +96,19 @@ var handlerSet = wire.NewSet(
 	handler.NewTelemetryHandler,
 	handler.NewRuleNodeDefinitionHandler,
 	handler.NewRuleChainHandler,
+	handler.NewOrganizationHandler,
 )
 
 func provideProtocolService(repo *repository.ProtocolRepository, config *viper.Viper) *service.ProtocolService {
 	return service.NewProtocolService(repo, config)
+}
+
+func provideLogtoVerifier(config *viper.Viper) (*logto.Verifier, error) {
+	return logto.NewVerifier(config)
+}
+
+func provideLogtoManagementClient(config *viper.Viper) (*logto.ManagementClient, error) {
+	return logto.NewManagementClient(config)
 }
 
 func provideEventProducer(conf *viper.Viper, logger *log.Logger) (event.Producer, func(), error) {
@@ -141,8 +146,8 @@ func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
 		handlerSet,
 		serverSet,
 		wire.Struct(new(router.RouterDeps), "*"),
-		sid.NewSid,
-		jwt.NewJwt,
+		provideLogtoVerifier,
+		provideLogtoManagementClient,
 		newApp,
 	))
 }

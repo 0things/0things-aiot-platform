@@ -7,6 +7,7 @@ import (
 
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
+	"aiot-backend/internal/tenant"
 
 	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/require"
@@ -20,8 +21,8 @@ func newThingModelDataSvc(t *testing.T) (*ThingModelDataService, *gorm.DB, conte
 	require.NoError(t, db.AutoMigrate(
 		&model.Product{}, &model.Device{}, &model.DeviceState{}, &model.ProductTSL{}, &model.DeviceServiceInvocation{},
 	))
-	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "Test Product", OrganizationID: 1}).Error)
-	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "device-1", Name: "Test Device", ProductID: 1, OrganizationID: 1, Enabled: true}).Error)
+	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "Test Product", OrganizationID: "org-1"}).Error)
+	require.NoError(t, db.Create(&model.Device{ID: 1, DeviceKey: "device-1", Name: "Test Device", ProductID: 1, OrganizationID: "org-1", Enabled: true}).Error)
 
 	productID := int64(1)
 	require.NoError(t, db.Create(&model.ProductTSL{
@@ -35,7 +36,7 @@ func newThingModelDataSvc(t *testing.T) (*ThingModelDataService, *gorm.DB, conte
 	tsls := repository.NewProductTSLRepository(db)
 	svc := NewThingModelDataService(invocations, devices, tsls, nil)
 
-	ctx := context.WithValue(context.Background(), "organization_id", int64(1))
+	ctx := tenant.WithOrganization(context.Background(), "org-1")
 	return svc, db, ctx
 }
 
@@ -62,8 +63,8 @@ func TestThingModelPropertyService_ListErrors(t *testing.T) {
 	require.True(t, errors.Is(err, repository.ErrNotFound))
 
 	productID := int64(2)
-	require.NoError(t, db.Create(&model.Product{ID: 2, ProductKey: "P002", OrganizationID: 1}).Error)
-	require.NoError(t, db.Create(&model.Device{ID: 2, DeviceKey: "device-2", ProductID: 2, OrganizationID: 1}).Error)
+	require.NoError(t, db.Create(&model.Product{ID: 2, ProductKey: "P002", OrganizationID: "org-1"}).Error)
+	require.NoError(t, db.Create(&model.Device{ID: 2, DeviceKey: "device-2", ProductID: 2, OrganizationID: "org-1"}).Error)
 	require.NoError(t, db.Create(&model.ProductTSL{ID: 2, ProductID: &productID, TSL: "not-json"}).Error)
 
 	_, err = svc.ListProperties(ctx, "device-2")

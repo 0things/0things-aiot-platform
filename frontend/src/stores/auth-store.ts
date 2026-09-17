@@ -16,6 +16,8 @@ interface AuthState {
     setUser: (user: AuthUser | null) => void
     accessToken: string
     setAccessToken: (accessToken: string) => void
+    organizationID: string
+    setOrganizationID: (organizationID: string) => void
     resetAccessToken: () => void
     reset: () => void
   }
@@ -30,22 +32,33 @@ export const useAuthStore = create<AuthState>()((set) => {
       setUser: (user) =>
         set((state) => ({ ...state, auth: { ...state.auth, user } })),
       accessToken: initToken,
+      organizationID: '',
       setAccessToken: (accessToken) =>
         set((state) => {
           setCookie(ACCESS_TOKEN, JSON.stringify(accessToken))
           return { ...state, auth: { ...state.auth, accessToken } }
         }),
+      setOrganizationID: (organizationID) =>
+        set((state) => ({ ...state, auth: { ...state.auth, organizationID } })),
       resetAccessToken: () =>
         set((state) => {
           removeCookie(ACCESS_TOKEN)
-          return { ...state, auth: { ...state.auth, accessToken: '' } }
+          return {
+            ...state,
+            auth: { ...state.auth, accessToken: '', organizationID: '' },
+          }
         }),
       reset: () =>
         set((state) => {
           removeCookie(ACCESS_TOKEN)
           return {
             ...state,
-            auth: { ...state.auth, user: null, accessToken: '' },
+            auth: {
+              ...state.auth,
+              user: null,
+              accessToken: '',
+              organizationID: '',
+            },
           }
         }),
     },

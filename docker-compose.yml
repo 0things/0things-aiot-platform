@@ -1,0 +1,246 @@
+networks:
+  0things-net:
+    driver: bridge
+    name: 0things-net
+
+volumes:
+  emqx_data:
+  emqx_log:
+  redis_data:
+  logto_postgres_data:
+
+services:
+  # ==============================================================================
+  # 1. 基础中间件 (Infrastructure)
+  # ==============================================================================
+  nats:
+    image: nats:2.10-alpine
+    container_name: 0things-nats
+    restart: unless-stopped
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - 0things-net
+
+  emqx:
+    image: emqx/emqx:5.8.0
+    container_name: 0things-emqx
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT
+      - "8083:8083"   # WebSocket
+      - "18083:18083" # Dashboard (admin / public)
+    environment:
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
+    volumes:
+      - emqx_data:/opt/emqx/data
+      - emqx_log:/opt/emqx/log
+    networks:
+      - 0things-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: 0things-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - 0things-net
+
+  logto-postgres:
+    image: postgres:17-alpine
+    container_name: 0things-logto-postgres
+    restart: unless-stopped
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${LOGTO_POSTGRES_PASSWORD:-change-me-logto-db-password}
+      POSTGRES_DB: logto
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d logto"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - logto_postgres_data:/var/lib/postgresql/data
+    networks:
+      - 0things-net
+
+  logto:
+    build:
+      context: ./logto
+      dockerfile: Dockerfile
+      args:
+        LOGTO_TAG: ${LOGTO_TAG:-latest}
+    container_name: 0things-logto
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+      - "3002:3002"
+    environment:
+      TRUST_PROXY_HEADER: "1"
+      DB_URL: postgres://postgres:${LOGTO_POSTGRES_PASSWORD:-change-me-logto-db-password}@logto-postgres:5432/logto
+      ENDPOINT: ${LOGTO_ENDPOINT:-http://localhost:3001}
+      ADMIN_ENDPOINT: ${LOGTO_ADMIN_ENDPOINT:-http://localhost:3002}
+      PRIVATE_KEY_ROTATION_GRACE_PERIOD: ${LOGTO_PRIVATE_KEY_ROTATION_GRACE_PERIOD:-}
+      SSRF_ALLOWED_ADDRESSES: ${LOGTO_SSRF_ALLOWED_ADDRESSES:-}
+      SSRF_PROTECTION_DISABLED: ${LOGTO_SSRF_PROTECTION_DISABLED:-}
+      OIDC_PROVIDER_SSRF_PROTECTION_DISABLED: ${LOGTO_OIDC_PROVIDER_SSRF_PROTECTION_DISABLED:-}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/api/status').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      logto-postgres:
+        condition: service_healthy
+    networks:
+      - 0things-net
+
+  # ==============================================================================
+  # 2. 核心后端与微服务 (Core Services)
+  # ==============================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: backend/deploy/build/Dockerfile
+      args:
+        APP_RELATIVE_PATH: ./cmd/server
+    container_name: 0things-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_CONF=config/docker.yml
+    volumes:
+      - ./backend/config:/data/app/config
+      - ./storage:/data/app/storage
+    depends_on:
+      nats:
+        condition: service_started
+      redis:
+        condition: service_started
+      logto:
+        condition: service_healthy
+    networks:
+      - 0things-net
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: backend/deploy/build/Dockerfile
+      args:
+        APP_RELATIVE_PATH: ./cmd/mcp
+    container_name: 0things-mcp-server
+    restart: unless-stopped
+    ports:
+      - "8009:8009"
+    environment:
+      - APP_CONF=config/docker.yml
+    volumes:
+      - ./backend/config:/data/app/config
+      - ./storage:/data/app/storage
+    depends_on:
+      - backend
+      - nats
+    networks:
+      - 0things-net
+
+  data-engine:
+    build:
+      context: .
+      dockerfile: data-engine/deploy/build/Dockerfile
+    container_name: 0things-data-engine
+    restart: unless-stopped
+    environment:
+      - APP_CONF=config/docker.yml
+    volumes:
+      - ./data-engine/config:/data/app/config
+      - ./storage:/data/app/storage
+    depends_on:
+      - nats
+      - redis
+      - backend
+    networks:
+      - 0things-net
+
+  transport-mqtt:
+    build:
+      context: .
+      dockerfile: transport-mqtt/deploy/build/Dockerfile
+    container_name: 0things-transport-mqtt
+    restart: unless-stopped
+    environment:
+      - APP_CONF=config/docker.yml
+    volumes:
+      - ./transport-mqtt/config:/data/app/config
+      - ./storage:/data/app/storage
+    depends_on:
+      - nats
+      - emqx
+    networks:
+      - 0things-net
+
+  transport-http:
+    build:
+      context: .
+      dockerfile: transport-http/deploy/build/Dockerfile
+    container_name: 0things-transport-http
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - APP_CONF=config/docker.yml
+    volumes:
+      - ./transport-http/config:/data/app/config
+      - ./storage:/data/app/storage
+    depends_on:
+      - nats
+    networks:
+      - 0things-net
+
+  # ==============================================================================
+  # 3. AI Copilot 与前端控制台 (AI & Frontend)
+  # ==============================================================================
+  ai-copilot:
+    build:
+      context: .
+      dockerfile: ai-copilot/Dockerfile
+    container_name: 0things-ai-copilot
+    restart: unless-stopped
+    ports:
+      - "8005:8005"
+    env_file:
+      - ./ai-copilot/.env
+    environment:
+      - AI_GATEWAY_PORT=8005
+      - AI_GATEWAY_HOST=0.0.0.0
+      - MCP_STREAMABLE_HTTP_URL=http://mcp-server:8009/mcp
+    depends_on:
+      - mcp-server
+    networks:
+      - 0things-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_LOGTO_ENDPOINT: ${VITE_LOGTO_ENDPOINT:-http://localhost:3001}
+        VITE_LOGTO_APP_ID: ${VITE_LOGTO_APP_ID:-}
+        VITE_LOGTO_RESOURCE: ${VITE_LOGTO_RESOURCE:-http://localhost:8000}
+    container_name: 0things-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+      - "80:80"
+    depends_on:
+      - backend
+      - ai-copilot
+    networks:
+      - 0things-net

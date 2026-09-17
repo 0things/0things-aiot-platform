@@ -16,7 +16,7 @@ func newTagServiceWithSeed(t *testing.T) (*service.DeviceService, context.Contex
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
-	ctx := testutil.ContextWithTenant(context.Background(), 1)
+	ctx := testutil.ContextWithOrganization(context.Background(), "org-1")
 	return svc, ctx
 }
 
