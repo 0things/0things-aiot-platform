@@ -33,10 +33,7 @@ import {
 import { type SidebarData } from '../types'
 
 export const getSidebarData = (t: TFunction): SidebarData => ({
-  user: {
-    name: 'satnaing',
-    email: 'satnaingdev@gmail.com',
-  },
+  user: {},
   teams: [
     {
       name: '0things Admin',
