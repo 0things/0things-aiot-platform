@@ -29,7 +29,7 @@ export const AssistantModal: FC = () => {
       >
         <BorderBeam
           colorVariant='colorful'
-          size='md'
+          size='pulse-inner'
           strength={0.8}
           borderRadius={40}
           className='relative h-full w-full overflow-hidden rounded-[2.5rem] border border-border/80 bg-gradient-to-b from-background/95 via-background/90 to-background/95 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-2xl dark:border-border/40 dark:from-card/95 dark:via-card/90 dark:to-card/95 dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)]'
