@@ -17,7 +17,7 @@ const (
 type DeviceGroup struct {
 	ID             int64          `gorm:"column:id;primaryKey" json:"-"`
 	GroupUUID      string         `gorm:"column:group_uuid;size:36;not null;uniqueIndex" json:"groupUuid"`
-	OrganizationID int64          `gorm:"column:organization_id;not null;index" json:"-"`
+	OrganizationID string         `gorm:"column:organization_id;not null;index" json:"-"`
 	Name           string         `gorm:"column:name;size:128;not null" json:"name"`
 	Type           string         `gorm:"column:type;size:16;not null" json:"type"`
 	Description    string         `gorm:"column:description;type:text" json:"description"`

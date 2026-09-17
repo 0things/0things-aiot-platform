@@ -37,7 +37,7 @@ func newProduct(db *gorm.DB, opts ...gen.DOOption) product {
 	_product.NodeType = field.NewString(tableName, "node_type")
 	_product.ConnectivityMethod = field.NewString(tableName, "connectivity_method")
 	_product.AccessProtocol = field.NewString(tableName, "access_protocol")
-	_product.OrganizationID = field.NewInt64(tableName, "organization_id")
+	_product.OrganizationID = field.NewString(tableName, "organization_id")
 	_product.DeletedAt = field.NewField(tableName, "deleted_at")
 	_product.CreatedAt = field.NewTime(tableName, "created_at")
 	_product.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -61,7 +61,7 @@ type product struct {
 	NodeType           field.String
 	ConnectivityMethod field.String
 	AccessProtocol     field.String
-	OrganizationID     field.Int64
+	OrganizationID     field.String
 	DeletedAt          field.Field
 	CreatedAt          field.Time
 	UpdatedAt          field.Time
@@ -91,7 +91,7 @@ func (p *product) updateTableName(table string) *product {
 	p.NodeType = field.NewString(table, "node_type")
 	p.ConnectivityMethod = field.NewString(table, "connectivity_method")
 	p.AccessProtocol = field.NewString(table, "access_protocol")
-	p.OrganizationID = field.NewInt64(table, "organization_id")
+	p.OrganizationID = field.NewString(table, "organization_id")
 	p.DeletedAt = field.NewField(table, "deleted_at")
 	p.CreatedAt = field.NewTime(table, "created_at")
 	p.UpdatedAt = field.NewTime(table, "updated_at")

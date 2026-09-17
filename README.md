@@ -35,6 +35,7 @@ frontend（React/Vite，:5173）
 - Node.js 与 pnpm
 - `backend` 需要 Go 1.24.10+，`telemetry-service` 需要 Go 1.25+
 - Docker Compose（用于本地 MySQL/Redis 辅助环境）
+- Logto 本地身份服务由根目录 Compose 一起启动
 - 完整运行 API 与遥测功能时，需要可访问的 PostgreSQL、Redis 与 Kafka
 
 ### 1. 配置本地服务
@@ -46,6 +47,12 @@ cd deploy/docker-compose && docker compose up -d
 ```
 
 在 `backend/config/local.yml` 中填写真实的本地连接信息和密钥。根据已获准的环境配置创建 `telemetry-service/configs/config.yaml`，并提供其中的 PostgreSQL、Redis 与 Kafka 设置。这些本地配置文件均被 Git 忽略。
+
+使用根目录 Compose 部署时，前端 Logto 配置从 `frontend/.env.local` 读取：
+
+```bash
+docker compose --env-file .env --env-file frontend/.env.local up -d --build
+```
 
 ### 2. 启动平台
 

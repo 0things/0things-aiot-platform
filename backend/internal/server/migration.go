@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 
 	"go.uber.org/zap"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -39,9 +38,6 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 	}
 
 	if err := m.db.WithContext(ctx).AutoMigrate(
-		&model.User{},
-		&model.Organization{},
-		&model.OrganizationUser{},
 		&model.Product{},
 		&model.Category{},
 		&model.ProductProtocol{},
@@ -84,9 +80,6 @@ func (m *MigrateServer) Stop(ctx context.Context) error {
 
 // seedMigrationDefaults initializes default system metadata during migration.
 func seedMigrationDefaults(ctx context.Context, db *gorm.DB) error {
-	if err := seedDefaultUser(ctx, db); err != nil {
-		return err
-	}
 	if err := seedDefaultCategories(ctx, db); err != nil {
 		return err
 	}
@@ -94,35 +87,6 @@ func seedMigrationDefaults(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 	return nil
-}
-
-// seedDefaultUser creates the same demo account used by cmd/seed when absent.
-func seedDefaultUser(ctx context.Context, db *gorm.DB) error {
-	const (
-		userID = "user_001"
-		email  = "user1@example.com"
-	)
-
-	var existing model.User
-	if err := db.WithContext(ctx).Unscoped().
-		Where("user_id = ? OR email = ?", userID, email).
-		First(&existing).Error; err == nil {
-		return nil
-	} else if err != gorm.ErrRecordNotFound {
-		return err
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("123456"), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	return db.WithContext(ctx).Create(&model.User{
-		UserId:   userID,
-		Nickname: "用户1",
-		Password: string(hashedPassword),
-		Email:    email,
-	}).Error
 }
 
 // seedDefaultCategories populates the category table with default categories when empty.

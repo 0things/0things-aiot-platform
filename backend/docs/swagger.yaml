@@ -1,80 +1,4 @@
 definitions:
-  ApiGetProfileResponseData:
-    properties:
-      email:
-        example: alan@gmail.com
-        type: string
-      nickname:
-        example: alan
-        type: string
-      userId:
-        type: string
-    type: object
-  ApiLoginRequest:
-    properties:
-      email:
-        example: 1234@gmail.com
-        type: string
-      password:
-        example: "123456"
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  ApiLoginResponseData:
-    properties:
-      accessToken:
-        type: string
-    type: object
-  ApiOrganizationItem:
-    properties:
-      id:
-        type: integer
-      is_current:
-        type: boolean
-      name:
-        type: string
-    type: object
-  ApiRegisterRequest:
-    properties:
-      email:
-        example: 1234@gmail.com
-        type: string
-      password:
-        example: "123456"
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  ApiResponse-ApiGetProfileResponseData:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/ApiGetProfileResponseData'
-      message:
-        type: string
-    type: object
-  ApiResponse-ApiLoginResponseData:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/ApiLoginResponseData'
-      message:
-        type: string
-    type: object
-  ApiResponse-ApiSwitchOrgResponseData:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/ApiSwitchOrgResponseData'
-      message:
-        type: string
-    type: object
   ApiResponse-CreateRuleChainResponse:
     properties:
       code:
@@ -507,17 +431,6 @@ definitions:
       message:
         type: string
     type: object
-  ApiResponse-array_ApiOrganizationItem:
-    properties:
-      code:
-        type: integer
-      data:
-        items:
-          $ref: '#/definitions/ApiOrganizationItem'
-        type: array
-      message:
-        type: string
-    type: object
   ApiResponse-array_ProductOption:
     properties:
       code:
@@ -560,37 +473,14 @@ definitions:
       message:
         type: string
     type: object
-  ApiSuccessResponse:
+  ApiResponse-map_string_string:
     properties:
       code:
         type: integer
       data:
-        type: object
+        $ref: '#/definitions/map_string_string'
       message:
         type: string
-    type: object
-  ApiSwitchOrgRequest:
-    properties:
-      org_id:
-        type: integer
-    required:
-    - org_id
-    type: object
-  ApiSwitchOrgResponseData:
-    properties:
-      accessToken:
-        type: string
-    type: object
-  ApiUpdateProfileRequest:
-    properties:
-      email:
-        example: 1234@gmail.com
-        type: string
-      nickname:
-        example: alan
-        type: string
-    required:
-    - email
     type: object
   CreateRuleChainResponse:
     properties:
@@ -1301,7 +1191,7 @@ definitions:
       nodeType:
         type: string
       organizationId:
-        type: integer
+        type: string
       productKey:
         type: string
       protocols:
@@ -1372,7 +1262,7 @@ definitions:
       nodeType:
         type: string
       organizationId:
-        type: integer
+        type: string
       productKey:
         type: string
       protocols:
@@ -1479,7 +1369,7 @@ definitions:
       name:
         type: string
       organizationId:
-        type: integer
+        type: string
       status:
         type: string
       updatedAt:
@@ -1744,6 +1634,10 @@ definitions:
     additionalProperties:
       type: boolean
     type: object
+  map_string_string:
+    additionalProperties:
+      type: string
+    type: object
 host: localhost:8000
 info:
   contact:
@@ -1758,30 +1652,6 @@ info:
   title: Nunu Example API
   version: 1.0.0
 paths:
-  /auth/switch-org:
-    post:
-      consumes:
-      - application/json
-      description: Switches the current organization and returns a new access token.
-      parameters:
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ApiSwitchOrgRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-ApiSwitchOrgResponseData'
-      security:
-      - Bearer: []
-      summary: Switch organization
-      tags:
-      - Users
   /categories/tree:
     get:
       produces:
@@ -2810,45 +2680,20 @@ paths:
       summary: Upload OTA update file
       tags:
       - Files
-  /login:
+  /me/organization:
     post:
-      consumes:
-      - application/json
-      description: Authenticates a user and returns an access token.
-      parameters:
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ApiLoginRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: Successful response
+          description: OK
           schema:
-            $ref: '#/definitions/ApiResponse-ApiLoginResponseData'
-      summary: Log in
-      tags:
-      - Users
-  /organizations:
-    get:
-      consumes:
-      - application/json
-      description: Lists organizations available to the authenticated user.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-array_ApiOrganizationItem'
+            $ref: '#/definitions/ApiResponse-map_string_string'
       security:
       - Bearer: []
-      summary: List user organizations
+      summary: Ensure the current user has a Logto organization
       tags:
-      - Users
+      - Organizations
   /ota-packages:
     get:
       consumes:
@@ -3454,28 +3299,6 @@ paths:
       summary: List product options
       tags:
       - Products
-  /register:
-    post:
-      consumes:
-      - application/json
-      description: Registers user.
-      parameters:
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ApiRegisterRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiSuccessResponse'
-      summary: Register user
-      tags:
-      - Users
   /rule-chains:
     get:
       parameters:
@@ -3611,46 +3434,6 @@ paths:
       summary: List rule node definitions
       tags:
       - Rule node definitions
-  /user:
-    get:
-      consumes:
-      - application/json
-      description: Returns the profile of the authenticated user.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiResponse-ApiGetProfileResponseData'
-      security:
-      - Bearer: []
-      summary: Get user profile
-      tags:
-      - Users
-    put:
-      consumes:
-      - application/json
-      description: Updates the profile of the authenticated user.
-      parameters:
-      - description: params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ApiUpdateProfileRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response
-          schema:
-            $ref: '#/definitions/ApiSuccessResponse'
-      security:
-      - Bearer: []
-      summary: Update user profile
-      tags:
-      - Users
 securityDefinitions:
   Bearer:
     in: header

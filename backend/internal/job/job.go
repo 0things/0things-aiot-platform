@@ -2,7 +2,6 @@ package job
 
 import (
 	"aiot-backend/internal/repository"
-	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
 	"aiot-backend/pkg/sid"
 )
@@ -10,7 +9,6 @@ import (
 type Job struct {
 	logger *log.Logger
 	sid    *sid.Sid
-	jwt    *jwt.JWT
 	tm     repository.Transaction
 }
 

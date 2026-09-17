@@ -9,8 +9,8 @@ import (
 	"aiot-backend/internal/server"
 	"aiot-backend/internal/service"
 	"aiot-backend/pkg/app"
-	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
+	"aiot-backend/pkg/logto"
 	mcptransport "aiot-backend/pkg/server/mcp"
 
 	"github.com/google/wire"
@@ -50,7 +50,7 @@ func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
 	panic(wire.Build(
 		repositorySet,
 		serviceSet,
-		jwt.NewJwt,
+		logto.NewVerifier,
 		handler.NewMCPHandler,
 		server.NewMCPServer,
 		server.NewMCPTransportServer,

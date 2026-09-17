@@ -8,9 +8,10 @@ import (
 
 	v1 "aiot-backend/api/v1"
 	"aiot-backend/internal/handler"
+	"aiot-backend/internal/middleware"
 	"aiot-backend/internal/tenant"
-	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
+	"aiot-backend/pkg/logto"
 	mcptransport "aiot-backend/pkg/server/mcp"
 	nethttp "net/http"
 
@@ -28,7 +29,7 @@ func NewMCPServer(config *viper.Viper, logger *log.Logger, handler *handler.MCPH
 	return server
 }
 
-func NewMCPTransportServer(config *viper.Viper, logger *log.Logger, j *jwt.JWT, server *mcpserver.MCPServer) *mcptransport.Server {
+func NewMCPTransportServer(config *viper.Viper, logger *log.Logger, verifier *logto.Verifier, server *mcpserver.MCPServer) *mcptransport.Server {
 	options := make([]mcptransport.Option, 0, 3)
 	if config.GetBool("mcp.stdio_enabled") {
 		options = append(options, mcptransport.WithStdioSrv())
@@ -45,15 +46,16 @@ func NewMCPTransportServer(config *viper.Viper, logger *log.Logger, j *jwt.JWT, 
 					nethttp.Error(w, "Unauthorized: missing Authorization token", nethttp.StatusUnauthorized)
 					return
 				}
-				claims, err := j.ParseToken(tokenString)
-				if err != nil || claims.OrganizationID <= 0 {
+				claims, err := verifier.Parse(r.Context(), tokenString)
+				organizationID, organizationErr := verifier.OrganizationID(claims)
+				if err != nil || organizationErr != nil {
 					logger.Warn("MCP HTTP request rejected: invalid token", zap.String("path", r.URL.Path), zap.Error(err))
 					nethttp.Error(w, "Unauthorized: invalid or expired token", nethttp.StatusUnauthorized)
 					return
 				}
-				ctx := tenant.WithTenant(r.Context(), claims.OrganizationID)
-				ctx = context.WithValue(ctx, "claims", claims)
-				ctx = context.WithValue(ctx, "user_id", claims.UserId)
+				ctx := tenant.WithOrganization(r.Context(), organizationID)
+				ctx = context.WithValue(ctx, middleware.ClaimsKey, claims)
+				ctx = context.WithValue(ctx, middleware.UserIDKey, claims.Subject)
 				next.ServeHTTP(w, r.WithContext(ctx))
 			})
 		}
@@ -114,12 +116,12 @@ func newHooks(logger *log.Logger) *mcpserver.Hooks {
 	hooks.AddBeforeCallTool(func(ctx context.Context, id any, request *mcp.CallToolRequest) {
 		orgID := tenant.GetOrganizationID(ctx)
 		var userID string
-		if claims, ok := ctx.Value("claims").(*jwt.MyCustomClaims); ok && claims != nil {
-			userID = claims.UserId
+		if claims, ok := ctx.Value(middleware.ClaimsKey).(*logto.Claims); ok && claims != nil {
+			userID = claims.Subject
 		}
 		logger.Info("MCP tool call started",
 			zap.Any("request_id", id),
-			zap.Int64("organization_id", orgID),
+			zap.String("organization_id", orgID),
 			zap.String("user_id", userID),
 			zap.String("tool", request.Params.Name),
 		)
@@ -128,7 +130,7 @@ func newHooks(logger *log.Logger) *mcpserver.Hooks {
 		orgID := tenant.GetOrganizationID(ctx)
 		logger.Info("MCP tool call completed",
 			zap.Any("request_id", id),
-			zap.Int64("organization_id", orgID),
+			zap.String("organization_id", orgID),
 			zap.String("tool", request.Params.Name),
 			zap.Duration("duration", hookDuration(&startedAt, id)),
 		)

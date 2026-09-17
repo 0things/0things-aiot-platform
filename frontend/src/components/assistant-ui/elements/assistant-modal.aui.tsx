@@ -3,6 +3,7 @@ import { AssistantModalPrimitive, useAuiState } from '@assistant-ui/react'
 import { BorderBeam } from 'border-beam'
 import { ChevronDownIcon } from 'lucide-react'
 import { MetalFx } from 'metal-fx'
+import { useTranslation } from 'react-i18next'
 import { ThinkingOrb } from 'thinking-orbs'
 import { Thread } from '@/components/assistant-ui/elements/thread.aui'
 import { TooltipIconButton } from '@/components/assistant-ui/elements/tooltip-icon-button'
@@ -48,7 +49,11 @@ const AssistantModalButton = forwardRef<
   HTMLButtonElement,
   AssistantModalButtonProps
 >(({ 'data-state': state, ...rest }, ref) => {
-  const tooltip = state === 'open' ? 'Close Assistant' : 'Open Assistant'
+  const { t } = useTranslation('aiCopilot')
+  const tooltip =
+    state === 'open'
+      ? t('closeCopilot', { defaultValue: 'Close' })
+      : t('openCopilot', { defaultValue: 'Open AI Copilot' })
   const isRunning = useAuiState((s) => s.thread.isRunning)
 
   return (

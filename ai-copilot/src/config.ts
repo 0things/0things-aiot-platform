@@ -6,7 +6,6 @@ dotenv.config();
 const configSchema = z.object({
   AI_GATEWAY_PORT: z.coerce.number().default(8005),
   AI_GATEWAY_HOST: z.string().default("0.0.0.0"),
-  JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
   AI_MODEL_BASE_URL: z.string().url("AI_MODEL_BASE_URL must be a valid URL"),
   AI_MODEL_API_KEY: z.string().min(1, "AI_MODEL_API_KEY is required"),
   AI_MODEL_ID: z.string().min(1, "AI_MODEL_ID is required"),
@@ -32,7 +31,6 @@ export function getSanitizedConfig(config: GatewayConfig): Record<string, unknow
     AI_MODEL_BASE_URL: config.AI_MODEL_BASE_URL,
     AI_MODEL_ID: config.AI_MODEL_ID,
     MCP_STREAMABLE_HTTP_URL: config.MCP_STREAMABLE_HTTP_URL,
-    JWT_SECRET: "***",
     AI_MODEL_API_KEY: "***",
   };
 }

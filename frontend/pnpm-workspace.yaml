@@ -1,5 +1,4 @@
 allowBuilds:
-  '@clerk/shared': false
   '@nestjs/core': false
   '@swc/core': false
   esbuild: false

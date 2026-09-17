@@ -13,7 +13,7 @@ type OTAPackage struct {
 	PackageName    string         `gorm:"column:package_name"`
 	Version        string         `gorm:"column:version"`
 	ProductID      int64          `gorm:"column:product_id"`
-	OrganizationID int64          `gorm:"column:organization_id;not null;default:1"`
+	OrganizationID string         `gorm:"column:organization_id;not null;index"`
 	ProductKey     string         `gorm:"column:product_key;->" json:"productKey,omitempty"`
 	ProductName    string         `gorm:"column:product_name;->" json:"productName,omitempty"`
 	PackageType    string         `gorm:"column:package_type"`

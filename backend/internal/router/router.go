@@ -2,8 +2,8 @@ package router
 
 import (
 	"aiot-backend/internal/handler"
-	"aiot-backend/pkg/jwt"
 	"aiot-backend/pkg/log"
+	"aiot-backend/pkg/logto"
 
 	"github.com/spf13/viper"
 )
@@ -11,8 +11,7 @@ import (
 type RouterDeps struct {
 	Logger                      *log.Logger
 	Config                      *viper.Viper
-	JWT                         *jwt.JWT
-	UserHandler                 *handler.UserHandler
+	Logto                       *logto.Verifier
 	ProductHandler              *handler.ProductHandler
 	CategoryHandler             *handler.CategoryHandler
 	ProductTSLHandler           *handler.ProductTSLHandler
@@ -27,4 +26,5 @@ type RouterDeps struct {
 	TelemetryHandler            *handler.TelemetryHandler
 	RuleNodeDefinitionHandler   *handler.RuleNodeDefinitionHandler
 	RuleChainHandler            *handler.RuleChainHandler
+	OrganizationHandler         *handler.OrganizationHandler
 }

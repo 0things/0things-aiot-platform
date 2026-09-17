@@ -1,9 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { useGetUser } from '@/api/generated'
-import { useAuthStore } from '@/stores/auth-store'
 import useDialogState from '@/hooks/use-dialog-state'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useUserProfile } from '@/hooks/use-user-profile'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -20,18 +19,7 @@ import { SignOutDialog } from '@/components/sign-out-dialog'
 export function ProfileDropdown() {
   const { t } = useTranslation()
   const [open, setOpen] = useDialogState()
-  const accessToken = useAuthStore((s) => s.auth.accessToken)
-
-  const { data: userProfile } = useGetUser({
-    query: {
-      enabled: !!accessToken,
-    },
-  })
-
-  const nickname = userProfile?.data?.nickname
-  const email = userProfile?.data?.email
-  const displayName = nickname || email || 'User'
-  const initials = (nickname || email || 'U').slice(0, 2).toUpperCase()
+  const { displayName, email, initials } = useUserProfile()
 
   return (
     <>
@@ -39,7 +27,6 @@ export function ProfileDropdown() {
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='relative h-8 w-8 rounded-full'>
             <Avatar className='h-8 w-8'>
-              <AvatarImage src='/avatars/01.png' alt={displayName} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </Button>
@@ -59,26 +46,26 @@ export function ProfileDropdown() {
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
               <Link to='/settings'>
-                Profile
+                {t('profile', { defaultValue: 'Profile' })}
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to='/settings'>
-                Billing
+                {t('billing', { defaultValue: 'Billing' })}
                 <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to='/settings'>
-                Settings
+                {t('settings', { defaultValue: 'Settings' })}
                 <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant='destructive' onClick={() => setOpen(true)}>
-            {t('sidebar.signOut', 'Sign out')}
+            {t('signOut', { defaultValue: 'Sign out' })}
             <DropdownMenuShortcut className='text-current'>
               ⇧⌘Q
             </DropdownMenuShortcut>

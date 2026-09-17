@@ -42,7 +42,7 @@ func TestRuleChainServiceRejectsDuplicateName(t *testing.T) {
 	require.NoError(t, db.AutoMigrate(&model.RuleChain{}))
 
 	svc := NewRuleChainService(repository.NewRuleChainRepository(db))
-	ctx := tenant.WithTenant(context.Background(), 42)
+	ctx := tenant.WithOrganization(context.Background(), "org-42")
 	graph := json.RawMessage(`{"nodes":[{"id":"entry"}],"edges":[]}`)
 	require.NoError(t, svc.Create(ctx, &model.RuleChain{Name: "Same name", Graph: graph}))
 	err = svc.Create(ctx, &model.RuleChain{Name: "Same name", Graph: graph})

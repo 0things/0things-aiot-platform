@@ -6,10 +6,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// Tenant filters the current query by the tenant id resolved from the DB
+// Tenant filters the current query by the organization id resolved from the DB
 // statement's context. The column is resolved as "<table>.organization_id" from the
-// statement's model/table; when undetermined it falls back to "organization_id"
-// (safe for single-table queries). Use it directly with GORM's Scopes:
+// statement's model/table; when undetermined it falls back to "organization_id".
 //
 //	db.Scopes(scope.Tenant).Find(&products)
 func Tenant(db *gorm.DB) *gorm.DB {

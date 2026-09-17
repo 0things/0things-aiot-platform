@@ -24,45 +24,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/switch-org": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Switches the current organization and returns a new access token.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Switch organization",
-                "parameters": [
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ApiSwitchOrgRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-ApiSwitchOrgResponseData"
-                        }
-                    }
-                }
-            }
-        },
         "/categories/tree": {
             "get": {
                 "security": [
@@ -1674,63 +1635,25 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
+        "/me/organization": {
             "post": {
-                "description": "Authenticates a user and returns an access token.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Log in",
-                "parameters": [
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ApiLoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-ApiLoginResponseData"
-                        }
-                    }
-                }
-            }
-        },
-        "/organizations": {
-            "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "Lists organizations available to the authenticated user.",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Organizations"
                 ],
-                "summary": "List user organizations",
+                "summary": "Ensure the current user has a Logto organization",
                 "responses": {
                     "200": {
-                        "description": "Successful response",
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-array_ApiOrganizationItem"
+                            "$ref": "#/definitions/ApiResponse-map_string_string"
                         }
                     }
                 }
@@ -2693,40 +2616,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/register": {
-            "post": {
-                "description": "Registers user.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Register user",
-                "parameters": [
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ApiRegisterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiSuccessResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/rule-chains": {
             "get": {
                 "security": [
@@ -2945,188 +2834,9 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/user": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Returns the profile of the authenticated user.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Get user profile",
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiResponse-ApiGetProfileResponseData"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Updates the profile of the authenticated user.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Update user profile",
-                "parameters": [
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ApiUpdateProfileRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/ApiSuccessResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "ApiGetProfileResponseData": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "alan@gmail.com"
-                },
-                "nickname": {
-                    "type": "string",
-                    "example": "alan"
-                },
-                "userId": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiLoginRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "123456"
-                }
-            }
-        },
-        "ApiLoginResponseData": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiOrganizationItem": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "is_current": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiRegisterRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "123456"
-                }
-            }
-        },
-        "ApiResponse-ApiGetProfileResponseData": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/ApiGetProfileResponseData"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-ApiLoginResponseData": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/ApiLoginResponseData"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiResponse-ApiSwitchOrgResponseData": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "$ref": "#/definitions/ApiSwitchOrgResponseData"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "ApiResponse-CreateRuleChainResponse": {
             "type": "object",
             "properties": {
@@ -3799,23 +3509,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiResponse-array_ApiOrganizationItem": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ApiOrganizationItem"
-                    }
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "ApiResponse-array_ProductOption": {
             "type": "object",
             "properties": {
@@ -3881,52 +3574,17 @@ const docTemplate = `{
                 }
             }
         },
-        "ApiSuccessResponse": {
+        "ApiResponse-map_string_string": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "type": "object"
+                    "$ref": "#/definitions/map_string_string"
                 },
                 "message": {
                     "type": "string"
-                }
-            }
-        },
-        "ApiSwitchOrgRequest": {
-            "type": "object",
-            "required": [
-                "org_id"
-            ],
-            "properties": {
-                "org_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "ApiSwitchOrgResponseData": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                }
-            }
-        },
-        "ApiUpdateProfileRequest": {
-            "type": "object",
-            "required": [
-                "email"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
-                },
-                "nickname": {
-                    "type": "string",
-                    "example": "alan"
                 }
             }
         },
@@ -5007,7 +4665,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "organizationId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "productKey": {
                     "type": "string"
@@ -5115,7 +4773,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "organizationId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "productKey": {
                     "type": "string"
@@ -5280,7 +4938,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "organizationId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -5684,6 +5342,12 @@ const docTemplate = `{
             "type": "object",
             "additionalProperties": {
                 "type": "boolean"
+            }
+        },
+        "map_string_string": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
             }
         }
     },

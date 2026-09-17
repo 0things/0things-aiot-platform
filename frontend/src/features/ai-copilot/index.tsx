@@ -16,5 +16,3 @@ export function AICopilot() {
     </AssistantRuntimeProvider>
   )
 }
-
-export * from './runtime/use-copilot-runtime'

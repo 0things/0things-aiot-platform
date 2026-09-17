@@ -1,6 +1,6 @@
 import http from "node:http";
 import { GatewayConfig } from "./config.js";
-import { verifyAuthToken } from "./auth.js";
+import { extractAuthToken } from "./auth.js";
 import { handleChatRequest } from "./chat.js";
 
 function setCorsHeaders(res: http.ServerResponse) {
@@ -39,7 +39,7 @@ export function createGatewayServer(config: GatewayConfig) {
     if (req.method === "POST" && url.pathname === "/v1/ai/chat") {
       let userContext;
       try {
-        userContext = await verifyAuthToken(req.headers.authorization, config.JWT_SECRET);
+        userContext = extractAuthToken(req.headers.authorization);
       } catch (authErr: any) {
         console.warn(`[${requestId}] Auth failed: ${authErr.message}`);
         res.writeHead(401, { "Content-Type": "application/json" });
@@ -47,9 +47,7 @@ export function createGatewayServer(config: GatewayConfig) {
         return;
       }
 
-      console.info(
-        `[${requestId}] AI chat request started: user=${userContext.userId}, org=${userContext.organizationId}`
-      );
+      console.info(`[${requestId}] AI chat request started`);
 
       // Convert Node IncomingMessage to Web Standard Request
       const chunks: Buffer[] = [];

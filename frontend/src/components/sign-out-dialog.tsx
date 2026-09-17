@@ -1,4 +1,6 @@
-import { useNavigate, useLocation } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
+import { useLogto } from '@logto/react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
@@ -8,18 +10,15 @@ interface SignOutDialogProps {
 }
 
 export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
-  const location = useLocation()
   const { auth } = useAuthStore()
+  const { signOut } = useLogto()
 
   const handleSignOut = () => {
     auth.reset()
-    // Preserve current location for redirect after sign-in
-    const currentPath = location.href
-    navigate({
-      to: '/sign-in',
-      search: { redirect: currentPath },
-      replace: true,
+    void signOut(`${window.location.origin}/`).catch(() => {
+      navigate({ to: '/sign-in', replace: true })
     })
   }
 
@@ -27,9 +26,13 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title='Sign out'
-      desc='Are you sure you want to sign out? You will need to sign in again to access your account.'
-      confirmText='Sign out'
+      title={t('signOutConfirmTitle', { defaultValue: 'Sign out' })}
+      desc={t('signOutConfirmDesc', {
+        defaultValue:
+          'Are you sure you want to sign out? You will need to sign in again to access your account.',
+      })}
+      confirmText={t('signOut', { defaultValue: 'Sign out' })}
+      cancelBtnText={t('cancel', { defaultValue: 'Cancel' })}
       destructive
       handleConfirm={handleSignOut}
       className='sm:max-w-sm'

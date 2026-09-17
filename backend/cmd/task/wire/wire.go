@@ -4,29 +4,14 @@
 package wire
 
 import (
-	"aiot-backend/internal/repository"
 	"aiot-backend/internal/server"
-	"aiot-backend/internal/task"
 	"aiot-backend/pkg/app"
 	"aiot-backend/pkg/log"
-	"aiot-backend/pkg/sid"
 
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
 
-var repositorySet = wire.NewSet(
-	repository.NewDB,
-	repository.NewRepository,
-	repository.NewTransaction,
-	repository.NewUserRepository,
-	repository.NewOTARepository,
-)
-
-var taskSet = wire.NewSet(
-	task.NewTask,
-	task.NewUserTask,
-)
 var serverSet = wire.NewSet(
 	server.NewTaskServer,
 )
@@ -43,10 +28,7 @@ func newApp(
 
 func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
 	panic(wire.Build(
-		repositorySet,
-		taskSet,
 		serverSet,
 		newApp,
-		sid.NewSid,
 	))
 }

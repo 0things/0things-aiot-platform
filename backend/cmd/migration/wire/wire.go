@@ -16,7 +16,6 @@ import (
 var repositorySet = wire.NewSet(
 	repository.NewDB,
 	repository.NewRepository,
-	repository.NewUserRepository,
 )
 var serverSet = wire.NewSet(
 	server.NewMigrateServer,

@@ -7,9 +7,8 @@ import {
   LogOut,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useGetUser } from '@/api/generated'
-import { useAuthStore } from '@/stores/auth-store'
 import useDialogState from '@/hooks/use-dialog-state'
+import { useUserProfile } from '@/hooks/use-user-profile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -40,19 +39,7 @@ export function NavUser({ user }: NavUserProps) {
   const { t } = useTranslation()
   const { isMobile } = useSidebar()
   const [open, setOpen] = useDialogState()
-  const accessToken = useAuthStore((s) => s.auth.accessToken)
-
-  const { data: userProfile } = useGetUser({
-    query: {
-      enabled: !!accessToken,
-    },
-  })
-
-  const nickname = userProfile?.data?.nickname || user?.name
-  const email = userProfile?.data?.email || user?.email
-  const displayName = nickname || email || 'User'
-  const initials = (nickname || email || 'U').slice(0, 2).toUpperCase()
-  const avatarSrc = user?.avatar || '/avatars/01.png'
+  const { displayName, email, initials, avatarSrc } = useUserProfile(user)
 
   return (
     <>
@@ -65,7 +52,9 @@ export function NavUser({ user }: NavUserProps) {
                 className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
               >
                 <Avatar className='h-8 w-8 rounded-lg'>
-                  <AvatarImage src={avatarSrc} alt={displayName} />
+                  {avatarSrc && (
+                    <AvatarImage src={avatarSrc} alt={displayName} />
+                  )}
                   <AvatarFallback className='rounded-lg'>
                     {initials}
                   </AvatarFallback>
@@ -90,7 +79,9 @@ export function NavUser({ user }: NavUserProps) {
               <DropdownMenuLabel className='p-0 font-normal'>
                 <div className='flex items-center gap-2 px-1 py-1.5 text-start text-sm'>
                   <Avatar className='h-8 w-8 rounded-lg'>
-                    <AvatarImage src={avatarSrc} alt={displayName} />
+                    {avatarSrc && (
+                      <AvatarImage src={avatarSrc} alt={displayName} />
+                    )}
                     <AvatarFallback className='rounded-lg'>
                       {initials}
                     </AvatarFallback>

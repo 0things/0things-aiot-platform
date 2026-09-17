@@ -14,7 +14,7 @@ type ListRuleChainsRequest struct {
 
 type RuleChain struct {
 	UUID           string         `json:"uuid"`
-	OrganizationID int64          `json:"organizationId"`
+	OrganizationID string         `json:"organizationId"`
 	Name           string         `json:"name"`
 	Description    string         `json:"description"`
 	Status         string         `json:"status"`

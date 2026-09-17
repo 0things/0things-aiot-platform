@@ -12,7 +12,7 @@ export interface RuleChain {
   description?: string
   graph?: RuleChainGraph
   name?: string
-  organizationId?: number
+  organizationId?: string
   status?: string
   updatedAt?: string
   uuid?: string

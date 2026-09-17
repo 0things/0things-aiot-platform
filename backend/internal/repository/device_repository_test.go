@@ -21,7 +21,7 @@ func TestDeviceRepositories(t *testing.T) {
 	tags := NewDeviceTagRepository(store)
 	shadows := NewDeviceShadowRepository(store)
 	pushRecords := NewPushRecordRepository(store)
-	ctx := context.Background()
+	ctx := tenant.WithOrganization(context.Background(), "org-1")
 
 	require.NoError(t, tags.SetTags(ctx, 11, map[string]string{"region": "cn"}, true))
 	storedTags, err := tags.ListTags(ctx, 11)
@@ -48,14 +48,14 @@ func TestDeviceRepositories(t *testing.T) {
 func TestDeviceRepository_TenantIsolation(t *testing.T) {
 	store := newRepositoryTestDB(t, &model.Product{}, &model.Device{}, &model.DeviceState{})
 	repo := NewDeviceRepository(store, nil)
-	ctx := tenant.WithTenant(context.Background(), 1)
+	ctx := tenant.WithOrganization(tenant.WithOrganization(context.Background(), "org-1"), "org-1")
 
-	product1 := &model.Product{ProductKey: "P001", Name: "Product one", OrganizationID: 1}
-	product2 := &model.Product{ProductKey: "P002", Name: "Product two", OrganizationID: 2}
+	product1 := &model.Product{ProductKey: "P001", Name: "Product one", OrganizationID: "org-1"}
+	product2 := &model.Product{ProductKey: "P002", Name: "Product two", OrganizationID: "org-2"}
 	require.NoError(t, store.Create(product1).Error)
 	require.NoError(t, store.Create(product2).Error)
-	device1 := &model.Device{DeviceKey: "D001", Name: "Tenant one", ProductID: product1.ID, OrganizationID: 1}
-	device2 := &model.Device{DeviceKey: "D002", Name: "Tenant two", ProductID: product2.ID, OrganizationID: 2}
+	device1 := &model.Device{DeviceKey: "D001", Name: "Tenant one", ProductID: product1.ID, OrganizationID: "org-1"}
+	device2 := &model.Device{DeviceKey: "D002", Name: "Tenant two", ProductID: product2.ID, OrganizationID: "org-2"}
 	require.NoError(t, store.Create(device1).Error)
 	require.NoError(t, store.Create(device2).Error)
 	require.NoError(t, store.Create(&model.DeviceState{DeviceKey: device1.DeviceKey, State: "online"}).Error)
@@ -66,7 +66,7 @@ func TestDeviceRepository_TenantIsolation(t *testing.T) {
 	require.EqualValues(t, 1, total)
 	require.Len(t, items, 1)
 
-	items, total, err = repo.List(tenant.WithTenant(ctx, 2), dto.ListDevicesQuery{Page: 1, PageSize: 20, Search: "Tenant"})
+	items, total, err = repo.List(tenant.WithOrganization(ctx, "org-2"), dto.ListDevicesQuery{Page: 1, PageSize: 20, Search: "Tenant"})
 	require.NoError(t, err)
 	require.EqualValues(t, 1, total)
 	require.Len(t, items, 1)
@@ -75,12 +75,12 @@ func TestDeviceRepository_TenantIsolation(t *testing.T) {
 func TestDeviceRepository_FindByKeys_PreloadProduct(t *testing.T) {
 	store := newRepositoryTestDB(t, &model.Product{}, &model.Device{}, &model.DeviceState{})
 	repo := NewDeviceRepository(store, nil)
-	ctx := context.Background()
+	ctx := tenant.WithOrganization(context.Background(), "org-1")
 
-	product := &model.Product{ProductKey: "P_PRELOAD", Name: "Preload Product", OrganizationID: 1, AccessProtocol: "mqtt"}
+	product := &model.Product{ProductKey: "P_PRELOAD", Name: "Preload Product", OrganizationID: "org-1", AccessProtocol: "mqtt"}
 	require.NoError(t, store.Create(product).Error)
 
-	device := &model.Device{DeviceKey: "DEV_PRELOAD_01", Name: "Preload Dev", ProductID: product.ID, OrganizationID: 1}
+	device := &model.Device{DeviceKey: "DEV_PRELOAD_01", Name: "Preload Dev", ProductID: product.ID, OrganizationID: "org-1"}
 	require.NoError(t, store.Create(device).Error)
 
 	devices, err := repo.FindByKeys(ctx, []string{"DEV_PRELOAD_01"})

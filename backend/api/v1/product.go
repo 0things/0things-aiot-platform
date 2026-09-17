@@ -47,7 +47,7 @@ type Product struct {
 	ConnectivityMethod string                 `json:"connectivityMethod"`
 	AccessProtocol     string                 `json:"accessProtocol"`
 	Protocols          []ProductProtocolInput `json:"protocols,omitempty"`
-	OrganizationID     int64                  `json:"organizationId"`
+	OrganizationID     string                 `json:"organizationId"`
 	CreatedAt          time.Time              `json:"createdAt"`
 	UpdatedAt          time.Time              `json:"updatedAt"`
 	DeletedAt          *time.Time             `json:"deletedAt,omitempty"`

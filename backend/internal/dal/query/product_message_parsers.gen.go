@@ -28,7 +28,7 @@ func newProductMessageParser(db *gorm.DB, opts ...gen.DOOption) productMessagePa
 	tableName := _productMessageParser.productMessageParserDo.TableName()
 	_productMessageParser.ALL = field.NewAsterisk(tableName)
 	_productMessageParser.ID = field.NewInt64(tableName, "id")
-	_productMessageParser.OrganizationID = field.NewInt64(tableName, "organization_id")
+	_productMessageParser.OrganizationID = field.NewString(tableName, "organization_id")
 	_productMessageParser.ProductID = field.NewInt64(tableName, "product_id")
 	_productMessageParser.Language = field.NewString(tableName, "language")
 	_productMessageParser.Script = field.NewString(tableName, "script")
@@ -45,7 +45,7 @@ type productMessageParser struct {
 
 	ALL            field.Asterisk
 	ID             field.Int64
-	OrganizationID field.Int64
+	OrganizationID field.String
 	ProductID      field.Int64
 	Language       field.String
 	Script         field.String
@@ -68,7 +68,7 @@ func (p productMessageParser) As(alias string) *productMessageParser {
 func (p *productMessageParser) updateTableName(table string) *productMessageParser {
 	p.ALL = field.NewAsterisk(table)
 	p.ID = field.NewInt64(table, "id")
-	p.OrganizationID = field.NewInt64(table, "organization_id")
+	p.OrganizationID = field.NewString(table, "organization_id")
 	p.ProductID = field.NewInt64(table, "product_id")
 	p.Language = field.NewString(table, "language")
 	p.Script = field.NewString(table, "script")

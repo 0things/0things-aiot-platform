@@ -19,7 +19,7 @@ import (
 )
 
 func ctx2() context.Context {
-	return tenant.WithTenant(context.Background(), 1)
+	return tenant.WithOrganization(context.Background(), "org-1")
 }
 
 func TestIntegrationDeviceService_CreateDevice_InvalidMetadata(t *testing.T) {
@@ -27,7 +27,7 @@ func TestIntegrationDeviceService_CreateDevice_InvalidMetadata(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Bad Meta", ProductID: 1, OrganizationID: 1, Metadata: `"not-valid-json`}
+	device := &model.Device{Name: "Bad Meta", ProductID: 1, OrganizationID: "org-1", Metadata: `"not-valid-json`}
 	_, err := svc.CreateDevice(ctx2(), device)
 	assert.Error(t, err)
 }
@@ -37,7 +37,7 @@ func TestIntegrationDeviceService_CreateDevice_WithValidMetadata(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Good Meta", ProductID: 1, OrganizationID: 1, Metadata: `{"key":"value"}`}
+	device := &model.Device{Name: "Good Meta", ProductID: 1, OrganizationID: "org-1", Metadata: `{"key":"value"}`}
 	result, err := svc.CreateDevice(ctx2(), device)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -48,7 +48,7 @@ func TestIntegrationDeviceService_CreateDevice_WithStringMetadata(t *testing.T) 
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "String Meta", ProductID: 1, OrganizationID: 1, Metadata: `"{\"key\":\"value\"}"`}
+	device := &model.Device{Name: "String Meta", ProductID: 1, OrganizationID: "org-1", Metadata: `"{\"key\":\"value\"}"`}
 	result, err := svc.CreateDevice(ctx2(), device)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -59,7 +59,7 @@ func TestIntegrationDeviceService_CreateDevice_WithCustomKey(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Custom Key", ProductID: 1, OrganizationID: 1, DeviceKey: "CUSTOM001"}
+	device := &model.Device{Name: "Custom Key", ProductID: 1, OrganizationID: "org-1", DeviceKey: "CUSTOM001"}
 	result, err := svc.CreateDevice(ctx2(), device)
 	require.NoError(t, err)
 	assert.Equal(t, "CUSTOM001", result.DeviceKey)
@@ -70,7 +70,7 @@ func TestIntegrationDeviceService_CreateDevice_WrongProduct(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Bad Product", ProductID: 999, OrganizationID: 1}
+	device := &model.Device{Name: "Bad Product", ProductID: 999, OrganizationID: "org-1"}
 	_, err := svc.CreateDevice(ctx2(), device)
 	assert.Error(t, err)
 }
@@ -301,7 +301,7 @@ func TestIntegrationOTAService_Batches_Empty(t *testing.T) {
 	svc := testutil.NewTestOTATotalService(db)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", OrganizationID: "org-1"}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -316,7 +316,7 @@ func TestIntegrationOTAService_Deployments_Empty(t *testing.T) {
 	svc := testutil.NewTestOTATotalService(db)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "firmware-1", Version: "1.0.0", OrganizationID: "org-1"}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -538,7 +538,7 @@ func TestIntegrationOTAService_Get(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestOTATotalService(db)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", OrganizationID: "org-1"}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -568,7 +568,7 @@ func TestIntegrationDeviceService_CreateDevice_ProductNotFound(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Orphan", ProductID: 999, OrganizationID: 1}
+	device := &model.Device{Name: "Orphan", ProductID: 999, OrganizationID: "org-1"}
 	_, err := svc.CreateDevice(ctx2(), device)
 	assert.Error(t, err)
 }
@@ -637,7 +637,7 @@ func TestIntegrationOTAService_FindByName(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestOTATotalService(db)
 
-	pkg := &model.OTAPackage{PackageName: "fw-unique", Version: "1.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-unique", Version: "1.0", OrganizationID: "org-1"}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -991,7 +991,7 @@ func TestIntegrationProductService_Delete_Success(t *testing.T) {
 	svc := service.NewProductService(productRepo)
 
 	// Create a second product with no devices
-	p2 := &model.Product{Name: "No Device Product", ProductKey: "P002", Status: "active", OrganizationID: 1}
+	p2 := &model.Product{Name: "No Device Product", ProductKey: "P002", Status: "active", OrganizationID: "org-1"}
 	err := productRepo.Create(ctx2(), p2)
 	require.NoError(t, err)
 
@@ -1005,7 +1005,7 @@ func TestIntegrationDeviceService_CreateDevice_InvalidLegacyMetadata(t *testing.
 	svc := testutil.NewTestDeviceService(db)
 
 	// valid JSON string wrapping invalid JSON content
-	device := &model.Device{Name: "Legacy Bad", ProductID: 1, OrganizationID: 1, Metadata: `"{\"bad\")"`}
+	device := &model.Device{Name: "Legacy Bad", ProductID: 1, OrganizationID: "org-1", Metadata: `"{\"bad\")"`}
 	_, err := svc.CreateDevice(ctx2(), device)
 	assert.Error(t, err)
 }
@@ -1015,7 +1015,7 @@ func TestIntegrationDeviceService_CreateDevice_InvalidRawMetadata(t *testing.T) 
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "Raw Bad", ProductID: 1, OrganizationID: 1, Metadata: `{bad json}`}
+	device := &model.Device{Name: "Raw Bad", ProductID: 1, OrganizationID: "org-1", Metadata: `{bad json}`}
 	_, err := svc.CreateDevice(ctx2(), device)
 	assert.Error(t, err)
 }
@@ -1025,7 +1025,7 @@ func TestIntegrationDeviceService_CreateDevice_EmptyMetadata(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device := &model.Device{Name: "No Meta", ProductID: 1, OrganizationID: 1, Metadata: ""}
+	device := &model.Device{Name: "No Meta", ProductID: 1, OrganizationID: "org-1", Metadata: ""}
 	result, err := svc.CreateDevice(ctx2(), device)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -1036,7 +1036,7 @@ func TestIntegrationProductService_Create_InvalidLegacyMetadata(t *testing.T) {
 	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
-	product := &model.Product{Name: "Bad Legacy", ProductKey: "P999", Metadata: `"{\"bad\")"`, OrganizationID: 1}
+	product := &model.Product{Name: "Bad Legacy", ProductKey: "P999", Metadata: `"{\"bad\")"`, OrganizationID: "org-1"}
 	_, err := svc.Create(ctx2(), product)
 	assert.Error(t, err)
 }
@@ -1046,7 +1046,7 @@ func TestIntegrationProductService_Create_InvalidRawMetadata(t *testing.T) {
 	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
-	product := &model.Product{Name: "Bad Raw", ProductKey: "P999", Metadata: `{bad}`, OrganizationID: 1}
+	product := &model.Product{Name: "Bad Raw", ProductKey: "P999", Metadata: `{bad}`, OrganizationID: "org-1"}
 	_, err := svc.Create(ctx2(), product)
 	assert.Error(t, err)
 }
@@ -1056,7 +1056,7 @@ func TestIntegrationProductService_Create_EmptyMetadata(t *testing.T) {
 	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
-	product := &model.Product{Name: "No Meta", ProductKey: "P999", Metadata: "", OrganizationID: 1}
+	product := &model.Product{Name: "No Meta", ProductKey: "P999", Metadata: "", OrganizationID: "org-1"}
 	result, err := svc.Create(ctx2(), product)
 	require.NoError(t, err)
 	assert.NotZero(t, result.ID)
@@ -1068,7 +1068,7 @@ func TestIntegrationProductService_Save_InvalidLegacyMetadata(t *testing.T) {
 	productRepo := repository.NewProductRepository(db)
 	svc := service.NewProductService(productRepo)
 
-	product := &model.Product{ID: 1, Name: "Updated", ProductKey: "P001", Metadata: `"{\"bad\")"`, OrganizationID: 1}
+	product := &model.Product{ID: 1, Name: "Updated", ProductKey: "P001", Metadata: `"{\"bad\")"`, OrganizationID: "org-1"}
 	err := svc.Save(ctx2(), product)
 	assert.Error(t, err)
 }
@@ -1104,7 +1104,7 @@ func TestIntegrationOTAService_Create(t *testing.T) {
 	deviceRepo := repository.NewDeviceRepository(db, nil)
 	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
-	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-1", Version: "1.0", OrganizationID: "org-1"}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 }
@@ -1117,7 +1117,7 @@ func TestIntegrationOTAService_Create_ProductNotFound(t *testing.T) {
 	deviceRepo := repository.NewDeviceRepository(db, nil)
 	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
-	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-2", Version: "1.0", OrganizationID: "org-1"}
 	err := svc.Create(ctx2(), pkg, "NONEXIST")
 	assert.Error(t, err)
 }
@@ -1131,7 +1131,7 @@ func TestIntegrationOTAService_Batches(t *testing.T) {
 	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "fw-batches", Version: "1.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-batches", Version: "1.0", OrganizationID: "org-1"}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -1149,7 +1149,7 @@ func TestIntegrationOTAService_Deployments(t *testing.T) {
 	svc := service.NewOTAService(otaRepo, productRepo, deviceRepo, nil)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", OrganizationID: "org-1"}
 	err := svc.Create(ctx2(), pkg, "P001")
 	require.NoError(t, err)
 
@@ -1165,7 +1165,7 @@ func TestIntegrationOTAService_BatchUpgrade(t *testing.T) {
 	svc := testutil.NewTestOTATotalService(db)
 
 	// Create a package first
-	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", OrganizationID: 1}
+	pkg := &model.OTAPackage{PackageName: "fw-deploy", Version: "1.0", OrganizationID: "org-1"}
 	require.NoError(t, svc.Create(ctx2(), pkg, "P001"))
 	require.NotZero(t, pkg.ID)
 
