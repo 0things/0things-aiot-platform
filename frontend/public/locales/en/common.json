@@ -56,5 +56,6 @@
   "switchOrgSuccess": "Switched to organization: {{name}}",
   "switchOrgFailed": "Failed to switch organization",
   "currentOrg": "Current Organization",
-  "noOrganizations": "No organizations"
+  "noOrganizations": "No organizations",
+  "noResults": "No results found"
 }

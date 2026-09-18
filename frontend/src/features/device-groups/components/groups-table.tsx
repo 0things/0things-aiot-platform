@@ -30,7 +30,8 @@ import { type DeviceGroup } from '../data/schema'
 import { useGroupsColumns } from './groups-columns'
 
 export function GroupsTable() {
-  const { t } = useTranslation('deviceGroup')
+  const { t } = useTranslation(['deviceGroup', 'common'])
+  const { t: tCommon } = useTranslation('common')
   const queryClient = useQueryClient()
   const columns = useGroupsColumns()
 
@@ -209,7 +210,7 @@ export function GroupsTable() {
                   colSpan={columns.length}
                   className='h-24 text-center text-muted-foreground'
                 >
-                  {t('noResults')}
+                  {tCommon('noResults')}
                 </TableCell>
               </TableRow>
             ) : (

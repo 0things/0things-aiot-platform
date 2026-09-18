@@ -56,5 +56,6 @@
   "switchOrgSuccess": "已切换到组织: {{name}}",
   "switchOrgFailed": "切换组织失败",
   "currentOrg": "当前组织",
-  "noOrganizations": "暂无组织"
+  "noOrganizations": "暂无组织",
+  "noResults": "未找到结果"
 }
