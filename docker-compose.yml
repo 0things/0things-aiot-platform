@@ -140,6 +140,8 @@ services:
         condition: service_started
       redis:
         condition: service_started
+      tdengine:
+        condition: service_started
       logto:
         condition: service_healthy
     networks:
@@ -181,6 +183,7 @@ services:
       - nats
       - redis
       - backend
+      - tdengine
     networks:
       - 0things-net
 
