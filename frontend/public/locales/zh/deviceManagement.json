@@ -322,7 +322,8 @@
       "description": "确定要删除此TSL吗？此操作无法撤销。"
     },
     "errors": {
-      "jsonParse": "JSON解析错误",
+        "loadFailed": "加载功能定义失败，请稍后重试",
+        "jsonParse": "JSON解析错误",
       "tslValidation": "TSL验证错误",
       "jsonSyntax": "JSON语法错误",
       "identifierRequired": "identifier 不能为空",

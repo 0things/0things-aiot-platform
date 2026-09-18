@@ -322,6 +322,7 @@
         "description": "Are you sure you want to delete this TSL? This action cannot be undone."
       },
       "errors": {
+        "loadFailed": "Failed to load the feature definition. Please try again.",
         "jsonParse": "JSON parse error",
         "tslValidation": "TSL validation error",
         "jsonSyntax": "JSON syntax error",
