@@ -28,7 +28,7 @@ export type ProductListResponse = ProductV1ListProductsResponse
 
 export const productKeys = {
   all: ['products'] as const,
-  lists: () => [...productKeys.all, 'list'] as const,
+  lists: () => getGetProductsQueryKey(),
   list: (params?: GetProductsParams) => getGetProductsQueryKey(params),
   options: () => getGetProductsOptionsQueryKey(),
   details: () => [...productKeys.all, 'detail'] as const,
@@ -87,9 +87,9 @@ export function useCreateProduct() {
   return useMutation({
     mutationFn: (data: ProductV1CreateProductRequest) =>
       postProducts(data as never),
-    onSuccess: () => {
-      // Invalidate all product lists to refetch
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() })
+    onSuccess: async () => {
+      // Wait for the active product list to refetch before the create dialog closes.
+      await queryClient.invalidateQueries({ queryKey: productKeys.lists() })
     },
   })
 }
