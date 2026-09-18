@@ -10,6 +10,7 @@ import (
 	"aiot-backend/internal/tenant"
 
 	"github.com/glebarez/sqlite"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
@@ -25,6 +26,7 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		&model.ProductProtocol{},
 		&model.ProductTSL{},
 		&model.Device{},
+		&model.DeviceCredential{},
 		&model.DeviceState{},
 		&model.DeviceTag{},
 		&model.DeviceShadow{},
@@ -64,7 +66,9 @@ func NewTestRepositories(db *gorm.DB) (*repository.DeviceRepository, *repository
 
 func NewTestDeviceService(db *gorm.DB) *service.DeviceService {
 	deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo := NewTestRepositories(db)
-	return service.NewDeviceService(deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo)
+	config := viper.New()
+	config.Set("security.device_credentials_key", "test-device-credentials-key")
+	return service.NewDeviceService(deviceRepo, productRepo, tagRepo, shadowRepo, pushRepo, config)
 }
 
 func NewTestProductService(db *gorm.DB) *service.ProductService {

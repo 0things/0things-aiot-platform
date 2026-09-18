@@ -45,11 +45,31 @@ func TestDeviceRepository_Create(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO `devices`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("INSERT INTO `device_states`").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO `device_credentials`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
 	device := &model.Device{DeviceKey: "D002", Name: "New Device", ProductID: 1, OrganizationID: "org-1"}
-	err := deviceRepo.Create(ctx, device)
+	credential := &model.DeviceCredential{DeviceUUID: "device-uuid", CredentialType: "mqtt", Username: "mqtt_device-uuid", Password: "hash", Salt: "salt", Enabled: true}
+	err := deviceRepo.Create(ctx, device, credential)
 	assert.NoError(t, err)
+}
+
+func TestDeviceRepository_Create_RollsBackWhenCredentialInsertFails(t *testing.T) {
+	deviceRepo, mock := setupDeviceRepository(t)
+	ctx := context.Background()
+
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT INTO `devices`").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO `device_states`").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO `device_credentials`").WillReturnError(assert.AnError)
+	mock.ExpectRollback()
+
+	err := deviceRepo.Create(ctx,
+		&model.Device{DeviceKey: "D003", Name: "Rollback Device", ProductID: 1, OrganizationID: "org-1"},
+		&model.DeviceCredential{DeviceUUID: "device-uuid-rollback", CredentialType: "mqtt", Username: "mqtt_device-uuid-rollback", Password: "hash", Salt: "salt", Enabled: true},
+	)
+	assert.Error(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
 func TestDeviceRepository_Delete(t *testing.T) {
@@ -57,12 +77,26 @@ func TestDeviceRepository_Delete(t *testing.T) {
 	ctx := context.Background()
 
 	mock.ExpectBegin()
+	mock.ExpectExec("UPDATE `device_credentials` SET `enabled`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("UPDATE `devices` SET `deleted_at`").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
-	device := &model.Device{ID: 1}
+	device := &model.Device{ID: 1, DeviceUUID: "device-uuid"}
 	err := deviceRepo.Delete(ctx, device)
 	assert.NoError(t, err)
+}
+
+func TestDeviceRepository_Delete_RollsBackWhenCredentialDisableFails(t *testing.T) {
+	deviceRepo, mock := setupDeviceRepository(t)
+	ctx := context.Background()
+
+	mock.ExpectBegin()
+	mock.ExpectExec("UPDATE `device_credentials` SET `enabled`").WillReturnError(assert.AnError)
+	mock.ExpectRollback()
+
+	err := deviceRepo.Delete(ctx, &model.Device{ID: 1, DeviceUUID: "device-uuid"})
+	assert.Error(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
 // Skip TestDeviceRepository_SaveEnabled - GORM Save uses upsert which is hard to mock precisely with sqlmock

@@ -3,15 +3,20 @@ package service
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"testing"
 
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
+	"aiot-backend/internal/security"
 	"aiot-backend/internal/tenant"
 
 	"github.com/glebarez/sqlite"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
@@ -22,7 +27,7 @@ func newDeviceSvc(t *testing.T) (*DeviceService, *gorm.DB, context.Context) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(
-		&model.Product{}, &model.ProductProtocol{}, &model.Device{}, &model.DeviceState{}, &model.DeviceTag{},
+		&model.Product{}, &model.ProductProtocol{}, &model.Device{}, &model.DeviceCredential{}, &model.DeviceState{}, &model.DeviceTag{},
 		&model.DeviceShadow{}, &model.DeviceShadowHistory{}, &model.DevicePushRecord{},
 	))
 	require.NoError(t, db.Create(&model.Product{ID: 1, ProductKey: "P001", Name: "Test", OrganizationID: "org-1"}).Error)
@@ -35,29 +40,57 @@ func newDeviceSvc(t *testing.T) (*DeviceService, *gorm.DB, context.Context) {
 		repository.NewDeviceTagRepository(db),
 		repository.NewDeviceShadowRepository(db),
 		repository.NewPushRecordRepository(db),
+		deviceTestConfig(),
 	)
 	return svc, db, tenant.WithOrganization(context.Background(), "org-1")
 }
 
+func deviceTestConfig() *viper.Viper {
+	config := viper.New()
+	config.Set("security.device_credentials_key", "test-device-credentials-key")
+	return config
+}
+
 func TestDeviceService_CreateDevice(t *testing.T) {
-	svc, _, ctx := newDeviceSvc(t)
+	svc, db, ctx := newDeviceSvc(t)
 	d, err := svc.CreateDevice(ctx, &model.Device{Name: "dev", ProductID: 1})
 	require.NoError(t, err)
 	require.NotEmpty(t, d.DeviceKey)
 	_, parseErr := uuid.Parse(d.DeviceKey)
 	require.NoError(t, parseErr)
-}
-
-func TestDeviceService_CreateDevice_InvalidMetadata(t *testing.T) {
-	svc, _, ctx := newDeviceSvc(t)
-	_, err := svc.CreateDevice(ctx, &model.Device{Name: "dev", ProductID: 1, Metadata: "not-json"})
-	require.Error(t, err)
+	require.NotEmpty(t, d.DeviceUUID)
+	var credential model.DeviceCredential
+	require.NoError(t, db.Where("device_uuid = ?", d.DeviceUUID).First(&credential).Error)
+	require.Equal(t, "mqtt", credential.CredentialType)
+	require.Equal(t, d.DeviceUUID, credential.Username)
+	require.NotEmpty(t, credential.Password)
+	require.NotEmpty(t, credential.Salt)
+	require.NotEmpty(t, credential.PasswordCiphertext)
+	plaintext, err := security.DecryptCredentials(credential.PasswordCiphertext, "test-device-credentials-key")
+	require.NoError(t, err)
+	var mqttCredentials map[string]string
+	require.NoError(t, json.Unmarshal([]byte(plaintext), &mqttCredentials))
+	require.Equal(t, credential.Username, mqttCredentials["username"])
+	hash := sha256.Sum256([]byte(mqttCredentials["password"] + credential.Salt))
+	require.Equal(t, hex.EncodeToString(hash[:]), credential.Password)
 }
 
 func TestDeviceService_CreateDevice_ProductNotFound(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
 	_, err := svc.CreateDevice(ctx, &model.Device{Name: "dev", ProductID: 999})
 	require.Error(t, err)
+}
+
+func TestDeviceService_CreateDevice_RequiresCredentialEncryptionKey(t *testing.T) {
+	svc, db, ctx := newDeviceSvc(t)
+	svc.config = viper.New()
+
+	_, err := svc.CreateDevice(ctx, &model.Device{Name: "missing-key", ProductID: 1})
+	require.Error(t, err)
+
+	var deviceCount int64
+	require.NoError(t, db.Model(&model.Device{}).Where("name = ?", "missing-key").Count(&deviceCount).Error)
+	require.Zero(t, deviceCount)
 }
 
 func TestDeviceService_Device(t *testing.T) {
@@ -175,10 +208,17 @@ func TestDeviceService_Telemetry_NoRedis(t *testing.T) {
 }
 
 func TestDeviceService_Delete(t *testing.T) {
-	svc, _, ctx := newDeviceSvc(t)
-	require.NoError(t, svc.DeleteDevice(ctx, 1))
-	_, err := svc.Device(ctx, 1)
+	svc, db, ctx := newDeviceSvc(t)
+	created, err := svc.CreateDevice(ctx, &model.Device{Name: "deletable", ProductID: 1})
+	require.NoError(t, err)
+
+	require.NoError(t, svc.DeleteDevice(ctx, created.ID))
+	_, err = svc.Device(ctx, created.ID)
 	require.Error(t, err)
+
+	var credential model.DeviceCredential
+	require.NoError(t, db.Where("device_uuid = ?", created.DeviceUUID).First(&credential).Error)
+	require.False(t, credential.Enabled)
 }
 
 func TestDeviceService_SimulatePush(t *testing.T) {

@@ -19,6 +19,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                      db,
 		Device:                  newDevice(db, opts...),
+		DeviceCredential:        newDeviceCredential(db, opts...),
 		DeviceEvent:             newDeviceEvent(db, opts...),
 		DeviceGroup:             newDeviceGroup(db, opts...),
 		DeviceGroupMember:       newDeviceGroupMember(db, opts...),
@@ -41,6 +42,7 @@ type Query struct {
 	db *gorm.DB
 
 	Device                  device
+	DeviceCredential        deviceCredential
 	DeviceEvent             deviceEvent
 	DeviceGroup             deviceGroup
 	DeviceGroupMember       deviceGroupMember
@@ -66,6 +68,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
 		Device:                  q.Device.clone(db),
+		DeviceCredential:        q.DeviceCredential.clone(db),
 		DeviceEvent:             q.DeviceEvent.clone(db),
 		DeviceGroup:             q.DeviceGroup.clone(db),
 		DeviceGroupMember:       q.DeviceGroupMember.clone(db),
@@ -96,6 +99,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
 		Device:                  q.Device.replaceDB(db),
+		DeviceCredential:        q.DeviceCredential.replaceDB(db),
 		DeviceEvent:             q.DeviceEvent.replaceDB(db),
 		DeviceGroup:             q.DeviceGroup.replaceDB(db),
 		DeviceGroupMember:       q.DeviceGroupMember.replaceDB(db),
@@ -116,6 +120,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 
 type queryCtx struct {
 	Device                  *deviceDo
+	DeviceCredential        *deviceCredentialDo
 	DeviceEvent             *deviceEventDo
 	DeviceGroup             *deviceGroupDo
 	DeviceGroupMember       *deviceGroupMemberDo
@@ -136,6 +141,7 @@ type queryCtx struct {
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		Device:                  q.Device.WithContext(ctx),
+		DeviceCredential:        q.DeviceCredential.WithContext(ctx),
 		DeviceEvent:             q.DeviceEvent.WithContext(ctx),
 		DeviceGroup:             q.DeviceGroup.WithContext(ctx),
 		DeviceGroupMember:       q.DeviceGroupMember.WithContext(ctx),

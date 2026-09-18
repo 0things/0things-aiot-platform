@@ -3,6 +3,9 @@ package service
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -11,9 +14,11 @@ import (
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
+	"aiot-backend/internal/security"
 	"aiot-backend/internal/tenant"
 
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -52,6 +57,7 @@ type DeviceService struct {
 	tags        *repository.DeviceTagRepository
 	shadows     *repository.DeviceShadowRepository
 	pushRecords *repository.PushRecordRepository
+	config      *viper.Viper
 }
 
 type BatchUploadError struct {
@@ -75,6 +81,7 @@ func NewDeviceService(
 	tags *repository.DeviceTagRepository,
 	shadows *repository.DeviceShadowRepository,
 	pushRecords *repository.PushRecordRepository,
+	config *viper.Viper,
 ) *DeviceService {
 	return &DeviceService{
 		repo:        repo,
@@ -82,43 +89,61 @@ func NewDeviceService(
 		tags:        tags,
 		shadows:     shadows,
 		pushRecords: pushRecords,
+		config:      config,
 	}
-}
-
-func normalizeDeviceMetadata(value string) (string, error) {
-	if len(value) == 0 {
-		return value, nil
-	}
-
-	var legacyString string
-	if json.Unmarshal([]byte(value), &legacyString) == nil {
-		if !json.Valid([]byte(legacyString)) {
-			return "", errors.New("invalid metadata")
-		}
-		return legacyString, nil
-	}
-	if !json.Valid([]byte(value)) {
-		return "", errors.New("invalid metadata")
-	}
-	return value, nil
 }
 
 func (s *DeviceService) CreateDevice(ctx context.Context, d *model.Device) (*model.Device, error) {
-	var err error
-	if d.Metadata, err = normalizeDeviceMetadata(d.Metadata); err != nil {
-		return nil, err
-	}
 	if _, err := s.products.Find(ctx, d.ProductID); err != nil {
 		return nil, err
 	}
 	if d.DeviceKey == "" {
 		d.DeviceKey = uuid.NewString()
 	}
+	d.DeviceUUID = uuid.NewString()
 	d.OrganizationID = tenant.GetOrganizationID(ctx)
-	if err := s.repo.Create(ctx, d); err != nil {
+	credential, err := newDeviceCredential(d.DeviceUUID, s.config.GetString("security.device_credentials_key"))
+	if err != nil {
+		return nil, err
+	}
+	if err := s.repo.Create(ctx, d, credential); err != nil {
 		return nil, err
 	}
 	return s.repo.Find(ctx, d.ID)
+}
+
+func newDeviceCredential(deviceUUID, encryptionKey string) (*model.DeviceCredential, error) {
+	passwordBytes := make([]byte, 32)
+	if _, err := rand.Read(passwordBytes); err != nil {
+		return nil, err
+	}
+	saltBytes := make([]byte, 16)
+	if _, err := rand.Read(saltBytes); err != nil {
+		return nil, err
+	}
+
+	password := hex.EncodeToString(passwordBytes)
+	salt := hex.EncodeToString(saltBytes)
+	hash := sha256.Sum256([]byte(password + salt))
+	username := deviceUUID
+	credentialValue, err := json.Marshal(map[string]string{"username": username, "password": password})
+	if err != nil {
+		return nil, err
+	}
+	ciphertext, err := security.EncryptCredentials(string(credentialValue), encryptionKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.DeviceCredential{
+		DeviceUUID:         deviceUUID,
+		CredentialType:     "mqtt",
+		Username:           username,
+		Password:           hex.EncodeToString(hash[:]),
+		Salt:               salt,
+		PasswordCiphertext: ciphertext,
+		Enabled:            true,
+	}, nil
 }
 func (s *DeviceService) Device(ctx context.Context, id int64) (*model.Device, error) {
 	return s.repo.Find(ctx, id)

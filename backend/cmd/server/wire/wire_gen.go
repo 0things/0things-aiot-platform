@@ -47,7 +47,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	deviceTagRepository := repository.NewDeviceTagRepository(db)
 	deviceShadowRepository := repository.NewDeviceShadowRepository(db)
 	pushRecordRepository := repository.NewPushRecordRepository(db)
-	deviceService := service.NewDeviceService(deviceRepository, productRepository, deviceTagRepository, deviceShadowRepository, pushRecordRepository)
+	deviceService := service.NewDeviceService(deviceRepository, productRepository, deviceTagRepository, deviceShadowRepository, pushRecordRepository, viperViper)
 	deviceHandler := handler.NewDeviceHandler(handlerHandler, deviceService, viperViper)
 	otaRepository := repository.NewOTARepository(db)
 	producer, cleanup, err := provideEventProducer(viperViper, logger)

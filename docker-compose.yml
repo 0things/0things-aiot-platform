@@ -56,9 +56,10 @@ services:
     container_name: 0things-logto-postgres
     restart: unless-stopped
     user: postgres
+    env_file:
+      - ./logto/.env
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${LOGTO_POSTGRES_PASSWORD:-change-me-logto-db-password}
       POSTGRES_DB: logto
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d logto"]
@@ -74,22 +75,15 @@ services:
     build:
       context: ./logto
       dockerfile: Dockerfile
-      args:
-        LOGTO_TAG: ${LOGTO_TAG:-latest}
     container_name: 0things-logto
     restart: unless-stopped
     ports:
       - "3001:3001"
       - "3002:3002"
+    env_file:
+      - ./logto/.env
     environment:
       TRUST_PROXY_HEADER: "1"
-      DB_URL: postgres://postgres:${LOGTO_POSTGRES_PASSWORD:-change-me-logto-db-password}@logto-postgres:5432/logto
-      ENDPOINT: ${LOGTO_ENDPOINT:-http://localhost:3001}
-      ADMIN_ENDPOINT: ${LOGTO_ADMIN_ENDPOINT:-http://localhost:3002}
-      PRIVATE_KEY_ROTATION_GRACE_PERIOD: ${LOGTO_PRIVATE_KEY_ROTATION_GRACE_PERIOD:-}
-      SSRF_ALLOWED_ADDRESSES: ${LOGTO_SSRF_ALLOWED_ADDRESSES:-}
-      SSRF_PROTECTION_DISABLED: ${LOGTO_SSRF_PROTECTION_DISABLED:-}
-      OIDC_PROVIDER_SSRF_PROTECTION_DISABLED: ${LOGTO_OIDC_PROVIDER_SSRF_PROTECTION_DISABLED:-}
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3001/api/status').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 5s
@@ -230,10 +224,6 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-      args:
-        VITE_LOGTO_ENDPOINT: ${VITE_LOGTO_ENDPOINT:-http://localhost:3001}
-        VITE_LOGTO_APP_ID: ${VITE_LOGTO_APP_ID:-}
-        VITE_LOGTO_RESOURCE: ${VITE_LOGTO_RESOURCE:-http://localhost:8000}
     container_name: 0things-frontend
     restart: unless-stopped
     ports:

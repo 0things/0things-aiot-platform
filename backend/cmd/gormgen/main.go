@@ -31,6 +31,7 @@ func main() {
 		model.ProductTSL{},
 		model.ProductMessageParser{},
 		model.DevicePushRecord{},
+		model.DeviceCredential{},
 		model.DeviceGroup{},
 		model.DeviceGroupMember{},
 	)

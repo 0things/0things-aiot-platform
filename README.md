@@ -48,11 +48,13 @@ cd deploy/docker-compose && docker compose up -d
 
 在 `backend/config/local.yml` 中填写真实的本地连接信息和密钥。根据已获准的环境配置创建 `telemetry-service/configs/config.yaml`，并提供其中的 PostgreSQL、Redis 与 Kafka 设置。这些本地配置文件均被 Git 忽略。
 
-使用根目录 Compose 部署时，前端 Logto 配置从 `frontend/.env.local` 读取：
+使用根目录 Compose 部署时，各服务直接读取自己的配置文件：
 
 ```bash
-docker compose --env-file .env --env-file frontend/.env.local up -d --build
+docker compose up -d --build
 ```
+
+前端配置位于 `frontend/.env.local`，Logto 配置位于 `logto/.env`，后端及其他服务配置位于各自的 `config/docker.yml`。
 
 ### 2. 启动平台
 

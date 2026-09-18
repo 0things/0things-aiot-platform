@@ -95,15 +95,16 @@ func (r *DeviceRepository) FindByKeyForEvent(ctx context.Context, key string) (*
 	return item, nil
 }
 
-func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) error {
-	return useQuery(r.db).Transaction(func(tx *query.Query) error {
-		if err := tx.Device.WithContext(ctx).Create(device); err != nil {
+func (r *DeviceRepository) Create(ctx context.Context, device *model.Device, credential *model.DeviceCredential) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		q := useQuery(tx)
+		if err := q.Device.WithContext(ctx).Create(device); err != nil {
 			return err
 		}
-		if err := tx.DeviceState.WithContext(ctx).Create(&model.DeviceState{DeviceKey: device.DeviceKey, State: "inactive"}); err != nil {
+		if err := q.DeviceState.WithContext(ctx).Create(&model.DeviceState{DeviceKey: device.DeviceKey, State: "inactive"}); err != nil {
 			return err
 		}
-		return nil
+		return tx.WithContext(ctx).Create(credential).Error
 	})
 }
 
@@ -174,9 +175,17 @@ func (r *DeviceRepository) Statistics(ctx context.Context) (DeviceStatistics, er
 }
 
 func (r *DeviceRepository) Delete(ctx context.Context, device *model.Device) error {
-	q := useQuery(r.db)
-	_, err := q.Device.WithContext(ctx).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Delete(device)
-	return err
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		q := useQuery(tx)
+		if _, err := q.DeviceCredential.WithContext(ctx).
+			Where(q.DeviceCredential.DeviceUUID.Eq(device.DeviceUUID)).
+			UpdateSimple(q.DeviceCredential.Enabled.Zero()); err != nil {
+			return err
+		}
+
+		_, err := q.Device.WithContext(ctx).Where(q.Device.OrganizationID.Eq(tenant.GetOrganizationID(ctx))).Delete(device)
+		return err
+	})
 }
 
 func (r *DeviceRepository) Telemetry(ctx context.Context, key string) (string, error) {
