@@ -57,5 +57,11 @@
   "switchOrgFailed": "切换组织失败",
   "currentOrg": "当前组织",
   "noOrganizations": "暂无组织",
-  "noResults": "未找到结果"
+  "noResults": "未找到结果",
+  "sidebar": {
+    "account": "账户",
+    "settings": "设置",
+    "notifications": "通知",
+    "signOut": "退出登录"
+  }
 }

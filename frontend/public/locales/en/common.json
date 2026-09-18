@@ -57,5 +57,11 @@
   "switchOrgFailed": "Failed to switch organization",
   "currentOrg": "Current Organization",
   "noOrganizations": "No organizations",
-  "noResults": "No results found"
+  "noResults": "No results found",
+  "sidebar": {
+    "account": "Account",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "signOut": "Sign out"
+  }
 }
