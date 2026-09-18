@@ -66,7 +66,7 @@ const createAxiosInstance = (): AxiosInstance => {
         // eslint-disable-next-line no-console
         console.log(
           `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
-          config.data
+          config.params ?? config.data
         )
       }
 
@@ -93,6 +93,10 @@ const createAxiosInstance = (): AxiosInstance => {
       return response
     },
     (error) => {
+      if (axios.isCancel(error)) {
+        return Promise.reject(error)
+      }
+
       // Handle common error scenarios
       if (error.response) {
         const { status } = error.response
