@@ -8,6 +8,8 @@ volumes:
   emqx_log:
   redis_data:
   logto_postgres_data:
+  tdengine_data:
+  tdengine_log:
 
 services:
   # ==============================================================================
@@ -48,6 +50,25 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - 0things-net
+
+  tdengine:
+    image: tdengine/tsdb:latest
+    container_name: 0things-tdengine
+    restart: unless-stopped
+    ports:
+      - "6030:6030"
+      - "6041:6041"
+      - "6043:6043"
+      - "6060:6060"
+      - "6044-6049:6044-6049"
+      - "6044-6045:6044-6045/udp"
+      - "6050:6050"
+      - "6055:6055"
+    volumes:
+      - tdengine_data:/var/lib/taos
+      - tdengine_log:/var/log/taos
     networks:
       - 0things-net
 
