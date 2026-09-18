@@ -12,6 +12,7 @@
 # Local configuration and credentials
 **/.env
 **/.env.local
+**/.env.production
 **/*.local
 **/*.local.json
 **/config/local.yml
