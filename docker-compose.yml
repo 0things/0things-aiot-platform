@@ -97,6 +97,8 @@ services:
     image: postgres:17-alpine
     container_name: 0things-logto-postgres
     restart: unless-stopped
+    ports:
+      - "5433:5432"
     user: postgres
     environment:
       POSTGRES_USER: postgres

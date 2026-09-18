@@ -112,16 +112,12 @@ func (s *DeviceService) CreateDevice(ctx context.Context, d *model.Device) (*mod
 }
 
 func newDeviceCredential(deviceUUID, encryptionKey string) (*model.DeviceCredential, error) {
-	passwordBytes := make([]byte, 32)
-	if _, err := rand.Read(passwordBytes); err != nil {
-		return nil, err
-	}
+	password := rand.Text()[:10]
 	saltBytes := make([]byte, 16)
 	if _, err := rand.Read(saltBytes); err != nil {
 		return nil, err
 	}
 
-	password := hex.EncodeToString(passwordBytes)
 	salt := hex.EncodeToString(saltBytes)
 	hash := sha256.Sum256([]byte(password + salt))
 	username := deviceUUID
