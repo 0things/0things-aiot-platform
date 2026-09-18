@@ -8,6 +8,7 @@ import (
 
 type Device struct {
 	ID             int64          `gorm:"column:id;primaryKey" json:"id"`
+	DeviceUUID     string         `gorm:"column:device_uuid;size:36;uniqueIndex:idx_devices_device_uuid,where:device_uuid <> ''" json:"deviceUuid"`
 	DeviceKey      string         `gorm:"column:device_key;uniqueIndex" json:"deviceKey"`
 	Name           string         `json:"name"`
 	ProductID      int64          `gorm:"column:product_id" json:"productId"`

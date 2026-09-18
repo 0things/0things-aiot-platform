@@ -45,6 +45,7 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 		&model.ProductMessageParser{},
 		&model.Device{},
 		&model.DeviceEndpoint{},
+		&model.DeviceCredential{},
 		&model.DeviceGroup{},
 		&model.DeviceGroupMember{},
 		&model.DeviceState{},

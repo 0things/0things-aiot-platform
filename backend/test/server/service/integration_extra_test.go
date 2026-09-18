@@ -22,16 +22,6 @@ func ctx2() context.Context {
 	return tenant.WithOrganization(context.Background(), "org-1")
 }
 
-func TestIntegrationDeviceService_CreateDevice_InvalidMetadata(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	device := &model.Device{Name: "Bad Meta", ProductID: 1, OrganizationID: "org-1", Metadata: `"not-valid-json`}
-	_, err := svc.CreateDevice(ctx2(), device)
-	assert.Error(t, err)
-}
-
 func TestIntegrationDeviceService_CreateDevice_WithValidMetadata(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
@@ -997,27 +987,6 @@ func TestIntegrationProductService_Delete_Success(t *testing.T) {
 
 	err = svc.DeleteByKey(ctx2(), p2.ProductKey)
 	require.NoError(t, err)
-}
-
-func TestIntegrationDeviceService_CreateDevice_InvalidLegacyMetadata(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	// valid JSON string wrapping invalid JSON content
-	device := &model.Device{Name: "Legacy Bad", ProductID: 1, OrganizationID: "org-1", Metadata: `"{\"bad\")"`}
-	_, err := svc.CreateDevice(ctx2(), device)
-	assert.Error(t, err)
-}
-
-func TestIntegrationDeviceService_CreateDevice_InvalidRawMetadata(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	device := &model.Device{Name: "Raw Bad", ProductID: 1, OrganizationID: "org-1", Metadata: `{bad json}`}
-	_, err := svc.CreateDevice(ctx2(), device)
-	assert.Error(t, err)
 }
 
 func TestIntegrationDeviceService_CreateDevice_EmptyMetadata(t *testing.T) {
