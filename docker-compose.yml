@@ -7,6 +7,7 @@ volumes:
   emqx_data:
   emqx_log:
   redis_data:
+  postgres_data:
   logto_postgres_data:
   tdengine_data:
   tdengine_log:
@@ -72,15 +73,34 @@ services:
     networks:
       - 0things-net
 
+  postgres:
+    image: postgres:17-alpine
+    container_name: 0things-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: aiot
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aiot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - 0things-net
+
   logto-postgres:
     image: postgres:17-alpine
     container_name: 0things-logto-postgres
     restart: unless-stopped
     user: postgres
-    env_file:
-      - ./logto/.env
     environment:
       POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: change-me-logto-db-password
       POSTGRES_DB: logto
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d logto"]
@@ -120,6 +140,25 @@ services:
   # ==============================================================================
   # 2. 核心后端与微服务 (Core Services)
   # ==============================================================================
+  migration:
+    build:
+      context: .
+      dockerfile: backend/deploy/build/Dockerfile
+      args:
+        APP_RELATIVE_PATH: ./cmd/migration
+    container_name: 0things-migration
+    restart: "no"
+    environment:
+      - APP_CONF=config/docker.yml
+    volumes:
+      - ./backend/config:/data/app/config
+      - ./storage:/data/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - 0things-net
+
   backend:
     build:
       context: .
@@ -136,6 +175,10 @@ services:
       - ./backend/config:/data/app/config
       - ./storage:/data/app/storage
     depends_on:
+      postgres:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
       nats:
         condition: service_started
       redis:
@@ -180,10 +223,16 @@ services:
       - ./data-engine/config:/data/app/config
       - ./storage:/data/app/storage
     depends_on:
-      - nats
-      - redis
-      - backend
-      - tdengine
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+      redis:
+        condition: service_started
+      backend:
+        condition: service_started
+      tdengine:
+        condition: service_started
     networks:
       - 0things-net
 
