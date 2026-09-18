@@ -19,5 +19,5 @@ type ProductTSL struct {
 } //@name ProductTslProductTSL
 
 type GetProductTSLResponse struct {
-	ProductTSL ProductTSL `json:"productTsl"`
+	ProductTSL *ProductTSL `json:"productTsl"`
 } //@name ProductTslGetProductTSLResponse

@@ -55,6 +55,17 @@ func TestThingModelPropertyService_List(t *testing.T) {
 	require.Equal(t, "rw", properties[1].AccessMode)
 }
 
+func TestThingModelPropertyService_ListWithoutTSL(t *testing.T) {
+	svc, db, ctx := newThingModelDataSvc(t)
+
+	require.NoError(t, db.Create(&model.Product{ID: 2, ProductKey: "P002", OrganizationID: "org-1"}).Error)
+	require.NoError(t, db.Create(&model.Device{ID: 2, DeviceKey: "device-2", ProductID: 2, OrganizationID: "org-1"}).Error)
+
+	properties, err := svc.ListProperties(ctx, "device-2")
+	require.NoError(t, err)
+	require.Empty(t, properties)
+}
+
 func TestThingModelPropertyService_ListErrors(t *testing.T) {
 	svc, db, ctx := newThingModelDataSvc(t)
 

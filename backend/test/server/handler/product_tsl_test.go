@@ -80,7 +80,8 @@ func TestProductTSLHandler_Get_NotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.JSONEq(t, `{"code":0,"message":"ok","data":{"productTsl":null}}`, w.Body.String())
 }
 
 func TestProductTSLHandler_Get_InternalError(t *testing.T) {

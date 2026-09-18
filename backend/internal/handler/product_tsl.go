@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	v1 "aiot-backend/api/v1"
+	"aiot-backend/internal/repository"
 	"aiot-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +33,10 @@ func NewProductTSLHandler(h *Handler, svc service.ProductTSLServiceInterface) *P
 // @Router /products/{productKey}/tsl [get]
 func (h *ProductTSLHandler) Get(c *gin.Context) {
 	tsl, err := h.svc.Get(c, c.Param("productKey"))
+	if errors.Is(err, repository.ErrNotFound) {
+		v1.HandleSuccess(c, v1.GetProductTSLResponse{ProductTSL: nil})
+		return
+	}
 	if err != nil {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
@@ -39,7 +45,7 @@ func (h *ProductTSLHandler) Get(c *gin.Context) {
 	if tsl.ProductID != nil {
 		productID = *tsl.ProductID
 	}
-	v1.HandleSuccess(c, v1.GetProductTSLResponse{ProductTSL: v1.ProductTSL{ID: tsl.ID, ProductID: productID, TSL: tsl.TSL, CreatedAt: tsl.CreatedAt, UpdatedAt: tsl.UpdatedAt}})
+	v1.HandleSuccess(c, v1.GetProductTSLResponse{ProductTSL: &v1.ProductTSL{ID: tsl.ID, ProductID: productID, TSL: tsl.TSL, CreatedAt: tsl.CreatedAt, UpdatedAt: tsl.UpdatedAt}})
 }
 
 // Put godoc

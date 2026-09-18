@@ -44,6 +44,9 @@ func (s *ThingModelDataService) ListProperties(ctx context.Context, deviceKey st
 		return nil, err
 	}
 	tsl, err := s.tsls.FindByProductID(ctx, device.ProductID)
+	if errors.Is(err, repository.ErrNotFound) {
+		return []dto.ThingModelProperty{}, nil
+	}
 	if err != nil {
 		return nil, err
 	}
