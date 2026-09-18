@@ -33,7 +33,7 @@ export type DeviceListResponse = DeviceV1ListDevicesResponse
 
 export const deviceKeys = {
   all: ['devices'] as const,
-  lists: () => [...deviceKeys.all, 'list'] as const,
+  lists: () => getGetDevicesQueryKey(),
   list: (params?: GetDevicesParams) => getGetDevicesQueryKey(params),
   details: () => [...deviceKeys.all, 'detail'] as const,
   detail: (deviceKey: string) => getGetDevicesDeviceKeyQueryKey(deviceKey),
@@ -103,8 +103,8 @@ export function useCreateDevice() {
   return useMutation({
     mutationFn: (data: DeviceV1CreateDeviceRequest) =>
       postDevices(data as never),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
     },
   })
 }
