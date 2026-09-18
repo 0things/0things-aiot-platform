@@ -5,7 +5,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"testing"
 
 	"aiot-backend/internal/dto"
@@ -68,10 +67,7 @@ func TestDeviceService_CreateDevice(t *testing.T) {
 	require.NotEmpty(t, credential.PasswordCiphertext)
 	plaintext, err := security.DecryptCredentials(credential.PasswordCiphertext, "test-device-credentials-key")
 	require.NoError(t, err)
-	var mqttCredentials map[string]string
-	require.NoError(t, json.Unmarshal([]byte(plaintext), &mqttCredentials))
-	require.Equal(t, credential.Username, mqttCredentials["username"])
-	hash := sha256.Sum256([]byte(mqttCredentials["password"] + credential.Salt))
+	hash := sha256.Sum256([]byte(plaintext + credential.Salt))
 	require.Equal(t, hex.EncodeToString(hash[:]), credential.Password)
 }
 

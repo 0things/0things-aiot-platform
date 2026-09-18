@@ -406,7 +406,11 @@
     "endpoints": {
       "connectionHint": "Generated per device protocol, ready to copy",
       "protocols": "protocols",
-      "empty": "No access endpoints configured"
+      "empty": "No access endpoints configured",
+      "host": "Host",
+      "port": "Port",
+      "username": "Username",
+      "password": "Password"
     },
     "header": {
       "backToList": "Back to device list",

@@ -24,6 +24,23 @@ func (r *ProtocolRepository) DeviceByKey(ctx context.Context, deviceKey string) 
 	return &device, nil
 }
 
+func (r *ProtocolRepository) DeviceCredentialByUUID(ctx context.Context, deviceUUID string) (*model.DeviceCredential, error) {
+	q := useQuery(r.db)
+	credential, err := q.DeviceCredential.WithContext(ctx).
+		Where(
+			q.DeviceCredential.DeviceUUID.Eq(deviceUUID),
+			q.DeviceCredential.CredentialType.Eq("mqtt"),
+			q.DeviceCredential.Enabled.Is(true),
+		).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return credential, nil
+}
+
 type DeviceEndpointProtocol struct {
 	EndpointID          int64
 	Endpoint            string

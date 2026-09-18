@@ -55,6 +55,11 @@ event:
   nats:
     url: "nats://127.0.0.1:4222"
 
+device_gateway:
+  mqtt:
+    host: mqtt.0things.com
+    port: "1883"
+
 mcp:
   name: 0things-iot-mcp
   version: 0.1.0

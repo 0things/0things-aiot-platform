@@ -5220,22 +5220,16 @@ const docTemplate = `{
         "aiot-backend_api_v1.MQTTEndpoint": {
             "type": "object",
             "properties": {
-                "attributesSubscribeTopic": {
-                    "type": "string"
-                },
-                "attributesTopic": {
-                    "type": "string"
-                },
                 "host": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "port": {
                     "type": "string"
                 },
-                "rpcSubscribeTopic": {
-                    "type": "string"
-                },
-                "telemetryTopic": {
+                "username": {
                     "type": "string"
                 }
             }

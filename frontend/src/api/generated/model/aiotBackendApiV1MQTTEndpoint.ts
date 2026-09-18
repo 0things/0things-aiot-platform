@@ -7,10 +7,8 @@
  */
 
 export interface AiotBackendApiV1MQTTEndpoint {
-  attributesSubscribeTopic?: string
-  attributesTopic?: string
   host?: string
+  password?: string
   port?: string
-  rpcSubscribeTopic?: string
-  telemetryTopic?: string
+  username?: string
 }

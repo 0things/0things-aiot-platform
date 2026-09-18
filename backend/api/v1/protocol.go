@@ -38,12 +38,10 @@ type HTTPEndpoint struct {
 }
 
 type MQTTEndpoint struct {
-	Host                     string `json:"host"`
-	Port                     string `json:"port"`
-	TelemetryTopic           string `json:"telemetryTopic"`
-	AttributesTopic          string `json:"attributesTopic"`
-	AttributesSubscribeTopic string `json:"attributesSubscribeTopic"`
-	RPCSubscribeTopic        string `json:"rpcSubscribeTopic"`
+	Host     string `json:"host"`
+	Port     string `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type CoAPEndpoint struct {

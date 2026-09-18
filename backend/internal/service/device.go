@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"strings"
 	"time"
@@ -126,11 +125,7 @@ func newDeviceCredential(deviceUUID, encryptionKey string) (*model.DeviceCredent
 	salt := hex.EncodeToString(saltBytes)
 	hash := sha256.Sum256([]byte(password + salt))
 	username := deviceUUID
-	credentialValue, err := json.Marshal(map[string]string{"username": username, "password": password})
-	if err != nil {
-		return nil, err
-	}
-	ciphertext, err := security.EncryptCredentials(string(credentialValue), encryptionKey)
+	ciphertext, err := security.EncryptCredentials(password, encryptionKey)
 	if err != nil {
 		return nil, err
 	}

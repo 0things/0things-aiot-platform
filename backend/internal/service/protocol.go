@@ -3,12 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"strings"
 
 	protocolV1 "aiot-backend/api/v1"
 	"aiot-backend/internal/enum"
 	"aiot-backend/internal/repository"
+	"aiot-backend/internal/security"
+
 	"github.com/spf13/viper"
 )
 
@@ -44,25 +45,21 @@ func (s *ProtocolService) ListDeviceEndpoints(ctx context.Context, deviceKey str
 	for _, protocol := range protocols {
 		switch protocol.TransportProtocol {
 		case string(enum.TransportMQTT):
-			broker := s.config.GetString("device_gateway.mqtt.broker")
-			if broker == "" {
-				broker = s.config.GetString("data.mqtt.broker")
-			}
-			parsed, _ := url.Parse(broker)
-			host := parsed.Hostname()
-			port := parsed.Port()
-			if host == "" {
-				host = "127.0.0.1"
-			}
+			host := s.config.GetString("device_gateway.mqtt.host")
+			port := s.config.GetString("device_gateway.mqtt.port")
 			if port == "" {
 				port = "1883"
 			}
+			credential, err := s.repo.DeviceCredentialByUUID(ctx, device.DeviceUUID)
+			if err != nil {
+				return nil, err
+			}
+			plaintext, err := security.DecryptCredentials(credential.PasswordCiphertext, s.config.GetString("security.device_credentials_key"))
+			if err != nil {
+				return nil, fmt.Errorf("decrypt MQTT device credentials: %w", err)
+			}
 			result.MQTT = &protocolV1.MQTTEndpoint{
-				Host: host, Port: port,
-				TelemetryTopic:           fmt.Sprintf("/v1/devices/%s/telemetry", deviceKey),
-				AttributesTopic:          fmt.Sprintf("/v1/devices/%s/attributes", deviceKey),
-				AttributesSubscribeTopic: fmt.Sprintf("/v1/devices/%s/attributes", deviceKey),
-				RPCSubscribeTopic:        fmt.Sprintf("/v1/devices/%s/rpc/request/+", deviceKey),
+				Host: host, Port: port, Username: credential.Username, Password: plaintext,
 			}
 		case string(enum.TransportHTTP):
 			addr := s.config.GetString("device_gateway.http_addr")

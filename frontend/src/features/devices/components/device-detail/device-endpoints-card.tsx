@@ -59,23 +59,29 @@ export function DeviceEndpointsCard({ deviceKey }: { deviceKey: string }) {
                 icon={<Radio className='h-4 w-4' />}
                 tone='violet'
               >
-                <ConnectionRow label='Host' value={connectionData.mqtt.host} />
-                <ConnectionRow label='Port' value={connectionData.mqtt.port} />
                 <ConnectionRow
-                  label='Telemetry Topic'
-                  value={connectionData.mqtt.telemetryTopic}
+                  label={t('deviceDetail.endpoints.host', {
+                    defaultValue: 'Host',
+                  })}
+                  value={connectionData.mqtt.host}
                 />
                 <ConnectionRow
-                  label='Attributes Topic'
-                  value={connectionData.mqtt.attributesTopic}
+                  label={t('deviceDetail.endpoints.port', {
+                    defaultValue: 'Port',
+                  })}
+                  value={connectionData.mqtt.port}
                 />
                 <ConnectionRow
-                  label='Attributes Subscribe Topic'
-                  value={connectionData.mqtt.attributesSubscribeTopic}
+                  label={t('deviceDetail.endpoints.username', {
+                    defaultValue: 'Username',
+                  })}
+                  value={connectionData.mqtt.username}
                 />
                 <ConnectionRow
-                  label='RPC Subscribe Topic'
-                  value={connectionData.mqtt.rpcSubscribeTopic}
+                  label={t('deviceDetail.endpoints.password', {
+                    defaultValue: 'Password',
+                  })}
+                  value={connectionData.mqtt.password}
                 />
               </ProtocolCard>
             )}

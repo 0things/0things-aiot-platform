@@ -8,10 +8,8 @@ export type DeviceEndpoints = {
   mqtt?: {
     host: string
     port: string
-    telemetryTopic: string
-    attributesTopic: string
-    attributesSubscribeTopic: string
-    rpcSubscribeTopic: string
+    username: string
+    password: string
   }
   coap?: { coap: string; docker?: { coap: string }; rpcSubscribe: string }
 }

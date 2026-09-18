@@ -1553,17 +1553,13 @@ definitions:
     type: object
   aiot-backend_api_v1.MQTTEndpoint:
     properties:
-      attributesSubscribeTopic:
-        type: string
-      attributesTopic:
-        type: string
       host:
+        type: string
+      password:
         type: string
       port:
         type: string
-      rpcSubscribeTopic:
-        type: string
-      telemetryTopic:
+      username:
         type: string
     type: object
   aiot-backend_api_v1.PreviewRequest:
