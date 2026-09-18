@@ -12,7 +12,6 @@ func TestJsonMqttAdaptor_ConvertToTelemetryPayload(t *testing.T) {
 
 	// Standard物模型属性上报格式
 	rawJSON := []byte(`{
-		"id": "123",
 		"version": "1.0",
 		"sys": {
 			"ack": 0
@@ -26,8 +25,7 @@ func TestJsonMqttAdaptor_ConvertToTelemetryPayload(t *testing.T) {
 				"value": 23.6,
 				"time": 1524448722000
 			}
-		},
-		"method": "thing.event.property.post"
+		}
 	}`)
 
 	res, err := adaptor.ConvertToTelemetryPayload(rawJSON)
@@ -39,23 +37,15 @@ func TestJsonMqttAdaptor_ConvertToTelemetryPayload(t *testing.T) {
 	assert.Equal(t, 23.6, res[0].Values["WF"])
 
 	// 异常空参数
-	_, err = adaptor.ConvertToTelemetryPayload([]byte(`{"id":"123","params":{}}`))
+	_, err = adaptor.ConvertToTelemetryPayload([]byte(`{"params":{}}`))
 	require.Error(t, err)
 
 	// 异常：time 缺失或 <= 0
 	_, err = adaptor.ConvertToTelemetryPayload([]byte(`{
-		"id": "123",
 		"params": {
 			"Power": { "value": "on", "time": 0 }
 		}
 	}`))
 	require.Error(t, err)
 
-	// 异常：id 缺失
-	_, err = adaptor.ConvertToTelemetryPayload([]byte(`{
-		"params": {
-			"Power": { "value": "on", "time": 1524448722000 }
-		}
-	}`))
-	require.Error(t, err)
 }

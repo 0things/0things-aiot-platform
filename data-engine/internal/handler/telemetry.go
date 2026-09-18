@@ -25,7 +25,7 @@ func (h *TelemetryHandler) HandlePropertyPost(ctx context.Context, msg *event.De
 	if msg == nil {
 		return nil
 	}
-	h.logger.Debug("handling device property post report",
+	h.logger.Debug("handling device property post report from event bus",
 		zap.String("device_key", msg.DeviceKey),
 		zap.String("transport", msg.Transport.String()),
 	)

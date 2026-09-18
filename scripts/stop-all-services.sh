@@ -4,7 +4,7 @@
 # 0things IoT Platform - 一键优雅停止所有服务
 # ==============================================================================
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PID_DIR="$PROJECT_DIR/.service-pids"
 
 RED='\033[0;31m'
@@ -17,6 +17,19 @@ NC='\033[0m'
 echo -e "${BOLD}${YELLOW}🛑 正在优雅停止 0things 所有微服务与前端...${NC}"
 echo ""
 
+process_tree() {
+    local signal="$1"
+    local pid="$2"
+    local child
+
+    while read -r child; do
+        [ -n "$child" ] || continue
+        process_tree "$signal" "$child"
+    done < <(pgrep -P "$pid" 2>/dev/null || true)
+
+    kill -"$signal" "$pid" 2>/dev/null || true
+}
+
 stop_service() {
     local name=$1
     local pid_file="$PID_DIR/${name}.pid"
@@ -25,7 +38,7 @@ stop_service() {
         local pid=$(cat "$pid_file")
         if ps -p "$pid" > /dev/null 2>&1; then
             echo -ne "${BLUE}→ 正在停止 ${name} (PID: ${pid})...${NC} "
-            kill "$pid" 2>/dev/null || true
+            process_tree TERM "$pid"
             
             # 等待最多 5 秒优雅关闭
             local count=0
@@ -36,7 +49,7 @@ stop_service() {
 
             # 强制清理
             if ps -p "$pid" > /dev/null 2>&1; then
-                kill -9 "$pid" 2>/dev/null || true
+                process_tree KILL "$pid"
             fi
             echo -e "${GREEN}✓ 已停止${NC}"
         else
@@ -58,7 +71,7 @@ stop_service "data-engine"
 stop_service "backend"
 
 # 清理空 PID 目录
-rm -rf "$PID_DIR"
+rmdir "$PID_DIR" 2>/dev/null || true
 
 echo ""
 echo -e "${BOLD}${GREEN}✓ 0things 所有服务已成功停止。${NC}"

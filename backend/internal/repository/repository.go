@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"aiot-backend/pkg/log"
@@ -11,8 +10,6 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -138,28 +135,4 @@ func NewRedis(conf *viper.Viper, l *log.Logger) *redis.Client {
 	}
 
 	return rdb
-}
-func NewMongo(conf *viper.Viper) (*mongo.Client, func(), error) {
-	// https://www.mongodb.com/zh-cn/docs/drivers/go/current/
-	uri := conf.GetString("data.mongo.uri")
-	client, err := mongo.Connect(context.TODO(), options.Client().
-		ApplyURI(uri))
-	if err != nil {
-		panic(fmt.Sprintf("mongo client error: %s", err.Error()))
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		panic(fmt.Sprintf("mongo ping error: %s", err.Error()))
-	}
-
-	return client, func() {
-		err = client.Disconnect(ctx)
-		if err != nil {
-			panic(fmt.Sprintf("mongo disconnect error: %s", err.Error()))
-		}
-	}, err
 }

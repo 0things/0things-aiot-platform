@@ -67,5 +67,18 @@ func (s *TelemetryService) Handle(ctx context.Context, msg mqtt.Message) error {
 		zap.Int("records", len(payloads)),
 	)
 
-	return s.eventProducer.Publish(ctx, event.TopicDeviceTelemetryReport, &deviceMsg)
+	if err := s.eventProducer.Publish(ctx, event.TopicDeviceTelemetryReport, &deviceMsg); err != nil {
+		s.logger.Error("failed to publish device telemetry event to event bus",
+			zap.String("topic", string(event.TopicDeviceTelemetryReport)),
+			zap.String("device_key", dk),
+			zap.Error(err),
+		)
+		return err
+	}
+
+	s.logger.Debug("successfully published device telemetry event to event bus",
+		zap.String("topic", string(event.TopicDeviceTelemetryReport)),
+		zap.String("device_key", dk),
+	)
+	return nil
 }

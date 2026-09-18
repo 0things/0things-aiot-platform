@@ -9,7 +9,7 @@ The platform SHALL maintain all event topic names in a dedicated enum type in th
 
 #### Scenario: Valid topic enumeration lookup
 - **WHEN** a service references `TopicOTAUpgradeCommand` or `TopicOTAProgressReport`
-- **THEN** it receives standard versioned string constants `"ota.upgrade.command.v1"` and `"ota.progress.report.v1"` respectively.
+- **THEN** it receives NATS-compatible string constants `"ota-upgrade-command"` and `"ota-progress-report"` respectively.
 
 ### Requirement: Generic Strongly Typed Event Publishing
 The platform SHALL provide a unified `Producer` interface that automatically serializes payloads to JSON and attaches execution context and metadata headers.
@@ -28,4 +28,3 @@ The platform SHALL provide a generic `Subscribe[T](ctx, consumer, topic, handler
 #### Scenario: Handler returns error or panics
 - **WHEN** the handler returns a non-nil error or panics during message processing
 - **THEN** the consumer logs the error/panic, catches the panic, and sends a `Nack` to request message redelivery according to retry policy.
-

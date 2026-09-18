@@ -38,7 +38,7 @@ func TestTopicOTAUpgradeCommandByTransport(t *testing.T) {
 
 func TestTopic_String(t *testing.T) {
 	top := TopicDeviceTelemetryReport
-	if top.String() != "device.telemetry.report.v1" {
+	if top.String() != "device-telemetry-report" {
 		t.Errorf("unexpected String() = %s", top.String())
 	}
 }

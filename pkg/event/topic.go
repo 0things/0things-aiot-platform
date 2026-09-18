@@ -10,16 +10,16 @@ type Topic string
 
 const (
 	// OTA domain events
-	TopicOTAUpgradeCommandMQTT Topic = "ota.upgrade.command.mqtt.v1"
-	TopicOTAUpgradeCommandHTTP Topic = "ota.upgrade.command.http.v1"
-	TopicOTAUpgradeCommand     Topic = "ota.upgrade.command.v1"
-	TopicOTAProgressReport     Topic = "ota.progress.report.v1"
-	TopicOTADeviceInfo         Topic = "ota.device.info.v1"
+	TopicOTAUpgradeCommandMQTT Topic = "ota-upgrade-command-mqtt"
+	TopicOTAUpgradeCommandHTTP Topic = "ota-upgrade-command-http"
+	TopicOTAUpgradeCommand     Topic = "ota-upgrade-command"
+	TopicOTAProgressReport     Topic = "ota-progress-report"
+	TopicOTADeviceInfo         Topic = "ota-device-info"
 
 	// Device uplink & lifecycle domain events
-	TopicDeviceTelemetryReport Topic = "device.telemetry.report.v1"
-	TopicDeviceEventReport     Topic = "device.event.report.v1"
-	TopicDeviceOnlineStatus    Topic = "device.online.status.v1"
+	TopicDeviceTelemetryReport Topic = "device-telemetry-report"
+	TopicDeviceEventReport     Topic = "device-event-report"
+	TopicDeviceOnlineStatus    Topic = "device-online-status"
 )
 
 // TopicOTAUpgradeCommandByTransport returns the protocol-specific OTA upgrade command topic.

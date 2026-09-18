@@ -2,7 +2,11 @@
 .gitignore
 .service-pids
 tmp/
+.opencode/
 storage/
+backend/bin/
+backend/server
+backend/storage/
 node_modules
 dist
 .env

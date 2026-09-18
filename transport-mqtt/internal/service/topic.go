@@ -55,5 +55,18 @@ func publishDeviceMessage(ctx context.Context, producer event.Producer, logger *
 		zap.Int("payload_bytes", len(msg.Payload())),
 	)
 
-	return producer.Publish(ctx, targetTopic, &deviceMsg)
+	if err := producer.Publish(ctx, targetTopic, &deviceMsg); err != nil {
+		logger.Error("failed to publish MQTT "+logCategory+" message to event bus",
+			zap.String("target_topic", string(targetTopic)),
+			zap.String("device_key", deviceKey),
+			zap.Error(err),
+		)
+		return err
+	}
+
+	logger.Debug("successfully published MQTT "+logCategory+" message to event bus",
+		zap.String("target_topic", string(targetTopic)),
+		zap.String("device_key", deviceKey),
+	)
+	return nil
 }

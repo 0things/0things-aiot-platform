@@ -134,7 +134,7 @@ func initTDengineSTable(db *sql.DB, dbName string, logger *zap.Logger) {
 	}
 
 	// 1. 创建数据库
-	createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s KEEP 365 DAYS 10 BLOCKS 6 PRECISION 'ms';", dbName)
+	createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s PRECISION 'ms' KEEP 365 DURATION 10 BUFFER 16;", dbName)
 	if _, err := db.Exec(createDBSQL); err != nil {
 		logger.Warn("TDengine DDL create database note (may already exist or connecting)", zap.Error(err))
 	}

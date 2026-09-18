@@ -11,6 +11,7 @@ volumes:
   logto_postgres_data:
   tdengine_data:
   tdengine_log:
+  nats_data:
 
 services:
   # ==============================================================================
@@ -20,9 +21,12 @@ services:
     image: nats:2.10-alpine
     container_name: 0things-nats
     restart: unless-stopped
+    command: ["-js", "-sd", "/data"]
     ports:
       - "4222:4222"
       - "8222:8222"
+    volumes:
+      - nats_data:/data
     networks:
       - 0things-net
 

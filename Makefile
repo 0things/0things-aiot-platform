@@ -2,11 +2,11 @@
 
 # 一键启动所有微服务与前端
 start:
-	@bash ./start-all-services.sh
+	@bash ./scripts/start-all-services.sh
 
 # 一键优雅停止所有服务
 stop:
-	@bash ./stop-all-services.sh
+	@bash ./scripts/stop-all-services.sh
 
 # 一键重启所有服务
 restart: stop start
