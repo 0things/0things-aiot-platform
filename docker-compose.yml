@@ -259,24 +259,6 @@ services:
     networks:
       - 0things-net
 
-  transport-http:
-    build:
-      context: .
-      dockerfile: transport-http/deploy/build/Dockerfile
-    container_name: 0things-transport-http
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-    environment:
-      - APP_CONF=config/docker.yml
-    volumes:
-      - ./transport-http/config:/data/app/config
-      - ./storage:/data/app/storage
-    depends_on:
-      - nats
-    networks:
-      - 0things-net
-
   # ==============================================================================
   # 3. AI Copilot 与前端控制台 (AI & Frontend)
   # ==============================================================================

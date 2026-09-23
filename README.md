@@ -44,14 +44,15 @@
         │                        │              └─────────────────┘
         │                        │
 ┌───────▼────────┐     ┌─────────▼─────────┐
-│ data-engine     │     │ transport-http   │ :8081
-│ 计算与任务中心   │     │ HTTP 设备网关     │
-└───────┬────────┘     └──────────────────┘
-        │
-┌───────▼────────┐     ┌──────────────────┐
-│ transport-mqtt │     │ EMQX :1883       │
-│ MQTT 设备网关   │────▶│ MQTT Broker      │
-└────────────────┘     └──────────────────┘
+│ data-engine     │
+│ 计算与任务中心   │
+└───────┬────────┘
+        │             ┌──────────────────┐
+        │             │ MQTT Broker      │
+┌───────▼────────┐    │ EMQX :1883       │
+│ transport-mqtt │────▶│                  │
+│ MQTT 设备网关   │    │                  │
+└────────────────┘    └──────────────────┘
 
        NATS :4222 · Redis :6379 · Logto :3001/:3002 · SQLite / MySQL / PostgreSQL
 ```
@@ -76,7 +77,6 @@ cp logto/.env.example logto/.env
 cp ai-copilot/.env.example ai-copilot/.env
 cp backend/config/config.example.yml backend/config/docker.yml
 cp data-engine/config/config.example.yml data-engine/config/docker.yml
-cp transport-http/config/config.example.yml transport-http/config/docker.yml
 cp transport-mqtt/config/config.example.yml transport-mqtt/config/docker.yml
 ```
 
@@ -137,7 +137,6 @@ cd backend && go run ./cmd/migration -conf ./config/local.yml
 ```bash
 cd backend && go run ./cmd/server -conf ./config/local.yml
 cd data-engine && go run ./cmd/server -conf ./config/local.yml
-cd transport-http && go run ./cmd/server -conf ./config/local.yml
 cd transport-mqtt && go run ./cmd/server -conf ./config/local.yml
 cd backend && go run ./cmd/mcp -conf ./config/local.yml
 cd ai-copilot && pnpm install && pnpm dev
@@ -193,7 +192,6 @@ make mock-alarm
 | [`frontend/`](./frontend) | React 管理控制台，包含设备、产品、规则、告警、组织和 AI Copilot 页面 |
 | [`backend/`](./backend) | Gin REST API、认证、业务服务、数据库迁移和 MCP Server |
 | [`data-engine/`](./data-engine) | 遥测时序数据、设备影子、任务和数据计算服务 |
-| [`transport-http/`](./transport-http) | HTTP 设备接入网关 |
 | [`transport-mqtt/`](./transport-mqtt) | MQTT 设备接入、事件和 OTA 消息处理 |
 | [`ai-copilot/`](./ai-copilot) | 基于 OpenAI-compatible 模型和 MCP 的 AI Gateway |
 | [`pkg/event/`](./pkg/event) | 事件总线抽象与 NATS/Watermill 集成 |

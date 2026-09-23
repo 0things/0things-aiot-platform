@@ -65,7 +65,6 @@ stop_service() {
 stop_service "frontend"
 stop_service "ai-copilot"
 stop_service "mcp-server"
-stop_service "transport-http"
 stop_service "transport-mqtt"
 stop_service "data-engine"
 stop_service "backend"

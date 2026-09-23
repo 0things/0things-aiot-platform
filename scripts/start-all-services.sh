@@ -152,7 +152,6 @@ echo
 start_service "backend" "$PROJECT_DIR/backend" 8000 go run ./cmd/server -conf config/local.yml
 start_service "data-engine" "$PROJECT_DIR/data-engine" "" go run ./cmd/server -conf config/local.yml
 start_service "transport-mqtt" "$PROJECT_DIR/transport-mqtt" "" go run ./cmd/server -conf config/local.yml
-start_service "transport-http" "$PROJECT_DIR/transport-http" 8081 go run ./cmd/server -conf config/local.yml
 start_service "mcp-server" "$PROJECT_DIR/backend" 8009 go run ./cmd/mcp -conf config/local.yml
 
 if [ -d "$PROJECT_DIR/ai-copilot" ]; then

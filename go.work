@@ -6,6 +6,5 @@ use (
 	./pkg/event
 	./pkg/protocol
 	./pkg/tsdb
-	./transport-http
 	./transport-mqtt
 )
