@@ -1,0 +1,55 @@
+{{- if .Values.logto.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "logto") | nindent 4 }}
+spec:
+  replicas: {{ .Values.logto.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "logto") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "logto") | nindent 8 }}
+      annotations:
+        checksum/config: {{ toJson (dict "publicUrls" .Values.global.publicUrls "database" .Values.logtoPostgres.auth) | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: logto
+          image: "{{ .Values.logto.image.repository }}:{{ .Values.logto.image.tag }}"
+          imagePullPolicy: {{ .Values.logto.image.pullPolicy }}
+          command: ["sh", "-c"]
+          args:
+            - npm run cli db seed -- --swe && exec npm start
+          envFrom:
+            - secretRef:
+                name: {{ default (include "0things.componentName" (dict "root" . "component" "logto")) .Values.logto.existingSecret }}
+          env:
+            - name: TRUST_PROXY_HEADER
+              value: "1"
+          ports:
+            - name: app
+              containerPort: {{ .Values.logto.service.appPort }}
+            - name: admin
+              containerPort: {{ .Values.logto.service.adminPort }}
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: app
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: app
+            initialDelaySeconds: 45
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.logto.resources | nindent 12 }}
+{{- end }}

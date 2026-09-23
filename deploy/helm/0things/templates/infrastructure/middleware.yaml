@@ -1,0 +1,306 @@
+{{- if .Values.redis.enabled }}
+{{- $name := include "0things.componentName" (dict "root" . "component" "redis") }}
+{{- $secret := include "0things.secretName" (dict "root" . "component" "redis" "create" .Values.redis.auth.create "existingSecret" .Values.redis.auth.existingSecret "valuePath" "redis.auth") }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "redis") | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ $name }}
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "redis") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "redis") | nindent 8 }}
+      annotations:
+        checksum/auth: {{ toJson .Values.redis.auth | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: redis
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ $secret }}
+          command: ["sh", "-c"]
+          args:
+            - exec redis-server --appendonly yes {{ if .Values.redis.auth.password }}--requirepass "$REDIS_PASSWORD"{{ end }}
+          ports:
+            - name: redis
+              containerPort: {{ .Values.redis.service.port }}
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "redis-cli {{ if .Values.redis.auth.password }}-a \"$REDIS_PASSWORD\"{{ end }} ping | grep PONG"]
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.redis.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      {{- if not .Values.redis.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.redis.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.redis.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.redis.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.redis.persistence.size }}
+  {{- end }}
+---
+{{- end }}
+{{- if .Values.nats.enabled }}
+{{- $name := include "0things.componentName" (dict "root" . "component" "nats") }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "nats") | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ $name }}
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "nats") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "nats") | nindent 8 }}
+      annotations:
+        checksum/auth: {{ toJson .Values.nats.auth | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: nats
+          image: "{{ .Values.nats.image.repository }}:{{ .Values.nats.image.tag }}"
+          imagePullPolicy: {{ .Values.nats.image.pullPolicy }}
+          {{- if .Values.nats.auth.enabled }}
+          envFrom:
+            - secretRef:
+                name: {{ include "0things.secretName" (dict "root" . "component" "nats" "create" .Values.nats.auth.create "existingSecret" .Values.nats.auth.existingSecret "valuePath" "nats.auth") }}
+          command: ["sh", "-c"]
+          args:
+            - exec nats-server -js -sd /data -m {{ .Values.nats.service.monitorPort }} --user "$NATS_USERNAME" --pass "$NATS_PASSWORD"
+          {{- else }}
+          args: ["-js", "-sd", "/data", "-m", {{ .Values.nats.service.monitorPort | quote }}]
+          {{- end }}
+          ports:
+            - name: client
+              containerPort: {{ .Values.nats.service.clientPort }}
+            - name: monitor
+              containerPort: {{ .Values.nats.service.monitorPort }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: monitor
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: client
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.nats.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      {{- if not .Values.nats.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.nats.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.nats.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.nats.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.nats.persistence.size }}
+  {{- end }}
+---
+{{- end }}
+{{- if .Values.emqx.enabled }}
+{{- $name := include "0things.componentName" (dict "root" . "component" "emqx") }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "emqx") | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ $name }}
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "emqx") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "emqx") | nindent 8 }}
+      annotations:
+        checksum/auth: {{ toJson .Values.emqx.dashboard | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: emqx
+          image: "{{ .Values.emqx.image.repository }}:{{ .Values.emqx.image.tag }}"
+          imagePullPolicy: {{ .Values.emqx.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ include "0things.secretName" (dict "root" . "component" "emqx" "create" .Values.emqx.dashboard.create "existingSecret" .Values.emqx.dashboard.existingSecret "valuePath" "emqx.dashboard") }}
+          ports:
+            - name: mqtt
+              containerPort: {{ .Values.emqx.service.mqttPort }}
+            - name: websocket
+              containerPort: {{ .Values.emqx.service.websocketPort }}
+            - name: dashboard
+              containerPort: {{ .Values.emqx.service.dashboardPort }}
+          readinessProbe:
+            tcpSocket:
+              port: mqtt
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["/opt/emqx/bin/emqx", "ctl", "status"]
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.emqx.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /opt/emqx/data
+      {{- if not .Values.emqx.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.emqx.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.emqx.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.emqx.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.emqx.persistence.size }}
+  {{- end }}
+---
+{{- end }}
+{{- if .Values.tdengine.enabled }}
+{{- $name := include "0things.componentName" (dict "root" . "component" "tdengine") }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "tdengine") | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ $name }}
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "tdengine") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "tdengine") | nindent 8 }}
+      annotations:
+        checksum/auth: {{ toJson .Values.tdengine.auth | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: tdengine
+          image: "{{ .Values.tdengine.image.repository }}:{{ .Values.tdengine.image.tag }}"
+          imagePullPolicy: {{ .Values.tdengine.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ include "0things.secretName" (dict "root" . "component" "tdengine" "create" .Values.tdengine.auth.create "existingSecret" .Values.tdengine.auth.existingSecret "valuePath" "tdengine.auth") }}
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - sh
+                  - -ec
+                  - |
+                    until taos -u root -ptaosdata -s "SELECT SERVER_VERSION();" >/dev/null 2>&1 || taos -u "$TAOS_USER" -p"$TAOS_PASSWORD" -s "SELECT SERVER_VERSION();" >/dev/null 2>&1; do sleep 2; done
+                    taos -u root -ptaosdata -s "ALTER USER root PASS '$TAOS_PASSWORD';" >/dev/null 2>&1 || true
+                    taos -u "$TAOS_USER" -p"$TAOS_PASSWORD" -s "CREATE DATABASE IF NOT EXISTS $TAOS_DATABASE;"
+          ports:
+            - name: native
+              containerPort: {{ .Values.tdengine.service.nativePort }}
+            - name: websocket
+              containerPort: {{ .Values.tdengine.service.websocketPort }}
+          readinessProbe:
+            tcpSocket:
+              port: websocket
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: native
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.tdengine.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/taos
+            - name: log
+              mountPath: /var/log/taos
+      {{- if not .Values.tdengine.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: log
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.tdengine.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.tdengine.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.tdengine.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.tdengine.persistence.dataSize }}
+    - metadata:
+        name: log
+      spec:
+        accessModes:
+          {{- toYaml .Values.tdengine.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.tdengine.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.tdengine.persistence.logSize }}
+  {{- end }}
+{{- end }}

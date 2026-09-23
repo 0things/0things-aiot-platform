@@ -1,0 +1,26 @@
+0things {{ .Chart.AppVersion }} has been rendered for the {{ .Values.global.environment }} environment.
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+{{- if and .Values.ingress.enabled .Values.frontend.enabled }}
+Frontend:
+{{- if .Values.ingress.frontend.host }}
+  {{ ternary "https" "http" (ne .Values.ingress.frontend.tlsSecret "") }}://{{ .Values.ingress.frontend.host }}{{ .Values.ingress.frontend.path }}
+{{- else }}
+  Use the address of your ingress controller with path {{ .Values.ingress.frontend.path }}.
+{{- end }}
+{{- else if .Values.frontend.enabled }}
+Frontend ingress is disabled. For temporary access:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "0things.componentName" (dict "root" . "component" "frontend") }} 8080:{{ .Values.frontend.service.port }}
+  open http://127.0.0.1:8080
+{{- end }}
+
+{{- if .Values.emqx.enabled }}
+MQTT service: {{ include "0things.componentName" (dict "root" . "component" "emqx") }}:{{ .Values.emqx.service.mqttPort }} ({{ .Values.emqx.service.type }})
+{{- end }}
+
+Important:
+  - This chart does not run application database migrations. Prepare the required schema before installation or upgrade.
+  - Replace every change-me-* value in production before deployment.
+  - Changing a password Secret does not change credentials inside an already initialized database.

@@ -1,6 +1,6 @@
 ## 1. Logto deployment
 
-- [x] 1.1 将 Logto Dockerfile、专用 PostgreSQL、持久化卷和共享 Docker 网络纳入根目录 Compose，并用 `docker-compose config` 验证配置
+- [x] 1.1 将 Logto Dockerfile、专用 PostgreSQL、持久化卷和 Service 纳入平台 Helm Chart，并用 `helm lint` 与 `helm template` 验证配置
 - [ ] 1.2 配置开发环境 Logto 应用、回调地址 `http://localhost:5173/callback` 和登出地址，并验证 Logto 与 Admin 端口可访问
 - [ ] 1.3 在 Logto Admin 中配置 Google、GitHub Provider；在凭据未配置前确认应用仍可启动且不包含任何仓库密钥
 

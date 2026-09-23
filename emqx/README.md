@@ -18,17 +18,17 @@ EMQX 通过 `aiot` PostgreSQL 数据库中的 `device_credentials` 表校验 MQT
 
 在 EMQX Dashboard 进入 **访问控制 → 认证 → 创建认证器**，选择 **PostgreSQL**，填写：
 
-| 字段 | 本地 Docker Compose 值 |
+| 字段 | Helm 配置来源 |
 | --- | --- |
-| 服务器地址 | `postgres:5432` |
-| 数据库 | `aiot` |
-| 用户名 | `postgres` |
-| 密码 | `password` |
+| 服务器地址 | Helm 渲染的 PostgreSQL Service（`<release>-postgres:5432`） |
+| 数据库 | `postgres.auth.database` |
+| 用户名 | `postgres.auth.username` |
+| 密码 | `postgres.auth.password` 或对应的已有 Secret |
 | 密码加密方式 | `sha256` |
 | 加盐方式 | `suffix` |
 | TLS | 关闭 |
 
-> EMQX 运行在 Docker 容器内，数据库地址必须使用 Compose 服务名 `postgres:5432`。`127.0.0.1:5432` 指向 EMQX 容器自身，无法连接项目数据库。
+> EMQX 与 PostgreSQL 部署在同一 Kubernetes namespace 时，应使用 Helm 渲染的 Service DNS。运行时配置由 Chart 自动生成，无需在 Pod 内使用 `127.0.0.1`。
 
 SQL 查询填写：
 

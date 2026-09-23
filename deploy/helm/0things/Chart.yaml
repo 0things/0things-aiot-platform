@@ -1,0 +1,16 @@
+apiVersion: v2
+name: 0things
+description: Helm chart for the 0things AIoT platform
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.24.0-0"
+keywords:
+  - aiot
+  - iot
+  - device-management
+home: https://github.com/0things/0things-aiot-platform
+sources:
+  - https://github.com/0things/0things-aiot-platform
+maintainers:
+  - name: 0things

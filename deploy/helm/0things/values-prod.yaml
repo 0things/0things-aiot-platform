@@ -1,0 +1,131 @@
+global:
+  environment: prod
+  publicUrls:
+    backend: http://121.4.122.249:8000
+    logto: http://121.4.122.249:3001
+    logtoAdmin: http://121.4.122.249:3002
+
+registry:
+  create: true
+  server: ccr.ccs.tencentyun.com
+  username: change-me-tencent-registry-user
+  password: change-me-tencent-registry-password
+  email: ""
+
+postgres:
+  auth:
+    username: postgres
+    password: change-me-production-postgres-password
+    database: aiot
+  persistence:
+    size: 50Gi
+
+logtoPostgres:
+  auth:
+    username: postgres
+    password: change-me-production-logto-postgres-password
+    database: logto
+  persistence:
+    size: 20Gi
+
+redis:
+  auth:
+    password: change-me-production-redis-password
+  persistence:
+    size: 10Gi
+
+nats:
+  auth:
+    enabled: true
+    username: nats
+    password: change-me-production-nats-password
+  persistence:
+    size: 20Gi
+
+emqx:
+  dashboard:
+    username: admin
+    password: change-me-production-emqx-dashboard-password
+  service:
+    type: LoadBalancer
+  persistence:
+    size: 20Gi
+
+tdengine:
+  auth:
+    username: root
+    password: change-me-production-tdengine-password
+    database: things_tsdb
+  persistence:
+    dataSize: 100Gi
+    logSize: 20Gi
+
+backend:
+  replicaCount: 2
+  service:
+    type: LoadBalancer
+  config:
+    apiSign:
+      appKey: change-me-production-app-key
+      appSecret: change-me-production-app-secret
+    deviceCredentialsKey: change-me-production-device-credentials-key
+    logto:
+      managementAppId: change-me-production-logto-management-app-id
+      managementAppSecret: change-me-production-logto-management-app-secret
+    r2:
+      endpoint: change-me-production-r2-endpoint
+      bucket: aiot
+      accessKeyId: change-me-production-r2-access-key-id
+      secretAccessKey: change-me-production-r2-secret-access-key
+      publicBaseUrl: https://file.0thing.com
+    mqtt:
+      username: production-backend
+      password: change-me-production-backend-mqtt-password
+    deviceGateway:
+      mqttHost: mqtt.0things.com
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "2"
+      memory: 1Gi
+
+dataEngine:
+  replicaCount: 2
+  config:
+    mqttUsername: production-data-engine
+    mqttPassword: change-me-production-data-engine-mqtt-password
+
+transportHttp:
+  replicaCount: 2
+  service:
+    type: LoadBalancer
+  auth:
+    enabled: true
+    token: change-me-production-transport-http-token
+
+transportMqtt:
+  replicaCount: 2
+  config:
+    username: production-transport-mqtt
+    password: change-me-production-transport-mqtt-password
+
+aiCopilot:
+  replicaCount: 2
+  config:
+    modelBaseUrl: https://api.openai.com/v1
+    modelApiKey: change-me-production-ai-model-api-key
+    modelId: gpt-4o-mini
+
+frontend:
+  replicaCount: 2
+  service:
+    type: LoadBalancer
+
+logto:
+  service:
+    type: LoadBalancer
+
+ingress:
+  enabled: false

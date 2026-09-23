@@ -1,0 +1,112 @@
+{{- $backendConfigSecret := default (include "0things.componentName" (dict "root" . "component" "backend-config")) .Values.backend.existingConfigSecret -}}
+{{- if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "backend") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "backend") | nindent 4 }}
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "backend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "backend") | nindent 8 }}
+      annotations:
+        checksum/config: {{ toJson (dict "backend" .Values.backend.config "global" .Values.global "postgres" .Values.postgres.auth "redis" .Values.redis.auth "nats" .Values.nats.auth "tdengine" .Values.tdengine.auth) | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          {{- include "0things.containerSecurityContext" . | nindent 10 }}
+          env:
+            - name: APP_CONF
+              value: config/helm.yml
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.service.port }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /data/app/config/helm.yml
+              subPath: helm.yml
+              readOnly: true
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ $backendConfigSecret }}
+---
+{{- end }}
+{{- if .Values.mcpServer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "mcp-server") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "mcp-server") | nindent 4 }}
+spec:
+  replicas: {{ .Values.mcpServer.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "mcp-server") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "mcp-server") | nindent 8 }}
+      annotations:
+        checksum/config: {{ toJson (dict "backend" .Values.backend.config "global" .Values.global "postgres" .Values.postgres.auth) | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      containers:
+        - name: mcp-server
+          image: "{{ .Values.mcpServer.image.repository }}:{{ .Values.mcpServer.image.tag }}"
+          imagePullPolicy: {{ .Values.mcpServer.image.pullPolicy }}
+          {{- include "0things.containerSecurityContext" . | nindent 10 }}
+          env:
+            - name: APP_CONF
+              value: config/helm.yml
+          ports:
+            - name: http
+              containerPort: {{ .Values.mcpServer.service.port }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.mcpServer.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /data/app/config/helm.yml
+              subPath: helm.yml
+              readOnly: true
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ $backendConfigSecret }}
+{{- end }}

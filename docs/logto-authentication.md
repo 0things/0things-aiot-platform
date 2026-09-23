@@ -2,22 +2,18 @@
 
 平台前端使用 Logto Hosted Sign-in，Backend 只接受 Logto Access Token。用户标识来自 Token 的 `sub`，业务组织来自 `organization_id`，业务表中的 `organization_id` 使用 Logto Organization ID 字符串。
 
-## 本地启动
+## 环境配置
 
-1. 复制根目录 `.env.example` 为 `.env`，设置 `LOGTO_POSTGRES_PASSWORD` 等部署参数。
-2. 在根目录执行以下命令；Compose 会读取前端的 `.env.local` 并将 Logto 配置传入镜像构建，Logto 镜像由 `logto/Dockerfile` 构建，专用 PostgreSQL 和 Logto 与平台服务一起启动：
-
-```bash
-docker compose --env-file .env --env-file frontend/.env.local up -d --build
-```
-3. 在 <http://localhost:3002> 创建 SPA 应用。
-4. 将 `http://localhost:5173/callback` 配置为 Redirect URI，将 `http://localhost:5173/` 配置为 Post Logout Redirect URI。
-5. 将应用 ID 写入前端未提交的 `.env.local`：
+1. 在 `deploy/helm/0things/values-test.yaml` 或 `values-prod.yaml` 中设置 Logto 镜像、独立 PostgreSQL 凭据、公开地址与管理地址。
+2. 按 Chart README 的命令安装对应环境，Helm 会创建 Logto、专用 PostgreSQL、Service、持久化存储和运行时 Secret。
+3. 在配置的 Logto Admin 地址创建 SPA 应用。
+4. 将前端回调地址配置为 Redirect URI，将前端根地址配置为 Post Logout Redirect URI。
+5. 将应用 ID 和端点写入所选环境的前端配置：
 
 ```dotenv
-VITE_LOGTO_ENDPOINT=http://localhost:3001
+VITE_LOGTO_ENDPOINT=<logto-public-url>
 VITE_LOGTO_APP_ID=<logto-spa-app-id>
-VITE_LOGTO_RESOURCE=http://localhost:8000
+VITE_LOGTO_RESOURCE=<backend-public-url>
 ```
 
 Backend 的 Logto 配置必须提供 `issuer`、`audience`、`jwks_url` 和 `organization_claim`；缺失时服务启动失败并报告缺失字段。

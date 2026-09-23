@@ -1,0 +1,248 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "postgres") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "postgres") | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgres
+      port: {{ .Values.postgres.service.port }}
+      targetPort: postgres
+      protocol: TCP
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "postgres") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.logtoPostgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "logto-postgres") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "logto-postgres") | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgres
+      port: {{ .Values.logtoPostgres.service.port }}
+      targetPort: postgres
+      protocol: TCP
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "logto-postgres") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "redis") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "redis") | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: redis
+      port: {{ .Values.redis.service.port }}
+      targetPort: redis
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "redis") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.nats.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "nats") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "nats") | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: client
+      port: {{ .Values.nats.service.clientPort }}
+      targetPort: client
+    - name: monitor
+      port: {{ .Values.nats.service.monitorPort }}
+      targetPort: monitor
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "nats") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.emqx.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "emqx") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "emqx") | nindent 4 }}
+  {{- with .Values.emqx.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.emqx.service.type }}
+  ports:
+    - name: mqtt
+      port: {{ .Values.emqx.service.mqttPort }}
+      targetPort: mqtt
+    - name: websocket
+      port: {{ .Values.emqx.service.websocketPort }}
+      targetPort: websocket
+    - name: dashboard
+      port: {{ .Values.emqx.service.dashboardPort }}
+      targetPort: dashboard
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "emqx") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.tdengine.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "tdengine") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "tdengine") | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: native
+      port: {{ .Values.tdengine.service.nativePort }}
+      targetPort: native
+    - name: websocket
+      port: {{ .Values.tdengine.service.websocketPort }}
+      targetPort: websocket
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "tdengine") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.backend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "backend") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "backend") | nindent 4 }}
+  {{- with .Values.backend.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.backend.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.backend.service.port }}
+      targetPort: http
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "backend") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.mcpServer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "mcp-server") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "mcp-server") | nindent 4 }}
+  {{- with .Values.mcpServer.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.mcpServer.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.mcpServer.service.port }}
+      targetPort: http
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "mcp-server") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.transportHttp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "transport-http") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "transport-http") | nindent 4 }}
+  {{- with .Values.transportHttp.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.transportHttp.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.transportHttp.service.port }}
+      targetPort: http
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "transport-http") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.aiCopilot.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "ai-copilot") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "ai-copilot") | nindent 4 }}
+  {{- with .Values.aiCopilot.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.aiCopilot.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.aiCopilot.service.port }}
+      targetPort: http
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "ai-copilot") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "frontend") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "frontend") | nindent 4 }}
+  {{- with .Values.frontend.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.frontend.service.port }}
+      targetPort: http
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "frontend") | nindent 4 }}
+---
+{{- end }}
+{{- if .Values.logto.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "logto") | nindent 4 }}
+  {{- with .Values.logto.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.logto.service.type }}
+  ports:
+    - name: app
+      port: {{ .Values.logto.service.appPort }}
+      targetPort: app
+    - name: admin
+      port: {{ .Values.logto.service.adminPort }}
+      targetPort: admin
+  selector:
+    {{- include "0things.selectorLabels" (dict "root" . "component" "logto") | nindent 4 }}
+{{- end }}

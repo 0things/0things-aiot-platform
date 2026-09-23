@@ -1,0 +1,413 @@
+nameOverride: ""
+fullnameOverride: ""
+
+global:
+  environment: local
+  storageClass: ""
+  publicUrls:
+    backend: http://localhost:8000
+    logto: http://localhost:3001
+    logtoAdmin: http://localhost:3002
+
+commonLabels: {}
+imagePullSecrets: []
+
+registry:
+  create: false
+  existingSecret: ""
+  server: ccr.ccs.tencentyun.com
+  username: ""
+  password: ""
+  email: ""
+
+podSecurityContext: {}
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: 17-alpine
+    pullPolicy: IfNotPresent
+  auth:
+    create: true
+    existingSecret: ""
+    username: postgres
+    password: password
+    database: aiot
+  service:
+    port: 5432
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+logtoPostgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: 17-alpine
+    pullPolicy: IfNotPresent
+  auth:
+    create: true
+    existingSecret: ""
+    username: postgres
+    password: change-me-logto-db-password
+    database: logto
+  service:
+    port: 5432
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+  auth:
+    create: true
+    existingSecret: ""
+    password: ""
+  service:
+    port: 6379
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+nats:
+  enabled: true
+  image:
+    repository: nats
+    tag: 2.10-alpine
+    pullPolicy: IfNotPresent
+  auth:
+    enabled: false
+    create: true
+    existingSecret: ""
+    username: nats
+    password: ""
+  service:
+    clientPort: 4222
+    monitorPort: 8222
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+emqx:
+  enabled: true
+  image:
+    repository: emqx/emqx
+    tag: 5.8.0
+    pullPolicy: IfNotPresent
+  dashboard:
+    create: true
+    existingSecret: ""
+    username: admin
+    password: public
+  service:
+    type: ClusterIP
+    mqttPort: 1883
+    websocketPort: 8083
+    dashboardPort: 18083
+    annotations: {}
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+
+tdengine:
+  enabled: true
+  image:
+    repository: tdengine/tsdb
+    tag: latest
+    pullPolicy: IfNotPresent
+  auth:
+    create: true
+    existingSecret: ""
+    username: root
+    password: taosdata
+    database: things_tsdb
+  service:
+    nativePort: 6030
+    websocketPort: 6041
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    dataSize: 20Gi
+    logSize: 5Gi
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ccr.ccs.tencentyun.com/0thing-prod/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  existingConfigSecret: ""
+  service:
+    type: ClusterIP
+    port: 8000
+    annotations: {}
+  config:
+    apiSign:
+      appKey: change-me
+      appSecret: change-me
+    deviceCredentialsKey: change-me-to-a-random-device-credentials-key
+    logto:
+      organizationClaim: organization_id
+      managementAppId: change-me-logto-management-app-id
+      managementAppSecret: change-me-logto-management-app-secret
+      managementResource: https://default.logto.app/api
+    r2:
+      endpoint: ""
+      bucket: ""
+      region: auto
+      accessKeyId: ""
+      secretAccessKey: ""
+      publicBaseUrl: ""
+      prefix: ota
+    mqtt:
+      clientId: 0things-backend
+      username: ""
+      password: ""
+    deviceGateway:
+      mqttHost: mqtt.0things.com
+      mqttPort: "1883"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+
+mcpServer:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ccr.ccs.tencentyun.com/0thing-prod/mcp-server
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8009
+    annotations: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+dataEngine:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ccr.ccs.tencentyun.com/0thing-prod/data-engine
+    tag: latest
+    pullPolicy: IfNotPresent
+  existingConfigSecret: ""
+  config:
+    mqttClientId: 0things-data-engine
+    mqttUsername: ""
+    mqttPassword: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+
+transportHttp:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ccr.ccs.tencentyun.com/0thing-prod/transport-http
+    tag: latest
+    pullPolicy: IfNotPresent
+  existingConfigSecret: ""
+  service:
+    type: ClusterIP
+    port: 8081
+    annotations: {}
+  auth:
+    enabled: false
+    token: ""
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+transportMqtt:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ccr.ccs.tencentyun.com/0thing-prod/transport-mqtt
+    tag: latest
+    pullPolicy: IfNotPresent
+  existingConfigSecret: ""
+  config:
+    clientId: 0things-transport-mqtt
+    username: ""
+    password: ""
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+aiCopilot:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ccr.ccs.tencentyun.com/0thing-prod/ai-copilot
+    tag: latest
+    pullPolicy: IfNotPresent
+  existingSecret: ""
+  config:
+    modelBaseUrl: https://api.openai.com/v1
+    modelApiKey: change-me-ai-model-api-key
+    modelId: gpt-4o-mini
+  service:
+    type: ClusterIP
+    port: 8005
+    annotations: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ccr.ccs.tencentyun.com/0thing-prod/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+logto:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: svhd/logto
+    tag: latest
+    pullPolicy: IfNotPresent
+  existingSecret: ""
+  service:
+    type: ClusterIP
+    appPort: 3001
+    adminPort: 3002
+    annotations: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  frontend:
+    host: ""
+    path: /
+    pathType: Prefix
+    tlsSecret: ""
+  logto:
+    enabled: false
+    host: ""
+    path: /
+    pathType: Prefix
+    tlsSecret: ""
+  logtoAdmin:
+    enabled: false
+    host: ""
+    path: /
+    pathType: Prefix
+    tlsSecret: ""

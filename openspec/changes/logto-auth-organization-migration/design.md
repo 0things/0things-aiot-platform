@@ -40,7 +40,7 @@
 
 ### 4. 独立 Logto PostgreSQL
 
-`logto/docker-compose.yml` 单独定义 `logto` 与 `logto-postgres`，Logto 数据不与 AIoT 业务数据库共享。Logto Compose 使用与平台相同的外部 `0things-net`，开发环境由根 Compose 先创建网络。
+平台 Helm Chart 单独定义 `logto` 与 `logto-postgres`，Logto 数据不与 AIoT 业务数据库共享。两者使用 release-scoped Service 通信，并通过独立 PVC 持久化数据。
 
 选择独立数据库是为了隔离 Logto schema、升级周期和备份边界；Logto 官方示例中的初始化命令保留在 Logto 容器 entrypoint 中。
 

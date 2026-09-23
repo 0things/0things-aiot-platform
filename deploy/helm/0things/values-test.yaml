@@ -1,0 +1,100 @@
+global:
+  environment: test
+  publicUrls:
+    backend: http://0things-test.local
+    logto: http://auth.0things-test.local
+    logtoAdmin: http://auth-admin.0things-test.local
+
+registry:
+  create: false
+
+postgres:
+  auth:
+    username: postgres
+    password: test-postgres-password
+    database: aiot_test
+  persistence:
+    size: 5Gi
+
+logtoPostgres:
+  auth:
+    username: postgres
+    password: test-logto-postgres-password
+    database: logto_test
+  persistence:
+    size: 5Gi
+
+redis:
+  auth:
+    password: test-redis-password
+  persistence:
+    size: 1Gi
+
+nats:
+  auth:
+    enabled: true
+    username: nats
+    password: test-nats-password
+  persistence:
+    size: 2Gi
+
+emqx:
+  dashboard:
+    username: admin
+    password: test-emqx-dashboard-password
+  persistence:
+    size: 2Gi
+
+tdengine:
+  auth:
+    username: root
+    password: taosdata
+    database: things_tsdb_test
+  persistence:
+    dataSize: 5Gi
+    logSize: 1Gi
+
+backend:
+  config:
+    apiSign:
+      appKey: test-app-key
+      appSecret: test-app-secret
+    deviceCredentialsKey: test-device-credentials-key-at-least-32-bytes
+    logto:
+      managementAppId: test-logto-management-app-id
+      managementAppSecret: test-logto-management-app-secret
+    mqtt:
+      username: test-backend
+      password: test-backend-mqtt-password
+    deviceGateway:
+      mqttHost: mqtt.0things-test.local
+
+dataEngine:
+  config:
+    mqttUsername: test-data-engine
+    mqttPassword: test-data-engine-mqtt-password
+
+transportHttp:
+  auth:
+    enabled: true
+    token: test-transport-http-token
+
+transportMqtt:
+  config:
+    username: test-transport-mqtt
+    password: test-transport-mqtt-password
+
+aiCopilot:
+  config:
+    modelApiKey: test-ai-model-api-key
+
+ingress:
+  enabled: true
+  frontend:
+    host: 0things-test.local
+  logto:
+    enabled: true
+    host: auth.0things-test.local
+  logtoAdmin:
+    enabled: true
+    host: auth-admin.0things-test.local

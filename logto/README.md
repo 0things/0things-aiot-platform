@@ -1,19 +1,21 @@
 # Logto
 
-Logto runs with a dedicated PostgreSQL database and shares the `0things-net`
-Docker network with the platform services. Its image is built from
-`logto/Dockerfile`; the services are defined in the root Compose file.
+Logto 使用独立的 PostgreSQL 数据库，并由平台 Helm Chart 与其他服务一起部署。镜像通过 `logto/Dockerfile` 构建；工作负载、Service、持久化存储和数据库连接均定义在 `deploy/helm/0things`。
 
-Configure Logto in `logto/.env` and start the complete stack from the
-repository root. For a new environment, copy `logto/.env.example` first:
+在所选环境 values 中配置 Logto：
+
+- `logto.image`：Logto 镜像与版本
+- `logtoPostgres.auth`：独立数据库账号密码
+- `logto.ingress`：公开端点与管理端点
+- `logto.secret`：直接创建 Secret 或引用已有 Secret
+
+测试环境示例：
 
 ```bash
-cp logto/.env.example logto/.env
-docker compose up -d
+helm upgrade --install 0things-test deploy/helm/0things \
+  --namespace 0things-test \
+  --create-namespace \
+  -f deploy/helm/0things/values-test.yaml
 ```
 
-Logto is available at `http://localhost:3001` and the admin console at
-`http://localhost:3002`.
-
-Set the Logto database password and `DB_URL` in `logto/.env` before deployment.
-Provider credentials are configured in Logto Admin and must not be committed.
+Provider 凭据在 Logto Admin 中配置，不应提交到仓库。完整部署说明见 [`deploy/helm/0things/README.md`](../deploy/helm/0things/README.md)。

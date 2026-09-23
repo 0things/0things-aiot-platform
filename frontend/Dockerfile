@@ -11,7 +11,7 @@ ENV VITE_DEVICE_SERVICE_URL=/api \
 RUN pnpm build
 
 FROM nginx:stable-alpine
-COPY deploy/compose/nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 RUN chmod -R 755 /usr/share/nginx/html
 EXPOSE 80

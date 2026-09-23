@@ -1,15 +1,4 @@
-.PHONY: all start stop restart status test build mock-device mock-alarm
-
-# 一键启动所有微服务与前端
-start:
-	@bash ./scripts/start-all-services.sh
-
-# 一键优雅停止所有服务
-stop:
-	@bash ./scripts/stop-all-services.sh
-
-# 一键重启所有服务
-restart: stop start
+.PHONY: all test build mock-device mock-alarm
 
 # 运行所有微服务单元测试
 test:

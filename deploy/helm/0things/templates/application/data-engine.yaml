@@ -1,0 +1,42 @@
+{{- if .Values.dataEngine.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "data-engine") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "data-engine") | nindent 4 }}
+spec:
+  replicas: {{ .Values.dataEngine.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "data-engine") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "data-engine") | nindent 8 }}
+      annotations:
+        checksum/config: {{ toJson (dict "config" .Values.dataEngine.config "postgres" .Values.postgres.auth "redis" .Values.redis.auth "nats" .Values.nats.auth "tdengine" .Values.tdengine.auth) | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      containers:
+        - name: data-engine
+          image: "{{ .Values.dataEngine.image.repository }}:{{ .Values.dataEngine.image.tag }}"
+          imagePullPolicy: {{ .Values.dataEngine.image.pullPolicy }}
+          {{- include "0things.containerSecurityContext" . | nindent 10 }}
+          env:
+            - name: APP_CONF
+              value: config/helm.yml
+          resources:
+            {{- toYaml .Values.dataEngine.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /data/app/config/helm.yml
+              subPath: helm.yml
+              readOnly: true
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ default (include "0things.componentName" (dict "root" . "component" "data-engine-config")) .Values.dataEngine.existingConfigSecret }}
+{{- end }}

@@ -1,0 +1,113 @@
+{{- if and .Values.ingress.enabled .Values.frontend.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "frontend") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "frontend") | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if .Values.ingress.frontend.tlsSecret }}
+  tls:
+    - secretName: {{ .Values.ingress.frontend.tlsSecret }}
+      {{- with .Values.ingress.frontend.host }}
+      hosts:
+        - {{ . | quote }}
+      {{- end }}
+  {{- end }}
+  rules:
+    - {{- with .Values.ingress.frontend.host }}
+      host: {{ . | quote }}
+      {{- end }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.frontend.path }}
+            pathType: {{ .Values.ingress.frontend.pathType }}
+            backend:
+              service:
+                name: {{ include "0things.componentName" (dict "root" . "component" "frontend") }}
+                port:
+                  name: http
+---
+{{- end }}
+{{- if and .Values.ingress.enabled .Values.ingress.logto.enabled .Values.logto.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "logto") | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if .Values.ingress.logto.tlsSecret }}
+  tls:
+    - secretName: {{ .Values.ingress.logto.tlsSecret }}
+      {{- with .Values.ingress.logto.host }}
+      hosts:
+        - {{ . | quote }}
+      {{- end }}
+  {{- end }}
+  rules:
+    - {{- with .Values.ingress.logto.host }}
+      host: {{ . | quote }}
+      {{- end }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.logto.path }}
+            pathType: {{ .Values.ingress.logto.pathType }}
+            backend:
+              service:
+                name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+                port:
+                  name: app
+---
+{{- end }}
+{{- if and .Values.ingress.enabled .Values.ingress.logtoAdmin.enabled .Values.logto.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "logto-admin") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "logto-admin") | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if .Values.ingress.logtoAdmin.tlsSecret }}
+  tls:
+    - secretName: {{ .Values.ingress.logtoAdmin.tlsSecret }}
+      {{- with .Values.ingress.logtoAdmin.host }}
+      hosts:
+        - {{ . | quote }}
+      {{- end }}
+  {{- end }}
+  rules:
+    - {{- with .Values.ingress.logtoAdmin.host }}
+      host: {{ . | quote }}
+      {{- end }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.logtoAdmin.path }}
+            pathType: {{ .Values.ingress.logtoAdmin.pathType }}
+            backend:
+              service:
+                name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+                port:
+                  name: admin
+{{- end }}

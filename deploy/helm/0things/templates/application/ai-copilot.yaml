@@ -1,0 +1,55 @@
+{{- if .Values.aiCopilot.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "0things.componentName" (dict "root" . "component" "ai-copilot") }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "ai-copilot") | nindent 4 }}
+spec:
+  replicas: {{ .Values.aiCopilot.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "ai-copilot") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "ai-copilot") | nindent 8 }}
+      annotations:
+        checksum/config: {{ toJson .Values.aiCopilot.config | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      containers:
+        - name: ai-copilot
+          image: "{{ .Values.aiCopilot.image.repository }}:{{ .Values.aiCopilot.image.tag }}"
+          imagePullPolicy: {{ .Values.aiCopilot.image.pullPolicy }}
+          {{- include "0things.containerSecurityContext" . | nindent 10 }}
+          envFrom:
+            - secretRef:
+                name: {{ default (include "0things.componentName" (dict "root" . "component" "ai-copilot")) .Values.aiCopilot.existingSecret }}
+          env:
+            - name: AI_GATEWAY_PORT
+              value: {{ .Values.aiCopilot.service.port | quote }}
+            - name: AI_GATEWAY_HOST
+              value: 0.0.0.0
+            - name: MCP_STREAMABLE_HTTP_URL
+              value: {{ printf "http://%s:%d/mcp" (include "0things.componentName" (dict "root" . "component" "mcp-server")) (int .Values.mcpServer.service.port) | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.aiCopilot.service.port }}
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.aiCopilot.resources | nindent 12 }}
+{{- end }}

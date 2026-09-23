@@ -1,0 +1,147 @@
+{{- $postgresName := include "0things.componentName" (dict "root" . "component" "postgres") -}}
+{{- if .Values.postgres.enabled }}
+{{- $postgresSecret := include "0things.secretName" (dict "root" . "component" "postgres" "create" .Values.postgres.auth.create "existingSecret" .Values.postgres.auth.existingSecret "valuePath" "postgres.auth") -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $postgresName }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "postgres") | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ $postgresName }}
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "postgres") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "postgres") | nindent 8 }}
+      annotations:
+        checksum/auth: {{ toJson .Values.postgres.auth | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ $postgresSecret }}
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.postgres.service.port }}
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      {{- if not .Values.postgres.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.postgres.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "0things.labels" (dict "root" . "component" "postgres") | nindent 10 }}
+      spec:
+        accessModes:
+          {{- toYaml .Values.postgres.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.postgres.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.postgres.persistence.size }}
+  {{- end }}
+{{- end }}
+{{- $logtoPostgresName := include "0things.componentName" (dict "root" . "component" "logto-postgres") -}}
+{{- if .Values.logtoPostgres.enabled }}
+{{- $logtoPostgresSecret := include "0things.secretName" (dict "root" . "component" "logto-postgres" "create" .Values.logtoPostgres.auth.create "existingSecret" .Values.logtoPostgres.auth.existingSecret "valuePath" "logtoPostgres.auth") -}}
+{{ printf "\n---\n" }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $logtoPostgresName }}
+  labels:
+    {{- include "0things.labels" (dict "root" . "component" "logto-postgres") | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ $logtoPostgresName }}
+  selector:
+    matchLabels:
+      {{- include "0things.selectorLabels" (dict "root" . "component" "logto-postgres") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.selectorLabels" (dict "root" . "component" "logto-postgres") | nindent 8 }}
+      annotations:
+        checksum/auth: {{ toJson .Values.logtoPostgres.auth | sha256sum }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: postgres
+          image: "{{ .Values.logtoPostgres.image.repository }}:{{ .Values.logtoPostgres.image.tag }}"
+          imagePullPolicy: {{ .Values.logtoPostgres.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ $logtoPostgresSecret }}
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.logtoPostgres.service.port }}
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.logtoPostgres.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      {{- if not .Values.logtoPostgres.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.logtoPostgres.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "0things.labels" (dict "root" . "component" "logto-postgres") | nindent 10 }}
+      spec:
+        accessModes:
+          {{- toYaml .Values.logtoPostgres.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.logtoPostgres.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.logtoPostgres.persistence.size }}
+  {{- end }}
+{{- end }}

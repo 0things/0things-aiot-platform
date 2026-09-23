@@ -63,61 +63,38 @@
 
 ### 前置条件
 
-- Docker Desktop 与 Docker Compose
-- Node.js 25+ 与 pnpm
-- Go 1.25+
-- Git
+- Kubernetes 1.24+
+- Helm 3
+- 可供集群拉取的应用镜像
+- kubectl（用于检查部署状态）
 
-### 使用 Docker Compose 启动完整环境
+### 使用 Helm 部署完整环境
 
-首次启动前复制本地配置模板，并填写必要的密码、应用 ID 和模型 API Key：
-
-```bash
-cp logto/.env.example logto/.env
-cp ai-copilot/.env.example ai-copilot/.env
-cp backend/config/config.example.yml backend/config/docker.yml
-cp data-engine/config/config.example.yml data-engine/config/docker.yml
-cp transport-mqtt/config/config.example.yml transport-mqtt/config/docker.yml
-```
-
-然后启动所有容器：
+测试环境和生产环境分别使用独立的 values 文件：
 
 ```bash
-docker compose up -d --build
+helm upgrade --install 0things-test deploy/helm/0things \
+  --namespace 0things-test \
+  --create-namespace \
+  -f deploy/helm/0things/values-test.yaml
+
+helm upgrade --install 0things-prod deploy/helm/0things \
+  --namespace 0things-prod \
+  --create-namespace \
+  -f deploy/helm/0things/values-prod.yaml \
+  --atomic --wait
 ```
 
-常用入口：
-
-| 服务 | 地址 |
-| --- | --- |
-| 管理控制台 | [http://localhost:5173](http://localhost:5173) |
-| 管理 API | [http://localhost:8000](http://localhost:8000) |
-| Swagger | [http://localhost:8000/swagger/index.html](http://localhost:8000/swagger/index.html) |
-| AI Copilot | [http://localhost:8005](http://localhost:8005) |
-| MCP Streamable HTTP | [http://localhost:8009/mcp](http://localhost:8009/mcp) |
-| HTTP 设备网关 | [http://localhost:8081](http://localhost:8081) |
-| Logto 管理控制台 | [http://localhost:3002](http://localhost:3002) |
-| Logto OIDC 服务 | [http://localhost:3001](http://localhost:3001) |
-| EMQX Dashboard | [http://localhost:18083](http://localhost:18083) |
-
-停止环境：
-
-```bash
-docker compose down
-```
+部署前必须替换环境 values 中的镜像、域名和凭据。完整的安装、升级、验证、回滚与私有镜像配置见 [`deploy/helm/0things/README.md`](./deploy/helm/0things/README.md)。
 
 > [!IMPORTANT]
-> 所有 `.env`、`config/local.yml` 和 `config/docker.yml` 都可能包含密钥或数据库凭据，不要提交到 Git。生产环境请替换示例中的默认密码和加密密钥。
+> `values-test.yaml` 和 `values-prod.yaml` 中的示例凭据不能直接用于真实环境。包含真实密钥的覆盖文件不要提交到 Git，也可以通过 `existingSecret` 接入已有 Kubernetes Secret。
 
 ## 本地开发
 
-### 启动依赖服务
+### 准备依赖服务
 
-只启动基础设施：
-
-```bash
-docker compose up -d nats emqx redis logto-postgres logto
-```
+本地进程可以连接测试命名空间中的 Helm 服务，也可以连接自行准备的 PostgreSQL、Redis、NATS、EMQX、TDengine 和 Logto。各服务通过自己的 `config/local.yml` 指定依赖地址。
 
 ### 配置并执行数据库迁移
 
@@ -141,18 +118,6 @@ cd transport-mqtt && go run ./cmd/server -conf ./config/local.yml
 cd backend && go run ./cmd/mcp -conf ./config/local.yml
 cd ai-copilot && pnpm install && pnpm dev
 cd frontend && pnpm install && pnpm dev
-```
-
-也可以在已经准备好各服务配置后，从仓库根目录执行：
-
-```bash
-make start
-```
-
-停止由脚本启动的本地进程：
-
-```bash
-make stop
 ```
 
 前端默认访问 `http://localhost:5173`，后端 API 默认访问 `http://localhost:8000`。前端环境变量模板位于 [`frontend/.env.example`](./frontend/.env.example)，AI Copilot 模板位于 [`ai-copilot/.env.example`](./ai-copilot/.env.example)。
