@@ -14,9 +14,6 @@ import axios, { type AxiosInstance } from 'axios'
 import { useAuthStore } from '@/stores/auth-store'
 import { API_TIMEOUT } from './config'
 
-// Import other service URLs when needed
-// import { AUTH_SERVICE_BASE_URL, NOTIFICATION_SERVICE_BASE_URL } from './config';
-
 // ============================================================================
 // Custom Axios Instance with Interceptors
 // ============================================================================

@@ -12,12 +12,6 @@
 export const DEVICE_SERVICE_BASE_URL =
   import.meta.env.VITE_DEVICE_SERVICE_URL || 'http://localhost:8000'
 
-export const AUTH_SERVICE_BASE_URL =
-  import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8003'
-
-export const NOTIFICATION_SERVICE_BASE_URL =
-  import.meta.env.VITE_NOTIFICATION_SERVICE_URL || 'http://localhost:8004'
-
 /**
  * Default timeout for API requests (in milliseconds)
  */
