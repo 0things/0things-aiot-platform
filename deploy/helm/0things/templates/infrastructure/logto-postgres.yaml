@@ -1,0 +1,98 @@
+{{- if .Values.logtoPostgres.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: logto-postgres
+  labels:
+    {{- include "0things.labels" "logto-postgres" | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: logto-postgres
+  selector:
+    matchLabels:
+      {{- include "0things.labels" "logto-postgres" | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.labels" "logto-postgres" | nindent 8 }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: logto-postgres
+          image: "{{ .Values.logtoPostgres.image.repository }}:{{ .Values.logtoPostgres.image.tag }}"
+          imagePullPolicy: {{ .Values.logtoPostgres.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: logto-postgres
+          ports:
+            - name: logto-postgres
+              containerPort: {{ .Values.logtoPostgres.service.port }}
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.logtoPostgres.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      {{- if not .Values.logtoPostgres.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.logtoPostgres.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "0things.labels" "logto-postgres" | nindent 10 }}
+      spec:
+        accessModes:
+          {{- toYaml .Values.logtoPostgres.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.logtoPostgres.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.logtoPostgres.persistence.size }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logto-postgres
+  labels:
+    {{- include "0things.labels" "logto-postgres" | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: logto-postgres
+      port: {{ .Values.logtoPostgres.service.port }}
+      targetPort: {{ .Values.logtoPostgres.service.port }}
+      protocol: TCP
+  selector:
+    {{- include "0things.labels" "logto-postgres" | nindent 4 }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: logto-postgres
+  labels:
+    {{- include "0things.labels" "logto-postgres" | nindent 4 }}
+type: Opaque
+stringData:
+  POSTGRES_USER: {{ required "logtoPostgres.auth.username is required" .Values.logtoPostgres.auth.username | quote }}
+  POSTGRES_PASSWORD: {{ required "logtoPostgres.auth.password is required" .Values.logtoPostgres.auth.password | quote }}
+  POSTGRES_DB: {{ required "logtoPostgres.auth.database is required" .Values.logtoPostgres.auth.database | quote }}
+{{- end }}

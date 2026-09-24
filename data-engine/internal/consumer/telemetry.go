@@ -3,7 +3,7 @@ package consumer
 import (
 	"context"
 
-	"0things/pkg/event"
+	"data-engine/internal/event"
 	"data-engine/internal/handler"
 )
 

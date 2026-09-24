@@ -1,40 +1,54 @@
+{{- if and .Values.aiCopilot.enabled (not .Values.mcpServer.enabled) }}
+{{- fail "aiCopilot.enabled requires mcpServer.enabled" }}
+{{- end }}
+{{- if .Values.aiCopilot.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-copilot
+  labels:
+    {{- include "0things.labels" "ai-copilot" | nindent 4 }}
+type: Opaque
+stringData:
+  AI_MODEL_BASE_URL: {{ required "aiCopilot.config.modelBaseUrl is required" .Values.aiCopilot.config.modelBaseUrl | quote }}
+  AI_MODEL_API_KEY: {{ required "aiCopilot.config.modelApiKey is required" .Values.aiCopilot.config.modelApiKey | quote }}
+  AI_MODEL_ID: {{ required "aiCopilot.config.modelId is required" .Values.aiCopilot.config.modelId | quote }}
+---
+{{- end }}
 {{- if .Values.aiCopilot.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "ai-copilot") }}
+  name: ai-copilot
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "ai-copilot") | nindent 4 }}
+    {{- include "0things.labels" "ai-copilot" | nindent 4 }}
 spec:
   replicas: {{ .Values.aiCopilot.replicaCount }}
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      {{- include "0things.selectorLabels" (dict "root" . "component" "ai-copilot") | nindent 6 }}
+      {{- include "0things.labels" "ai-copilot" | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "0things.selectorLabels" (dict "root" . "component" "ai-copilot") | nindent 8 }}
-      annotations:
-        checksum/config: {{ toJson .Values.aiCopilot.config | sha256sum }}
+        {{- include "0things.labels" "ai-copilot" | nindent 8 }}
     spec:
       {{- include "0things.imagePullSecrets" . | nindent 6 }}
-      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      terminationGracePeriodSeconds: 30
       containers:
         - name: ai-copilot
           image: "{{ .Values.aiCopilot.image.repository }}:{{ .Values.aiCopilot.image.tag }}"
           imagePullPolicy: {{ .Values.aiCopilot.image.pullPolicy }}
-          {{- include "0things.containerSecurityContext" . | nindent 10 }}
           envFrom:
             - secretRef:
-                name: {{ default (include "0things.componentName" (dict "root" . "component" "ai-copilot")) .Values.aiCopilot.existingSecret }}
+                name: ai-copilot
           env:
             - name: AI_GATEWAY_PORT
               value: {{ .Values.aiCopilot.service.port | quote }}
             - name: AI_GATEWAY_HOST
               value: 0.0.0.0
             - name: MCP_STREAMABLE_HTTP_URL
-              value: {{ printf "http://%s:%d/mcp" (include "0things.componentName" (dict "root" . "component" "mcp-server")) (int .Values.mcpServer.service.port) | quote }}
+              value: {{ printf "http://%s:%d/mcp" "mcp-server" (int .Values.mcpServer.service.port) | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.aiCopilot.service.port }}
@@ -52,4 +66,19 @@ spec:
             periodSeconds: 10
           resources:
             {{- toYaml .Values.aiCopilot.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-copilot
+  labels:
+    {{- include "0things.labels" "ai-copilot" | nindent 4 }}
+spec:
+  type: {{ .Values.aiCopilot.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.aiCopilot.service.port }}
+      targetPort: {{ .Values.aiCopilot.service.port }}
+  selector:
+    {{- include "0things.labels" "ai-copilot" | nindent 4 }}
 {{- end }}

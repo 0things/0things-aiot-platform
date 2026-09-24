@@ -19,7 +19,7 @@ func TestGetOrganizationID(t *testing.T) {
 	}
 
 	ctxStringKey := context.WithValue(context.Background(), string(OrganizationKey), "org-3")
-	if got := GetOrganizationID(ctxStringKey); got != "" {
-		t.Fatalf("GetOrganizationID() with string key = %q, want empty", got)
+	if got := GetOrganizationID(ctxStringKey); got != "org-3" {
+		t.Fatalf("GetOrganizationID() with string key = %q, want org-3", got)
 	}
 }

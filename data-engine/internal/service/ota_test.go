@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"0things/pkg/event"
+	"data-engine/internal/event"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

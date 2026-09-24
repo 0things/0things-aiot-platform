@@ -1,24 +1,40 @@
+{{- if and .Values.logto.enabled (not .Values.logtoPostgres.enabled) }}
+{{- fail "logto.enabled requires logtoPostgres.enabled" }}
+{{- end }}
+{{- if .Values.logto.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: logto
+  labels:
+    {{- include "0things.labels" "logto" | nindent 4 }}
+type: Opaque
+stringData:
+  DB_URL: {{ printf "postgres://%s:%s@%s:%d/%s" (.Values.logtoPostgres.auth.username | urlquery) (.Values.logtoPostgres.auth.password | urlquery) "logto-postgres" (int .Values.logtoPostgres.service.port) (.Values.logtoPostgres.auth.database | urlquery) | quote }}
+  ENDPOINT: {{ .Values.global.publicUrls.logto | quote }}
+  ADMIN_ENDPOINT: {{ .Values.global.publicUrls.logtoAdmin | quote }}
+---
+{{- end }}
 {{- if .Values.logto.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+  name: logto
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "logto") | nindent 4 }}
+    {{- include "0things.labels" "logto" | nindent 4 }}
 spec:
   replicas: {{ .Values.logto.replicaCount }}
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      {{- include "0things.selectorLabels" (dict "root" . "component" "logto") | nindent 6 }}
+      {{- include "0things.labels" "logto" | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "0things.selectorLabels" (dict "root" . "component" "logto") | nindent 8 }}
-      annotations:
-        checksum/config: {{ toJson (dict "publicUrls" .Values.global.publicUrls "database" .Values.logtoPostgres.auth) | sha256sum }}
+        {{- include "0things.labels" "logto" | nindent 8 }}
     spec:
       {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      terminationGracePeriodSeconds: 30
       containers:
         - name: logto
           image: "{{ .Values.logto.image.repository }}:{{ .Values.logto.image.tag }}"
@@ -28,7 +44,7 @@ spec:
             - npm run cli db seed -- --swe && exec npm start
           envFrom:
             - secretRef:
-                name: {{ default (include "0things.componentName" (dict "root" . "component" "logto")) .Values.logto.existingSecret }}
+                name: logto
           env:
             - name: TRUST_PROXY_HEADER
               value: "1"
@@ -52,4 +68,22 @@ spec:
             periodSeconds: 15
           resources:
             {{- toYaml .Values.logto.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logto
+  labels:
+    {{- include "0things.labels" "logto" | nindent 4 }}
+spec:
+  type: {{ .Values.logto.service.type }}
+  ports:
+    - name: app
+      port: {{ .Values.logto.service.appPort }}
+      targetPort: {{ .Values.logto.service.appPort }}
+    - name: admin
+      port: {{ .Values.logto.service.adminPort }}
+      targetPort: {{ .Values.logto.service.adminPort }}
+  selector:
+    {{- include "0things.labels" "logto" | nindent 4 }}
 {{- end }}

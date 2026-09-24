@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"0things/pkg/event"
+	"transport-mqtt/internal/event"
 	"transport-mqtt/pkg/log"
 
 	"github.com/ThreeDotsLabs/watermill"

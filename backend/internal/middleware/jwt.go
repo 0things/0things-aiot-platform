@@ -41,7 +41,6 @@ func StrictAuth(verifier *logto.Verifier, logger *log.Logger) gin.HandlerFunc {
 			return
 		}
 		ctx.Set(string(tenant.OrganizationKey), organizationID)
-		ctx.Request = ctx.Request.WithContext(tenant.WithOrganization(ctx.Request.Context(), organizationID))
 		ctx.Next()
 	}
 }

@@ -7,13 +7,13 @@
 package wire
 
 import (
-	"0things/pkg/event"
-	"0things/pkg/tsdb"
 	"data-engine/internal/consumer"
+	"data-engine/internal/event"
 	"data-engine/internal/handler"
 	"data-engine/internal/repository"
 	"data-engine/internal/server"
 	"data-engine/internal/service"
+	"data-engine/internal/tsdb"
 	"data-engine/pkg/app"
 	"data-engine/pkg/log"
 	"github.com/google/wire"

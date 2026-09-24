@@ -1,6 +1,3 @@
-nameOverride: ""
-fullnameOverride: ""
-
 global:
   environment: local
   storageClass: ""
@@ -9,23 +6,14 @@ global:
     logto: http://localhost:3001
     logtoAdmin: http://localhost:3002
 
-commonLabels: {}
 imagePullSecrets: []
 
 registry:
-  create: false
-  existingSecret: ""
+  create: true
   server: ccr.ccs.tencentyun.com
   username: ""
   password: ""
   email: ""
-
-podSecurityContext: {}
-containerSecurityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
 
 postgres:
   enabled: true
@@ -34,8 +22,6 @@ postgres:
     tag: 17-alpine
     pullPolicy: IfNotPresent
   auth:
-    create: true
-    existingSecret: ""
     username: postgres
     password: password
     database: aiot
@@ -62,8 +48,6 @@ logtoPostgres:
     tag: 17-alpine
     pullPolicy: IfNotPresent
   auth:
-    create: true
-    existingSecret: ""
     username: postgres
     password: change-me-logto-db-password
     database: logto
@@ -90,8 +74,6 @@ redis:
     tag: 7-alpine
     pullPolicy: IfNotPresent
   auth:
-    create: true
-    existingSecret: ""
     password: ""
   service:
     port: 6379
@@ -117,8 +99,6 @@ nats:
     pullPolicy: IfNotPresent
   auth:
     enabled: false
-    create: true
-    existingSecret: ""
     username: nats
     password: ""
   service:
@@ -145,8 +125,6 @@ emqx:
     tag: 5.8.0
     pullPolicy: IfNotPresent
   dashboard:
-    create: true
-    existingSecret: ""
     username: admin
     password: public
   service:
@@ -154,7 +132,6 @@ emqx:
     mqttPort: 1883
     websocketPort: 8083
     dashboardPort: 18083
-    annotations: {}
   persistence:
     enabled: true
     storageClass: ""
@@ -176,8 +153,6 @@ tdengine:
     tag: latest
     pullPolicy: IfNotPresent
   auth:
-    create: true
-    existingSecret: ""
     username: root
     password: taosdata
     database: things_tsdb
@@ -206,11 +181,9 @@ backend:
     repository: ccr.ccs.tencentyun.com/0thing-prod/backend
     tag: latest
     pullPolicy: IfNotPresent
-  existingConfigSecret: ""
   service:
     type: ClusterIP
     port: 8000
-    annotations: {}
   config:
     apiSign:
       appKey: change-me
@@ -229,10 +202,6 @@ backend:
       secretAccessKey: ""
       publicBaseUrl: ""
       prefix: ota
-    mqtt:
-      clientId: 0things-backend
-      username: ""
-      password: ""
     deviceGateway:
       mqttHost: mqtt.0things.com
       mqttPort: "1883"
@@ -254,7 +223,6 @@ mcpServer:
   service:
     type: ClusterIP
     port: 8009
-    annotations: {}
   resources:
     requests:
       cpu: 50m
@@ -270,11 +238,6 @@ dataEngine:
     repository: ccr.ccs.tencentyun.com/0thing-prod/data-engine
     tag: latest
     pullPolicy: IfNotPresent
-  existingConfigSecret: ""
-  config:
-    mqttClientId: 0things-data-engine
-    mqttUsername: ""
-    mqttPassword: ""
   resources:
     requests:
       cpu: 100m
@@ -283,29 +246,6 @@ dataEngine:
       cpu: "1"
       memory: 512Mi
 
-transportHttp:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: ccr.ccs.tencentyun.com/0thing-prod/transport-http
-    tag: latest
-    pullPolicy: IfNotPresent
-  existingConfigSecret: ""
-  service:
-    type: ClusterIP
-    port: 8081
-    annotations: {}
-  auth:
-    enabled: false
-    token: ""
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 500m
-      memory: 256Mi
-
 transportMqtt:
   enabled: true
   replicaCount: 1
@@ -313,7 +253,6 @@ transportMqtt:
     repository: ccr.ccs.tencentyun.com/0thing-prod/transport-mqtt
     tag: latest
     pullPolicy: IfNotPresent
-  existingConfigSecret: ""
   config:
     clientId: 0things-transport-mqtt
     username: ""
@@ -333,7 +272,6 @@ aiCopilot:
     repository: ccr.ccs.tencentyun.com/0thing-prod/ai-copilot
     tag: latest
     pullPolicy: IfNotPresent
-  existingSecret: ""
   config:
     modelBaseUrl: https://api.openai.com/v1
     modelApiKey: change-me-ai-model-api-key
@@ -341,7 +279,6 @@ aiCopilot:
   service:
     type: ClusterIP
     port: 8005
-    annotations: {}
   resources:
     requests:
       cpu: 50m
@@ -360,7 +297,6 @@ frontend:
   service:
     type: ClusterIP
     port: 80
-    annotations: {}
   resources:
     requests:
       cpu: 50m
@@ -376,12 +312,10 @@ logto:
     repository: svhd/logto
     tag: latest
     pullPolicy: IfNotPresent
-  existingSecret: ""
   service:
     type: ClusterIP
     appPort: 3001
     adminPort: 3002
-    annotations: {}
   resources:
     requests:
       cpu: 100m
@@ -393,7 +327,6 @@ logto:
 ingress:
   enabled: false
   className: nginx
-  annotations: {}
   frontend:
     host: ""
     path: /

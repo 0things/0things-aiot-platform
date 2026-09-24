@@ -1,13 +1,13 @@
-FROM node:25-alpine AS builder
+ARG REGISTRY=docker.io
+FROM ${REGISTRY}/node:25-alpine AS builder
 RUN npm install -g pnpm@10
 WORKDIR /app
-COPY ai-copilot/package.json ai-copilot/pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
-COPY ai-copilot/tsconfig.json ./
-COPY ai-copilot/src ./src
+COPY . .
 RUN pnpm build && pnpm prune --prod
 
-FROM node:25-alpine
+FROM ${REGISTRY}/node:25-alpine
 WORKDIR /app
 COPY --from=builder --chown=node:node /app/package.json ./
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules

@@ -14,7 +14,7 @@ import (
 	"aiot-backend/pkg/logto"
 	"aiot-backend/pkg/server/http"
 
-	"0things/pkg/event"
+	"aiot-backend/internal/event"
 
 	"github.com/google/wire"
 	"github.com/spf13/viper"
@@ -51,7 +51,6 @@ var serviceSet = wire.NewSet(
 	service.NewProductMessageParserService,
 	service.NewDeviceService,
 	service.NewDeviceGroupService,
-	service.NewMQTTService,
 	service.NewTelemetryService,
 	service.NewOTAService,
 	service.NewFileService,
@@ -68,7 +67,6 @@ var serviceSet = wire.NewSet(
 	wire.Bind(new(service.ProductMessageParserServiceInterface), new(*service.ProductMessageParserService)),
 	wire.Bind(new(service.DeviceServiceInterface), new(*service.DeviceService)),
 	wire.Bind(new(service.DeviceGroupServiceInterface), new(*service.DeviceGroupService)),
-	wire.Bind(new(service.MQTTServiceInterface), new(*service.MQTTService)),
 	wire.Bind(new(service.TelemetryServiceInterface), new(*service.TelemetryService)),
 	wire.Bind(new(service.OTAServiceInterface), new(*service.OTAService)),
 	wire.Bind(new(service.FileServiceInterface), new(*service.FileService)),

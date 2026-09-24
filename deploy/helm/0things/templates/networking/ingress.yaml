@@ -2,13 +2,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "frontend") }}
+  name: frontend
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "frontend") | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- include "0things.labels" "frontend" | nindent 4 }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . }}
@@ -31,7 +27,7 @@ spec:
             pathType: {{ .Values.ingress.frontend.pathType }}
             backend:
               service:
-                name: {{ include "0things.componentName" (dict "root" . "component" "frontend") }}
+                name: frontend
                 port:
                   name: http
 ---
@@ -40,13 +36,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+  name: logto
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "logto") | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- include "0things.labels" "logto" | nindent 4 }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . }}
@@ -69,7 +61,7 @@ spec:
             pathType: {{ .Values.ingress.logto.pathType }}
             backend:
               service:
-                name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+                name: logto
                 port:
                   name: app
 ---
@@ -78,13 +70,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "logto-admin") }}
+  name: logto-admin
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "logto-admin") | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- include "0things.labels" "logto-admin" | nindent 4 }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . }}
@@ -107,7 +95,7 @@ spec:
             pathType: {{ .Values.ingress.logtoAdmin.pathType }}
             backend:
               service:
-                name: {{ include "0things.componentName" (dict "root" . "component" "logto") }}
+                name: logto
                 port:
                   name: admin
 {{- end }}

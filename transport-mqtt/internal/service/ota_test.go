@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"0things/pkg/event"
+	"transport-mqtt/internal/event"
 	"transport-mqtt/internal/adaptor"
 	"transport-mqtt/pkg/log"
 
@@ -31,7 +31,7 @@ type mockProducer struct {
 	publishedMsg   interface{}
 }
 
-func (p *mockProducer) Publish(_ context.Context, topic event.Topic, msg interface{}, _ ...event.PublishOption) error {
+func (p *mockProducer) Publish(_ context.Context, topic event.Topic, msg interface{}) error {
 	p.publishedTopic = topic
 	p.publishedMsg = msg
 	return nil

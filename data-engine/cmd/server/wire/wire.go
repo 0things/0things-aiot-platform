@@ -4,8 +4,8 @@
 package wire
 
 import (
-	"0things/pkg/event"
-	"0things/pkg/tsdb"
+	"data-engine/internal/event"
+	"data-engine/internal/tsdb"
 	"data-engine/internal/consumer"
 	"data-engine/internal/handler"
 	"data-engine/internal/repository"

@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"0things/pkg/event"
-	"0things/pkg/tsdb"
+	"data-engine/internal/event"
+	"data-engine/internal/tsdb"
 	"data-engine/internal/handler"
 	"data-engine/internal/service"
 

@@ -2,10 +2,7 @@
 
 # 运行所有微服务单元测试
 test:
-	@echo "🧪 Running unit tests across all microservices and shared packages..."
-	@(cd pkg/protocol && go test ./...)
-	@(cd pkg/tsdb && go test ./...)
-	@(cd pkg/event && go test ./...)
+	@echo "🧪 Running unit tests across all microservices..."
 	@(cd transport-mqtt && go test ./...)
 	@(cd data-engine && go test ./...)
 	@(cd backend && go test ./...)

@@ -2,7 +2,7 @@
 
 - [x] 1.1 Create the Helm chart metadata, module directories, common helpers, and `.helmignore`; verify `helm show chart deploy/helm/0things` succeeds
 - [x] 1.2 Define complete shared, test, and production values including independent credentials, images, resources, persistence, services, and ingress; verify `helm show values` and YAML parsing succeed
-- [x] 1.3 Add `values.schema.json` constraints for required structures, value types, environment names, and service options; verify invalid environment values fail `helm lint`
+- [x] 1.3 Validate required credentials in Helm templates with actionable `required` errors; verify chart values render through Helm
 
 ## 2. Configuration and Infrastructure
 

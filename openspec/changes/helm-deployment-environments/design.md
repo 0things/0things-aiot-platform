@@ -12,7 +12,7 @@ The Helm implementation must remain self-contained, render without access to a c
 - Keep the template tree organized by application, infrastructure, configuration, and networking modules.
 - Make both environment overlays independently renderable and lintable.
 - Generate every required application and infrastructure Secret from values by default.
-- Use release-scoped names and rendered internal service addresses.
+- Use fixed component names and rendered internal service addresses; production and test releases use separate namespaces.
 - Make Helm the repository's only full-platform deployment method.
 
 **Non-Goals:**
@@ -42,7 +42,7 @@ templates/
 └── networking/
 ```
 
-Each application remains a file inside the shared application module. HTTP and MQTT transport resources share `application/transport.yaml`. Common labels, names, image rendering, storage, and checksums live in `_helpers.tpl`.
+Each application remains a file inside the shared application module. `application/transport-mqtt.yaml` contains the MQTT transport workload. Common labels, names, image rendering, storage, and checksums live in `_helpers.tpl`.
 
 Alternative considered: one directory per project. It was rejected because it creates many shallow directories and obscures cross-service deployment concerns.
 
@@ -60,9 +60,9 @@ Pod templates carry checksums of the configuration and secret templates so Helm 
 
 Alternative considered: `envFrom` only. It was rejected because the current services would ignore those variables for nested Viper keys.
 
-### Use release-scoped Kubernetes service discovery
+### Use fixed Kubernetes names within isolated namespaces
 
-All names derive from the release and chart fullname helpers. Runtime configuration and frontend Nginx configuration use those same helpers instead of Compose names such as `postgres` or `backend`. This permits test and production releases to coexist and avoids global service-name collisions.
+Resources use fixed component names such as `postgres` and `backend`. Production and test are installed in separate namespaces, so their names do not collide. Runtime configuration and frontend Nginx configuration use those same names for service discovery.
 
 ### Manage infrastructure as single-instance StatefulSets
 
@@ -70,11 +70,11 @@ PostgreSQL, Logto PostgreSQL, Redis, NATS JetStream, EMQX, and TDengine use Stat
 
 ### Expose one HTTP entry point through the frontend
 
-The frontend Nginx configuration proxies `/api`, `/copilot`, `/mcp`, and `/swagger` to release-scoped services. The chart exposes frontend Ingress configuration and separate optional Logto public/admin Ingress rules. MQTT exposure remains configurable through the EMQX Service type.
+The frontend Nginx configuration proxies `/api`, `/copilot`, `/mcp`, and `/swagger` to fixed component Services in the release namespace. The chart exposes frontend Ingress configuration and separate optional Logto public/admin Ingress rules. MQTT exposure remains configurable through the EMQX Service type.
 
 ### Validate before installation
 
-`values.schema.json` validates value types and environment names. Templates use `required` for credentials whose necessity depends on component enablement. Verification consists of `helm lint`, production and test `helm template`, OpenSpec validation, and Kubernetes schema validation when `kubeconform` is available.
+Templates use `required` for credentials whose necessity depends on component enablement. Verification consists of `helm lint`, production and test `helm template`, OpenSpec validation, and Kubernetes schema validation when `kubeconform` is available.
 
 ### Remove Docker Compose deployment entry points
 
@@ -93,7 +93,7 @@ The frontend image still needs a standalone Nginx configuration at build time, s
 
 1. Render and validate the test overlay locally.
 2. Publish all configured application images.
-3. Prepare the required application database schema outside the chart, then install the test release in its own namespace and verify application readiness, persistence, and HTTP/MQTT routing.
+3. Prepare the required application database schema outside the chart, then install the test release in its own namespace and verify application readiness, persistence, and MQTT routing.
 4. Back up production data and render the production overlay for review.
 5. Prepare any required production schema changes, then install or upgrade production with `--atomic --wait`.
 6. On failure, inspect pod events and logs; Helm automatically rolls back when `--atomic` is used.

@@ -1,25 +1,89 @@
 {{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend
+  labels:
+    {{- include "0things.labels" "frontend" | nindent 4 }}
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name _;
+
+      gzip on;
+      gzip_min_length 1k;
+      gzip_comp_level 6;
+      gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/json image/svg+xml;
+      gzip_vary on;
+
+      location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html;
+      }
+      {{- if .Values.backend.enabled }}
+
+      location /api/ {
+        proxy_pass http://backend:{{ .Values.backend.service.port }}/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      }
+
+      location /swagger/ {
+        proxy_pass http://backend:{{ .Values.backend.service.port }}/swagger/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      }
+      {{- end }}
+      {{- if .Values.aiCopilot.enabled }}
+
+      location /copilot/ {
+        proxy_pass http://ai-copilot:{{ .Values.aiCopilot.service.port }}/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+      }
+      {{- end }}
+      {{- if .Values.mcpServer.enabled }}
+
+      location /mcp {
+        proxy_pass http://mcp-server:{{ .Values.mcpServer.service.port }}/mcp;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+      }
+      {{- end }}
+    }
+---
+{{- end }}
+{{- if .Values.frontend.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "frontend") }}
+  name: frontend
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "frontend") | nindent 4 }}
+    {{- include "0things.labels" "frontend" | nindent 4 }}
 spec:
   replicas: {{ .Values.frontend.replicaCount }}
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      {{- include "0things.selectorLabels" (dict "root" . "component" "frontend") | nindent 6 }}
+      {{- include "0things.labels" "frontend" | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "0things.selectorLabels" (dict "root" . "component" "frontend") | nindent 8 }}
-      annotations:
-        checksum/config: {{ toJson (dict "backend" .Values.backend.enabled "mcp" .Values.mcpServer.enabled "ai" .Values.aiCopilot.enabled) | sha256sum }}
+        {{- include "0things.labels" "frontend" | nindent 8 }}
     spec:
       {{- include "0things.imagePullSecrets" . | nindent 6 }}
-      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      terminationGracePeriodSeconds: 30
       containers:
         - name: frontend
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
@@ -49,5 +113,20 @@ spec:
       volumes:
         - name: nginx-config
           configMap:
-            name: {{ include "0things.componentName" (dict "root" . "component" "frontend") }}
+            name: frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    {{- include "0things.labels" "frontend" | nindent 4 }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.frontend.service.port }}
+      targetPort: 80
+  selector:
+    {{- include "0things.labels" "frontend" | nindent 4 }}
 {{- end }}

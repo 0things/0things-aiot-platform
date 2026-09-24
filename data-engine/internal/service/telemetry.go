@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"0things/pkg/event"
-	"0things/pkg/tsdb"
+	"data-engine/internal/event"
+	"data-engine/internal/tsdb"
 
 	"go.uber.org/zap"
 )

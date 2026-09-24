@@ -9,7 +9,7 @@ The Helm chart SHALL install the 0things application workloads and the infrastru
 
 #### Scenario: Install a complete environment
 - **WHEN** an operator installs the chart with a supported environment values file
-- **THEN** Kubernetes resources are rendered for backend, MCP server, data engine, HTTP and MQTT transports, AI copilot, frontend, Logto, PostgreSQL, Redis, NATS, EMQX, and TDengine
+- **THEN** Kubernetes resources are rendered for backend, MCP server, data engine, MQTT transport, AI copilot, frontend, Logto, PostgreSQL, Redis, NATS, EMQX, and TDengine
 
 #### Scenario: Disable an optional component
 - **WHEN** an operator disables a component through its `enabled` value
@@ -42,14 +42,14 @@ The chart SHALL render runtime configuration using Kubernetes service discovery 
 
 #### Scenario: Connect internal services
 - **WHEN** workloads start from a rendered release
-- **THEN** their PostgreSQL, Redis, NATS, EMQX, TDengine, Logto, MCP, and backend addresses resolve to services in the release namespace
+- **THEN** their PostgreSQL, Redis, NATS, EMQX, TDengine, Logto, MCP, and backend addresses resolve to fixed-name Services in the environment namespace
 
 #### Scenario: Roll out a configuration change
 - **WHEN** a rendered ConfigMap or Secret changes during an upgrade
 - **THEN** affected application workloads receive a pod-template change that triggers a rolling update
 
 ### Requirement: Persistent state
-The chart SHALL define configurable persistent storage for stateful infrastructure and SHALL keep production and test data isolated by Kubernetes namespace and release.
+The chart SHALL define configurable persistent storage for stateful infrastructure and SHALL keep production and test data isolated by Kubernetes namespace. Each environment SHALL use its own namespace because resource names are fixed.
 
 #### Scenario: Preserve state across pod replacement
 - **WHEN** a PostgreSQL, Redis, NATS, EMQX, or TDengine pod is replaced
@@ -60,7 +60,7 @@ Rendered resources SHALL use stable selectors, recommended application labels, c
 
 #### Scenario: Validate the chart
 - **WHEN** maintainers run chart linting, environment rendering, and Kubernetes schema validation for production and test overlays
-- **THEN** both environments pass without template, values schema, or resource schema errors
+- **THEN** both environments pass without template or Kubernetes resource schema errors
 
 ### Requirement: Operational documentation
 The chart SHALL document installation, upgrade, validation, rollback, credential configuration, image pull configuration, and environment selection.

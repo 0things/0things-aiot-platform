@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"0things/pkg/event"
+	"aiot-backend/internal/event"
 	"aiot-backend/internal/model"
 	"aiot-backend/internal/repository"
 	"aiot-backend/internal/tenant"
@@ -125,7 +125,7 @@ type mockEventProducer struct {
 	topics    []event.Topic
 }
 
-func (m *mockEventProducer) Publish(ctx context.Context, topic event.Topic, payload any, opts ...event.PublishOption) error {
+func (m *mockEventProducer) Publish(ctx context.Context, topic event.Topic, payload any) error {
 	m.topics = append(m.topics, topic)
 	m.published = append(m.published, payload)
 	return nil

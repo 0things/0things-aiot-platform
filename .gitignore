@@ -19,6 +19,8 @@
 **/config/prod.yml
 **/config/docker.yml
 **/configs/config.yaml
+**/values-prod.yaml
+**/values-test.yaml
 **/*.cert
 **/*.key
 

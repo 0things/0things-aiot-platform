@@ -1,2 +1,7 @@
 .git
 .idea
+bin/
+storage/
+coverage.out
+coverage.html
+.env*

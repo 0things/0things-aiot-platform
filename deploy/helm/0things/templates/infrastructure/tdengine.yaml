@@ -1,0 +1,120 @@
+{{- if .Values.tdengine.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tdengine
+  labels:
+    {{- include "0things.labels" "tdengine" | nindent 4 }}
+type: Opaque
+stringData:
+  TAOS_USER: {{ required "tdengine.auth.username is required" .Values.tdengine.auth.username | quote }}
+  TAOS_PASSWORD: {{ required "tdengine.auth.password is required" .Values.tdengine.auth.password | quote }}
+  TAOS_DATABASE: {{ required "tdengine.auth.database is required" .Values.tdengine.auth.database | quote }}
+---
+{{- end }}
+{{- if .Values.tdengine.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tdengine
+  labels:
+    {{- include "0things.labels" "tdengine" | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: tdengine
+  selector:
+    matchLabels:
+      {{- include "0things.labels" "tdengine" | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.labels" "tdengine" | nindent 8 }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: tdengine
+          image: "{{ .Values.tdengine.image.repository }}:{{ .Values.tdengine.image.tag }}"
+          imagePullPolicy: {{ .Values.tdengine.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: tdengine
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - sh
+                  - -ec
+                  - |
+                    until taos -u root -ptaosdata -s "SELECT SERVER_VERSION();" >/dev/null 2>&1 || taos -u "$TAOS_USER" -p"$TAOS_PASSWORD" -s "SELECT SERVER_VERSION();" >/dev/null 2>&1; do sleep 2; done
+                    taos -u root -ptaosdata -s "ALTER USER root PASS '$TAOS_PASSWORD';" >/dev/null 2>&1 || true
+                    taos -u "$TAOS_USER" -p"$TAOS_PASSWORD" -s "CREATE DATABASE IF NOT EXISTS $TAOS_DATABASE;"
+          ports:
+            - name: native
+              containerPort: {{ .Values.tdengine.service.nativePort }}
+            - name: websocket
+              containerPort: {{ .Values.tdengine.service.websocketPort }}
+          readinessProbe:
+            tcpSocket:
+              port: websocket
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: native
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.tdengine.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/taos
+            - name: log
+              mountPath: /var/log/taos
+      {{- if not .Values.tdengine.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: log
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.tdengine.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.tdengine.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.tdengine.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.tdengine.persistence.dataSize }}
+    - metadata:
+        name: log
+      spec:
+        accessModes:
+          {{- toYaml .Values.tdengine.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.tdengine.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.tdengine.persistence.logSize }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tdengine
+  labels:
+    {{- include "0things.labels" "tdengine" | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: native
+      port: {{ .Values.tdengine.service.nativePort }}
+      targetPort: {{ .Values.tdengine.service.nativePort }}
+    - name: websocket
+      port: {{ .Values.tdengine.service.websocketPort }}
+      targetPort: {{ .Values.tdengine.service.websocketPort }}
+  selector:
+    {{- include "0things.labels" "tdengine" | nindent 4 }}
+{{- end }}

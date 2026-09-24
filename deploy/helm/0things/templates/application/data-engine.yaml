@@ -1,42 +1,77 @@
+{{- if and .Values.dataEngine.enabled (or (not .Values.postgres.enabled) (not .Values.redis.enabled) (not .Values.tdengine.enabled) (not .Values.nats.enabled)) }}
+{{- fail "dataEngine.enabled requires postgres, redis, tdengine, and nats to be enabled" }}
+{{- end }}
+{{- if .Values.dataEngine.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-engine-config
+  labels:
+    {{- include "0things.labels" "data-engine" | nindent 4 }}
+data:
+  local.yml: |
+    env: {{ .Values.global.environment }}
+    data:
+      db:
+        aiot:
+          driver: postgres
+          dsn: {{ printf "host=postgres port=%d user=%s password=%s dbname=%s sslmode=disable" (int .Values.postgres.service.port) .Values.postgres.auth.username .Values.postgres.auth.password .Values.postgres.auth.database | quote }}
+    tsdb:
+      type: tdengine
+      tdengine:
+        dsn: {{ printf "%s:%s@ws(tdengine:%d)/" .Values.tdengine.auth.username .Values.tdengine.auth.password (int .Values.tdengine.service.websocketPort) | quote }}
+        database: {{ .Values.tdengine.auth.database | quote }}
+        table: device_properties
+    redis:
+      addr: {{ printf "%s:%d" "redis" (int .Values.redis.service.port) | quote }}
+      password: {{ .Values.redis.auth.password | quote }}
+      db: 0
+    event:
+      driver: nats
+      nats:
+        url: {{ if .Values.nats.auth.enabled }}{{ printf "nats://%s:%s@nats:%d" .Values.nats.auth.username .Values.nats.auth.password (int .Values.nats.service.clientPort) | quote }}{{ else }}{{ printf "nats://nats:%d" (int .Values.nats.service.clientPort) | quote }}{{ end }}
+    log:
+      log_level: {{ ternary "debug" "info" (ne .Values.global.environment "prod") }}
+      mode: console
+      encoding: console
+---
+{{- end }}
 {{- if .Values.dataEngine.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "data-engine") }}
+  name: data-engine
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "data-engine") | nindent 4 }}
+    {{- include "0things.labels" "data-engine" | nindent 4 }}
 spec:
   replicas: {{ .Values.dataEngine.replicaCount }}
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      {{- include "0things.selectorLabels" (dict "root" . "component" "data-engine") | nindent 6 }}
+      {{- include "0things.labels" "data-engine" | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "0things.selectorLabels" (dict "root" . "component" "data-engine") | nindent 8 }}
-      annotations:
-        checksum/config: {{ toJson (dict "config" .Values.dataEngine.config "postgres" .Values.postgres.auth "redis" .Values.redis.auth "nats" .Values.nats.auth "tdengine" .Values.tdengine.auth) | sha256sum }}
+        {{- include "0things.labels" "data-engine" | nindent 8 }}
     spec:
       {{- include "0things.imagePullSecrets" . | nindent 6 }}
-      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      terminationGracePeriodSeconds: 30
       containers:
         - name: data-engine
           image: "{{ .Values.dataEngine.image.repository }}:{{ .Values.dataEngine.image.tag }}"
           imagePullPolicy: {{ .Values.dataEngine.image.pullPolicy }}
-          {{- include "0things.containerSecurityContext" . | nindent 10 }}
           env:
             - name: APP_CONF
-              value: config/helm.yml
+              value: config/local.yml
           resources:
             {{- toYaml .Values.dataEngine.resources | nindent 12 }}
           volumeMounts:
             - name: config
-              mountPath: /data/app/config/helm.yml
-              subPath: helm.yml
+              mountPath: /data/app/config/local.yml
+              subPath: local.yml
               readOnly: true
       volumes:
         - name: config
-          secret:
-            secretName: {{ default (include "0things.componentName" (dict "root" . "component" "data-engine-config")) .Values.dataEngine.existingConfigSecret }}
+          configMap:
+            name: data-engine-config
 {{- end }}

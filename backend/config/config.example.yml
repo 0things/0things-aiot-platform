@@ -39,12 +39,6 @@ data:
     db: 0
     read_timeout: 0.2s
     write_timeout: 0.2s
-  mqtt:
-    # OTA 传输开发使用的本地 MQTT Broker 示例配置。
-    broker: tcp://127.0.0.1:1883
-    client_id: aiot-ota-backend
-    username: ""
-    password: ""
 # ==============================================================================
 # 统一时序数据库配置 (可插拔时序存储引擎，用于 /telemetry/history 历史曲线查询)
 # 切换数据库只需修改 `type` 字段 (tdengine | sqlite | postgresql | timescaledb | clickhouse | influxdb | iotdb | mock)

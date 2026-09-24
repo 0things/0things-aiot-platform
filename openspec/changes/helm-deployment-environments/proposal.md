@@ -8,7 +8,7 @@ The repository currently relies on Docker Compose and lacks a Kubernetes deploym
 - Organize templates by deployment module: application, infrastructure, configuration, and networking, instead of creating a directory per project.
 - Provide shared defaults in `values.yaml` and environment overrides in `values-test.yaml` and `values-prod.yaml`.
 - Define database, middleware, image registry, and application credentials through environment values and render the required Kubernetes Secrets automatically.
-- Deploy and configure backend, MCP server, data engine, HTTP/MQTT transports, AI copilot, frontend, Logto, PostgreSQL, Redis, NATS, EMQX, and TDengine.
+- Deploy and configure backend, MCP server, data engine, MQTT transport, AI copilot, frontend, Logto, PostgreSQL, Redis, NATS, EMQX, and TDengine.
 - Apply standard Helm and Kubernetes metadata, selectors, resource configuration, persistence, probes, ingress configuration, configuration checksums, and values validation.
 - Document repeatable test and production installation, upgrade, validation, and rollback commands.
 - Remove repository Docker Compose manifests and Compose-dependent launch scripts so Helm is the only checked-in full-platform deployment method.

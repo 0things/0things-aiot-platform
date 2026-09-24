@@ -12,7 +12,7 @@ import (
 	"transport-mqtt/pkg/app"
 	"transport-mqtt/pkg/log"
 
-	"0things/pkg/event"
+	"transport-mqtt/internal/event"
 
 	"github.com/google/wire"
 	"github.com/spf13/viper"

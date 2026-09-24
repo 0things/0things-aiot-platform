@@ -1,0 +1,94 @@
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis
+  labels:
+    {{- include "0things.labels" "redis" | nindent 4 }}
+type: Opaque
+stringData:
+  REDIS_PASSWORD: {{ .Values.redis.auth.password | quote }}
+---
+{{- end }}
+{{- if .Values.redis.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  labels:
+    {{- include "0things.labels" "redis" | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: redis
+  selector:
+    matchLabels:
+      {{- include "0things.labels" "redis" | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.labels" "redis" | nindent 8 }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: redis
+          command: ["sh", "-c"]
+          args:
+            - exec redis-server --appendonly yes {{ if .Values.redis.auth.password }}--requirepass "$REDIS_PASSWORD"{{ end }}
+          ports:
+            - name: redis
+              containerPort: {{ .Values.redis.service.port }}
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "redis-cli {{ if .Values.redis.auth.password }}-a \"$REDIS_PASSWORD\"{{ end }} ping | grep PONG"]
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.redis.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      {{- if not .Values.redis.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.redis.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.redis.persistence.accessModes | nindent 10 }}
+        {{- include "0things.storageClass" (dict "storageClass" (default .Values.global.storageClass .Values.redis.persistence.storageClass)) | nindent 8 }}
+        resources:
+          requests:
+            storage: {{ .Values.redis.persistence.size }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    {{- include "0things.labels" "redis" | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: redis
+      port: {{ .Values.redis.service.port }}
+      targetPort: {{ .Values.redis.service.port }}
+  selector:
+    {{- include "0things.labels" "redis" | nindent 4 }}
+---
+{{- end }}

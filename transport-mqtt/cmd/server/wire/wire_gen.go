@@ -7,11 +7,11 @@
 package wire
 
 import (
-	"0things/pkg/event"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 	"transport-mqtt/internal/adaptor"
 	"transport-mqtt/internal/consumer"
+	"transport-mqtt/internal/event"
 	"transport-mqtt/internal/handler"
 	"transport-mqtt/internal/server"
 	"transport-mqtt/internal/service"

@@ -1,44 +1,126 @@
-{{- $backendConfigSecret := default (include "0things.componentName" (dict "root" . "component" "backend-config")) .Values.backend.existingConfigSecret -}}
+{{- if and (or .Values.backend.enabled .Values.mcpServer.enabled) (or (not .Values.postgres.enabled) (not .Values.redis.enabled) (not .Values.tdengine.enabled) (not .Values.nats.enabled) (not .Values.logto.enabled)) }}
+{{- fail "backend or mcpServer requires postgres, redis, tdengine, nats, and logto to be enabled" }}
+{{- end }}
+{{- if or .Values.backend.enabled .Values.mcpServer.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  labels:
+    {{- include "0things.labels" "backend" | nindent 4 }}
+data:
+  local.yml: |
+    env: {{ .Values.global.environment }}
+    http:
+      host: 0.0.0.0
+      port: {{ .Values.backend.service.port }}
+    security:
+      device_credentials_key: {{ required "backend.config.deviceCredentialsKey is required" .Values.backend.config.deviceCredentialsKey | quote }}
+      api_sign:
+        app_key: {{ required "backend.config.apiSign.appKey is required" .Values.backend.config.apiSign.appKey | quote }}
+        app_security: {{ required "backend.config.apiSign.appSecret is required" .Values.backend.config.apiSign.appSecret | quote }}
+      logto:
+        issuer: {{ printf "%s/oidc" (trimSuffix "/" .Values.global.publicUrls.logto) | quote }}
+        audience: {{ .Values.global.publicUrls.backend | quote }}
+        jwks_url: {{ printf "http://%s:%d/oidc/jwks" "logto" (int .Values.logto.service.appPort) | quote }}
+        organization_claim: {{ .Values.backend.config.logto.organizationClaim | quote }}
+        management:
+          endpoint: {{ printf "http://%s:%d" "logto" (int .Values.logto.service.appPort) | quote }}
+          app_id: {{ required "backend.config.logto.managementAppId is required" .Values.backend.config.logto.managementAppId | quote }}
+          app_secret: {{ required "backend.config.logto.managementAppSecret is required" .Values.backend.config.logto.managementAppSecret | quote }}
+          resource: {{ .Values.backend.config.logto.managementResource | quote }}
+    data:
+      db:
+        aiot:
+          driver: postgres
+          dsn: {{ printf "host=postgres port=%d user=%s password=%s dbname=%s sslmode=disable" (int .Values.postgres.service.port) .Values.postgres.auth.username .Values.postgres.auth.password .Values.postgres.auth.database | quote }}
+      storage:
+        r2:
+          endpoint: {{ .Values.backend.config.r2.endpoint | quote }}
+          bucket: {{ .Values.backend.config.r2.bucket | quote }}
+          region: {{ .Values.backend.config.r2.region | quote }}
+          access_key_id: {{ .Values.backend.config.r2.accessKeyId | quote }}
+          secret_access_key: {{ .Values.backend.config.r2.secretAccessKey | quote }}
+          public_base_url: {{ .Values.backend.config.r2.publicBaseUrl | quote }}
+          prefix: {{ .Values.backend.config.r2.prefix | quote }}
+      redis:
+        addr: {{ printf "%s:%d" "redis" (int .Values.redis.service.port) | quote }}
+        password: {{ .Values.redis.auth.password | quote }}
+        db: 0
+        read_timeout: 2s
+        write_timeout: 2s
+    tsdb:
+      type: tdengine
+      tdengine:
+        dsn: {{ printf "%s:%s@ws(tdengine:%d)/" .Values.tdengine.auth.username .Values.tdengine.auth.password (int .Values.tdengine.service.websocketPort) | quote }}
+        database: {{ .Values.tdengine.auth.database | quote }}
+        table: device_properties
+    event:
+      driver: nats
+      nats:
+        url: {{ if .Values.nats.auth.enabled }}{{ printf "nats://%s:%s@nats:%d" .Values.nats.auth.username .Values.nats.auth.password (int .Values.nats.service.clientPort) | quote }}{{ else }}{{ printf "nats://nats:%d" (int .Values.nats.service.clientPort) | quote }}{{ end }}
+    device_gateway:
+      mqtt:
+        host: {{ .Values.backend.config.deviceGateway.mqttHost | quote }}
+        port: {{ .Values.backend.config.deviceGateway.mqttPort | quote }}
+    mcp:
+      name: 0things-iot-mcp
+      version: 0.1.0
+      stdio_enabled: false
+      sse_enabled: false
+      sse_addr: ":8008"
+      streamable_http_enabled: true
+      streamable_http_addr: {{ printf ":%d" (int .Values.mcpServer.service.port) | quote }}
+    log:
+      log_level: {{ ternary "debug" "info" (ne .Values.global.environment "prod") }}
+      mode: console
+      output: stderr
+      encoding: console
+      max_backups: 30
+      max_age: 7
+      max_size: 1024
+      compress: true
+---
+{{- end }}
 {{- if .Values.backend.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "backend") }}
+  name: backend
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "backend") | nindent 4 }}
+    {{- include "0things.labels" "backend" | nindent 4 }}
 spec:
   replicas: {{ .Values.backend.replicaCount }}
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      {{- include "0things.selectorLabels" (dict "root" . "component" "backend") | nindent 6 }}
+      {{- include "0things.labels" "backend" | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "0things.selectorLabels" (dict "root" . "component" "backend") | nindent 8 }}
-      annotations:
-        checksum/config: {{ toJson (dict "backend" .Values.backend.config "global" .Values.global "postgres" .Values.postgres.auth "redis" .Values.redis.auth "nats" .Values.nats.auth "tdengine" .Values.tdengine.auth) | sha256sum }}
+        {{- include "0things.labels" "backend" | nindent 8 }}
     spec:
       {{- include "0things.imagePullSecrets" . | nindent 6 }}
-      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      terminationGracePeriodSeconds: 30
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
-          {{- include "0things.containerSecurityContext" . | nindent 10 }}
           env:
             - name: APP_CONF
-              value: config/helm.yml
+              value: config/local.yml
           ports:
             - name: http
               containerPort: {{ .Values.backend.service.port }}
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: http
             initialDelaySeconds: 5
             periodSeconds: 5
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: http
             initialDelaySeconds: 20
             periodSeconds: 10
@@ -46,45 +128,57 @@ spec:
             {{- toYaml .Values.backend.resources | nindent 12 }}
           volumeMounts:
             - name: config
-              mountPath: /data/app/config/helm.yml
-              subPath: helm.yml
+              mountPath: /data/app/config/local.yml
+              subPath: local.yml
               readOnly: true
       volumes:
         - name: config
-          secret:
-            secretName: {{ $backendConfigSecret }}
+          configMap:
+            name: backend-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    {{- include "0things.labels" "backend" | nindent 4 }}
+spec:
+  type: {{ .Values.backend.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.backend.service.port }}
+      targetPort: {{ .Values.backend.service.port }}
+  selector:
+    {{- include "0things.labels" "backend" | nindent 4 }}
 ---
 {{- end }}
 {{- if .Values.mcpServer.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "0things.componentName" (dict "root" . "component" "mcp-server") }}
+  name: mcp-server
   labels:
-    {{- include "0things.labels" (dict "root" . "component" "mcp-server") | nindent 4 }}
+    {{- include "0things.labels" "mcp-server" | nindent 4 }}
 spec:
   replicas: {{ .Values.mcpServer.replicaCount }}
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      {{- include "0things.selectorLabels" (dict "root" . "component" "mcp-server") | nindent 6 }}
+      {{- include "0things.labels" "mcp-server" | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "0things.selectorLabels" (dict "root" . "component" "mcp-server") | nindent 8 }}
-      annotations:
-        checksum/config: {{ toJson (dict "backend" .Values.backend.config "global" .Values.global "postgres" .Values.postgres.auth) | sha256sum }}
+        {{- include "0things.labels" "mcp-server" | nindent 8 }}
     spec:
       {{- include "0things.imagePullSecrets" . | nindent 6 }}
-      {{- include "0things.podSecurityContext" . | nindent 6 }}
+      terminationGracePeriodSeconds: 30
       containers:
         - name: mcp-server
           image: "{{ .Values.mcpServer.image.repository }}:{{ .Values.mcpServer.image.tag }}"
           imagePullPolicy: {{ .Values.mcpServer.image.pullPolicy }}
-          {{- include "0things.containerSecurityContext" . | nindent 10 }}
           env:
             - name: APP_CONF
-              value: config/helm.yml
+              value: config/local.yml
           ports:
             - name: http
               containerPort: {{ .Values.mcpServer.service.port }}
@@ -102,11 +196,26 @@ spec:
             {{- toYaml .Values.mcpServer.resources | nindent 12 }}
           volumeMounts:
             - name: config
-              mountPath: /data/app/config/helm.yml
-              subPath: helm.yml
+              mountPath: /data/app/config/local.yml
+              subPath: local.yml
               readOnly: true
       volumes:
         - name: config
-          secret:
-            secretName: {{ $backendConfigSecret }}
+          configMap:
+            name: backend-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-server
+  labels:
+    {{- include "0things.labels" "mcp-server" | nindent 4 }}
+spec:
+  type: {{ .Values.mcpServer.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.mcpServer.service.port }}
+      targetPort: {{ .Values.mcpServer.service.port }}
+  selector:
+    {{- include "0things.labels" "mcp-server" | nindent 4 }}
 {{- end }}

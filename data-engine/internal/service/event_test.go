@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	"0things/pkg/event"
+	"data-engine/internal/event"
 	"data-engine/internal/model"
 
 	"github.com/stretchr/testify/assert"

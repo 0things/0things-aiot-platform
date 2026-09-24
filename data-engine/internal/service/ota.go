@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"0things/pkg/event"
+	"data-engine/internal/event"
 	"data-engine/internal/repository"
 
 	"github.com/go-playground/validator/v10"

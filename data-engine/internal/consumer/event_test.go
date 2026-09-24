@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"0things/pkg/event"
+	"data-engine/internal/event"
 	"data-engine/internal/handler"
 	"data-engine/internal/model"
 	"data-engine/internal/service"

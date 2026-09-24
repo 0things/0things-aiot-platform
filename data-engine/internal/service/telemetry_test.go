@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"0things/pkg/event"
-	"0things/pkg/tsdb"
+	"data-engine/internal/event"
+	"data-engine/internal/tsdb"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"

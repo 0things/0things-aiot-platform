@@ -60,16 +60,6 @@ data:
       driver: "mysql"
       dsn: "root:password@tcp(127.0.0.1:3306)/0things?parseTime=true&loc=Local"
 
-mqtt:
-  broker: "tcp://127.0.0.1:1883"
-  client_id: "0things-data-engine"
-  username: ""
-  password: ""
-  tls:
-    ca_file: ""
-    cert_file: ""
-    key_file: ""
-
 event:
   driver: "nats"
   nats:

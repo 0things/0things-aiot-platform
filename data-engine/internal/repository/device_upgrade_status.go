@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"0things/pkg/event"
+	"data-engine/internal/event"
 
 	"gorm.io/gen/field"
 )

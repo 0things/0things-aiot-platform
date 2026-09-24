@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"0things/pkg/tsdb"
+	"aiot-backend/internal/tsdb"
 	"aiot-backend/pkg/log"
 
 	"github.com/spf13/viper"

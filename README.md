@@ -57,7 +57,7 @@
        NATS :4222 · Redis :6379 · Logto :3001/:3002 · SQLite / MySQL / PostgreSQL
 ```
 
-服务通过 NATS 传递事件；业务数据库由 backend 管理，时序数据通过 `pkg/tsdb` 的可插拔驱动写入。开发环境可以使用 SQLite，完整 Docker 环境也可以接入 PostgreSQL、Redis 和 EMQX。
+服务通过 NATS 传递事件；业务数据库由 backend 管理，时序数据由 data-engine 内部的存储实现写入。开发环境可以使用 SQLite，完整平台通过 Helm 部署 PostgreSQL、Redis、NATS、EMQX 和 TDengine 等依赖。
 
 ## 快速开始
 
@@ -159,10 +159,8 @@ make mock-alarm
 | [`data-engine/`](./data-engine) | 遥测时序数据、设备影子、任务和数据计算服务 |
 | [`transport-mqtt/`](./transport-mqtt) | MQTT 设备接入、事件和 OTA 消息处理 |
 | [`ai-copilot/`](./ai-copilot) | 基于 OpenAI-compatible 模型和 MCP 的 AI Gateway |
-| [`pkg/event/`](./pkg/event) | 事件总线抽象与 NATS/Watermill 集成 |
-| [`pkg/protocol/`](./pkg/protocol) | JSON、JavaScript、Modbus、GB28181 等协议编解码器 |
-| [`pkg/tsdb/`](./pkg/tsdb) | SQLite、PostgreSQL、TDengine、InfluxDB 等时序存储适配器 |
-| [`logto/`](./logto) | Logto 身份服务及其 Docker 配置 |
+| [`logto/`](./logto) | Logto 身份服务镜像与认证配置说明 |
+| [`deploy/helm/0things/`](./deploy/helm/0things) | 测试与生产环境的 Kubernetes Helm 部署包 |
 | [`openspec/`](./openspec) | 功能变更提案、设计和任务规格 |
 | [`docs/`](./docs) | 架构、认证、数据模型和运行说明 |
 

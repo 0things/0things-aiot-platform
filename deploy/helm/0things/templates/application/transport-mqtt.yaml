@@ -1,0 +1,71 @@
+{{- if and .Values.transportMqtt.enabled (or (not .Values.emqx.enabled) (not .Values.nats.enabled)) }}
+{{- fail "transportMqtt.enabled requires emqx and nats to be enabled" }}
+{{- end }}
+{{- if .Values.transportMqtt.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: transport-mqtt-config
+  labels:
+    {{- include "0things.labels" "transport-mqtt" | nindent 4 }}
+data:
+  local.yml: |
+    env: {{ .Values.global.environment }}
+    mqtt:
+      broker: {{ printf "tcp://%s:%d" "emqx" (int .Values.emqx.service.mqttPort) | quote }}
+      client_id: {{ .Values.transportMqtt.config.clientId | quote }}
+      username: {{ .Values.transportMqtt.config.username | quote }}
+      password: {{ .Values.transportMqtt.config.password | quote }}
+      tls:
+        ca_file: ""
+        cert_file: ""
+        key_file: ""
+    event:
+      driver: nats
+      nats:
+        url: {{ if .Values.nats.auth.enabled }}{{ printf "nats://%s:%s@nats:%d" .Values.nats.auth.username .Values.nats.auth.password (int .Values.nats.service.clientPort) | quote }}{{ else }}{{ printf "nats://nats:%d" (int .Values.nats.service.clientPort) | quote }}{{ end }}
+    log:
+      log_level: {{ ternary "debug" "info" (ne .Values.global.environment "prod") }}
+      mode: console
+      encoding: console
+---
+{{- end }}
+{{- if .Values.transportMqtt.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transport-mqtt
+  labels:
+    {{- include "0things.labels" "transport-mqtt" | nindent 4 }}
+spec:
+  replicas: {{ .Values.transportMqtt.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "0things.labels" "transport-mqtt" | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "0things.labels" "transport-mqtt" | nindent 8 }}
+    spec:
+      {{- include "0things.imagePullSecrets" . | nindent 6 }}
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: transport-mqtt
+          image: "{{ .Values.transportMqtt.image.repository }}:{{ .Values.transportMqtt.image.tag }}"
+          imagePullPolicy: {{ .Values.transportMqtt.image.pullPolicy }}
+          env:
+            - name: APP_CONF
+              value: config/local.yml
+          resources:
+            {{- toYaml .Values.transportMqtt.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /data/app/config/local.yml
+              subPath: local.yml
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: transport-mqtt-config
+{{- end }}

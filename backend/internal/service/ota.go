@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"0things/pkg/event"
+	"aiot-backend/internal/event"
 	"aiot-backend/internal/dto"
 	"aiot-backend/internal/enum"
 	"aiot-backend/internal/model"
@@ -204,7 +204,7 @@ func (s *OTAService) BatchUpgrade(ctx context.Context, uuid string, deviceKeys [
 			if err != nil {
 				continue
 			}
-			_ = s.eventProducer.Publish(ctx, topic, cmd, event.WithTransport(protocol), event.WithDeviceKey(d.DeviceKey))
+			_ = s.eventProducer.Publish(ctx, topic, cmd)
 		}
 	}
 

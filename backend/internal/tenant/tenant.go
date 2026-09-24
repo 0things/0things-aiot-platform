@@ -19,6 +19,10 @@ func GetOrganizationID(ctx context.Context) string {
 	if ctx == nil {
 		return ""
 	}
+	// Gin Context exposes values stored with Set through its string-key lookup.
+	if value, _ := ctx.Value(string(OrganizationKey)).(string); value != "" {
+		return value
+	}
 	value, _ := ctx.Value(OrganizationKey).(string)
 	return value
 }
