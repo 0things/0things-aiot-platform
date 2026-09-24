@@ -10,7 +10,7 @@ app.kubernetes.io/managed-by: Helm
 {{- if or .Values.registry.create .Values.imagePullSecrets }}
 imagePullSecrets:
   {{- if .Values.registry.create }}
-  - name: 0things-registry-auth
+  - name: aiot-platform-registry-auth
   {{- end }}
   {{- range .Values.imagePullSecrets }}
   - name: {{ . }}

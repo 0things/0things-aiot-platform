@@ -1,0 +1,10 @@
+{{- if .Values.clusterIssuer }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token
+  namespace: cert-manager
+type: Opaque
+stringData:
+  api-token: {{ required "clusterIssuer.apiToken is required" .Values.clusterIssuer.apiToken | quote }}
+{{- end }}

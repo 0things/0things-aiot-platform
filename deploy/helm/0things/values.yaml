@@ -1,18 +1,22 @@
 global:
   environment: local
+  # Example for k3s: local-path. Leave empty to use the cluster default.
   storageClass: ""
   publicUrls:
-    backend: http://localhost:8000
     logto: http://localhost:3001
     logtoAdmin: http://localhost:3002
 
+# Example for an existing Secret (also set registry.create: false): [my-registry-auth]
 imagePullSecrets: []
 
 registry:
   create: true
   server: ccr.ccs.tencentyun.com
+  # Example: your registry username; keep real credentials in a private values file.
   username: ""
+  # Example: your registry password; keep real credentials in a private values file.
   password: ""
+  # Optional. Example: ops@example.com
   email: ""
 
 postgres:
@@ -74,6 +78,7 @@ redis:
     tag: 7-alpine
     pullPolicy: IfNotPresent
   auth:
+    # Example: set a generated password for production; empty disables Redis AUTH.
     password: ""
   service:
     port: 6379
@@ -100,6 +105,7 @@ nats:
   auth:
     enabled: false
     username: nats
+    # Example: set a generated password when auth.enabled is true.
     password: ""
   service:
     clientPort: 4222
@@ -190,20 +196,26 @@ backend:
       appSecret: change-me
     deviceCredentialsKey: change-me-to-a-random-device-credentials-key
     logto:
+      audience: http://localhost:8000
       organizationClaim: organization_id
       managementAppId: change-me-logto-management-app-id
       managementAppSecret: change-me-logto-management-app-secret
       managementResource: https://default.logto.app/api
     r2:
+      # Example: https://<account-id>.r2.cloudflarestorage.com
       endpoint: ""
+      # Example: firmware
       bucket: ""
       region: auto
+      # Example: your R2 access key ID.
       accessKeyId: ""
+      # Example: your R2 secret access key; keep it in a private values file.
       secretAccessKey: ""
+      # Example: https://firmware.example.com
       publicBaseUrl: ""
       prefix: ota
     deviceGateway:
-      mqttHost: mqtt.0things.com
+      mqttHost: mqtt.example.com
       mqttPort: "1883"
   resources:
     requests:
@@ -255,7 +267,9 @@ transportMqtt:
     pullPolicy: IfNotPresent
   config:
     clientId: 0things-transport-mqtt
+    # Example: an MQTT username configured in the broker.
     username: ""
+    # Example: the password matching the broker user.
     password: ""
   resources:
     requests:
@@ -324,23 +338,42 @@ logto:
       cpu: "1"
       memory: 1Gi
 
+# Configure these in values-prod.yaml to issue a certificate with Cloudflare DNS-01.
+clusterIssuer: {}
+# Example:
+# clusterIssuer:
+#   name: letsencrypt-cloudflare
+#   apiToken: REPLACE_WITH_CLOUDFLARE_API_TOKEN
+#   dnsZones:
+#     - example.com
+
+certificate: {}
+# Example:
+# certificate:
+#   name: example-com
+#   issuerName: letsencrypt-cloudflare
+#   dnsNames:
+#     - example.com
+#     - "*.example.com"
+
 ingress:
-  enabled: false
+  # Example for k3s: traefik
   className: nginx
   frontend:
+    # Example: console.example.com
     host: ""
     path: /
     pathType: Prefix
-    tlsSecret: ""
+  gateway:
+    # Example: gateway.example.com
+    host: ""
   logto:
-    enabled: false
+    # Example: auth.example.com
     host: ""
     path: /
     pathType: Prefix
-    tlsSecret: ""
   logtoAdmin:
-    enabled: false
+    # Example: auth-admin.example.com
     host: ""
     path: /
     pathType: Prefix
-    tlsSecret: ""

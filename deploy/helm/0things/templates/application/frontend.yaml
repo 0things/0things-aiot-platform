@@ -1,12 +1,4 @@
-{{- if .Values.frontend.enabled }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: frontend
-  labels:
-    {{- include "0things.labels" "frontend" | nindent 4 }}
-data:
-  default.conf: |
+{{- define "0things.frontend.nginxConfig" }}
     server {
       listen 80;
       server_name _;
@@ -44,6 +36,7 @@ data:
       location /copilot/ {
         proxy_pass http://ai-copilot:{{ .Values.aiCopilot.service.port }}/;
         proxy_http_version 1.1;
+        proxy_buffering off;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
@@ -62,6 +55,17 @@ data:
       }
       {{- end }}
     }
+{{- end }}
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend
+  labels:
+    {{- include "0things.labels" "frontend" | nindent 4 }}
+data:
+  default.conf: |
+{{ include "0things.frontend.nginxConfig" . | trimPrefix "\n" }}
 ---
 {{- end }}
 {{- if .Values.frontend.enabled }}
@@ -81,6 +85,8 @@ spec:
     metadata:
       labels:
         {{- include "0things.labels" "frontend" | nindent 8 }}
+      annotations:
+        checksum/nginx-config: {{ include "0things.frontend.nginxConfig" . | sha256sum }}
     spec:
       {{- include "0things.imagePullSecrets" . | nindent 6 }}
       terminationGracePeriodSeconds: 30

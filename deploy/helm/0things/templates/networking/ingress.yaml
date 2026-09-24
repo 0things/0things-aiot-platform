@@ -1,22 +1,27 @@
-{{- if and .Values.ingress.enabled .Values.frontend.enabled }}
+{{- if and .Values.ingress.frontend.host .Values.frontend.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: frontend
   labels:
     {{- include "0things.labels" "frontend" | nindent 4 }}
+  {{- if eq .Values.ingress.className "traefik" }}
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: {{ printf "%s-redirect-https@kubernetescrd" .Release.Namespace | quote }}
+  {{- else if eq .Values.ingress.className "nginx" }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  {{- end }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . }}
   {{- end }}
-  {{- if .Values.ingress.frontend.tlsSecret }}
   tls:
-    - secretName: {{ .Values.ingress.frontend.tlsSecret }}
+    - secretName: aiot-platform-tls
       {{- with .Values.ingress.frontend.host }}
       hosts:
         - {{ . | quote }}
       {{- end }}
-  {{- end }}
   rules:
     - {{- with .Values.ingress.frontend.host }}
       host: {{ . | quote }}
@@ -32,25 +37,110 @@ spec:
                   name: http
 ---
 {{- end }}
-{{- if and .Values.ingress.enabled .Values.ingress.logto.enabled .Values.logto.enabled }}
+{{- $hasIngress := or (and .Values.ingress.frontend.host .Values.frontend.enabled) (and .Values.ingress.gateway.host (or .Values.backend.enabled .Values.mcpServer.enabled)) (and .Values.ingress.logto.host .Values.logto.enabled) (and .Values.ingress.logtoAdmin.host .Values.logto.enabled) }}
+{{- if and (eq .Values.ingress.className "traefik") $hasIngress }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+{{- end }}
+{{- if and .Values.ingress.gateway.host .Values.backend.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: gateway-api-strip-prefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+---
+{{- end }}
+{{- if and .Values.ingress.gateway.host (or .Values.backend.enabled .Values.mcpServer.enabled) }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gateway
+  labels:
+    {{- include "0things.labels" "backend" | nindent 4 }}
+  {{- $middlewares := list }}
+  {{- if eq .Values.ingress.className "traefik" }}
+    {{- $middlewares = append $middlewares (printf "%s-redirect-https@kubernetescrd" .Release.Namespace) }}
+  {{- end }}
+  {{- if and .Values.backend.enabled (eq .Values.ingress.className "traefik") }}
+    {{- $middlewares = append $middlewares (printf "%s-gateway-api-strip-prefix@kubernetescrd" .Release.Namespace) }}
+  {{- end }}
+  {{- $hasMiddlewares := gt (len $middlewares) 0 }}
+  {{- $isNginxRedirect := eq .Values.ingress.className "nginx" }}
+  {{- if or $hasMiddlewares $isNginxRedirect }}
+  annotations:
+    {{- if $hasMiddlewares }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{ join "," $middlewares | quote }}
+    {{- end }}
+    {{- if $isNginxRedirect }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    {{- end }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  tls:
+    - secretName: aiot-platform-tls
+      hosts:
+        - {{ .Values.ingress.gateway.host | quote }}
+  rules:
+    - host: {{ .Values.ingress.gateway.host | quote }}
+      http:
+        paths:
+          {{- if .Values.backend.enabled }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  name: http
+          {{- end }}
+          {{- if .Values.mcpServer.enabled }}
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: mcp-server
+                port:
+                  name: http
+          {{- end }}
+---
+{{- end }}
+{{- if and .Values.ingress.logto.host .Values.logto.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: logto
   labels:
     {{- include "0things.labels" "logto" | nindent 4 }}
+  {{- if eq .Values.ingress.className "traefik" }}
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: {{ printf "%s-redirect-https@kubernetescrd" .Release.Namespace | quote }}
+  {{- else if eq .Values.ingress.className "nginx" }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  {{- end }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . }}
   {{- end }}
-  {{- if .Values.ingress.logto.tlsSecret }}
   tls:
-    - secretName: {{ .Values.ingress.logto.tlsSecret }}
+    - secretName: aiot-platform-tls
       {{- with .Values.ingress.logto.host }}
       hosts:
         - {{ . | quote }}
       {{- end }}
-  {{- end }}
   rules:
     - {{- with .Values.ingress.logto.host }}
       host: {{ . | quote }}
@@ -66,25 +156,30 @@ spec:
                   name: app
 ---
 {{- end }}
-{{- if and .Values.ingress.enabled .Values.ingress.logtoAdmin.enabled .Values.logto.enabled }}
+{{- if and .Values.ingress.logtoAdmin.host .Values.logto.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: logto-admin
   labels:
     {{- include "0things.labels" "logto-admin" | nindent 4 }}
+  {{- if eq .Values.ingress.className "traefik" }}
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: {{ printf "%s-redirect-https@kubernetescrd" .Release.Namespace | quote }}
+  {{- else if eq .Values.ingress.className "nginx" }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  {{- end }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . }}
   {{- end }}
-  {{- if .Values.ingress.logtoAdmin.tlsSecret }}
   tls:
-    - secretName: {{ .Values.ingress.logtoAdmin.tlsSecret }}
+    - secretName: aiot-platform-tls
       {{- with .Values.ingress.logtoAdmin.host }}
       hosts:
         - {{ . | quote }}
       {{- end }}
-  {{- end }}
   rules:
     - {{- with .Values.ingress.logtoAdmin.host }}
       host: {{ . | quote }}

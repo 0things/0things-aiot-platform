@@ -1,0 +1,20 @@
+{{- if .Values.clusterIssuer }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ required "clusterIssuer.name is required" .Values.clusterIssuer.name }}
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-cloudflare-account
+    solvers:
+      - selector:
+          dnsZones:
+            {{- toYaml (required "clusterIssuer.dnsZones is required" .Values.clusterIssuer.dnsZones) | nindent 12 }}
+        dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+{{- end }}

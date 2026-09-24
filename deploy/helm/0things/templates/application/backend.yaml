@@ -21,7 +21,7 @@ data:
         app_security: {{ required "backend.config.apiSign.appSecret is required" .Values.backend.config.apiSign.appSecret | quote }}
       logto:
         issuer: {{ printf "%s/oidc" (trimSuffix "/" .Values.global.publicUrls.logto) | quote }}
-        audience: {{ .Values.global.publicUrls.backend | quote }}
+        audience: {{ .Values.backend.config.logto.audience | quote }}
         jwks_url: {{ printf "http://%s:%d/oidc/jwks" "logto" (int .Values.logto.service.appPort) | quote }}
         organization_claim: {{ .Values.backend.config.logto.organizationClaim | quote }}
         management:
