@@ -75,7 +75,7 @@ metadata:
   labels:
     {{- include "0things.labels" "logto-postgres" | nindent 4 }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.logtoPostgres.service.type | default "ClusterIP" }}
   ports:
     - name: logto-postgres
       port: {{ .Values.logtoPostgres.service.port }}

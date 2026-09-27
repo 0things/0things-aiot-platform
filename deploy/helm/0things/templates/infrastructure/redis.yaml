@@ -83,11 +83,14 @@ metadata:
   labels:
     {{- include "0things.labels" "redis" | nindent 4 }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.redis.service.type | default "ClusterIP" }}
   ports:
     - name: redis
       port: {{ .Values.redis.service.port }}
       targetPort: {{ .Values.redis.service.port }}
+      {{- if and (or (eq .Values.redis.service.type "NodePort") (eq .Values.redis.service.type "LoadBalancer")) .Values.redis.service.nodePort }}
+      nodePort: {{ .Values.redis.service.nodePort }}
+      {{- end }}
   selector:
     {{- include "0things.labels" "redis" | nindent 4 }}
 ---

@@ -30,7 +30,9 @@ postgres:
     password: password
     database: aiot
   service:
+    type: ClusterIP
     port: 5432
+    nodePort: null
   persistence:
     enabled: true
     storageClass: ""
@@ -56,6 +58,7 @@ logtoPostgres:
     password: change-me-logto-db-password
     database: logto
   service:
+    type: ClusterIP
     port: 5432
   persistence:
     enabled: true
@@ -81,7 +84,9 @@ redis:
     # Example: set a generated password for production; empty disables Redis AUTH.
     password: ""
   service:
+    type: ClusterIP
     port: 6379
+    nodePort: null
   persistence:
     enabled: true
     storageClass: ""
@@ -163,8 +168,11 @@ tdengine:
     password: taosdata
     database: things_tsdb
   service:
+    type: ClusterIP
     nativePort: 6030
     websocketPort: 6041
+    nativeNodePort: null
+    websocketNodePort: null
   persistence:
     enabled: true
     storageClass: ""
@@ -324,7 +332,7 @@ logto:
   replicaCount: 1
   image:
     repository: svhd/logto
-    tag: latest
+    tag: 1.43.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP

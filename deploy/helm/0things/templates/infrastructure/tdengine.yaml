@@ -107,14 +107,20 @@ metadata:
   labels:
     {{- include "0things.labels" "tdengine" | nindent 4 }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.tdengine.service.type | default "ClusterIP" }}
   ports:
     - name: native
       port: {{ .Values.tdengine.service.nativePort }}
       targetPort: {{ .Values.tdengine.service.nativePort }}
+      {{- if and (or (eq .Values.tdengine.service.type "NodePort") (eq .Values.tdengine.service.type "LoadBalancer")) .Values.tdengine.service.nativeNodePort }}
+      nodePort: {{ .Values.tdengine.service.nativeNodePort }}
+      {{- end }}
     - name: websocket
       port: {{ .Values.tdengine.service.websocketPort }}
       targetPort: {{ .Values.tdengine.service.websocketPort }}
+      {{- if and (or (eq .Values.tdengine.service.type "NodePort") (eq .Values.tdengine.service.type "LoadBalancer")) .Values.tdengine.service.websocketNodePort }}
+      nodePort: {{ .Values.tdengine.service.websocketNodePort }}
+      {{- end }}
   selector:
     {{- include "0things.labels" "tdengine" | nindent 4 }}
 {{- end }}
