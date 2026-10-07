@@ -54,6 +54,7 @@ spec:
             exec:
               command: ["/opt/emqx/bin/emqx", "ctl", "status"]
             initialDelaySeconds: 30
+            timeoutSeconds: 10
             periodSeconds: 15
           resources:
             {{- toYaml .Values.emqx.resources | nindent 12 }}
