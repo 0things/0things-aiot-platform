@@ -7,14 +7,13 @@ spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      name: letsencrypt-cloudflare-account
+      name: letsencrypt-alidns-account
     solvers:
       - selector:
           dnsZones:
             {{- toYaml (required "clusterIssuer.dnsZones is required" .Values.clusterIssuer.dnsZones) | nindent 12 }}
         dns01:
-          cloudflare:
-            apiTokenSecretRef:
-              name: cloudflare-api-token
-              key: api-token
+          webhook:
+            groupName: alidns.crazygit.github.io
+            solverName: alidns
 {{- end }}

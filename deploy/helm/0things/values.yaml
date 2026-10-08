@@ -346,12 +346,18 @@ logto:
       cpu: "1"
       memory: 1Gi
 
-# Configure these in values-prod.yaml to issue a certificate with Cloudflare DNS-01.
+alidns-webhook:
+  enabled: false
+  aliyunAuth:
+    existingSecret: alidns-credentials
+
+# Configure these in values-prod.yaml to issue a certificate with AliDNS DNS-01.
 clusterIssuer: {}
 # Example:
 # clusterIssuer:
-#   name: letsencrypt-cloudflare
-#   apiToken: REPLACE_WITH_CLOUDFLARE_API_TOKEN
+#   name: letsencrypt-alidns
+#   accessKeyID: REPLACE_WITH_ALIDNS_ACCESS_KEY_ID
+#   accessKeySecret: REPLACE_WITH_ALIDNS_ACCESS_KEY_SECRET
 #   dnsZones:
 #     - example.com
 
@@ -359,7 +365,7 @@ certificate: {}
 # Example:
 # certificate:
 #   name: example-com
-#   issuerName: letsencrypt-cloudflare
+#   issuerName: letsencrypt-alidns
 #   dnsNames:
 #     - example.com
 #     - "*.example.com"

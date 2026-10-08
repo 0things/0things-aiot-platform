@@ -91,7 +91,7 @@ helm upgrade --install 0things-test deploy/helm/0things \
 
 ### Production
 
-先准备好镜像、数据库结构及本地生产 values，替换占位凭据（包括 `clusterIssuer.apiToken`）：
+先准备好镜像、数据库结构及本地生产 values，替换占位凭据（包括 `clusterIssuer.accessKeyID` 和 `clusterIssuer.accessKeySecret`）：
 
 ```bash
 rg 'change-me-|REPLACE_WITH_' deploy/helm/0things/values-prod.yaml
@@ -117,32 +117,34 @@ helm upgrade --install 0things-prod deploy/helm/0things \
 
 | 域名与路径 | 后端 | 路径处理 |
 | --- | --- | --- |
-| `console.0thing.com/` | frontend | 原样转发 |
-| `gateway.0thing.com/api/...` | backend | 去掉 `/api` 前缀 |
-| `gateway.0thing.com/mcp` | mcp-server | 原样转发 |
-| `auth.0thing.com/` | Logto app | 原样转发 |
-| `auth-admin.0thing.com/` | Logto admin | 原样转发 |
+| `console.zghub.com/` | frontend | 原样转发 |
+| `gateway.zghub.com/api/...` | backend | 去掉 `/api` 前缀 |
+| `gateway.zghub.com/mcp` | mcp-server | 原样转发 |
+| `auth.zghub.com/` | Logto app | 原样转发 |
+| `auth-admin.zghub.com/` | Logto admin | 原样转发 |
 
-生产 Ingress 共用固定名称的 `aiot-platform-tls`，由一张覆盖 `0thing.com` 与 `*.0thing.com` 的 Let's Encrypt 证书提供。证书由 cert-manager 自动续期；Cloudflare DNS-01 仅用于域名所有权验证，不创建或修改现有 A 记录。四个入口的 A 记录由你自行维护。test values 不配置公网域名或证书资源，不申请公网证书。
+生产 Ingress 共用固定名称的 `aiot-platform-tls`，由一张覆盖 `zghub.com` 与 `*.zghub.com` 的 Let's Encrypt 证书提供。证书由 cert-manager 自动续期；AliDNS DNS-01 仅用于域名所有权验证，不创建或修改现有 A 记录。四个入口的 A 记录由你自行维护。test values 不配置公网域名或证书资源，不申请公网证书。
+
+切换域名前，先在阿里云 DNS 配置上述四个入口指向公网入口，并在 Logto 管理端同步修改前端应用的 Redirect URI、Post sign-out redirect URI、CORS Origins 和 Backend API Resource Identifier，使其与新域名及 `VITE_LOGTO_RESOURCE` 一致。`file.zghub.com` 需要在 Cloudflare 为 `zghub.com` 完成 Business/Enterprise partial CNAME setup，按 R2 自定义域名页面给出的目标在 AliDNS 添加 CNAME，等待状态变为 Active 后再切换文件链接。云服务器位于中国内地时，还须确认新域名的备案/接入状态，DNS 和证书就绪并不代表公网可访问。
 
 ### 生产集群准备（只执行一次）
 
-按 [独立的集群级部署说明](../cluster/README.md) 确认 Traefik 并应用 `deploy/helm/cluster/cert-manager.yaml`。k3s Helm Controller 维护 cert-manager 控制器；prod 0things release 根据本地 values 创建 Cloudflare Token Secret 和 `ClusterIssuer`，test 不创建。卸载 prod release 会删除该 Secret 和 Issuer，但不会卸载 cert-manager 控制器。
+按 [独立的集群级部署说明](../cluster/README.md) 确认 Traefik 并应用 `deploy/helm/cluster/cert-manager.yaml`。k3s Helm Controller 维护 cert-manager 控制器；prod 0things release 根据本地 values 安装 AliDNS webhook 并创建 RAM AccessKey Secret、`ClusterIssuer` 和 `Certificate`，test 不创建。卸载 prod release 会删除这些资源，但不会卸载 cert-manager 控制器。
 
-前端镜像须用生产 Logto application ID 构建：`docker build -f frontend/Dockerfile --build-arg VITE_LOGTO_APP_ID=YOUR_LOGTO_APP_ID -t YOUR_FRONTEND_IMAGE frontend`。`frontend/.dockerignore` 会排除 `.env.production`，因此必须传这个构建参数。`VITE_LOGTO_ENDPOINT` 默认 `https://auth.0thing.com`，`VITE_LOGTO_RESOURCE` 默认 `https://gateway.0thing.com/api`；后者必须与 Logto 内配置的 Backend API Resource Identifier、生产 values 中的 `backend.config.logto.audience` 完全一致。`gateway.0thing.com` 是入口主机，只有 `/api` 路径路由到 Backend。修改资源标识或 application ID 后必须重新构建并推送前端镜像；仅更新 Helm values 不会改变已打包的 Vite 环境变量。前端保持同源 `/api` 和 `/copilot` 代理。
+前端使用多阶段 Docker 构建，无须预先生成 `dist`：`docker build -f frontend/Dockerfile -t YOUR_FRONTEND_IMAGE frontend`。构建前须在 `frontend/.env.production` 提供 `VITE_LOGTO_ENDPOINT`、`VITE_LOGTO_APP_ID`、`VITE_LOGTO_RESOURCE`、`VITE_DEVICE_SERVICE_URL` 和 `VITE_AI_GATEWAY_URL`；CI 应先生成该文件再执行 Docker 构建。该文件只进入构建阶段，最终镜像仅包含 Nginx 和静态文件。`VITE_LOGTO_RESOURCE` 必须与 Logto 内的 Backend API Resource Identifier、生产 values 中的 `backend.config.logto.audience` 完全一致。`gateway.zghub.com` 是入口主机，只有 `/api` 路径路由到 Backend。修改前端构建配置后需要重新构建并推送镜像；仅更新 Helm values 不会改变已打包的 Vite 环境变量。
 
 生产部署后确认：
 
 ```bash
 kubectl -n 0things-prod get certificate,ingress
-kubectl -n cert-manager get secret cloudflare-api-token
-kubectl wait --for=condition=Ready clusterissuer/letsencrypt-cloudflare --timeout=120s
-kubectl -n 0things-prod wait --for=condition=Ready certificate/0thing-com --timeout=10m
+kubectl -n 0things-prod rollout status deployment/0things-prod-alidns-webhook --timeout=10m
+kubectl wait --for=condition=Ready clusterissuer/letsencrypt-alidns --timeout=120s
+kubectl -n 0things-prod wait --for=condition=Ready certificate/zghub-com --timeout=10m
 kubectl -n 0things-prod get secret aiot-platform-tls
 kubectl -n 0things-prod get pods,svc
 ```
 
-再由你确认四个域名的现有 A 记录及 HTTPS 路由。若证书未就绪，查看 `kubectl -n 0things-prod describe certificate 0thing-com` 和同 namespace 的 `order,challenge`。回滚应用使用上文 `helm rollback`；独立安装的 cert-manager 不会随应用 release 回滚或删除。
+再由你确认四个域名的 A 记录及 HTTPS 路由，并在 Cloudflare R2 为 `file.zghub.com` 完成 partial CNAME setup、自定义域名关联与验证；该域名不经过 k3s Ingress，也不使用 `aiot-platform-tls`。不要在新地址可访问前移除旧的 `file.0thing.com`。若证书未就绪，查看 `kubectl -n 0things-prod describe certificate zghub-com` 和同 namespace 的 `order,challenge`。回滚应用使用上文 `helm rollback`；独立安装的 cert-manager 不会随应用 release 回滚或删除。
 
 没有域名或 Ingress Controller 时，可以将对应 Service 的 `type` 设置为 `LoadBalancer`。当前生产 values 通过 Traefik 暴露 HTTP 服务，EMQX 仍保留独立 LoadBalancer（MQTT 不经过这些 HTTP Ingress）。
 

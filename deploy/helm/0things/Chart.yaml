@@ -14,3 +14,9 @@ sources:
   - https://github.com/0things/0things-aiot-platform
 maintainers:
   - name: 0things
+dependencies:
+  - name: cert-manager-alidns-webhook
+    alias: alidns-webhook
+    version: 0.1.5
+    repository: oci://ghcr.io/crazygit/charts
+    condition: alidns-webhook.enabled
