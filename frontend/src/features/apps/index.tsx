@@ -99,9 +99,6 @@ export function Apps() {
           <h1 className='text-2xl font-bold tracking-tight'>
             App Integrations
           </h1>
-          <p className='text-muted-foreground'>
-            Here&apos;s a list of your apps for the integration!
-          </p>
         </div>
         <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>
           <div className='flex flex-col gap-4 sm:my-4 sm:flex-row'>

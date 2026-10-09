@@ -65,10 +65,7 @@ function AuthenticatedRoute() {
   useEffect(() => {
     if (isLoading && !isAuthenticated) return
     if (!isAuthenticated) {
-      sessionStorage.setItem(
-        'logto_redirect',
-        `${location.pathname}${location.search}${location.hash}`
-      )
+      sessionStorage.setItem('logto_redirect', location.href)
       void signIn(`${window.location.origin}/callback`).catch(
         (error: unknown) => {
           toast.error(error instanceof Error ? error.message : 'Sign-in failed')
@@ -139,9 +136,7 @@ function AuthenticatedRoute() {
     getIdTokenClaims,
     isAuthenticated,
     isLoading,
-    location.hash,
-    location.pathname,
-    location.search,
+    location.href,
     organizationID,
     resetAuth,
     setAccessToken,

@@ -12,9 +12,6 @@ export function Products() {
             <h2 className='text-2xl font-bold tracking-tight'>
               Product Management
             </h2>
-            <p className='text-muted-foreground'>
-              Create and manage your product catalog.
-            </p>
           </div>
           <ProductsPrimaryButtons />
         </div>

@@ -110,9 +110,6 @@ export function ServiceInvocationsTab({ deviceKey }: { deviceKey: string }) {
         <h2 className='text-2xl font-bold tracking-tight'>
           {t('deviceDetail.serviceInvocations.title')}
         </h2>
-        <p className='text-muted-foreground'>
-          {t('deviceDetail.serviceInvocations.description')}
-        </p>
       </div>
       <div className='flex flex-wrap items-center gap-2'>
         <Input

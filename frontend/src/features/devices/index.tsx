@@ -15,9 +15,6 @@ export function Devices() {
             <h2 className='text-2xl font-bold tracking-tight'>
               {t('tabs.devices')}
             </h2>
-            <p className='text-muted-foreground'>
-              {t('pages.devices.description')}
-            </p>
           </div>
           <DevicesPrimaryButtons />
         </div>

@@ -28,7 +28,6 @@ export function RuleChains() {
             <h2 className='text-2xl font-bold tracking-tight'>
               {t('list.title')}
             </h2>
-            <p className='text-muted-foreground'>{t('list.description')}</p>
           </div>
           <RuleChainsPrimaryButtons />
         </div>

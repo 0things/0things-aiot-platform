@@ -177,7 +177,6 @@ export function IotOverview() {
             {t('eyebrow')}
           </p>
           <h1 className='text-2xl font-bold tracking-tight'>{t('title')}</h1>
-          <p className='text-sm text-muted-foreground'>{t('description')}</p>
         </div>
         <div className='flex items-center gap-2'>
           <Tabs defaultValue='24h'>

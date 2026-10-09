@@ -13,7 +13,6 @@ export function DeviceGroups() {
         <div className='flex flex-wrap items-end justify-between gap-2'>
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>{t('title')}</h2>
-            <p className='text-muted-foreground'>{t('description')}</p>
           </div>
           <GroupsPrimaryButtons />
         </div>

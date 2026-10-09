@@ -26,9 +26,6 @@ export function Tasks() {
         <div className='flex flex-wrap items-end justify-between gap-2'>
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>Tasks</h2>
-            <p className='text-muted-foreground'>
-              Here&apos;s a list of your tasks for this month!
-            </p>
           </div>
           <TasksPrimaryButtons />
         </div>

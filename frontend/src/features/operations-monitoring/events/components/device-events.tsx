@@ -229,7 +229,6 @@ export function DeviceEvents({ deviceKey }: { deviceKey?: string }) {
         <h2 className='text-2xl font-bold tracking-tight'>
           {t('events.title')}
         </h2>
-        <p className='text-muted-foreground'>{t('events.description')}</p>
       </div>
 
       <div className='flex items-start justify-between gap-2'>

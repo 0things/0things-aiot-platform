@@ -18,9 +18,6 @@ export function OTAPackages() {
               <h2 className='text-2xl font-bold tracking-tight'>
                 {t('tabs.packages')}
               </h2>
-              <p className='text-muted-foreground'>
-                {t('packageList.description')}
-              </p>
             </div>
             <OTAPackagesPrimaryButtons />
           </div>
