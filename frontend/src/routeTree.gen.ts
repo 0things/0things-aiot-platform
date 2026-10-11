@@ -34,6 +34,8 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedOrganizationsCreateRouteImport } from './routes/_authenticated/organizations/create'
+import { Route as AuthenticatedInvitationsAcceptRouteImport } from './routes/_authenticated/invitations/accept'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedRuleEngineRuleChainsIndexRouteImport } from './routes/_authenticated/rule-engine/rule-chains/index'
 import { Route as AuthenticatedOperationsMonitoringEventsIndexRouteImport } from './routes/_authenticated/operations-monitoring/events/index'
@@ -186,6 +188,18 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedOrganizationsCreateRoute =
+  AuthenticatedOrganizationsCreateRouteImport.update({
+    id: '/organizations/create',
+    path: '/organizations/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInvitationsAcceptRoute =
+  AuthenticatedInvitationsAcceptRouteImport.update({
+    id: '/invitations/accept',
+    path: '/invitations/accept',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -291,6 +305,8 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/invitations/accept': typeof AuthenticatedInvitationsAcceptRoute
+  '/organizations/create': typeof AuthenticatedOrganizationsCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -330,6 +346,8 @@ export interface FileRoutesByTo {
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/invitations/accept': typeof AuthenticatedInvitationsAcceptRoute
+  '/organizations/create': typeof AuthenticatedOrganizationsCreateRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -373,6 +391,8 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/invitations/accept': typeof AuthenticatedInvitationsAcceptRoute
+  '/_authenticated/organizations/create': typeof AuthenticatedOrganizationsCreateRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -416,6 +436,8 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/errors/$error'
+    | '/invitations/accept'
+    | '/organizations/create'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -455,6 +477,8 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/errors/$error'
+    | '/invitations/accept'
+    | '/organizations/create'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -497,6 +521,8 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/_authenticated/'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/invitations/accept'
+    | '/_authenticated/organizations/create'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -712,6 +738,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/account'
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/organizations/create': {
+      id: '/_authenticated/organizations/create'
+      path: '/organizations/create'
+      fullPath: '/organizations/create'
+      preLoaderRoute: typeof AuthenticatedOrganizationsCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/invitations/accept': {
+      id: '/_authenticated/invitations/accept'
+      path: '/invitations/accept'
+      fullPath: '/invitations/accept'
+      preLoaderRoute: typeof AuthenticatedInvitationsAcceptRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
@@ -931,6 +971,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedInvitationsAcceptRoute: typeof AuthenticatedInvitationsAcceptRoute
+  AuthenticatedOrganizationsCreateRoute: typeof AuthenticatedOrganizationsCreateRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
@@ -949,6 +991,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedInvitationsAcceptRoute: AuthenticatedInvitationsAcceptRoute,
+  AuthenticatedOrganizationsCreateRoute: AuthenticatedOrganizationsCreateRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,

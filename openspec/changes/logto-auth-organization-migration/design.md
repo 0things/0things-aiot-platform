@@ -15,7 +15,7 @@
 
 - 不迁移现有用户、组织或业务数据。
 - 不在应用中实现 Google/GitHub 的 OAuth 协议细节。
-- 不在 Backend 运行时调用 Logto Management API 查询每次组织成员关系。
+- 不在每次业务请求中调用 Logto Management API 查询组织成员关系；组织创建、成员管理和邀请流程通过明确的管理接口调用 Management API。
 - 不在本次变更中实现微信或其他身份 Provider。
 
 ## Decisions
@@ -47,6 +47,12 @@
 ### 5. Remove local auth surface
 
 删除本地 `/login`、`/register`、`/organizations`、`/auth/switch-org` 及其 service、repository、model 和 JWT 签发依赖。保留业务 API 的认证上下文读取，但读取 Logto claims。
+
+### 6. Explicit organization and invitation management
+
+组织创建由用户在应用页面显式发起；系统不得因登录或接受邀请而静默创建个人组织。组织成员和邀请记录以 Logto 为唯一数据源，通过 Backend 的组织管理接口查询和变更。
+
+邀请流程在 Logto 创建组织邀请，为邀请邮箱创建有效期一小时的 one-time token，并通过 Logto 邮件连接器发送回到应用接受页的链接。接受时要求当前登录用户的主邮箱与邀请邮箱一致，且邀请仍处于有效待处理状态；Backend 调用 Logto 更新邀请状态。该流程不得调用组织创建接口。
 
 ## Risks / Trade-offs
 

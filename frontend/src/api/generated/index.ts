@@ -24,6 +24,8 @@ import { orvalAxios } from '../orval-mutator'
 import type { ErrorType, BodyType } from '../orval-mutator'
 import type {
   AiotBackendApiV1CreateDeviceGroupRequest,
+  AiotBackendApiV1CreateOrganizationInvitationReq,
+  AiotBackendApiV1CreateOrganizationReq,
   AiotBackendApiV1DeviceKeysRequest,
   AiotBackendApiV1PreviewRequest,
   AiotBackendApiV1UpdateDeviceGroupRequest,
@@ -31,8 +33,12 @@ import type {
   ApiResponseAiotBackendApiV1DeviceGroup,
   ApiResponseAiotBackendApiV1DeviceGroupDevicesResponse,
   ApiResponseAiotBackendApiV1ListDeviceGroupsResponse,
+  ApiResponseAiotBackendApiV1ListOrganizationInvitationsResp,
+  ApiResponseAiotBackendApiV1ListOrganizationMembersResp,
   ApiResponseAiotBackendApiV1ListRuleNodeDefinitionsResponse,
+  ApiResponseAiotBackendApiV1OrganizationInvitationResp,
   ApiResponseAiotBackendApiV1PreviewResponse,
+  ApiResponseAny,
   ApiResponseArrayAiotBackendApiV1Category,
   ApiResponseArrayProductOption,
   ApiResponseArrayTelemetryPoint,
@@ -96,6 +102,8 @@ import type {
   GetDevicesDeviceKeyTelemetryHistoryParams,
   GetDevicesDeviceKeyThingModelServiceInvocationsParams,
   GetDevicesParams,
+  GetOrganizationsInvitationsParams,
+  GetOrganizationsMembersParams,
   GetOtaPackagesParams,
   GetOtaPackagesUuidDeviceDeploymentsParams,
   GetOtaPackagesUuidUpgradeStatisticsParams,
@@ -5138,33 +5146,38 @@ export const usePostFilesOta = <
 }
 
 /**
- * @summary Ensure the current user has a Logto organization
+ * @summary Create a Logto organization and join it
  */
-export const postMeOrganization = (signal?: AbortSignal) => {
+export const postOrganizations = (
+  aiotBackendApiV1CreateOrganizationReq: BodyType<AiotBackendApiV1CreateOrganizationReq>,
+  signal?: AbortSignal
+) => {
   return orvalAxios<ApiResponseMapStringString>({
-    url: `/me/organization`,
+    url: `/organizations`,
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: aiotBackendApiV1CreateOrganizationReq,
     signal,
   })
 }
 
-export const getPostMeOrganizationMutationOptions = <
+export const getPostOrganizationsMutationOptions = <
   TError = ErrorType<unknown>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postMeOrganization>>,
+    Awaited<ReturnType<typeof postOrganizations>>,
     TError,
-    void,
+    { data: BodyType<AiotBackendApiV1CreateOrganizationReq> },
     TContext
   >
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof postMeOrganization>>,
+  Awaited<ReturnType<typeof postOrganizations>>,
   TError,
-  void,
+  { data: BodyType<AiotBackendApiV1CreateOrganizationReq> },
   TContext
 > => {
-  const mutationKey = ['postMeOrganization']
+  const mutationKey = ['postOrganizations']
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -5174,44 +5187,870 @@ export const getPostMeOrganizationMutationOptions = <
     : { mutation: { mutationKey } }
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postMeOrganization>>,
-    void
-  > = () => {
-    return postMeOrganization()
+    Awaited<ReturnType<typeof postOrganizations>>,
+    { data: BodyType<AiotBackendApiV1CreateOrganizationReq> }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postOrganizations(data)
   }
 
   return { mutationFn, ...mutationOptions }
 }
 
-export type PostMeOrganizationMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postMeOrganization>>
+export type PostOrganizationsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postOrganizations>>
 >
-
-export type PostMeOrganizationMutationError = ErrorType<unknown>
+export type PostOrganizationsMutationBody =
+  BodyType<AiotBackendApiV1CreateOrganizationReq>
+export type PostOrganizationsMutationError = ErrorType<unknown>
 
 /**
- * @summary Ensure the current user has a Logto organization
+ * @summary Create a Logto organization and join it
  */
-export const usePostMeOrganization = <
+export const usePostOrganizations = <
   TError = ErrorType<unknown>,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postMeOrganization>>,
+      Awaited<ReturnType<typeof postOrganizations>>,
       TError,
-      void,
+      { data: BodyType<AiotBackendApiV1CreateOrganizationReq> },
       TContext
     >
   },
   queryClient?: QueryClient
 ): UseMutationResult<
-  Awaited<ReturnType<typeof postMeOrganization>>,
+  Awaited<ReturnType<typeof postOrganizations>>,
   TError,
-  void,
+  { data: BodyType<AiotBackendApiV1CreateOrganizationReq> },
   TContext
 > => {
-  return useMutation(getPostMeOrganizationMutationOptions(options), queryClient)
+  return useMutation(getPostOrganizationsMutationOptions(options), queryClient)
+}
+
+/**
+ * @summary List invitations in current organization
+ */
+export const getOrganizationsInvitations = (
+  params?: GetOrganizationsInvitationsParams,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiV1ListOrganizationInvitationsResp>(
+    { url: `/organizations/invitations`, method: 'GET', params, signal }
+  )
+}
+
+export const getGetOrganizationsInvitationsQueryKey = (
+  params?: GetOrganizationsInvitationsParams
+) => {
+  return [`/organizations/invitations`, ...(params ? [params] : [])] as const
+}
+
+export const getGetOrganizationsInvitationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOrganizationsInvitationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetOrganizationsInvitationsQueryKey(params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOrganizationsInvitations>>
+  > = ({ signal }) => getOrganizationsInvitations(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOrganizationsInvitationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOrganizationsInvitations>>
+>
+export type GetOrganizationsInvitationsQueryError = ErrorType<unknown>
+
+export function useGetOrganizationsInvitations<
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetOrganizationsInvitationsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+          TError,
+          Awaited<ReturnType<typeof getOrganizationsInvitations>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOrganizationsInvitations<
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOrganizationsInvitationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+          TError,
+          Awaited<ReturnType<typeof getOrganizationsInvitations>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOrganizationsInvitations<
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOrganizationsInvitationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List invitations in current organization
+ */
+
+export function useGetOrganizationsInvitations<
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOrganizationsInvitationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitations>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetOrganizationsInvitationsQueryOptions(
+    params,
+    options
+  )
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * @summary Create an invitation to current organization
+ */
+export const postOrganizationsInvitations = (
+  aiotBackendApiV1CreateOrganizationInvitationReq: BodyType<AiotBackendApiV1CreateOrganizationInvitationReq>,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiV1OrganizationInvitationResp>({
+    url: `/organizations/invitations`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: aiotBackendApiV1CreateOrganizationInvitationReq,
+    signal,
+  })
+}
+
+export const getPostOrganizationsInvitationsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postOrganizationsInvitations>>,
+    TError,
+    { data: BodyType<AiotBackendApiV1CreateOrganizationInvitationReq> },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postOrganizationsInvitations>>,
+  TError,
+  { data: BodyType<AiotBackendApiV1CreateOrganizationInvitationReq> },
+  TContext
+> => {
+  const mutationKey = ['postOrganizationsInvitations']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postOrganizationsInvitations>>,
+    { data: BodyType<AiotBackendApiV1CreateOrganizationInvitationReq> }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postOrganizationsInvitations(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostOrganizationsInvitationsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postOrganizationsInvitations>>
+>
+export type PostOrganizationsInvitationsMutationBody =
+  BodyType<AiotBackendApiV1CreateOrganizationInvitationReq>
+export type PostOrganizationsInvitationsMutationError = ErrorType<unknown>
+
+/**
+ * @summary Create an invitation to current organization
+ */
+export const usePostOrganizationsInvitations = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postOrganizationsInvitations>>,
+      TError,
+      { data: BodyType<AiotBackendApiV1CreateOrganizationInvitationReq> },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postOrganizationsInvitations>>,
+  TError,
+  { data: BodyType<AiotBackendApiV1CreateOrganizationInvitationReq> },
+  TContext
+> => {
+  return useMutation(
+    getPostOrganizationsInvitationsMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
+ * @summary Get an organization invitation details
+ */
+export const getOrganizationsInvitationsId = (
+  id: string,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiV1OrganizationInvitationResp>({
+    url: `/organizations/invitations/${id}`,
+    method: 'GET',
+    signal,
+  })
+}
+
+export const getGetOrganizationsInvitationsIdQueryKey = (id: string) => {
+  return [`/organizations/invitations/${id}`] as const
+}
+
+export const getGetOrganizationsInvitationsIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetOrganizationsInvitationsIdQueryKey(id)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOrganizationsInvitationsId>>
+  > = ({ signal }) => getOrganizationsInvitationsId(id, signal)
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: id !== null && id !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOrganizationsInvitationsIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOrganizationsInvitationsId>>
+>
+export type GetOrganizationsInvitationsIdQueryError = ErrorType<unknown>
+
+export function useGetOrganizationsInvitationsId<
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+          TError,
+          Awaited<ReturnType<typeof getOrganizationsInvitationsId>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOrganizationsInvitationsId<
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+          TError,
+          Awaited<ReturnType<typeof getOrganizationsInvitationsId>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOrganizationsInvitationsId<
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary Get an organization invitation details
+ */
+
+export function useGetOrganizationsInvitationsId<
+  TData = Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsInvitationsId>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetOrganizationsInvitationsIdQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * @summary Revoke an invitation
+ */
+export const deleteOrganizationsInvitationsId = (
+  id: string,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAny>({
+    url: `/organizations/invitations/${id}`,
+    method: 'DELETE',
+    signal,
+  })
+}
+
+export const getDeleteOrganizationsInvitationsIdMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteOrganizationsInvitationsId>>,
+    TError,
+    { id: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteOrganizationsInvitationsId>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['deleteOrganizationsInvitationsId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteOrganizationsInvitationsId>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {}
+
+    return deleteOrganizationsInvitationsId(id)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteOrganizationsInvitationsIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteOrganizationsInvitationsId>>
+>
+
+export type DeleteOrganizationsInvitationsIdMutationError = ErrorType<unknown>
+
+/**
+ * @summary Revoke an invitation
+ */
+export const useDeleteOrganizationsInvitationsId = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteOrganizationsInvitationsId>>,
+      TError,
+      { id: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteOrganizationsInvitationsId>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(
+    getDeleteOrganizationsInvitationsIdMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
+ * @summary Accept an organization invitation
+ */
+export const postOrganizationsInvitationsIdAccept = (
+  id: string,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAny>({
+    url: `/organizations/invitations/${id}/accept`,
+    method: 'POST',
+    signal,
+  })
+}
+
+export const getPostOrganizationsInvitationsIdAcceptMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postOrganizationsInvitationsIdAccept>>,
+    TError,
+    { id: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postOrganizationsInvitationsIdAccept>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['postOrganizationsInvitationsIdAccept']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postOrganizationsInvitationsIdAccept>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {}
+
+    return postOrganizationsInvitationsIdAccept(id)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostOrganizationsInvitationsIdAcceptMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postOrganizationsInvitationsIdAccept>>
+>
+
+export type PostOrganizationsInvitationsIdAcceptMutationError =
+  ErrorType<unknown>
+
+/**
+ * @summary Accept an organization invitation
+ */
+export const usePostOrganizationsInvitationsIdAccept = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postOrganizationsInvitationsIdAccept>>,
+      TError,
+      { id: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postOrganizationsInvitationsIdAccept>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(
+    getPostOrganizationsInvitationsIdAcceptMutationOptions(options),
+    queryClient
+  )
+}
+
+/**
+ * @summary List members in current organization
+ */
+export const getOrganizationsMembers = (
+  params?: GetOrganizationsMembersParams,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAiotBackendApiV1ListOrganizationMembersResp>({
+    url: `/organizations/members`,
+    method: 'GET',
+    params,
+    signal,
+  })
+}
+
+export const getGetOrganizationsMembersQueryKey = (
+  params?: GetOrganizationsMembersParams
+) => {
+  return [`/organizations/members`, ...(params ? [params] : [])] as const
+}
+
+export const getGetOrganizationsMembersQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOrganizationsMembers>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOrganizationsMembersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsMembers>>,
+        TError,
+        TData
+      >
+    >
+  }
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetOrganizationsMembersQueryKey(params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOrganizationsMembers>>
+  > = ({ signal }) => getOrganizationsMembers(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOrganizationsMembers>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetOrganizationsMembersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOrganizationsMembers>>
+>
+export type GetOrganizationsMembersQueryError = ErrorType<unknown>
+
+export function useGetOrganizationsMembers<
+  TData = Awaited<ReturnType<typeof getOrganizationsMembers>>,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | GetOrganizationsMembersParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsMembers>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getOrganizationsMembers>>,
+          TError,
+          Awaited<ReturnType<typeof getOrganizationsMembers>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOrganizationsMembers<
+  TData = Awaited<ReturnType<typeof getOrganizationsMembers>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOrganizationsMembersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsMembers>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getOrganizationsMembers>>,
+          TError,
+          Awaited<ReturnType<typeof getOrganizationsMembers>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetOrganizationsMembers<
+  TData = Awaited<ReturnType<typeof getOrganizationsMembers>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOrganizationsMembersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsMembers>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List members in current organization
+ */
+
+export function useGetOrganizationsMembers<
+  TData = Awaited<ReturnType<typeof getOrganizationsMembers>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetOrganizationsMembersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getOrganizationsMembers>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetOrganizationsMembersQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return withQueryKey(query, queryOptions.queryKey)
+}
+
+/**
+ * @summary Remove a member from current organization
+ */
+export const deleteOrganizationsMembersUserId = (
+  userId: string,
+  signal?: AbortSignal
+) => {
+  return orvalAxios<ApiResponseAny>({
+    url: `/organizations/members/${userId}`,
+    method: 'DELETE',
+    signal,
+  })
+}
+
+export const getDeleteOrganizationsMembersUserIdMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteOrganizationsMembersUserId>>,
+    TError,
+    { userId: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteOrganizationsMembersUserId>>,
+  TError,
+  { userId: string },
+  TContext
+> => {
+  const mutationKey = ['deleteOrganizationsMembersUserId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteOrganizationsMembersUserId>>,
+    { userId: string }
+  > = (props) => {
+    const { userId } = props ?? {}
+
+    return deleteOrganizationsMembersUserId(userId)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteOrganizationsMembersUserIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteOrganizationsMembersUserId>>
+>
+
+export type DeleteOrganizationsMembersUserIdMutationError = ErrorType<unknown>
+
+/**
+ * @summary Remove a member from current organization
+ */
+export const useDeleteOrganizationsMembersUserId = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteOrganizationsMembersUserId>>,
+      TError,
+      { userId: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteOrganizationsMembersUserId>>,
+  TError,
+  { userId: string },
+  TContext
+> => {
+  return useMutation(
+    getDeleteOrganizationsMembersUserIdMutationOptions(options),
+    queryClient
+  )
 }
 
 /**

@@ -46,7 +46,7 @@ func StrictAuth(verifier *logto.Verifier, logger *log.Logger) gin.HandlerFunc {
 }
 
 // IdentityAuth verifies a user token without requiring an organization claim.
-// It is only used by the organization bootstrap endpoint.
+// It is used by organization creation and invitation endpoints.
 func IdentityAuth(verifier *logto.Verifier, logger *log.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if !authenticate(ctx, verifier, logger) {

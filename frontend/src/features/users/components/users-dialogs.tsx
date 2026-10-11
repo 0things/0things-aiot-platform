@@ -2,9 +2,18 @@ import { UsersActionDialog } from './users-action-dialog'
 import { UsersDeleteDialog } from './users-delete-dialog'
 import { UsersInviteDialog } from './users-invite-dialog'
 import { useUsers } from './users-provider'
+import { UsersRevokeDialog } from './users-revoke-dialog'
 
 export function UsersDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useUsers()
+  const {
+    open,
+    setOpen,
+    currentRow,
+    setCurrentRow,
+    currentInvitation,
+    setCurrentInvitation,
+  } = useUsers()
+
   return (
     <>
       <UsersActionDialog
@@ -45,6 +54,20 @@ export function UsersDialogs() {
             currentRow={currentRow}
           />
         </>
+      )}
+
+      {currentInvitation && (
+        <UsersRevokeDialog
+          key={`invitation-revoke-${currentInvitation.id}`}
+          open={open === 'revoke'}
+          onOpenChange={() => {
+            setOpen('revoke')
+            setTimeout(() => {
+              setCurrentInvitation(null)
+            }, 500)
+          }}
+          currentInvitation={currentInvitation}
+        />
       )}
     </>
   )

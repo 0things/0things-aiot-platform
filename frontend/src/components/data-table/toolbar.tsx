@@ -11,6 +11,8 @@ type DataTableToolbarProps<TData> = {
   table: Table<TData>
   searchPlaceholder?: string
   searchKey?: string
+  searchValue?: string
+  onSearchChange?: (value: string) => void
   filters?: {
     columnId: string
     title: string
@@ -20,33 +22,47 @@ type DataTableToolbarProps<TData> = {
       icon?: React.ComponentType<{ className?: string }>
     }[]
   }[]
-  onSearch?: () => void
+  onSearch?: (value?: string) => void
   onRefresh?: () => void
+  preserveFiltersOnRefresh?: boolean
 }
 
 export function DataTableToolbar<TData>({
   table,
   searchPlaceholder = 'Filter...',
   searchKey,
+  searchValue,
+  onSearchChange,
   filters = [],
   onSearch,
   onRefresh,
+  preserveFiltersOnRefresh = false,
 }: DataTableToolbarProps<TData>) {
   const { t } = useTranslation('common')
   const isFiltered =
-    table.getState().columnFilters.length > 0 || table.getState().globalFilter
+    table.getState().columnFilters.length > 0 ||
+    table.getState().globalFilter ||
+    (onSearchChange && searchValue)
 
   // Handle Enter key press in search input
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && onSearch) {
-      onSearch()
+      onSearch(searchValue)
     }
   }
 
   return (
     <div className='flex items-center justify-between'>
       <div className='flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2'>
-        {searchKey ? (
+        {onSearchChange ? (
+          <Input
+            placeholder={searchPlaceholder}
+            value={searchValue ?? ''}
+            onChange={(event) => onSearchChange(event.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            className='h-8 w-[150px] lg:w-[250px]'
+          />
+        ) : searchKey ? (
           <Input
             placeholder={searchPlaceholder}
             value={
@@ -85,7 +101,7 @@ export function DataTableToolbar<TData>({
           <Button
             variant='default'
             size='sm'
-            onClick={onSearch}
+            onClick={() => onSearch(searchValue)}
             className='h-8'
           >
             <Search className='size-4' />
@@ -98,7 +114,8 @@ export function DataTableToolbar<TData>({
             onClick={() => {
               table.resetColumnFilters()
               table.setGlobalFilter('')
-              onSearch?.()
+              onSearchChange?.('')
+              onSearch?.('')
             }}
             className='h-8 px-2 lg:px-3'
           >
@@ -111,8 +128,10 @@ export function DataTableToolbar<TData>({
             variant='outline'
             size='sm'
             onClick={() => {
-              table.resetColumnFilters()
-              table.setGlobalFilter('')
+              if (!preserveFiltersOnRefresh) {
+                table.resetColumnFilters()
+                table.setGlobalFilter('')
+              }
               onRefresh()
             }}
             className='h-9'

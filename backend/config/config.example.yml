@@ -12,6 +12,7 @@ security:
     audience: http://localhost:8000
     jwks_url: http://localhost:3001/oidc/jwks
     organization_claim: organization_id
+    invitation_base_url: http://localhost:5173
     management:
       endpoint: http://localhost:3001
       app_id: ""

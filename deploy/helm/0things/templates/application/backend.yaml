@@ -24,6 +24,7 @@ data:
         audience: {{ .Values.backend.config.logto.audience | quote }}
         jwks_url: {{ printf "http://%s:%d/oidc/jwks" "logto" (int .Values.logto.service.appPort) | quote }}
         organization_claim: {{ .Values.backend.config.logto.organizationClaim | quote }}
+        invitation_base_url: {{ printf "https://%s" .Values.ingress.frontend.host | quote }}
         management:
           endpoint: {{ printf "http://%s:%d" "logto" (int .Values.logto.service.appPort) | quote }}
           app_id: {{ required "backend.config.logto.managementAppId is required" .Values.backend.config.logto.managementAppId | quote }}

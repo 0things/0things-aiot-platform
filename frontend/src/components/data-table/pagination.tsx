@@ -18,15 +18,21 @@ import {
 type DataTablePaginationProps<TData> = {
   table: Table<TData>
   className?: string
+  hasNext?: boolean
 }
 
 export function DataTablePagination<TData>({
   table,
   className,
+  hasNext,
 }: DataTablePaginationProps<TData>) {
   const currentPage = table.getState().pagination.pageIndex + 1
   const totalPages = table.getPageCount()
   const pageNumbers = getPageNumbers(currentPage, totalPages)
+  const pageLabel =
+    hasNext === undefined
+      ? `Page ${currentPage} of ${totalPages}`
+      : `Page ${currentPage}`
 
   return (
     <div
@@ -39,7 +45,7 @@ export function DataTablePagination<TData>({
     >
       <div className='flex w-full items-center justify-between'>
         <div className='flex w-[100px] items-center justify-center text-sm font-medium @2xl/content:hidden'>
-          Page {currentPage} of {totalPages}
+          {pageLabel}
         </div>
         <div className='flex items-center gap-2 @max-2xl/content:flex-row-reverse'>
           <Select
@@ -65,18 +71,20 @@ export function DataTablePagination<TData>({
 
       <div className='flex items-center sm:space-x-6 lg:space-x-8'>
         <div className='flex w-[100px] items-center justify-center text-sm font-medium @max-3xl/content:hidden'>
-          Page {currentPage} of {totalPages}
+          {pageLabel}
         </div>
         <div className='flex items-center space-x-2'>
-          <Button
-            variant='outline'
-            className='size-8 p-0 @max-md/content:hidden'
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <span className='sr-only'>Go to first page</span>
-            <DoubleArrowLeftIcon className='h-4 w-4' />
-          </Button>
+          {hasNext === undefined && (
+            <Button
+              variant='outline'
+              className='size-8 p-0 @max-md/content:hidden'
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className='sr-only'>Go to first page</span>
+              <DoubleArrowLeftIcon className='h-4 w-4' />
+            </Button>
+          )}
           <Button
             variant='outline'
             className='size-8 p-0'
@@ -88,41 +96,50 @@ export function DataTablePagination<TData>({
           </Button>
 
           {/* Page number buttons */}
-          {pageNumbers.map((pageNumber, index) => (
-            <div key={`${pageNumber}-${index}`} className='flex items-center'>
-              {pageNumber === '...' ? (
-                <span className='px-1 text-sm text-muted-foreground'>...</span>
-              ) : (
-                <Button
-                  variant={currentPage === pageNumber ? 'default' : 'outline'}
-                  className='h-8 min-w-8 px-2'
-                  onClick={() => table.setPageIndex((pageNumber as number) - 1)}
-                >
-                  <span className='sr-only'>Go to page {pageNumber}</span>
-                  {pageNumber}
-                </Button>
-              )}
-            </div>
-          ))}
+          {hasNext === undefined &&
+            pageNumbers.map((pageNumber, index) => (
+              <div key={`${pageNumber}-${index}`} className='flex items-center'>
+                {pageNumber === '...' ? (
+                  <span className='px-1 text-sm text-muted-foreground'>
+                    ...
+                  </span>
+                ) : (
+                  <Button
+                    variant={currentPage === pageNumber ? 'default' : 'outline'}
+                    className='h-8 min-w-8 px-2'
+                    onClick={() =>
+                      table.setPageIndex((pageNumber as number) - 1)
+                    }
+                  >
+                    <span className='sr-only'>Go to page {pageNumber}</span>
+                    {pageNumber}
+                  </Button>
+                )}
+              </div>
+            ))}
 
           <Button
             variant='outline'
             className='size-8 p-0'
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={
+              hasNext === undefined ? !table.getCanNextPage() : !hasNext
+            }
           >
             <span className='sr-only'>Go to next page</span>
             <ChevronRightIcon className='h-4 w-4' />
           </Button>
-          <Button
-            variant='outline'
-            className='size-8 p-0 @max-md/content:hidden'
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <span className='sr-only'>Go to last page</span>
-            <DoubleArrowRightIcon className='h-4 w-4' />
-          </Button>
+          {hasNext === undefined && (
+            <Button
+              variant='outline'
+              className='size-8 p-0 @max-md/content:hidden'
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className='sr-only'>Go to last page</span>
+              <DoubleArrowRightIcon className='h-4 w-4' />
+            </Button>
+          )}
         </div>
       </div>
     </div>

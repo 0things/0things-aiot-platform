@@ -53,6 +53,8 @@
   "updatedAt": "更新时间",
   "organizations": "组织",
   "switchOrg": "切换组织",
+  "createOrg": "创建组织",
+  "signInAgain": "重新登录",
   "switchOrgSuccess": "已切换到组织: {{name}}",
   "switchOrgFailed": "切换组织失败",
   "currentOrg": "当前组织",

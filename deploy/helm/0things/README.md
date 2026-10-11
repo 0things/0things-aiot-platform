@@ -127,6 +127,10 @@ helm upgrade --install 0things-prod deploy/helm/0things \
 
 切换域名前，先在阿里云 DNS 配置上述四个入口指向公网入口，并在 Logto 管理端同步修改前端应用的 Redirect URI、Post sign-out redirect URI、CORS Origins 和 Backend API Resource Identifier，使其与新域名及 `VITE_LOGTO_RESOURCE` 一致。`file.zghub.com` 需要在 Cloudflare 为 `zghub.com` 完成 Business/Enterprise partial CNAME setup，按 R2 自定义域名页面给出的目标在 AliDNS 添加 CNAME，等待状态变为 Active 后再切换文件链接。云服务器位于中国内地时，还须确认新域名的备案/接入状态，DNS 和证书就绪并不代表公网可访问。
 
+### 组织成员邀请
+
+邀请功能依赖 Logto 的组织角色 `member`（类型为 User）和已启用的邮件连接器。请在连接器的 `OrganizationInvitation` 模板中使用 `{{link}}`，例如 `点击 {{link}} 接受组织邀请`；仅包含 `{{code}}` 的验证码模板无法让受邀者打开邀请页面。Helm 会用 `ingress.frontend.host` 生成后端的 `security.logto.invitation_base_url`，本地开发可在 `backend/config/local.yml` 中设为 `http://localhost:5173`。邮件链接中的一次性令牌由 Logto 完成邮箱认证；受邀者确认邀请后，后端通过 Logto Management API 更新邀请状态并加入组织。
+
 ### 生产集群准备（只执行一次）
 
 按 [独立的集群级部署说明](../cluster/README.md) 确认 Traefik 并应用 `deploy/helm/cluster/cert-manager.yaml`。k3s Helm Controller 维护 cert-manager 控制器；prod 0things release 根据本地 values 安装 AliDNS webhook 并创建 RAM AccessKey Secret、`ClusterIssuer` 和 `Certificate`，test 不创建。卸载 prod release 会删除这些资源，但不会卸载 cert-manager 控制器。

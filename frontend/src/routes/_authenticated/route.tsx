@@ -1,16 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
-import { createFileRoute, useLocation } from '@tanstack/react-router'
+import {
+  Outlet,
+  createFileRoute,
+  useLocation,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useLogto } from '@logto/react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { setAuthToken } from '@/api/clients'
 import { useAuthStore } from '@/stores/auth-store'
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
-import { ensureCurrentUserOrganization } from '@/features/org/api/organization'
 
 export const Route = createFileRoute('/_authenticated')({
   component: AuthenticatedRoute,
 })
+
+const TENANCY_BYPASS_PATHS = [
+  '/invitations/accept',
+  '/organizations/create',
+] as const
+
+function isTenancyBypassedRoute(pathname: string): boolean {
+  return TENANCY_BYPASS_PATHS.includes(
+    pathname as (typeof TENANCY_BYPASS_PATHS)[number]
+  )
+}
 
 function extractAvailableOrganizations(
   userInfo: unknown,
@@ -44,6 +59,7 @@ function extractAvailableOrganizations(
 function AuthenticatedRoute() {
   const { t } = useTranslation('auth')
   const location = useLocation()
+  const navigate = useNavigate()
   const {
     isAuthenticated,
     isLoading,
@@ -60,15 +76,46 @@ function AuthenticatedRoute() {
   )
   const resetAuth = useAuthStore((state) => state.auth.reset)
   const bootstrapping = useRef(false)
+  const invitationSignInStarted = useRef(false)
   const [bootstrapError, setBootstrapError] = useState<Error | null>(null)
 
+  const isBypassed = isTenancyBypassedRoute(location.pathname)
+
   useEffect(() => {
-    if (isLoading && !isAuthenticated) return
+    if (isLoading) return
+    const isInvitationPage = location.pathname === '/invitations/accept'
+    const searchParams = new URLSearchParams(window.location.search)
+    const oneTimeToken = searchParams.get('token')
+    const email = searchParams.get('email')
+
+    if (isInvitationPage && oneTimeToken && email) {
+      if (invitationSignInStarted.current) return
+      invitationSignInStarted.current = true
+      const cleanUrl = new URL(window.location.href)
+      cleanUrl.searchParams.delete('token')
+      cleanUrl.searchParams.delete('email')
+      sessionStorage.setItem(
+        'logto_redirect',
+        `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`
+      )
+      resetAuth()
+      void signIn({
+        redirectUri: `${window.location.origin}/callback`,
+        clearTokens: false,
+        extraParams: { one_time_token: oneTimeToken, login_hint: email },
+      }).catch((error: unknown) => {
+        invitationSignInStarted.current = false
+        toast.error(error instanceof Error ? error.message : t('signIn.failed'))
+      })
+      return
+    }
     if (!isAuthenticated) {
       sessionStorage.setItem('logto_redirect', location.href)
       void signIn(`${window.location.origin}/callback`).catch(
         (error: unknown) => {
-          toast.error(error instanceof Error ? error.message : 'Sign-in failed')
+          toast.error(
+            error instanceof Error ? error.message : t('signIn.failed')
+          )
         }
       )
       return
@@ -81,9 +128,20 @@ function AuthenticatedRoute() {
       import.meta.env.VITE_LOGTO_RESOURCE || 'http://localhost:8000'
 
     async function bootstrapTenancy() {
+      if (isBypassed) {
+        // These pages must work before the user belongs to any organization.
+        const identityToken = await getAccessToken(resource)
+        if (!identityToken) {
+          throw new Error('Logto access token is unavailable')
+        }
+        setAuthToken(identityToken)
+        setAccessToken(identityToken)
+        return
+      }
+
       // 1. Check if user already has assigned organizations in Logto
       const [userInfo, claims] = await Promise.all([
-        fetchUserInfo().catch(() => null),
+        fetchUserInfo(),
         getIdTokenClaims().catch(() => null),
       ])
 
@@ -95,12 +153,15 @@ function AuthenticatedRoute() {
           targetOrgId = availableOrgs[0]
         }
       } else {
-        // 2. User has no organizations -> bootstrap via un-scoped identity token
+        // A user without organizations may create one explicitly on the next page.
         const identityToken = await getAccessToken(resource)
         if (!identityToken) {
           throw new Error('Logto access token is unavailable')
         }
-        targetOrgId = await ensureCurrentUserOrganization(identityToken)
+        setAuthToken(identityToken)
+        setAccessToken(identityToken)
+        await navigate({ to: '/organizations/create', replace: true })
+        return
       }
 
       if (!targetOrgId) {
@@ -135,13 +196,17 @@ function AuthenticatedRoute() {
     getAccessToken,
     getIdTokenClaims,
     isAuthenticated,
+    isBypassed,
     isLoading,
     location.href,
+    location.pathname,
+    navigate,
     organizationID,
     resetAuth,
     setAccessToken,
     setOrganizationID,
     signIn,
+    t,
   ])
 
   if (bootstrapError) {
@@ -160,5 +225,5 @@ function AuthenticatedRoute() {
     )
   }
 
-  return <AuthenticatedLayout />
+  return isBypassed ? <Outlet /> : <AuthenticatedLayout />
 }

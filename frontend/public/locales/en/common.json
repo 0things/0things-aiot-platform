@@ -53,6 +53,8 @@
   "updatedAt": "Updated At",
   "organizations": "Organizations",
   "switchOrg": "Switch Organization",
+  "createOrg": "Create organization",
+  "signInAgain": "Sign in again",
   "switchOrgSuccess": "Switched to organization: {{name}}",
   "switchOrgFailed": "Failed to switch organization",
   "currentOrg": "Current Organization",

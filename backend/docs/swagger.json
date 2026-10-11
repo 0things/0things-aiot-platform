@@ -1628,7 +1628,185 @@
                 }
             }
         },
-        "/me/organization": {
+        "/organizations": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Create a Logto organization and join it",
+                "parameters": [
+                    {
+                        "description": "Organization name",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aiot-backend_api_v1.CreateOrganizationReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-map_string_string"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/invitations": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "List invitations in current organization",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Entries per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_ListOrganizationInvitationsResp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Create an invitation to current organization",
+                "parameters": [
+                    {
+                        "description": "Invitation Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aiot-backend_api_v1.CreateOrganizationInvitationReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_OrganizationInvitationResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/invitations/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Get an organization invitation details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_OrganizationInvitationResp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Revoke an invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-any"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/invitations/{id}/accept": {
             "post": {
                 "security": [
                     {
@@ -1641,12 +1819,100 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Ensure the current user has a Logto organization",
+                "summary": "Accept an organization invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ApiResponse-map_string_string"
+                            "$ref": "#/definitions/ApiResponse-any"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/members": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "List members in current organization",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Entries per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search users",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_ListOrganizationMembersResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/members/{userId}": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Remove a member from current organization",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-any"
                         }
                     }
                 }
@@ -3474,6 +3740,34 @@
                 }
             }
         },
+        "ApiResponse-aiot-backend_api_v1_ListOrganizationInvitationsResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.ListOrganizationInvitationsResp"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-aiot-backend_api_v1_ListOrganizationMembersResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.ListOrganizationMembersResp"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-aiot-backend_api_v1_ListRuleNodeDefinitionsResponse": {
             "type": "object",
             "properties": {
@@ -3482,6 +3776,20 @@
                 },
                 "data": {
                     "$ref": "#/definitions/aiot-backend_api_v1.ListRuleNodeDefinitionsResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-aiot-backend_api_v1_OrganizationInvitationResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.OrganizationInvitationResp"
                 },
                 "message": {
                     "type": "string"
@@ -3497,6 +3805,18 @@
                 "data": {
                     "$ref": "#/definitions/aiot-backend_api_v1.PreviewResponse"
                 },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ApiResponse-any": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
                 "message": {
                     "type": "string"
                 }
@@ -5090,6 +5410,31 @@
                 }
             }
         },
+        "aiot-backend_api_v1.CreateOrganizationInvitationReq": {
+            "type": "object",
+            "required": [
+                "invitee"
+            ],
+            "properties": {
+                "invitee": {
+                    "type": "string",
+                    "example": "user@example.com"
+                }
+            }
+        },
+        "aiot-backend_api_v1.CreateOrganizationReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "Acme"
+                }
+            }
+        },
         "aiot-backend_api_v1.DeviceEndpoints": {
             "type": "object",
             "properties": {
@@ -5199,6 +5544,49 @@
                 }
             }
         },
+        "aiot-backend_api_v1.ListOrganizationInvitationsResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_v1.OrganizationInvitationResp"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "pendingCount": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "aiot-backend_api_v1.ListOrganizationMembersResp": {
+            "type": "object",
+            "properties": {
+                "hasNext": {
+                    "type": "boolean"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/aiot-backend_api_v1.OrganizationMemberResp"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                }
+            }
+        },
         "aiot-backend_api_v1.ListRuleNodeDefinitionsResponse": {
             "type": "object",
             "properties": {
@@ -5224,6 +5612,82 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "aiot-backend_api_v1.OrganizationInvitationResp": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string",
+                    "example": "2026-10-10 10:50:28"
+                },
+                "expiresAt": {
+                    "type": "string",
+                    "example": "2026-10-17 10:50:27"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "inv-123"
+                },
+                "invitee": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "inviterId": {
+                    "type": "string",
+                    "example": "user-abc"
+                },
+                "isExpired": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "organizationId": {
+                    "type": "string",
+                    "example": "org-123"
+                },
+                "organizationRoleIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Pending"
+                }
+            }
+        },
+        "aiot-backend_api_v1.OrganizationMemberResp": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "https://example.com/avatar.png"
+                },
+                "createdAt": {
+                    "type": "integer",
+                    "example": 1700000000000
+                },
+                "id": {
+                    "type": "string",
+                    "example": "user-123"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "primaryEmail": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "primaryPhone": {
+                    "type": "string",
+                    "example": "+123456789"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe"
                 }
             }
         },

@@ -35,3 +35,10 @@
 - [ ] 6.1 在全新数据库上执行 migration，确认只创建业务数据表和 Logto 外部身份配置所需数据，不创建本地身份组织表
 - [ ] 6.2 完成 Google/GitHub 登录、Organization Token 获取、Backend 访问产品/设备/规则链和跨组织拒绝的端到端验证
 - [x] 6.3 更新部署和认证文档，说明 Provider 凭据只在 Logto Admin/部署环境配置，并记录旧本地认证不支持回滚
+
+## 7. Organization and invitation management
+
+- [x] 7.1 增加显式创建 Logto Organization 的应用流程，禁止登录或接受邀请时静默创建组织
+- [x] 7.2 增加当前组织成员查询、关键词搜索、分页、移除成员及邀请管理接口
+- [x] 7.3 使用 Logto invitation、1 小时 one-time token 和邮件连接器实现邀请发送与接受
+- [ ] 7.4 端到端验证邀请邮件、one-time token 登录、邮箱校验、接受后加入指定组织，以及不创建额外组织

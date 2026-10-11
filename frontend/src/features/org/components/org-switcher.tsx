@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { useLogto } from '@logto/react'
-import { Building2, Check, ChevronsUpDown, Loader2 } from 'lucide-react'
+import { Building2, Check, ChevronsUpDown, Loader2, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { setAuthToken } from '@/api/clients'
@@ -9,8 +10,10 @@ import { useAuthStore } from '@/stores/auth-store'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -22,6 +25,7 @@ import {
 
 export function OrgSwitcher() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { isMobile } = useSidebar()
   const { fetchUserInfo, getAccessToken } = useLogto()
   const queryClient = useQueryClient()
@@ -105,7 +109,7 @@ export function OrgSwitcher() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size='lg'
-              disabled={isLoading || isSwitching || organizations.length < 2}
+              disabled={isLoading || isSwitching}
               className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
             >
               <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground'>
@@ -137,25 +141,34 @@ export function OrgSwitcher() {
             <DropdownMenuLabel className='text-xs text-muted-foreground'>
               {t('switchOrg', { defaultValue: 'Switch Organization' })}
             </DropdownMenuLabel>
-            {organizations.map((organization) => (
-              <DropdownMenuItem
-                key={organization.id}
-                onClick={() => void handleSwitch(organization.id)}
-                className='flex items-center justify-between gap-2 p-2'
-              >
-                <div className='flex items-center gap-2 truncate'>
-                  <div className='flex size-6 shrink-0 items-center justify-center rounded-sm border'>
-                    <Building2 className='size-3.5' />
+            <DropdownMenuGroup>
+              {organizations.map((organization) => (
+                <DropdownMenuItem
+                  key={organization.id}
+                  onClick={() => void handleSwitch(organization.id)}
+                  className='flex items-center justify-between gap-2 p-2'
+                >
+                  <div className='flex items-center gap-2 truncate'>
+                    <div className='flex size-6 shrink-0 items-center justify-center rounded-sm border'>
+                      <Building2 />
+                    </div>
+                    <span className='truncate font-medium'>
+                      {organization.name}
+                    </span>
                   </div>
-                  <span className='truncate font-medium'>
-                    {organization.name}
-                  </span>
-                </div>
-                {organization.id === organizationID && (
-                  <Check className='size-4 shrink-0 text-primary' />
-                )}
+                  {organization.id === organizationID && <Check />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => void navigate({ to: '/organizations/create' })}
+              >
+                <Plus />
+                {t('createOrg')}
               </DropdownMenuItem>
-            ))}
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

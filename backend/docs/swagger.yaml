@@ -413,6 +413,24 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-aiot-backend_api_v1_ListOrganizationInvitationsResp:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_v1.ListOrganizationInvitationsResp'
+      message:
+        type: string
+    type: object
+  ApiResponse-aiot-backend_api_v1_ListOrganizationMembersResp:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_v1.ListOrganizationMembersResp'
+      message:
+        type: string
+    type: object
   ApiResponse-aiot-backend_api_v1_ListRuleNodeDefinitionsResponse:
     properties:
       code:
@@ -422,12 +440,29 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-aiot-backend_api_v1_OrganizationInvitationResp:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_v1.OrganizationInvitationResp'
+      message:
+        type: string
+    type: object
   ApiResponse-aiot-backend_api_v1_PreviewResponse:
     properties:
       code:
         type: integer
       data:
         $ref: '#/definitions/aiot-backend_api_v1.PreviewResponse'
+      message:
+        type: string
+    type: object
+  ApiResponse-any:
+    properties:
+      code:
+        type: integer
+      data: {}
       message:
         type: string
     type: object
@@ -1473,6 +1508,23 @@ definitions:
     - name
     - type
     type: object
+  aiot-backend_api_v1.CreateOrganizationInvitationReq:
+    properties:
+      invitee:
+        example: user@example.com
+        type: string
+    required:
+    - invitee
+    type: object
+  aiot-backend_api_v1.CreateOrganizationReq:
+    properties:
+      name:
+        example: Acme
+        maxLength: 100
+        type: string
+    required:
+    - name
+    type: object
   aiot-backend_api_v1.DeviceEndpoints:
     properties:
       coap:
@@ -1544,6 +1596,34 @@ definitions:
       total:
         type: integer
     type: object
+  aiot-backend_api_v1.ListOrganizationInvitationsResp:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/aiot-backend_api_v1.OrganizationInvitationResp'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      pendingCount:
+        type: integer
+      total:
+        type: integer
+    type: object
+  aiot-backend_api_v1.ListOrganizationMembersResp:
+    properties:
+      hasNext:
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/aiot-backend_api_v1.OrganizationMemberResp'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
   aiot-backend_api_v1.ListRuleNodeDefinitionsResponse:
     properties:
       items:
@@ -1560,6 +1640,61 @@ definitions:
       port:
         type: string
       username:
+        type: string
+    type: object
+  aiot-backend_api_v1.OrganizationInvitationResp:
+    properties:
+      createdAt:
+        example: "2026-10-10 10:50:28"
+        type: string
+      expiresAt:
+        example: "2026-10-17 10:50:27"
+        type: string
+      id:
+        example: inv-123
+        type: string
+      invitee:
+        example: user@example.com
+        type: string
+      inviterId:
+        example: user-abc
+        type: string
+      isExpired:
+        example: false
+        type: boolean
+      organizationId:
+        example: org-123
+        type: string
+      organizationRoleIds:
+        items:
+          type: string
+        type: array
+      status:
+        example: Pending
+        type: string
+    type: object
+  aiot-backend_api_v1.OrganizationMemberResp:
+    properties:
+      avatar:
+        example: https://example.com/avatar.png
+        type: string
+      createdAt:
+        example: 1700000000000
+        type: integer
+      id:
+        example: user-123
+        type: string
+      name:
+        example: John Doe
+        type: string
+      primaryEmail:
+        example: user@example.com
+        type: string
+      primaryPhone:
+        example: "+123456789"
+        type: string
+      username:
+        example: johndoe
         type: string
     type: object
   aiot-backend_api_v1.PreviewRequest:
@@ -2676,8 +2811,17 @@ paths:
       summary: Upload OTA update file
       tags:
       - Files
-  /me/organization:
+  /organizations:
     post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Organization name
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/aiot-backend_api_v1.CreateOrganizationReq'
       produces:
       - application/json
       responses:
@@ -2687,7 +2831,162 @@ paths:
             $ref: '#/definitions/ApiResponse-map_string_string'
       security:
       - Bearer: []
-      summary: Ensure the current user has a Logto organization
+      summary: Create a Logto organization and join it
+      tags:
+      - Organizations
+  /organizations/invitations:
+    get:
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Entries per page
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_ListOrganizationInvitationsResp'
+      security:
+      - Bearer: []
+      summary: List invitations in current organization
+      tags:
+      - Organizations
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Invitation Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/aiot-backend_api_v1.CreateOrganizationInvitationReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_OrganizationInvitationResp'
+      security:
+      - Bearer: []
+      summary: Create an invitation to current organization
+      tags:
+      - Organizations
+  /organizations/invitations/{id}:
+    delete:
+      parameters:
+      - description: Invitation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-any'
+      security:
+      - Bearer: []
+      summary: Revoke an invitation
+      tags:
+      - Organizations
+    get:
+      parameters:
+      - description: Invitation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_OrganizationInvitationResp'
+      security:
+      - Bearer: []
+      summary: Get an organization invitation details
+      tags:
+      - Organizations
+  /organizations/invitations/{id}/accept:
+    post:
+      parameters:
+      - description: Invitation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-any'
+      security:
+      - Bearer: []
+      summary: Accept an organization invitation
+      tags:
+      - Organizations
+  /organizations/members:
+    get:
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Entries per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search users
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_ListOrganizationMembersResp'
+      security:
+      - Bearer: []
+      summary: List members in current organization
+      tags:
+      - Organizations
+  /organizations/members/{userId}:
+    delete:
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-any'
+      security:
+      - Bearer: []
+      summary: Remove a member from current organization
       tags:
       - Organizations
   /ota-packages:

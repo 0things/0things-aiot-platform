@@ -11,6 +11,7 @@
 - 增加自托管 Logto 与独立 PostgreSQL 服务，开发环境默认使用 `localhost:3001`、`localhost:3002`。
 - 前端通过 `/callback` 接收 Logto 登录回调并保存 Access Token，Google 和 GitHub Provider 后续在 Logto Admin 中配置。
 - 业务请求从 Logto Token 读取用户 `sub` 与组织声明，并以组织声明建立租户上下文。
+- 增加基于 Logto Management API 的显式组织创建、当前组织成员与邀请管理；组织邀请通过 Logto invitation、one-time token 和邮件连接器完成，接受后加入被邀请组织。
 - 清理现有数据后按新模型初始化，不设计旧用户、旧组织或旧 Token 的兼容迁移。
 
 ## Capabilities

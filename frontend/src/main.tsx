@@ -96,7 +96,7 @@ const logtoConfig = {
   endpoint: import.meta.env.VITE_LOGTO_ENDPOINT || 'http://localhost:3001',
   appId: import.meta.env.VITE_LOGTO_APP_ID || '',
   resources: [import.meta.env.VITE_LOGTO_RESOURCE || 'http://localhost:8000'],
-  scopes: [UserScope.Organizations],
+  scopes: [UserScope.Email, UserScope.Organizations],
 }
 
 if (!rootElement.innerHTML) {
