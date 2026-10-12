@@ -62,7 +62,7 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
         },
         {
           title: 'IoT Dashboard',
-          url: '/iot-dashboard',
+          url: '/',
           icon: Cpu,
         },
         {
