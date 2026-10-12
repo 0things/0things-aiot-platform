@@ -18,7 +18,6 @@ import {
   UserX,
   Users,
   Layers3,
-  MessagesSquare,
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
@@ -68,12 +67,6 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
           title: t('navigation:sidebar.apps'),
           url: '/apps',
           icon: Package,
-        },
-        {
-          title: t('navigation:sidebar.chats'),
-          url: '/chats',
-          badge: '3',
-          icon: MessagesSquare,
         },
         {
           title: t('navigation:sidebar.users'),
