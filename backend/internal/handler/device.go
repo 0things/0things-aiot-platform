@@ -39,7 +39,6 @@ func deviceJSON(device model.Device) v1.Device {
 		Enabled:         device.Enabled,
 		LastOnlineTime:  device.State.LastOnlineTime,
 		LastOfflineTime: device.State.LastOfflineTime,
-		Metadata:        fmt.Sprint(raw(device.Metadata)),
 		CreatedAt:       device.CreatedAt,
 		UpdatedAt:       device.UpdatedAt,
 		DeletedAt:       deletedAt(device.DeletedAt),
@@ -96,7 +95,7 @@ func (h *DeviceHandler) CreateDevice(c *gin.Context) {
 		v1.HandleError(c, http.StatusBadRequest, e, nil)
 		return
 	}
-	d, e := h.svc.CreateDevice(c, &model.Device{Name: req.Name, ProductID: req.ProductID, Enabled: req.Enabled, Metadata: string(req.Metadata)})
+	d, e := h.svc.CreateDevice(c, &model.Device{Name: req.Name, ProductID: req.ProductID, Enabled: req.Enabled})
 	if e != nil {
 		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return
@@ -183,7 +182,7 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 		v1.HandleError(c, http.StatusBadRequest, e, nil)
 		return
 	}
-	d, e := h.svc.UpdateDeviceByKey(c, c.Param("deviceKey"), req.Name, req.State, string(req.Metadata))
+	d, e := h.svc.UpdateDeviceByKey(c, c.Param("deviceKey"), req.Name, req.State)
 	if e != nil {
 		v1.HandleError(c, http.StatusInternalServerError, e, nil)
 		return

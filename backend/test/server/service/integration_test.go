@@ -106,20 +106,9 @@ func TestIntegrationDeviceService_UpdateDevice(t *testing.T) {
 	testutil.SeedTestData(t, db)
 	svc := testutil.NewTestDeviceService(db)
 
-	device, err := svc.UpdateDevice(ctx(), 1, "Updated Device", "", "")
+	device, err := svc.UpdateDevice(ctx(), 1, "Updated Device", "")
 	require.NoError(t, err)
 	assert.Equal(t, "Updated Device", device.Name)
-}
-
-func TestIntegrationDeviceService_UpdateDevice_WithMetadata(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	metadata := []byte(`{"key":"value"}`)
-	device, err := svc.UpdateDevice(ctx(), 1, "Updated", "", string(metadata))
-	require.NoError(t, err)
-	assert.NotNil(t, device)
 }
 
 func TestIntegrationDeviceService_Activate(t *testing.T) {

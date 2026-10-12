@@ -14,7 +14,6 @@ type Device struct {
 	ProductID      int64          `gorm:"column:product_id" json:"productId"`
 	OrganizationID string         `gorm:"column:organization_id;not null;index" json:"organizationId"`
 	Enabled        bool           `json:"enabled"`
-	Metadata       string         `gorm:"type:text" json:"metadata"`
 	DeletedAt      gorm.DeletedAt `gorm:"column:deleted_at" json:"-"`
 	CreatedAt      time.Time      `gorm:"column:created_at" json:"createdAt"`
 	UpdatedAt      time.Time      `gorm:"column:updated_at" json:"updatedAt"`

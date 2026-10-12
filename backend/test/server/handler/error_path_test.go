@@ -419,7 +419,7 @@ func TestDeviceHandler_UpdateDevice_InvalidID(t *testing.T) {
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 	router.PUT("/devices/:deviceKey", deviceHandler.UpdateDevice)
 
-	mockService.EXPECT().UpdateDeviceByKey(gomock.Any(), "abc", "Test", "", "").Return(nil, errors.New("not found"))
+	mockService.EXPECT().UpdateDeviceByKey(gomock.Any(), "abc", "Test", "").Return(nil, errors.New("not found"))
 	body, _ := json.Marshal(map[string]string{"name": "Test"})
 	req, _ := http.NewRequest("PUT", "/devices/abc", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -439,7 +439,7 @@ func TestDeviceHandler_UpdateDevice_ServiceError(t *testing.T) {
 	deviceHandler := handler.NewDeviceHandler(h, mockService, config)
 	router.PUT("/devices/:deviceKey", deviceHandler.UpdateDevice)
 
-	mockService.EXPECT().UpdateDeviceByKey(gomock.Any(), "1", "Test", "", "").Return(nil, errors.New("invalid status transition"))
+	mockService.EXPECT().UpdateDeviceByKey(gomock.Any(), "1", "Test", "").Return(nil, errors.New("invalid status transition"))
 	body, _ := json.Marshal(map[string]string{"name": "Test"})
 	req, _ := http.NewRequest("PUT", "/devices/1", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

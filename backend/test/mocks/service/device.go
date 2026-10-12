@@ -399,31 +399,31 @@ func (mr *MockDeviceServiceInterfaceMockRecorder) Telemetry(ctx, key interface{}
 }
 
 // UpdateDevice mocks base method.
-func (m *MockDeviceServiceInterface) UpdateDevice(ctx context.Context, id int64, name, state, metadata string) (*model.Device, error) {
+func (m *MockDeviceServiceInterface) UpdateDevice(ctx context.Context, id int64, name, state string) (*model.Device, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateDevice", ctx, id, name, state, metadata)
+	ret := m.ctrl.Call(m, "UpdateDevice", ctx, id, name, state)
 	ret0, _ := ret[0].(*model.Device)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateDevice indicates an expected call of UpdateDevice.
-func (mr *MockDeviceServiceInterfaceMockRecorder) UpdateDevice(ctx, id, name, state, metadata interface{}) *gomock.Call {
+func (mr *MockDeviceServiceInterfaceMockRecorder) UpdateDevice(ctx, id, name, state interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDevice", reflect.TypeOf((*MockDeviceServiceInterface)(nil).UpdateDevice), ctx, id, name, state, metadata)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDevice", reflect.TypeOf((*MockDeviceServiceInterface)(nil).UpdateDevice), ctx, id, name, state)
 }
 
 // UpdateDeviceByKey mocks base method.
-func (m *MockDeviceServiceInterface) UpdateDeviceByKey(ctx context.Context, deviceKey, name, state, metadata string) (*model.Device, error) {
+func (m *MockDeviceServiceInterface) UpdateDeviceByKey(ctx context.Context, deviceKey, name, state string) (*model.Device, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateDeviceByKey", ctx, deviceKey, name, state, metadata)
+	ret := m.ctrl.Call(m, "UpdateDeviceByKey", ctx, deviceKey, name, state)
 	ret0, _ := ret[0].(*model.Device)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateDeviceByKey indicates an expected call of UpdateDeviceByKey.
-func (mr *MockDeviceServiceInterfaceMockRecorder) UpdateDeviceByKey(ctx, deviceKey, name, state, metadata interface{}) *gomock.Call {
+func (mr *MockDeviceServiceInterfaceMockRecorder) UpdateDeviceByKey(ctx, deviceKey, name, state interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceByKey", reflect.TypeOf((*MockDeviceServiceInterface)(nil).UpdateDeviceByKey), ctx, deviceKey, name, state, metadata)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceByKey", reflect.TypeOf((*MockDeviceServiceInterface)(nil).UpdateDeviceByKey), ctx, deviceKey, name, state)
 }

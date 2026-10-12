@@ -22,28 +22,6 @@ func ctx2() context.Context {
 	return tenant.WithOrganization(context.Background(), "org-1")
 }
 
-func TestIntegrationDeviceService_CreateDevice_WithValidMetadata(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	device := &model.Device{Name: "Good Meta", ProductID: 1, OrganizationID: "org-1", Metadata: `{"key":"value"}`}
-	result, err := svc.CreateDevice(ctx2(), device)
-	require.NoError(t, err)
-	assert.NotZero(t, result.ID)
-}
-
-func TestIntegrationDeviceService_CreateDevice_WithStringMetadata(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	device := &model.Device{Name: "String Meta", ProductID: 1, OrganizationID: "org-1", Metadata: `"{\"key\":\"value\"}"`}
-	result, err := svc.CreateDevice(ctx2(), device)
-	require.NoError(t, err)
-	assert.NotZero(t, result.ID)
-}
-
 func TestIntegrationDeviceService_CreateDevice_WithCustomKey(t *testing.T) {
 	db := testutil.SetupTestDB(t)
 	testutil.SeedTestData(t, db)
@@ -87,7 +65,7 @@ func TestIntegrationDeviceService_UpdateDevice_InvalidTransition(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	// Device is "online", trying to go to "inactive" should fail
-	_, err := svc.UpdateDevice(ctx2(), 1, "", "inactive", "")
+	_, err := svc.UpdateDevice(ctx2(), 1, "", "inactive")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid status transition")
 }
@@ -98,20 +76,9 @@ func TestIntegrationDeviceService_UpdateDevice_ValidTransition(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	// Device is "online", can go to "offline"
-	device, err := svc.UpdateDevice(ctx2(), 1, "", "offline", "")
+	device, err := svc.UpdateDevice(ctx2(), 1, "", "offline")
 	require.NoError(t, err)
 	assert.Equal(t, "offline", device.State.State)
-}
-
-func TestExtraDeviceService_UpdateDevice_WithMetadata(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	meta := `{"updated": true}`
-	device, err := svc.UpdateDevice(ctx2(), 1, "", "", meta)
-	require.NoError(t, err)
-	assert.NotNil(t, device.Metadata)
 }
 
 func TestIntegrationDeviceService_ListDevices_NotFound(t *testing.T) {
@@ -440,7 +407,7 @@ func TestIntegrationDeviceService_UpdateDevice_SameState(t *testing.T) {
 	svc := testutil.NewTestDeviceService(db)
 
 	// Device is "online", updating to "online" (same state) should be a no-op
-	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", "")
+	device, err := svc.UpdateDevice(ctx2(), 1, "", "online")
 	require.NoError(t, err)
 	assert.Equal(t, "online", device.State.State)
 }
@@ -454,7 +421,7 @@ func TestIntegrationDeviceService_UpdateDevice_OfflineToOnline(t *testing.T) {
 	db.Model(&model.DeviceState{}).Where("device_key = ?", "D001").Update("state", "offline")
 
 	// Then transition to online
-	device, err := svc.UpdateDevice(ctx2(), 1, "", "online", "")
+	device, err := svc.UpdateDevice(ctx2(), 1, "", "online")
 	require.NoError(t, err)
 	assert.Equal(t, "online", device.State.State)
 }
@@ -468,7 +435,7 @@ func TestIntegrationDeviceService_UpdateDevice_InactiveToOnline(t *testing.T) {
 	db.Model(&model.DeviceState{}).Where("device_key = ?", "D001").Update("state", "inactive")
 
 	// Try to go directly to online (invalid: must go through offline)
-	_, err := svc.UpdateDevice(ctx2(), 1, "", "online", "")
+	_, err := svc.UpdateDevice(ctx2(), 1, "", "online")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid status transition")
 }
@@ -987,17 +954,6 @@ func TestIntegrationProductService_Delete_Success(t *testing.T) {
 
 	err = svc.DeleteByKey(ctx2(), p2.ProductKey)
 	require.NoError(t, err)
-}
-
-func TestIntegrationDeviceService_CreateDevice_EmptyMetadata(t *testing.T) {
-	db := testutil.SetupTestDB(t)
-	testutil.SeedTestData(t, db)
-	svc := testutil.NewTestDeviceService(db)
-
-	device := &model.Device{Name: "No Meta", ProductID: 1, OrganizationID: "org-1", Metadata: ""}
-	result, err := svc.CreateDevice(ctx2(), device)
-	require.NoError(t, err)
-	assert.NotZero(t, result.ID)
 }
 
 func TestIntegrationProductService_Create_InvalidLegacyMetadata(t *testing.T) {

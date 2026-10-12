@@ -119,21 +119,21 @@ func TestDeviceService_ListDevices(t *testing.T) {
 
 func TestDeviceService_UpdateDevice(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
-	d, err := svc.UpdateDevice(ctx, 1, "renamed", "", "")
+	d, err := svc.UpdateDevice(ctx, 1, "renamed", "")
 	require.NoError(t, err)
 	require.Equal(t, "renamed", d.Name)
 }
 
 func TestDeviceService_UpdateDevice_StateTransition(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
-	d, err := svc.UpdateDevice(ctx, 1, "", "offline", "")
+	d, err := svc.UpdateDevice(ctx, 1, "", "offline")
 	require.NoError(t, err)
 	require.Equal(t, "offline", d.State.State)
 }
 
 func TestDeviceService_UpdateDevice_InvalidTransition(t *testing.T) {
 	svc, _, ctx := newDeviceSvc(t)
-	_, err := svc.UpdateDevice(ctx, 1, "", "inactive", "")
+	_, err := svc.UpdateDevice(ctx, 1, "", "inactive")
 	require.Error(t, err)
 }
 

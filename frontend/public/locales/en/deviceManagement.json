@@ -631,13 +631,11 @@
       "deviceKey": "Device Key",
       "name": "Name",
       "product": "Product",
-      "metadata": "Metadata",
       "placeholder": {
         "deviceKey": "device-001",
         "name": "My Device #1",
         "product": "Select product",
-        "productLoading": "Loading products...",
-        "metadata": "{\"key\": \"value\"}"
+        "productLoading": "Loading products..."
       }
     },
     "batchUpload": {

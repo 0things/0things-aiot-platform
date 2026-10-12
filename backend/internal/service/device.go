@@ -26,8 +26,8 @@ type DeviceServiceInterface interface {
 	Device(ctx context.Context, id int64) (*model.Device, error)
 	DeviceByKey(ctx context.Context, key string) (*model.Device, error)
 	ListDevices(ctx context.Context, query dto.ListDevicesQuery) ([]model.Device, int64, error)
-	UpdateDevice(ctx context.Context, id int64, name, state string, metadata string) (*model.Device, error)
-	UpdateDeviceByKey(ctx context.Context, deviceKey string, name, state string, metadata string) (*model.Device, error)
+	UpdateDevice(ctx context.Context, id int64, name, state string) (*model.Device, error)
+	UpdateDeviceByKey(ctx context.Context, deviceKey string, name, state string) (*model.Device, error)
 	Activate(ctx context.Context, id int64) (*model.Device, error)
 	ActivateByKey(ctx context.Context, deviceKey string) (*model.Device, error)
 	SetEnabled(ctx context.Context, id int64, v bool) (*model.Device, error)
@@ -145,16 +145,13 @@ func (s *DeviceService) DeviceByKey(ctx context.Context, key string) (*model.Dev
 func (s *DeviceService) ListDevices(ctx context.Context, query dto.ListDevicesQuery) ([]model.Device, int64, error) {
 	return s.repo.List(ctx, query)
 }
-func (s *DeviceService) UpdateDevice(ctx context.Context, id int64, name, state string, metadata string) (*model.Device, error) {
+func (s *DeviceService) UpdateDevice(ctx context.Context, id int64, name, state string) (*model.Device, error) {
 	d, err := s.Device(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	if name != "" {
 		d.Name = name
-	}
-	if len(metadata) > 0 {
-		d.Metadata = metadata
 	}
 	if state != "" && state != d.State.State {
 		valid := map[string][]string{"inactive": {"offline"}, "offline": {"online"}, "online": {"offline"}}
@@ -175,12 +172,12 @@ func (s *DeviceService) UpdateDevice(ctx context.Context, id int64, name, state 
 	}
 	return s.Device(ctx, id)
 }
-func (s *DeviceService) UpdateDeviceByKey(ctx context.Context, deviceKey string, name, state string, metadata string) (*model.Device, error) {
+func (s *DeviceService) UpdateDeviceByKey(ctx context.Context, deviceKey string, name, state string) (*model.Device, error) {
 	d, err := s.DeviceByKey(ctx, deviceKey)
 	if err != nil {
 		return nil, err
 	}
-	return s.UpdateDevice(ctx, d.ID, name, state, metadata)
+	return s.UpdateDevice(ctx, d.ID, name, state)
 }
 func (s *DeviceService) Activate(ctx context.Context, id int64) (*model.Device, error) {
 	d, err := s.Device(ctx, id)
@@ -190,7 +187,7 @@ func (s *DeviceService) Activate(ctx context.Context, id int64) (*model.Device, 
 	if d.State.State != "inactive" {
 		return nil, errors.New("device already activated")
 	}
-	return s.UpdateDevice(ctx, id, "", "offline", "")
+	return s.UpdateDevice(ctx, id, "", "offline")
 }
 func (s *DeviceService) ActivateByKey(ctx context.Context, deviceKey string) (*model.Device, error) {
 	d, err := s.DeviceByKey(ctx, deviceKey)

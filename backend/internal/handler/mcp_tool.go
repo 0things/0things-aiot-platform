@@ -62,7 +62,6 @@ type MCPDevice struct {
 
 type MCPDeviceDetail struct {
 	Device     MCPDevice                `json:"device"`
-	Metadata   string                   `json:"metadata"`
 	Tags       []model.DeviceTag        `json:"tags"`
 	Shadow     *model.DeviceShadow      `json:"shadow,omitempty"`
 	Properties []dto.ThingModelProperty `json:"properties"`
@@ -129,7 +128,6 @@ func (h *MCPHandler) GetDeviceDetail(ctx context.Context, req v1.GetDeviceDetail
 
 	return &MCPDeviceDetail{
 		Device:     mcpDevice(*device),
-		Metadata:   device.Metadata,
 		Tags:       tags,
 		Shadow:     shadow,
 		Properties: properties,

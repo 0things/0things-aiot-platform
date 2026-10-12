@@ -1,22 +1,17 @@
 // Package v1 owns the version 1 HTTP contracts and mirrors device-service.
 package v1
 
-import (
-	"encoding/json"
-	"time"
-)
+import "time"
 
 type CreateDeviceRequest struct {
-	Name      string          `json:"name" binding:"required"`
-	ProductID int64           `json:"productId" binding:"required"`
-	Enabled   bool            `json:"enabled"`
-	Metadata  json.RawMessage `json:"metadata" swaggertype:"string"`
+	Name      string `json:"name" binding:"required"`
+	ProductID int64  `json:"productId" binding:"required"`
+	Enabled   bool   `json:"enabled"`
 } //@name DeviceCreateDeviceRequest
 
 type UpdateDeviceRequest struct {
-	Name     string          `json:"name"`
-	State    string          `json:"state"`
-	Metadata json.RawMessage `json:"metadata" swaggertype:"string"`
+	Name  string `json:"name"`
+	State string `json:"state"`
 } //@name DeviceUpdateDeviceRequest
 
 type SetDeviceEnabledRequest struct {
@@ -69,7 +64,6 @@ type Device struct {
 	Enabled         bool       `json:"enabled"`
 	LastOnlineTime  *int64     `json:"lastOnlineTime"`
 	LastOfflineTime *int64     `json:"lastOfflineTime"`
-	Metadata        string     `json:"metadata"`
 	CreatedAt       time.Time  `json:"createdAt"`
 	UpdatedAt       time.Time  `json:"updatedAt"`
 	DeletedAt       *time.Time `json:"deletedAt,omitempty"`

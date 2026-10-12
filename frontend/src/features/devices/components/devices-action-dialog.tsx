@@ -30,7 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { useProductOptions } from '@/features/products/api/queries'
 import { useCreateDevice, useUpdateDevice } from '../api/queries'
 import {
@@ -66,7 +65,6 @@ export function DevicesActionDialog({
     defaultValues: {
       name: '',
       productId: '',
-      metadata: '',
     },
   })
 
@@ -77,13 +75,11 @@ export function DevicesActionDialog({
         form.reset({
           name: currentRow.name,
           productId: currentRow.productId,
-          metadata: currentRow.metadata || '',
         })
       } else {
         form.reset({
           name: '',
           productId: '',
-          metadata: '',
         })
       }
     }
@@ -97,7 +93,6 @@ export function DevicesActionDialog({
           id: currentRow.id,
           data: {
             name: values.name,
-            metadata: values.metadata || undefined,
           },
         })
         toast.success(
@@ -108,7 +103,6 @@ export function DevicesActionDialog({
         await createDevice.mutateAsync({
           name: values.name,
           productId: Number(values.productId),
-          metadata: values.metadata || undefined,
         })
         toast.success(
           t('dialog.create.successMessage', 'Device created successfully!')
@@ -158,7 +152,7 @@ export function DevicesActionDialog({
               : t('dialog.create.description')}
           </DialogDescription>
         </DialogHeader>
-        <div className='h-105 w-[calc(100%+0.75rem)] overflow-y-auto py-1 pe-3'>
+        <div className='w-[calc(100%+0.75rem)] py-1 pe-3'>
           <Form {...form}>
             <form
               id='device-form'
@@ -228,26 +222,6 @@ export function DevicesActionDialog({
                         </SelectContent>
                       </Select>
                     )}
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='metadata'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-start space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 pt-2 text-end'>
-                      {t('dialog.form.metadata')}
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t('dialog.form.placeholder.metadata')}
-                        className='col-span-4 resize-none font-mono text-sm'
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
                     <FormMessage className='col-span-4 col-start-3' />
                   </FormItem>
                 )}

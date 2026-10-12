@@ -538,8 +538,6 @@ definitions:
         type: integer
       lastOnlineTime:
         type: integer
-      metadata:
-        type: string
       name:
         type: string
       productId:
@@ -596,8 +594,6 @@ definitions:
     properties:
       enabled:
         type: boolean
-      metadata:
-        type: string
       name:
         type: string
       productId:
@@ -897,8 +893,6 @@ definitions:
     type: object
   DeviceUpdateDeviceRequest:
     properties:
-      metadata:
-        type: string
       name:
         type: string
       state:

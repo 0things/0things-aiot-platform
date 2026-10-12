@@ -3933,9 +3933,6 @@
                 "lastOnlineTime": {
                     "type": "integer"
                 },
-                "metadata": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -4026,9 +4023,6 @@
             "properties": {
                 "enabled": {
                     "type": "boolean"
-                },
-                "metadata": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -4476,9 +4470,6 @@
         "DeviceUpdateDeviceRequest": {
             "type": "object",
             "properties": {
-                "metadata": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },

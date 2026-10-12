@@ -19,7 +19,6 @@ export const deviceSchema = z.object({
   state: deviceStateSchema,
   enabled: z.boolean(),
   lastOnlineTime: z.string().optional(),
-  metadata: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })
@@ -33,7 +32,6 @@ export const deviceFormSchema = z.object({
     .min(1, 'Device name is required')
     .max(100, 'Device name too long'),
   productId: z.string().min(1, 'Product is required'),
-  metadata: z.string().optional(),
 })
 
 export type DeviceFormData = z.infer<typeof deviceFormSchema>

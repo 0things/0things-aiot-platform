@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"aiot-backend/internal/model"
@@ -85,9 +86,12 @@ func TestDeviceHandler_CreateDevice(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
 	m.EXPECT().CreateDevice(gomock.Any(), gomock.Any()).Return(sampleDevice(), nil)
-	w := doDeviceReq(h, http.MethodPost, "/devices", []byte(`{"name":"d1","productId":2}`), nil)
+	w := doDeviceReq(h, http.MethodPost, "/devices", []byte(`{"name":"d1","productId":2,"metadata":{"key":"value"}}`), nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d body %s", w.Code, w.Body.String())
+	}
+	if strings.Contains(w.Body.String(), `"metadata"`) {
+		t.Fatalf("device response unexpectedly includes metadata: %s", w.Body.String())
 	}
 }
 
@@ -134,7 +138,7 @@ func TestDeviceHandler_ListDevices(t *testing.T) {
 func TestDeviceHandler_UpdateDevice(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	h, m := newTestDeviceHandler(t, ctrl, viper.New())
-	m.EXPECT().UpdateDeviceByKey(gomock.Any(), "1", "n", "", "").Return(sampleDevice(), nil)
+	m.EXPECT().UpdateDeviceByKey(gomock.Any(), "1", "n", "").Return(sampleDevice(), nil)
 	w := doDeviceReq(h, http.MethodPut, "/devices/1", []byte(`{"name":"n"}`), nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("got %d", w.Code)

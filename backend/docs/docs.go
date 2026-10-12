@@ -3940,9 +3940,6 @@ const docTemplate = `{
                 "lastOnlineTime": {
                     "type": "integer"
                 },
-                "metadata": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -4033,9 +4030,6 @@ const docTemplate = `{
             "properties": {
                 "enabled": {
                     "type": "boolean"
-                },
-                "metadata": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -4483,9 +4477,6 @@ const docTemplate = `{
         "DeviceUpdateDeviceRequest": {
             "type": "object",
             "properties": {
-                "metadata": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },

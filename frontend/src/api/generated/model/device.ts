@@ -14,7 +14,6 @@ export interface Device {
   id?: number
   lastOfflineTime?: number
   lastOnlineTime?: number
-  metadata?: string
   name?: string
   productId?: number
   productKey?: string

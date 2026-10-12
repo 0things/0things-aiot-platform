@@ -631,13 +631,11 @@
       "deviceKey": "设备标识",
       "name": "设备名称",
       "product": "产品",
-      "metadata": "元数据",
       "placeholder": {
         "deviceKey": "device-001",
         "name": "我的设备 #1",
         "product": "选择产品",
-        "productLoading": "加载产品中...",
-        "metadata": "{\"key\": \"value\"}"
+        "productLoading": "加载产品中..."
       }
     },
     "batchUpload": {

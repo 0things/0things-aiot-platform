@@ -7,7 +7,6 @@
  */
 
 export interface DeviceUpdateDeviceRequest {
-  metadata?: string
   name?: string
   state?: string
 }
