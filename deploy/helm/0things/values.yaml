@@ -132,8 +132,8 @@ nats:
 emqx:
   enabled: true
   image:
-    repository: emqx/emqx
-    tag: 5.8.0
+    repository: emqx/emqx-enterprise
+    tag: 6.3.1
     pullPolicy: IfNotPresent
   dashboard:
     username: admin
