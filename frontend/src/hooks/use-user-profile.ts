@@ -13,7 +13,7 @@ export function useUserProfile(fallback?: {
   email?: string
   avatar?: string
 }): UserProfileInfo {
-  const { fetchUserInfo, getIdTokenClaims } = useLogto()
+  const { fetchUserInfo } = useLogto()
   const [profile, setProfile] = useState<{
     name?: string
     email?: string
@@ -22,21 +22,20 @@ export function useUserProfile(fallback?: {
 
   useEffect(() => {
     let active = true
-    void Promise.all([
-      fetchUserInfo().catch(() => null),
-      getIdTokenClaims().catch(() => null),
-    ]).then(([userInfo, claims]) => {
-      if (!active) return
-      setProfile({
-        name: userInfo?.name ?? userInfo?.username ?? claims?.name ?? undefined,
-        email: userInfo?.email ?? claims?.email ?? undefined,
-        picture: userInfo?.picture ?? claims?.picture ?? undefined,
+    void fetchUserInfo()
+      .catch(() => null)
+      .then((userInfo) => {
+        if (!active) return
+        setProfile({
+          name: userInfo?.name ?? userInfo?.username ?? undefined,
+          email: userInfo?.email ?? undefined,
+          picture: userInfo?.picture ?? undefined,
+        })
       })
-    })
     return () => {
       active = false
     }
-  }, [fetchUserInfo, getIdTokenClaims])
+  }, [fetchUserInfo])
 
   const name = profile.name || fallback?.name
   const email = profile.email || fallback?.email
