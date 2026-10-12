@@ -18,11 +18,6 @@
     "devices": "Devices",
     "analytics": "Analytics"
   },
-  "topNav": {
-    "overview": "Overview",
-    "devices": "Devices",
-    "analytics": "Analytics"
-  },
   "placeholders": {
     "devicesTitle": "Device Overview",
     "devicesDescription": "Connected devices and their status",

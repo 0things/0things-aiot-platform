@@ -18,11 +18,6 @@
     "devices": "设备",
     "analytics": "分析"
   },
-  "topNav": {
-    "overview": "总览",
-    "devices": "设备",
-    "analytics": "分析"
-  },
   "placeholders": {
     "devicesTitle": "设备管理",
     "devicesDescription": "已连接设备及其运行状态",

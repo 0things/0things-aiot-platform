@@ -27,7 +27,6 @@ import {
   Upload,
   List,
   Zap,
-  Cpu,
   Workflow,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -59,11 +58,6 @@ export const getSidebarData = (t: TFunction): SidebarData => ({
           title: t('navigation:sidebar.dashboard'),
           url: '/',
           icon: LayoutDashboard,
-        },
-        {
-          title: 'IoT Dashboard',
-          url: '/',
-          icon: Cpu,
         },
         {
           title: t('navigation:sidebar.tasks'),

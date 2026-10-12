@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { TopNav } from '@/components/layout/top-nav'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
@@ -19,34 +18,12 @@ import { IotOverview } from './components/iot-overview'
 export function IotDashboard() {
   const { t } = useTranslation('iotDashboard')
 
-  const topNav = [
-    {
-      title: t('topNav.overview'),
-      href: 'iot-dashboard/overview',
-      isActive: true,
-      disabled: false,
-    },
-    {
-      title: t('topNav.devices'),
-      href: 'iot-dashboard/devices',
-      isActive: false,
-      disabled: false,
-    },
-    {
-      title: t('topNav.analytics'),
-      href: 'iot-dashboard/analytics',
-      isActive: false,
-      disabled: false,
-    },
-  ]
-
   return (
     <>
       {/* ===== Top Heading ===== */}
       <Header>
-        <TopNav links={topNav} />
+        <Search />
         <div className='ms-auto flex items-center space-x-4'>
-          <Search />
           <ThemeSwitch />
           <ConfigDrawer />
           <ProfileDropdown />
