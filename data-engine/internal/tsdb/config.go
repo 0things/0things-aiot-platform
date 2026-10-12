@@ -8,7 +8,7 @@ import (
 
 // RootConfig 时序存储根配置结构体，统一聚合激活的驱动类型与各数据库独立专属的 Config 结构体。
 type RootConfig struct {
-	// Type 当前激活的时序驱动类型 (tdengine | sqlite | postgresql | timescaledb | clickhouse | influxdb | iotdb | mock)
+	// Type 当前激活的时序驱动类型 (tdengine | sqlite | postgresql | timescaledb | influxdb | iotdb | mock)
 	Type DriverType `mapstructure:"type" yaml:"type" json:"type"`
 
 	// 各数据库独立专属配置结构体（定义在各自的驱动源文件中）
@@ -16,7 +16,6 @@ type RootConfig struct {
 	SQLite      SQLiteConfig      `mapstructure:"sqlite" yaml:"sqlite" json:"sqlite"`
 	PostgreSQL  PostgreSQLConfig  `mapstructure:"postgresql" yaml:"postgresql" json:"postgresql"`
 	TimescaleDB TimescaleDBConfig `mapstructure:"timescaledb" yaml:"timescaledb" json:"timescaledb"`
-	ClickHouse  ClickHouseConfig  `mapstructure:"clickhouse" yaml:"clickhouse" json:"clickhouse"`
 	InfluxDB    InfluxDBConfig    `mapstructure:"influxdb" yaml:"influxdb" json:"influxdb"`
 	IoTDB       IoTDBConfig       `mapstructure:"iotdb" yaml:"iotdb" json:"iotdb"`
 }
@@ -49,14 +48,6 @@ func (r *RootConfig) SetDefaults() {
 	}
 	if r.TimescaleDB.Table == "" {
 		r.TimescaleDB.Table = "device_properties"
-	}
-
-	// ClickHouse
-	if r.ClickHouse.Database == "" {
-		r.ClickHouse.Database = "things_tsdb"
-	}
-	if r.ClickHouse.Table == "" {
-		r.ClickHouse.Table = "device_properties"
 	}
 
 	// InfluxDB
@@ -109,9 +100,6 @@ func LoadRootConfigFromViper(v *viper.Viper) (*RootConfig, error) {
 		}
 		if cfg.TimescaleDB.DSN == "" {
 			cfg.TimescaleDB.DSN = flatDSN
-		}
-		if cfg.ClickHouse.DSN == "" {
-			cfg.ClickHouse.DSN = flatDSN
 		}
 	}
 	if flatPath := v.GetString("tsdb.path"); flatPath != "" && cfg.SQLite.Path == "" {

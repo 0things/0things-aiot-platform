@@ -237,12 +237,7 @@ func (c *TDengineClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 		}
 	}
 
-	// 离线平滑降级
-	if filter.DisableMockFallback {
-		return nil, nil
-	}
-	mock := NewMockClient(c.logger)
-	return mock.QueryPoints(ctx, filter)
+	return nil, nil
 }
 
 func (c *TDengineClient) batchFlushLoop() {

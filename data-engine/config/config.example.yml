@@ -2,7 +2,7 @@ env: local
 
 # ==============================================================================
 # 统一时序数据库配置 (可插拔时序存储引擎，支持各 DB 专属子配置)
-# 切换数据库只需修改 `type` 字段 (tdengine | sqlite | postgresql | timescaledb | clickhouse | influxdb | iotdb | mock)
+# 切换数据库只需修改 `type` 字段 (tdengine | sqlite | postgresql | timescaledb | influxdb | iotdb | mock)
 # ==============================================================================
 tsdb:
   type: tdengine # 当前激活的驱动类型
@@ -26,12 +26,6 @@ tsdb:
   # 4. TimescaleDB 专属配置
   timescaledb:
     dsn: "postgres://postgres:password@127.0.0.1:5432/things_db?sslmode=disable"
-    table: "device_properties"
-
-  # 5. ClickHouse 专属配置
-  clickhouse:
-    dsn: "clickhouse://default:password@127.0.0.1:9000/things_tsdb"
-    database: "things_tsdb"
     table: "device_properties"
 
   # 6. InfluxDB 专属配置

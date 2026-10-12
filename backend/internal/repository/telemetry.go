@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"aiot-backend/internal/tsdb"
 	"aiot-backend/internal/dto"
+	"aiot-backend/internal/tsdb"
 	"aiot-backend/pkg/log"
 
 	"github.com/spf13/viper"
@@ -39,13 +39,12 @@ func (r *TelemetryRepository) QueryLatest(ctx context.Context, deviceKey string,
 	latest := make(map[string]dto.TelemetryPoint, len(identifiers))
 	for _, identifier := range identifiers {
 		points, err := r.tsdbClient.QueryPoints(ctx, tsdb.QueryFilter{
-			DeviceKey:           deviceKey,
-			Metric:              identifier,
-			StartTime:           1,
-			EndTime:             time.Now().UnixMilli(),
-			Limit:               1,
-			Descending:          true,
-			DisableMockFallback: true,
+			DeviceKey:  deviceKey,
+			Metric:     identifier,
+			StartTime:  1,
+			EndTime:    time.Now().UnixMilli(),
+			Limit:      1,
+			Descending: true,
 		})
 		if err != nil {
 			return nil, err

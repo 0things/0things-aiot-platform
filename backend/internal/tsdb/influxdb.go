@@ -158,12 +158,7 @@ func (c *InfluxDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([
 		}
 	}
 
-	if filter.DisableMockFallback {
-		return nil, nil
-	}
-	// 离线降级
-	mock := NewMockClient(c.logger)
-	return mock.QueryPoints(ctx, filter)
+	return nil, nil
 }
 
 func (c *InfluxDBClient) Close() error {

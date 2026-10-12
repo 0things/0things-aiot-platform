@@ -190,11 +190,7 @@ func (c *SQLiteClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]P
 		}
 	}
 
-	if filter.DisableMockFallback {
-		return nil, nil
-	}
-	mock := NewMockClient(c.logger)
-	return mock.QueryPoints(ctx, filter)
+	return nil, nil
 }
 
 func (c *SQLiteClient) batchFlushLoop() {

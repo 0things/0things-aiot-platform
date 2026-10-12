@@ -51,11 +51,7 @@ func (c *IoTDBClient) WriteBatch(ctx context.Context, records []Record) error {
 }
 
 func (c *IoTDBClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]Point, error) {
-	if filter.DisableMockFallback {
-		return nil, nil
-	}
-	mock := NewMockClient(c.logger)
-	return mock.QueryPoints(ctx, filter)
+	return nil, nil
 }
 
 func (c *IoTDBClient) Close() error {

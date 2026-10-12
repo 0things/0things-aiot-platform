@@ -14,7 +14,6 @@ const (
 	DriverTypeTimescaleDB DriverType = "timescaledb"
 	DriverTypePostgreSQL  DriverType = "postgresql"
 	DriverTypeInfluxDB    DriverType = "influxdb"
-	DriverTypeClickHouse  DriverType = "clickhouse"
 	DriverTypeSQLite      DriverType = "sqlite"
 	DriverTypeMock        DriverType = "mock"
 )
@@ -26,7 +25,6 @@ var allDriverTypes = []DriverType{
 	DriverTypeTimescaleDB,
 	DriverTypePostgreSQL,
 	DriverTypeInfluxDB,
-	DriverTypeClickHouse,
 	DriverTypeSQLite,
 	DriverTypeMock,
 }

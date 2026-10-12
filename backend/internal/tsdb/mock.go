@@ -2,7 +2,6 @@ package tsdb
 
 import (
 	"context"
-	"math/rand"
 	"sort"
 	"sync"
 	"time"
@@ -80,27 +79,6 @@ func (m *MockClient) QueryPoints(ctx context.Context, filter QueryFilter) ([]Poi
 	})
 	if len(points) > limit {
 		points = points[:limit]
-	}
-
-	if filter.DisableMockFallback {
-		return points, nil
-	}
-
-	// 若内存暂无真实点，平滑返回拟合曲线供前端预览
-	if len(points) == 0 {
-		step := (endTime - startTime) / int64(10)
-		if step <= 0 {
-			step = 60 * 1000
-		}
-		baseVal := 25.0
-		for t := startTime; t <= endTime && len(points) < limit; t += step {
-			val := baseVal + float64(t%100)/20.0 + (rand.Float64()-0.5)*2.0
-			points = append(points, Point{
-				Timestamp: t,
-				Metric:    filter.Metric,
-				Value:     float64(int(val*100)) / 100.0,
-			})
-		}
 	}
 
 	return points, nil

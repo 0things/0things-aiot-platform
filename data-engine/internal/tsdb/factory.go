@@ -32,8 +32,6 @@ func NewClientFromRootConfig(rootCfg *RootConfig, logger *zap.Logger) Client {
 		return NewTimescaleDBClient(rootCfg.TimescaleDB, logger)
 	case DriverTypePostgreSQL:
 		return NewPostgreSQLClient(rootCfg.PostgreSQL, logger)
-	case DriverTypeClickHouse:
-		return NewClickHouseClient(rootCfg.ClickHouse, logger)
 	case DriverTypeInfluxDB:
 		return NewInfluxDBClient(rootCfg.InfluxDB, logger)
 	case DriverTypeIoTDB:
