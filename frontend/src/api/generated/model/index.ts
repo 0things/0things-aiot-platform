@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from './aiotBackendApiV1AuthMeResp'
 export * from './aiotBackendApiV1Category'
 export * from './aiotBackendApiV1CoAPDockerExample'
 export * from './aiotBackendApiV1CoAPEndpoint'
@@ -34,6 +35,7 @@ export * from './apiLoginRequest'
 export * from './apiLoginResponseData'
 export * from './apiOrganizationItem'
 export * from './apiRegisterRequest'
+export * from './apiResponseAiotBackendApiV1AuthMeResp'
 export * from './apiResponseAiotBackendApiV1DeviceEndpoints'
 export * from './apiResponseAiotBackendApiV1DeviceGroup'
 export * from './apiResponseAiotBackendApiV1DeviceGroupDevicesResponse'

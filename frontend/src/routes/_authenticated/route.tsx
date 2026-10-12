@@ -9,6 +9,7 @@ import { useLogto } from '@logto/react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { setAuthToken } from '@/api/clients'
+import { getAuthMe } from '@/api/generated'
 import { useAuthStore } from '@/stores/auth-store'
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
 
@@ -139,14 +140,20 @@ function AuthenticatedRoute() {
         return
       }
 
-      // 1. Check if user already has assigned organizations in Logto
-      const [userInfo, claims] = await Promise.all([
+      // Resolve membership through Logto and the active organization through the API.
+      // The API verifies the saved token before returning its organization context.
+      const [userInfo, claims, authMe] = await Promise.all([
         fetchUserInfo(),
         getIdTokenClaims().catch(() => null),
+        accessToken
+          ? getAuthMe()
+              .then((response) => response.data?.organization_id ?? '')
+              .catch(() => '')
+          : Promise.resolve(''),
       ])
 
       const availableOrgs = extractAvailableOrganizations(userInfo, claims)
-      let targetOrgId = organizationID
+      let targetOrgId = authMe || organizationID
 
       if (availableOrgs.length > 0) {
         if (!targetOrgId || !availableOrgs.includes(targetOrgId)) {

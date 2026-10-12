@@ -24,6 +24,30 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/me": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get the current authenticated user and organization",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse-aiot-backend_api_v1_AuthMeResp"
+                        }
+                    }
+                }
+            }
+        },
         "/categories/tree": {
             "get": {
                 "security": [
@@ -3691,6 +3715,20 @@ const docTemplate = `{
                 }
             }
         },
+        "ApiResponse-aiot-backend_api_v1_AuthMeResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/aiot-backend_api_v1.AuthMeResp"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse-aiot-backend_api_v1_DeviceEndpoints": {
             "type": "object",
             "properties": {
@@ -5336,6 +5374,17 @@ const docTemplate = `{
             "properties": {
                 "ruleChain": {
                     "$ref": "#/definitions/RuleChain"
+                }
+            }
+        },
+        "aiot-backend_api_v1.AuthMeResp": {
+            "type": "object",
+            "properties": {
+                "organization_id": {
+                    "type": "string"
+                },
+                "sub": {
+                    "type": "string"
                 }
             }
         },

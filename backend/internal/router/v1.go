@@ -11,6 +11,7 @@ func InitV1Routers(deps RouterDeps, r *gin.RouterGroup) {
 	InitOrganizationRouter(deps, r)
 	protected := r.Group("/")
 	protected.Use(middleware.StrictAuth(deps.Logto, deps.Logger))
+	InitAuthRouter(protected)
 	InitOrganizationProtectedRouter(deps, protected)
 	InitCategoryRouter(deps, protected)
 	InitProductRouter(deps, protected)

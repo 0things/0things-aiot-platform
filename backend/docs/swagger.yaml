@@ -377,6 +377,15 @@ definitions:
       message:
         type: string
     type: object
+  ApiResponse-aiot-backend_api_v1_AuthMeResp:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/aiot-backend_api_v1.AuthMeResp'
+      message:
+        type: string
+    type: object
   ApiResponse-aiot-backend_api_v1_DeviceEndpoints:
     properties:
       code:
@@ -1457,6 +1466,13 @@ definitions:
       ruleChain:
         $ref: '#/definitions/RuleChain'
     type: object
+  aiot-backend_api_v1.AuthMeResp:
+    properties:
+      organization_id:
+        type: string
+      sub:
+        type: string
+    type: object
   aiot-backend_api_v1.Category:
     properties:
       children:
@@ -1777,6 +1793,20 @@ info:
   title: Nunu Example API
   version: 1.0.0
 paths:
+  /auth/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ApiResponse-aiot-backend_api_v1_AuthMeResp'
+      security:
+      - Bearer: []
+      summary: Get the current authenticated user and organization
+      tags:
+      - Auth
   /categories/tree:
     get:
       produces:
